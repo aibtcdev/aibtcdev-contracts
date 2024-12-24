@@ -198,10 +198,98 @@ describe("aibtc-ext001-actions", () => {
 
   // Proposal Tests
   describe("propose-action()", () => {
-    it("fails if contract not initialized");
-    it("fails if token mismatches");
-    it("fails if caller has no balance");
-    it("succeeds and creates new proposal");
+    it("fails if contract not initialized", () => {
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "propose-action",
+        [
+          Cl.stringAscii("send-message"),
+          Cl.list([Cl.stringUtf8("Hello World")]),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_INITIALIZED));
+    });
+
+    it("fails if token mismatches", () => {
+      // First set the treasury and token
+      simnet.callPublicFn(
+        contractAddress,
+        "set-protocol-treasury",
+        [Cl.contractPrincipal(addressDeployer, "test-treasury")],
+        addressDeployer
+      );
+
+      simnet.callPublicFn(
+        contractAddress,
+        "set-voting-token",
+        [Cl.contractPrincipal(addressDeployer, "test-token")],
+        addressDeployer
+      );
+
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "propose-action",
+        [
+          Cl.stringAscii("send-message"),
+          Cl.list([Cl.stringUtf8("Hello World")]),
+          Cl.contractPrincipal(addressDeployer, "wrong-token")
+        ],
+        address1
+      );
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_TOKEN_MISMATCH));
+    });
+
+    it("fails if caller has no balance", () => {
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "propose-action",
+        [
+          Cl.stringAscii("send-message"),
+          Cl.list([Cl.stringUtf8("Hello World")]),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INSUFFICIENT_BALANCE));
+    });
+
+    it("succeeds and creates new proposal", () => {
+      // Mock some balance for the caller
+      simnet.mineBlock([
+        simnet.callPublicFn(
+          `${addressDeployer}.test-token`,
+          "mint",
+          [
+            Cl.uint(1000000),
+            Cl.standardPrincipal(address1)
+          ],
+          addressDeployer
+        )
+      ]);
+
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "propose-action",
+        [
+          Cl.stringAscii("send-message"),
+          Cl.list([Cl.stringUtf8("Hello World")]),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+      expect(receipt.result).toBeOk(Cl.uint(1));
+
+      // Verify proposal was created
+      const getReceipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-total-proposals",
+        [],
+        addressDeployer
+      );
+      expect(getReceipt.result).toBeOk(Cl.uint(1));
+    });
   });
 
   // Voting Tests
