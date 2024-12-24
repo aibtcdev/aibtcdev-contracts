@@ -85,6 +85,33 @@
   (pay-invoice-by-resource-name ((string-utf8 50) (optional (buff 34))) (response uint uint))
 ))
 
+(define-trait direct-execute (
+  ;; set the protocol treasury contract
+  ;; @param treasury the treasury contract principal
+  ;; @returns (response bool uint)
+  (set-protocol-treasury (<treasury-trait>) (response bool uint))
+  ;; set the voting token contract
+  ;; @param token the token contract principal
+  ;; @returns (response bool uint)
+  (set-voting-token (<ft-trait>) (response bool uint))
+  ;; create a new proposal
+  ;; @param proposal the proposal contract
+  ;; @param token the voting token contract
+  ;; @returns (response bool uint)
+  (create-proposal (<proposal-trait> <ft-trait>) (response bool uint))
+  ;; vote on an existing proposal
+  ;; @param proposal the proposal contract
+  ;; @param token the voting token contract
+  ;; @param vote true for yes, false for no
+  ;; @returns (response bool uint)
+  (vote-on-proposal (<proposal-trait> <ft-trait> bool) (response bool uint))
+  ;; conclude a proposal after voting period
+  ;; @param proposal the proposal contract
+  ;; @param token the voting token contract
+  ;; @returns (response bool uint)
+  (conclude-proposal (<proposal-trait> <ft-trait>) (response bool uint))
+))
+
 (define-trait treasury (
   ;; allow an asset for deposit/withdrawal
   ;; @param token the asset contract principal
