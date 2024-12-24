@@ -18,8 +18,9 @@
   (ok true)
 )
 
-(define-public (send (msg (string-ascii 1048576)) (opcode (optional (buff 16))))
+(define-public (send (msg (string-ascii 1048576)) (isFromDao bool))
   (begin
+    (and isFromDao (try! (is-dao-or-extension)))
     (asserts! (> (len msg) u0) INPUT_ERROR)
     ;; print the message as the first event
     (print msg)
@@ -29,9 +30,19 @@
       payload: {
         caller: contract-caller,
         height: block-height,
+        isFromDao: isFromDao,
         sender: tx-sender,
       }
     })
     (ok true)
   )
+)
+
+;; private functions
+;;
+
+(define-private (is-dao-or-extension)
+  (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
+    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+  ))
 )
