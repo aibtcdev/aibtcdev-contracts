@@ -51,7 +51,7 @@ describe("aibtc-ext001-actions", () => {
         [Cl.contractPrincipal(addressDeployer, "test-treasury")],
         address1
       );
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
     });
 
     it("fails if treasury is not a contract", () => {
@@ -128,7 +128,7 @@ describe("aibtc-ext001-actions", () => {
         [Cl.contractPrincipal(addressDeployer, "test-token")],
         address1
       );
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
     });
 
     it("fails if token is not a contract", () => {
