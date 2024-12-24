@@ -45,6 +45,7 @@
 (define-constant ERR_TREASURY_CANNOT_BE_SELF (err u1201))
 (define-constant ERR_TREASURY_ALREADY_SET (err u1202))
 (define-constant ERR_TREASURY_MISMATCH (err u1203))
+(define-constant ERR_TREASURY_NOT_INITIALIZED (err u1204))
 
 ;; error messages - voting token
 (define-constant ERR_TOKEN_MUST_BE_CONTRACT (err u1300))
@@ -213,31 +214,32 @@
       (
         (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
       )
-    ;; proposal is still active
-    (asserts! (>= burn-block-height (get startBlock proposalRecord)) ERR_VOTE_TOO_SOON)
-    (asserts! (< burn-block-height (get endBlock proposalRecord)) ERR_VOTE_TOO_LATE)
-    ;; proposal not already concluded
-    (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
-    ;; vote not already cast
-    (asserts! (is-none (map-get? VotingRecords {proposalId: proposalId, voter: tx-sender})) ERR_ALREADY_VOTED)
-    ;; print vote event
-    (print {
-      notification: "vote-on-proposal",
-      payload: {
-        proposalId: proposalId,
-        voter: tx-sender,
-        amount: senderBalance
-      }
-    })
-    ;; update the proposal record
-    (map-set Proposals proposalId
-      (if vote
-        (merge proposalRecord {votesFor: (+ (get votesFor proposalRecord) senderBalance)})
-        (merge proposalRecord {votesAgainst: (+ (get votesAgainst proposalRecord) senderBalance)})
+      ;; proposal is still active
+      (asserts! (>= burn-block-height (get startBlock proposalRecord)) ERR_VOTE_TOO_SOON)
+      (asserts! (< burn-block-height (get endBlock proposalRecord)) ERR_VOTE_TOO_LATE)
+      ;; proposal not already concluded
+      (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
+      ;; vote not already cast
+      (asserts! (is-none (map-get? VotingRecords {proposalId: proposalId, voter: tx-sender})) ERR_ALREADY_VOTED)
+      ;; print vote event
+      (print {
+        notification: "vote-on-proposal",
+        payload: {
+          proposalId: proposalId,
+          voter: tx-sender,
+          amount: senderBalance
+        }
+      })
+      ;; update the proposal record
+      (map-set Proposals proposalId
+        (if vote
+          (merge proposalRecord {votesFor: (+ (get votesFor proposalRecord) senderBalance)})
+          (merge proposalRecord {votesAgainst: (+ (get votesAgainst proposalRecord) senderBalance)})
+        )
       )
+      ;; record the vote for the sender
+      (ok (map-set VotingRecords {proposalId: proposalId, voter: tx-sender} senderBalance))
     )
-    ;; record the vote for the sender
-    (ok (map-set VotingRecords {proposalId: proposalId, voter: tx-sender} senderBalance))
   )
 )
 
