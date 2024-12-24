@@ -57,26 +57,6 @@ set-voting-token() fails if token is not initialized
 set-voting-token() fails if token mismatches
 set-voting-token() succeeds and sets new token
 
-### aibtc-ext002-bank-account
-
-set-account-holder() fails if caller is not DAO or extension
-set-account-holder() succeeds and sets the account holder to a standard principal
-set-account-holder() succeeds and sets the account holder to a contract principal
-
-set-withdrawal-period() fails if caller is not DAO or extension
-set-withdrawal-period() fails if value is set to 0
-set-withdrawal-period() succeeds and sets the withdrawal period
-
-set-withdrawal-amount() fails if caller is not DAO or extension
-set-withdrawal-amount() fails if value is set to 0
-set-withdrawal-amount() succeeds and sets the withdrawal amount
-
-override-last-withdrawal-block() fails if caller is not DAO or extension
-override-last-withdrawal-block() fails if value is set to 0
-override-last-withdrawal-block() fails if value is set less than deployed height
-override-last-withdrawal-block() succeeds and sets the withdrawal block
-
-get-account-terms() succeeds and returns expected values
 
 ### aibtc-ext003-direct-execute
 

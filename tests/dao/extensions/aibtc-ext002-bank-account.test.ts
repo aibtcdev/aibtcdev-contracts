@@ -64,6 +64,16 @@ describe("aibtc-ext002-bank-account", () => {
       );
       expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID));
     });
+
+    it("succeeds when deployer sets a contract principal as account holder", () => {
+      const response = simnet.callPublicFn(
+        contractAddress,
+        "set-account-holder",
+        [Cl.principal(`${addressDeployer}.test-proxy`)],
+        addressDeployer
+      );
+      expect(response.result).toBeOk(Cl.bool(true));
+    });
   });
 
   describe("set-withdrawal-period", () => {
@@ -156,6 +166,16 @@ describe("aibtc-ext002-bank-account", () => {
         contractAddress,
         "override-last-withdrawal-block",
         [Cl.uint(0)],
+        addressDeployer
+      );
+      expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID));
+    });
+
+    it("fails when deployer sets a block height less than deployed height", () => {
+      const response = simnet.callPublicFn(
+        contractAddress,
+        "override-last-withdrawal-block",
+        [Cl.uint(1)],
         addressDeployer
       );
       expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID));
@@ -293,6 +313,43 @@ describe("aibtc-ext002-bank-account", () => {
         address1
       );
       expect(response.result).toBeUint(0);
+    });
+  });
+
+  describe("get-account-terms", () => {
+    it("succeeds and returns all account terms", () => {
+      // First set up some state
+      simnet.callPublicFn(
+        contractAddress,
+        "deposit-stx",
+        [Cl.uint(100000000)],
+        address1
+      );
+      simnet.callPublicFn(
+        contractAddress,
+        "set-account-holder",
+        [Cl.principal(address1)],
+        addressDeployer
+      );
+
+      const expectedResponse = {
+        accountBalance: Cl.uint(100000000),
+        accountHolder: Cl.principal(address1),
+        contractName: Cl.principal(contractAddress),
+        deployedAt: Cl.uint(0), // In test environment this is 0
+        lastWithdrawalBlock: Cl.uint(0),
+        withdrawalAmount: Cl.uint(withdrawalAmount),
+        withdrawalPeriod: Cl.uint(withdrawalPeriod),
+      };
+
+      const response = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-account-terms",
+        [],
+        address1
+      ).result;
+
+      expect(response).toBeTuple(expectedResponse);
     });
   });
 
