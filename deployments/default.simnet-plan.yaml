@@ -82,6 +82,30 @@ plan:
       transactions: []
       epoch: "2.1"
     - id: 8
+      transactions: []
+      epoch: "2.1"
+    - id: 9
+      transactions: []
+      epoch: "2.1"
+    - id: 10
+      transactions: []
+      epoch: "2.1"
+    - id: 11
+      transactions: []
+      epoch: "2.1"
+    - id: 12
+      transactions: []
+      epoch: "2.1"
+    - id: 13
+      transactions: []
+      epoch: "2.1"
+    - id: 14
+      transactions: []
+      epoch: "2.1"
+    - id: 15
+      transactions: []
+      epoch: "2.1"
+    - id: 16
       transactions:
         - emulated-contract-publish:
             contract-name: aibtcdev-dao-traits-v1
@@ -159,21 +183,51 @@ plan:
             path: contracts/test-proxy.clar
             clarity-version: 2
       epoch: "2.5"
-    - id: 9
+    - id: 17
       transactions: []
       epoch: "2.5"
-    - id: 10
+    - id: 18
       transactions: []
       epoch: "2.5"
-    - id: 11
+    - id: 19
       transactions: []
       epoch: "2.5"
-    - id: 12
+    - id: 20
       transactions: []
       epoch: "2.5"
-    - id: 13
+    - id: 21
       transactions: []
       epoch: "2.5"
-    - id: 14
+    - id: 22
+      transactions: []
+      epoch: "2.5"
+    - id: 23
+      transactions: []
+      epoch: "2.5"
+    - id: 24
+      transactions: []
+      epoch: "2.5"
+    - id: 25
+      transactions: []
+      epoch: "2.5"
+    - id: 26
+      transactions: []
+      epoch: "2.5"
+    - id: 27
+      transactions: []
+      epoch: "2.5"
+    - id: 28
+      transactions: []
+      epoch: "2.5"
+    - id: 29
+      transactions: []
+      epoch: "2.5"
+    - id: 30
+      transactions: []
+      epoch: "2.5"
+    - id: 31
+      transactions: []
+      epoch: "2.5"
+    - id: 32
       transactions: []
       epoch: "2.5"

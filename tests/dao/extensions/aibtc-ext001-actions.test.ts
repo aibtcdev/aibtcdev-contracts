@@ -61,7 +61,9 @@ describe("aibtc-ext001-actions", () => {
         [Cl.standardPrincipal(address1)],
         addressDeployer
       );
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_TREASURY_MUST_BE_CONTRACT));
+      expect(receipt.result).toBeErr(
+        Cl.uint(ErrCode.ERR_TREASURY_MUST_BE_CONTRACT)
+      );
     });
 
     it("fails if treasury is self", () => {
@@ -71,7 +73,9 @@ describe("aibtc-ext001-actions", () => {
         [Cl.contractPrincipal(addressDeployer, "aibtc-ext001-actions")],
         addressDeployer
       );
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_TREASURY_CANNOT_BE_SELF));
+      expect(receipt.result).toBeErr(
+        Cl.uint(ErrCode.ERR_TREASURY_CANNOT_BE_SELF)
+      );
     });
 
     it("fails if treasury is already set", () => {
@@ -100,7 +104,7 @@ describe("aibtc-ext001-actions", () => {
         [Cl.contractPrincipal(addressDeployer, "test-treasury")],
         addressDeployer
       );
-      expect(receipt.result).toBeOk(true);
+      expect(receipt.result).toBeOk(Cl.bool(true));
     });
   });
 
@@ -123,7 +127,9 @@ describe("aibtc-ext001-actions", () => {
         [Cl.standardPrincipal(address1)],
         addressDeployer
       );
-      expect(receipt.result).toBeErr(ErrCode.ERR_TOKEN_MUST_BE_CONTRACT);
+      expect(receipt.result).toBeErr(
+        Cl.uint(ErrCode.ERR_TOKEN_MUST_BE_CONTRACT)
+      );
     });
 
     it("fails if token is not initialized", () => {
@@ -133,7 +139,9 @@ describe("aibtc-ext001-actions", () => {
         [Cl.contractPrincipal(addressDeployer, "test-token")],
         addressDeployer
       );
-      expect(receipt.result).toBeErr(ErrCode.ERR_TOKEN_NOT_INITIALIZED);
+      expect(receipt.result).toBeErr(
+        Cl.uint(ErrCode.ERR_TOKEN_NOT_INITIALIZED)
+      );
     });
 
     it("fails if token mismatches", () => {
@@ -152,7 +160,7 @@ describe("aibtc-ext001-actions", () => {
         [Cl.contractPrincipal(addressDeployer, "different-token")],
         addressDeployer
       );
-      expect(receipt.result).toBeErr(ErrCode.ERR_TOKEN_MISMATCH);
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_TOKEN_MISMATCH));
     });
 
     it("succeeds and sets new token", () => {
@@ -162,7 +170,7 @@ describe("aibtc-ext001-actions", () => {
         [Cl.contractPrincipal(addressDeployer, "test-token")],
         addressDeployer
       );
-      expect(receipt.result).toBeOk(true);
+      expect(receipt.result).toBeOk(Cl.bool(true));
     });
   });
 
