@@ -502,11 +502,185 @@ describe("aibtc-ext001-actions", () => {
 
   // Conclusion Tests
   describe("conclude-proposal()", () => {
-    it("fails if contract not initialized");
-    it("fails if treasury mismatches");
-    it("fails if proposal still active");
-    it("fails if proposal already concluded");
-    it("succeeds and executes if passed");
-    it("succeeds without executing if failed");
+    it("fails if contract not initialized", () => {
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "conclude-proposal",
+        [
+          Cl.uint(1),
+          Cl.contractPrincipal(addressDeployer, "test-treasury"),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_INITIALIZED));
+    });
+
+    it("fails if treasury mismatches", () => {
+      // First set the treasury and token
+      simnet.callPublicFn(
+        contractAddress,
+        "set-protocol-treasury",
+        [Cl.contractPrincipal(addressDeployer, "test-treasury")],
+        addressDeployer
+      );
+
+      simnet.callPublicFn(
+        contractAddress,
+        "set-voting-token",
+        [Cl.contractPrincipal(addressDeployer, "test-token")],
+        addressDeployer
+      );
+
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "conclude-proposal",
+        [
+          Cl.uint(1),
+          Cl.contractPrincipal(addressDeployer, "wrong-treasury"),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_TREASURY_MISMATCH));
+    });
+
+    it("fails if proposal still active", () => {
+      // Create a new proposal
+      simnet.callPublicFn(
+        contractAddress,
+        "propose-action",
+        [
+          Cl.stringAscii("send-message"),
+          Cl.list([Cl.stringUtf8("Hello World")]),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "conclude-proposal",
+        [
+          Cl.uint(3),
+          Cl.contractPrincipal(addressDeployer, "test-treasury"),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_STILL_ACTIVE));
+    });
+
+    it("fails if proposal already concluded", () => {
+      // Mine blocks to end voting period
+      simnet.mineEmptyBlocks(144);
+
+      // Conclude the proposal first time
+      simnet.callPublicFn(
+        contractAddress,
+        "conclude-proposal",
+        [
+          Cl.uint(3),
+          Cl.contractPrincipal(addressDeployer, "test-treasury"),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+
+      // Try to conclude again
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "conclude-proposal",
+        [
+          Cl.uint(3),
+          Cl.contractPrincipal(addressDeployer, "test-treasury"),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_ALREADY_CONCLUDED));
+    });
+
+    it("succeeds and executes if passed", () => {
+      // Create a new proposal
+      simnet.callPublicFn(
+        contractAddress,
+        "propose-action",
+        [
+          Cl.stringAscii("send-message"),
+          Cl.list([Cl.stringUtf8("Hello World")]),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+
+      // Vote in favor with enough tokens to pass
+      simnet.callPublicFn(
+        contractAddress,
+        "vote-on-proposal",
+        [
+          Cl.uint(4),
+          Cl.contractPrincipal(addressDeployer, "test-token"),
+          Cl.bool(true)
+        ],
+        address1
+      );
+
+      // Mine blocks to end voting period
+      simnet.mineEmptyBlocks(144);
+
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "conclude-proposal",
+        [
+          Cl.uint(4),
+          Cl.contractPrincipal(addressDeployer, "test-treasury"),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+      expect(receipt.result).toBeOk(Cl.bool(true));
+    });
+
+    it("succeeds without executing if failed", () => {
+      // Create a new proposal
+      simnet.callPublicFn(
+        contractAddress,
+        "propose-action",
+        [
+          Cl.stringAscii("send-message"),
+          Cl.list([Cl.stringUtf8("Hello World")]),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+
+      // Vote against with enough tokens to fail
+      simnet.callPublicFn(
+        contractAddress,
+        "vote-on-proposal",
+        [
+          Cl.uint(5),
+          Cl.contractPrincipal(addressDeployer, "test-token"),
+          Cl.bool(false)
+        ],
+        address1
+      );
+
+      // Mine blocks to end voting period
+      simnet.mineEmptyBlocks(144);
+
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "conclude-proposal",
+        [
+          Cl.uint(5),
+          Cl.contractPrincipal(addressDeployer, "test-treasury"),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+      expect(receipt.result).toBeOk(Cl.bool(false));
+    });
   });
 });
