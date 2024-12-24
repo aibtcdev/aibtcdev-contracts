@@ -44,20 +44,126 @@ enum ErrCode {
 describe("aibtc-ext001-actions", () => {
   // Protocol Treasury Tests
   describe("set-protocol-treasury()", () => {
-    it("fails if caller is not DAO or extension");
-    it("fails if treasury is not a contract");
-    it("fails if treasury is self");
-    it("fails if treasury is already set");
-    it("succeeds and sets new treasury");
+    it("fails if caller is not DAO or extension", () => {
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "set-protocol-treasury",
+        [Cl.contractPrincipal(addressDeployer, "test-treasury")],
+        address1
+      );
+      expect(receipt.result).toBeErr(ErrCode.ERR_UNAUTHORIZED);
+    });
+
+    it("fails if treasury is not a contract", () => {
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "set-protocol-treasury",
+        [Cl.standardPrincipal(address1)],
+        addressDeployer
+      );
+      expect(receipt.result).toBeErr(ErrCode.ERR_TREASURY_MUST_BE_CONTRACT);
+    });
+
+    it("fails if treasury is self", () => {
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "set-protocol-treasury",
+        [Cl.contractPrincipal(addressDeployer, "aibtc-ext001-actions")],
+        addressDeployer
+      );
+      expect(receipt.result).toBeErr(ErrCode.ERR_TREASURY_CANNOT_BE_SELF);
+    });
+
+    it("fails if treasury is already set", () => {
+      // First set the treasury
+      simnet.callPublicFn(
+        contractAddress,
+        "set-protocol-treasury",
+        [Cl.contractPrincipal(addressDeployer, "test-treasury")],
+        addressDeployer
+      );
+      
+      // Try to set it to the same value
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "set-protocol-treasury",
+        [Cl.contractPrincipal(addressDeployer, "test-treasury")],
+        addressDeployer
+      );
+      expect(receipt.result).toBeErr(ErrCode.ERR_TREASURY_ALREADY_SET);
+    });
+
+    it("succeeds and sets new treasury", () => {
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "set-protocol-treasury",
+        [Cl.contractPrincipal(addressDeployer, "test-treasury")],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(true);
+    });
   });
 
   // Voting Token Tests
   describe("set-voting-token()", () => {
-    it("fails if caller is not DAO or extension");
-    it("fails if token is not a contract");
-    it("fails if token is not initialized");
-    it("fails if token mismatches");
-    it("succeeds and sets new token");
+    it("fails if caller is not DAO or extension", () => {
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "set-voting-token",
+        [Cl.contractPrincipal(addressDeployer, "test-token")],
+        address1
+      );
+      expect(receipt.result).toBeErr(ErrCode.ERR_UNAUTHORIZED);
+    });
+
+    it("fails if token is not a contract", () => {
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "set-voting-token",
+        [Cl.standardPrincipal(address1)],
+        addressDeployer
+      );
+      expect(receipt.result).toBeErr(ErrCode.ERR_TOKEN_MUST_BE_CONTRACT);
+    });
+
+    it("fails if token is not initialized", () => {
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "set-voting-token",
+        [Cl.contractPrincipal(addressDeployer, "test-token")],
+        addressDeployer
+      );
+      expect(receipt.result).toBeErr(ErrCode.ERR_TOKEN_NOT_INITIALIZED);
+    });
+
+    it("fails if token mismatches", () => {
+      // First initialize the token
+      simnet.callPublicFn(
+        contractAddress,
+        "set-voting-token",
+        [Cl.contractPrincipal(addressDeployer, "test-token")],
+        addressDeployer
+      );
+
+      // Try to set a different token
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "set-voting-token",
+        [Cl.contractPrincipal(addressDeployer, "different-token")],
+        addressDeployer
+      );
+      expect(receipt.result).toBeErr(ErrCode.ERR_TOKEN_MISMATCH);
+    });
+
+    it("succeeds and sets new token", () => {
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "set-voting-token",
+        [Cl.contractPrincipal(addressDeployer, "test-token")],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(true);
+    });
   });
 
   // Proposal Tests
