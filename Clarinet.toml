@@ -5,6 +5,17 @@ authors = []
 telemetry = true
 cache_dir = './.cache'
 
+[repl.analysis]
+passes = ['check_checker']
+
+[repl.analysis.check_checker]
+strict = false
+trusted_sender = false
+trusted_caller = false
+callee_filter = false
+
+# external contracts loaded by clarinet
+
 [[project.requirements]]
 contract_id = 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait'
 
@@ -14,10 +25,7 @@ contract_id = 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standa
 [[project.requirements]]
 contract_id = 'ST000000000000000000002AMW42H.pox-4'
 
-[contracts.aibtc001-bootstrap]
-path = 'contracts/dao/proposals/aibtc001-bootstrap.clar'
-clarity_version = 2
-epoch = 2.5
+# airdrop nft contracts
 
 [contracts.aibtcdev-airdrop-1]
 path = 'contracts/aibtcdev-airdrop-1.clar'
@@ -29,18 +37,24 @@ path = 'contracts/aibtcdev-airdrop-2.clar'
 clarity_version = 2
 epoch = 2.5
 
-[contracts.aibtcdev-bank-account]
-path = 'contracts/dao/extensions/aibtcdev-bank-account.clar'
-clarity_version = 2
-epoch = 2.5
+# dao base contract
 
 [contracts.aibtcdev-dao]
 path = 'contracts/dao/aibtcdev-dao.clar'
 clarity_version = 2
 epoch = 2.5
 
-[contracts.aibtcdev-extension-trait]
-path = 'contracts/dao/traits/aibtcdev-extension-trait.clar'
+# dao proposals
+
+[contracts.aibtc001-bootstrap]
+path = 'contracts/dao/proposals/aibtc001-bootstrap.clar'
+clarity_version = 2
+epoch = 2.5
+
+# dao extensions
+
+[contracts.aibtcdev-bank-account]
+path = 'contracts/dao/extensions/aibtcdev-bank-account.clar'
 clarity_version = 2
 epoch = 2.5
 
@@ -49,13 +63,25 @@ path = 'contracts/dao/extensions/aibtcdev-messaging.clar'
 clarity_version = 2
 epoch = 2.5
 
-[contracts.aibtcdev-payment-traits]
-path = 'contracts/dao/traits/aibtcdev-payment-traits.clar'
+[contracts.aibtcdev-payments]
+path = 'contracts/dao/extensions/aibtcdev-payments.clar'
 clarity_version = 2
 epoch = 2.5
 
-[contracts.aibtcdev-payments]
-path = 'contracts/dao/extensions/aibtcdev-payments.clar'
+[contracts.aibtcdev-treasury]
+path = 'contracts/dao/extensions/aibtcdev-treasury.clar'
+clarity_version = 2
+epoch = 2.5
+
+# dao traits
+
+[contracts.aibtcdev-extension-trait]
+path = 'contracts/dao/traits/aibtcdev-extension-trait.clar'
+clarity_version = 2
+epoch = 2.5
+
+[contracts.aibtcdev-payment-traits]
+path = 'contracts/dao/traits/aibtcdev-payment-traits.clar'
 clarity_version = 2
 epoch = 2.5
 
@@ -64,10 +90,7 @@ path = 'contracts/dao/traits/aibtcdev-proposal-trait.clar'
 clarity_version = 2
 epoch = 2.5
 
-[contracts.aibtcdev-treasury]
-path = 'contracts/dao/extensions/aibtcdev-treasury.clar'
-clarity_version = 2
-epoch = 2.5
+# testing utilities
 
 [contracts.external-proxy]
 path = 'contracts/test-proxy.clar'
@@ -84,11 +107,3 @@ epoch = 2.5
 path = 'contracts/test-proxy.clar'
 clarity_version = 2
 epoch = 2.5
-[repl.analysis]
-passes = ['check_checker']
-
-[repl.analysis.check_checker]
-strict = false
-trusted_sender = false
-trusted_caller = false
-callee_filter = false
