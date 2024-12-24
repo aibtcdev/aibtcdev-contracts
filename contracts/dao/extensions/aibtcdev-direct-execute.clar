@@ -34,6 +34,10 @@
 (define-constant ERR_VOTE_TOO_LATE (err u1009))
 (define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1010))
 (define-constant ERR_QUORUM_NOT_REACHED (err u1011))
+(define-constant ERR_ALREADY_VOTED (err u1012))
+(define-constant ERR_MUST_BE_CONTRACT (err u1013))
+(define-constant ERR_ALREADY_INITIALIZED (err u1014))
+(define-constant ERR_CONTRACT_MISMATCH (err u1015))
 
 ;; data vars
 ;;
@@ -79,23 +83,38 @@
     )
     (try! (is-dao-or-extension))
     ;; treasury must be a contract
-    (asserts! (not (is-standard treasuryContract)) ERR_INVALID)
+    (asserts! (not (is-standard treasuryContract)) ERR_MUST_BE_CONTRACT)
     ;; treasury cannot be the voting contract
     (asserts! (not (is-eq treasuryContract SELF)) ERR_INVALID)
     ;; treasury cannot be the same value
     (asserts! (not (is-eq treasuryContract (var-get protocolTreasury))) ERR_INVALID)
+    (print {
+      notification: "set-protocol-treasury",
+      payload: {
+        treasury: treasuryContract
+      }
+    })
     (ok (var-set protocolTreasury treasuryContract))
   )
 )
 
 (define-public (set-voting-token (token <ft-trait>))
-  (begin
+  (let
+    (
+      (tokenContract (contract-of token))
+    )
     (try! (is-dao-or-extension))
     ;; token must be a contract
-    (asserts! (not (is-standard (contract-of token))) ERR_INVALID)
+    (asserts! (not (is-standard tokenContract)) ERR_INVALID)
     (asserts! (is-eq (var-get votingToken) SELF) ERR_INVALID)
-    (asserts! (is-eq (var-get votingToken) (contract-of token)) ERR_INVALID)
-    (ok (var-set votingToken (contract-of token)))
+    (asserts! (is-eq (var-get votingToken) tokenContract) ERR_INVALID)
+    (print {
+      notification: "set-voting-token",
+      payload: {
+        token: tokenContract
+      }
+    })
+    (ok (var-set votingToken tokenContract))
   )
 )
 
@@ -156,6 +175,8 @@
     ;; proposal is still active
     (asserts! (>= burn-block-height (get startBlock proposalRecord)) ERR_VOTE_TOO_SOON)
     (asserts! (< burn-block-height (get endBlock proposalRecord)) ERR_VOTE_TOO_LATE)
+    ;; vote not already cast
+    (asserts! (is-none (map-get? VotingRecords {proposal: proposalContract, voter: tx-sender})) ERR_ALREADY_VOTED)
     ;; print vote event
     (print {
       notification: "vote-on-proposal",
@@ -182,7 +203,9 @@
     (
       (proposalContract (contract-of proposal))
       (proposalRecord (unwrap! (map-get? Proposals proposalContract) ERR_PROPOSAL_NOT_FOUND))
+      (tokenContract (contract-of token))
       (totalSupply (try! (contract-call? token get-total-supply)))
+      (votePassed (>= (get votesFor proposalRecord) (/ (* totalSupply VOTING_QUORUM) u100)))
     )
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
@@ -191,8 +214,15 @@
     ;; proposal past end block height
     (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_STILL_ACTIVE)
     ;; voting quorum met
-    (asserts! (>= (get votesFor proposalRecord) (/ (* totalSupply VOTING_QUORUM) u100)) ERR_QUORUM_NOT_REACHED)
-
+    (asserts! votePassed ERR_QUORUM_NOT_REACHED)
+    ;; print conclusion event
+    (print {
+      notification: "conclude-proposal",
+      payload: {
+        proposal: proposalContract,
+        passed: (> (get votesFor proposalRecord) (get votesAgainst proposalRecord))
+      }
+    })
     (ok true)
   )
 )
@@ -200,16 +230,34 @@
 ;; read only functions
 ;;
 
+(define-read-only (get-protocol-treasury)
+  (if (is-eq (var-get protocolTreasury) SELF)
+    none
+    (some (var-get protocolTreasury))
+  )
+)
+
+(define-read-only (get-voting-token)
+  (if (is-eq (var-get votingToken) SELF)
+    none
+    (some (var-get votingToken))
+  )
+)
+
+(define-read-only (get-proposal (proposal principal))
+  (map-get? Proposals proposal)
+)
+
+(define-read-only (get-total-votes (proposal principal) (voter principal))
+  (default-to u0 (map-get? VotingRecords {proposal: proposal, voter: voter}))
+)
+
 (define-read-only (is-initialized)
   ;; check if the required variables are set
   (not (or
     (is-eq (var-get votingToken) SELF)
     (is-eq (var-get protocolTreasury) SELF)
   ))
-)
-
-(define-read-only (get-proposal)
-  (ok true)
 )
 
 ;; private functions
