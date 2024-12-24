@@ -738,4 +738,122 @@ describe("aibtc-ext001-actions", () => {
       expect(receipt.result).toBeOk(Cl.bool(false));
     });
   });
+
+  // Getter Tests
+  describe("get-voting-period()", () => {
+    it("returns the correct voting period", () => {
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-voting-period",
+        [],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(Cl.uint(144)); // 144 blocks, ~1 day
+    });
+  });
+
+  describe("get-voting-quorum()", () => {
+    it("returns the correct voting quorum", () => {
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-voting-quorum",
+        [],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(Cl.uint(66)); // 66% of liquid supply
+    });
+  });
+
+  describe("is-initialized()", () => {
+    it("returns false when treasury and token not set", () => {
+      // Reset contract state
+      simnet.mineBlock([]);
+      
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "is-initialized",
+        [],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(Cl.bool(false));
+    });
+
+    it("returns true when treasury and token are set", () => {
+      // Set treasury and token
+      simnet.mineBlock([
+        simnet.callPublicFn(
+          contractAddress,
+          "set-protocol-treasury",
+          [Cl.contractPrincipal(addressDeployer, "test-treasury")],
+          addressDeployer
+        ),
+        simnet.callPublicFn(
+          contractAddress,
+          "set-voting-token",
+          [Cl.contractPrincipal(addressDeployer, "test-token")],
+          addressDeployer
+        )
+      ]);
+
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "is-initialized",
+        [],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(Cl.bool(true));
+    });
+  });
+
+  describe("get-total-votes()", () => {
+    it("returns 0 for proposal with no votes", () => {
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-total-votes",
+        [
+          Cl.uint(1),
+          Cl.standardPrincipal(address1)
+        ],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(Cl.uint(0));
+    });
+
+    it("returns correct vote amount for proposal with votes", () => {
+      // Create proposal and vote
+      simnet.mineBlock([
+        simnet.callPublicFn(
+          contractAddress,
+          "propose-action",
+          [
+            Cl.stringAscii("send-message"),
+            Cl.list([Cl.stringUtf8("Hello World")]),
+            Cl.contractPrincipal(addressDeployer, "test-token")
+          ],
+          address1
+        ),
+        simnet.callPublicFn(
+          contractAddress,
+          "vote-on-proposal",
+          [
+            Cl.uint(1),
+            Cl.contractPrincipal(addressDeployer, "test-token"),
+            Cl.bool(true)
+          ],
+          address1
+        )
+      ]);
+
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-total-votes",
+        [
+          Cl.uint(1),
+          Cl.standardPrincipal(address1)
+        ],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(Cl.uint(1000000)); // Amount from previous mint
+    });
+  });
 });
