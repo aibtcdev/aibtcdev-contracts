@@ -84,7 +84,40 @@ pay-invoice-by-resource-name() succeeds and updates info for resource
 
 ### aibtcdev-treasury
 
-TBD
+allow-asset() fails if caller is not DAO or extension
+allow-asset() succeeds and sets new allowed asset
+allow-asset() succeeds and toggles status of existing asset
+
+allow-assets() fails if caller is not DAO or extension
+allow-assets() succeeds and sets new allowed assets
+allow-assets() succeeds and toggles status of existing assets
+
+deposit-stx() succeeds and deposits STX to the treasury
+
+deposit-ft() fails if asset is not allowed
+deposit-ft() succeeds and transfers FT to treasury
+
+deposit-nft() fails if asset is not allowed
+deposit-nft() succeeds and transfers NFT to treasury
+
+withdraw-stx() fails if caller is not DAO or extension
+withdraw-stx() succeeds and transfers STX to a standard principal
+withdraw-stx() succeeds and transfers STX to a contract principal
+
+withdraw-ft() fails if caller is not DAO or extension
+withdraw-ft() succeeds and transfers FT to a standard principal
+withdraw-ft() succeeds and transfers FT to a contract principal
+
+withdraw-nft() fails if caller is not DAO or extension
+withdraw-nft() succeeds and transfers NFT to a standard principal
+withdraw-nft() succeeds and transfers NFT to a contract principal
+
+delegate-stx() fails if caller is not DAO or extension
+delegate-stx() succeeds and delegates to Stacks PoX
+
+revoke-delegate-stx() fails if caller is not DAO or extension
+revoke-delegate-stx() fails if contract is not currently stacking (?)
+revoke-delegate-stx() succeeds and revokes stacking delegation
 
 ### aibtcdev-token-vote
 
@@ -93,3 +126,5 @@ execute() fails if proposal has already been executed via vote execute
 ## Proposals
 
 ### aibtcdev-bootstrap
+
+get-dao-manifest() returns DAO_MANIFEST as string
