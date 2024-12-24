@@ -12,7 +12,6 @@
 ;;
 
 ;; initially scoped to service provider deploying a contract
-(define-constant DEPLOYER contract-caller)
 (define-constant SELF (as-contract tx-sender))
 
 ;; math helpers (credit: ALEX)
@@ -45,8 +44,8 @@
 ;; tracking overall contract revenue
 (define-data-var totalRevenue uint u0)
 
-;; payout address, deployer can set
-(define-data-var paymentAddress principal DEPLOYER)
+;; dao can update payment address
+(define-data-var paymentAddress principal .aibtcdev-bank-account)
 
 ;; data maps
 ;;
@@ -74,7 +73,7 @@
   uint             ;; resource index
 )
 
-;; tracks resources added by deployer keyed by resource index
+;; tracks resources added by dao, keyed by resource index
 ;; can iterate over full map with resourceCount data-var
 (define-map ResourceData
   uint ;; resource index
