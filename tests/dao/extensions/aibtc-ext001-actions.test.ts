@@ -255,6 +255,47 @@ describe("aibtc-ext001-actions", () => {
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INSUFFICIENT_BALANCE));
     });
 
+    it("fails if action is invalid", () => {
+      // Mock some balance for the caller
+      simnet.mineBlock([
+        simnet.callPublicFn(
+          `${addressDeployer}.test-token`,
+          "mint",
+          [
+            Cl.uint(1000000),
+            Cl.standardPrincipal(address1)
+          ],
+          addressDeployer
+        )
+      ]);
+
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "propose-action",
+        [
+          Cl.stringAscii("invalid-action"),
+          Cl.list([Cl.stringUtf8("Hello World")]),
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_ACTION));
+    });
+
+    it("fails if parameters are invalid", () => {
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "propose-action",
+        [
+          Cl.stringAscii("send-message"),
+          Cl.list([]), // Empty parameters
+          Cl.contractPrincipal(addressDeployer, "test-token")
+        ],
+        address1
+      );
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_PARAMETERS));
+    });
+
     it("succeeds and creates new proposal", () => {
       // Mock some balance for the caller
       simnet.mineBlock([
@@ -289,6 +330,20 @@ describe("aibtc-ext001-actions", () => {
         addressDeployer
       );
       expect(getReceipt.result).toBeOk(Cl.uint(1));
+
+      // Verify proposal details
+      const proposalReceipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-proposal",
+        [Cl.uint(1)],
+        addressDeployer
+      );
+      const proposal = proposalReceipt.result.expectSome().expectTuple();
+      expect(proposal.action).toBe("send-message");
+      expect(proposal.concluded).toBe(false);
+      expect(proposal.passed).toBe(false);
+      expect(proposal.votesFor).toBe(0);
+      expect(proposal.votesAgainst).toBe(0);
     });
   });
 
