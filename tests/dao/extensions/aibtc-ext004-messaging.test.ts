@@ -14,7 +14,7 @@ describe("aibtc-ext004-messaging", () => {
   const message = "Hello, world!";
   it("prints the envelope and message when called", () => {
     const response = simnet.callPublicFn(
-      "aibtcdev-messaging",
+      "aibtc-ext004-messaging",
       "send",
       [Cl.stringAscii(message)],
       address1
