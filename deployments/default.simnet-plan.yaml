@@ -73,6 +73,54 @@ plan:
       transactions: []
       epoch: "2.1"
     - id: 5
+      transactions: []
+      epoch: "2.1"
+    - id: 6
+      transactions: []
+      epoch: "2.1"
+    - id: 7
+      transactions: []
+      epoch: "2.1"
+    - id: 8
+      transactions: []
+      epoch: "2.1"
+    - id: 9
+      transactions: []
+      epoch: "2.1"
+    - id: 10
+      transactions: []
+      epoch: "2.1"
+    - id: 11
+      transactions: []
+      epoch: "2.1"
+    - id: 12
+      transactions: []
+      epoch: "2.1"
+    - id: 13
+      transactions: []
+      epoch: "2.1"
+    - id: 14
+      transactions: []
+      epoch: "2.1"
+    - id: 15
+      transactions: []
+      epoch: "2.1"
+    - id: 16
+      transactions: []
+      epoch: "2.1"
+    - id: 17
+      transactions: []
+      epoch: "2.1"
+    - id: 18
+      transactions: []
+      epoch: "2.1"
+    - id: 19
+      transactions: []
+      epoch: "2.1"
+    - id: 20
+      transactions: []
+      epoch: "2.1"
+    - id: 21
       transactions:
         - emulated-contract-publish:
             contract-name: aibtcdev-dao-traits-v1
@@ -137,25 +185,77 @@ plan:
         - emulated-contract-publish:
             contract-name: proxy
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/test-proxy.clar
+            path: contracts/test/proxy.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: test-abitc-treasury
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/test/aibtc-treasury.clar
             clarity-version: 2
         - emulated-contract-publish:
             contract-name: test-proxy
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/test-proxy.clar
+            path: contracts/test/proxy.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: test-sip010-token
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/test/sip010-token.clar
             clarity-version: 2
         - emulated-contract-publish:
             contract-name: external-proxy
             emulated-sender: ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5
-            path: contracts/test-proxy.clar
+            path: contracts/test/proxy.clar
             clarity-version: 2
       epoch: "2.5"
-    - id: 6
+    - id: 22
       transactions: []
       epoch: "2.5"
-    - id: 7
+    - id: 23
       transactions: []
       epoch: "2.5"
-    - id: 8
+    - id: 24
+      transactions: []
+      epoch: "2.5"
+    - id: 25
+      transactions: []
+      epoch: "2.5"
+    - id: 26
+      transactions: []
+      epoch: "2.5"
+    - id: 27
+      transactions: []
+      epoch: "2.5"
+    - id: 28
+      transactions: []
+      epoch: "2.5"
+    - id: 29
+      transactions: []
+      epoch: "2.5"
+    - id: 30
+      transactions: []
+      epoch: "2.5"
+    - id: 31
+      transactions: []
+      epoch: "2.5"
+    - id: 32
+      transactions: []
+      epoch: "2.5"
+    - id: 33
+      transactions: []
+      epoch: "2.5"
+    - id: 34
+      transactions: []
+      epoch: "2.5"
+    - id: 35
+      transactions: []
+      epoch: "2.5"
+    - id: 36
+      transactions: []
+      epoch: "2.5"
+    - id: 37
+      transactions: []
+      epoch: "2.5"
+    - id: 38
       transactions: []
       epoch: "2.5"

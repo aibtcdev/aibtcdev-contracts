@@ -205,7 +205,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.stringAscii("send-message"),
           Cl.list([Cl.stringUtf8("Hello World")]),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -234,7 +234,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.stringAscii("send-message"),
           Cl.list([Cl.stringUtf8("Hello World")]),
-          Cl.contractPrincipal(addressDeployer, "wrong-token")
+          Cl.contractPrincipal(addressDeployer, "wrong-token"),
         ],
         address1
       );
@@ -248,7 +248,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.stringAscii("send-message"),
           Cl.list([Cl.stringUtf8("Hello World")]),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -257,17 +257,13 @@ describe("aibtc-ext001-actions", () => {
 
     it("fails if action is invalid", () => {
       // Mock some balance for the caller
-      simnet.mineBlock([
-        simnet.callPublicFn(
-          `${addressDeployer}.test-token`,
-          "mint",
-          [
-            Cl.uint(1000000),
-            Cl.standardPrincipal(address1)
-          ],
-          addressDeployer
-        )
-      ]);
+
+      simnet.callPublicFn(
+        `${addressDeployer}.test-token`,
+        "mint",
+        [Cl.uint(1000000), Cl.standardPrincipal(address1)],
+        addressDeployer
+      );
 
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -275,7 +271,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.stringAscii("invalid-action"),
           Cl.list([Cl.stringUtf8("Hello World")]),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -289,7 +285,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.stringAscii("send-message"),
           Cl.list([]), // Empty parameters
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -298,17 +294,12 @@ describe("aibtc-ext001-actions", () => {
 
     it("succeeds and creates new proposal", () => {
       // Mock some balance for the caller
-      simnet.mineBlock([
-        simnet.callPublicFn(
-          `${addressDeployer}.test-token`,
-          "mint",
-          [
-            Cl.uint(1000000),
-            Cl.standardPrincipal(address1)
-          ],
-          addressDeployer
-        )
-      ]);
+      simnet.callPublicFn(
+        `${addressDeployer}.test-token`,
+        "mint",
+        [Cl.uint(1000000), Cl.standardPrincipal(address1)],
+        addressDeployer
+      );
 
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -316,7 +307,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.stringAscii("send-message"),
           Cl.list([Cl.stringUtf8("Hello World")]),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -356,7 +347,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(1),
           Cl.contractPrincipal(addressDeployer, "test-token"),
-          Cl.bool(true)
+          Cl.bool(true),
         ],
         address1
       );
@@ -385,7 +376,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(1),
           Cl.contractPrincipal(addressDeployer, "wrong-token"),
-          Cl.bool(true)
+          Cl.bool(true),
         ],
         address1
       );
@@ -399,7 +390,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(1),
           Cl.contractPrincipal(addressDeployer, "test-token"),
-          Cl.bool(true)
+          Cl.bool(true),
         ],
         address1
       );
@@ -408,17 +399,12 @@ describe("aibtc-ext001-actions", () => {
 
     it("fails if voting too soon", () => {
       // Mock some balance for the caller
-      simnet.mineBlock([
-        simnet.callPublicFn(
-          `${addressDeployer}.test-token`,
-          "mint",
-          [
-            Cl.uint(1000000),
-            Cl.standardPrincipal(address1)
-          ],
-          addressDeployer
-        )
-      ]);
+      simnet.callPublicFn(
+        `${addressDeployer}.test-token`,
+        "mint",
+        [Cl.uint(1000000), Cl.standardPrincipal(address1)],
+        addressDeployer
+      );
 
       // Create a proposal
       simnet.callPublicFn(
@@ -427,7 +413,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.stringAscii("send-message"),
           Cl.list([Cl.stringUtf8("Hello World")]),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -439,7 +425,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(1),
           Cl.contractPrincipal(addressDeployer, "test-token"),
-          Cl.bool(true)
+          Cl.bool(true),
         ],
         address1
       );
@@ -456,7 +442,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(1),
           Cl.contractPrincipal(addressDeployer, "test-token"),
-          Cl.bool(true)
+          Cl.bool(true),
         ],
         address1
       );
@@ -471,7 +457,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(1),
           Cl.contractPrincipal(addressDeployer, "test-treasury"),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -482,11 +468,13 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(1),
           Cl.contractPrincipal(addressDeployer, "test-token"),
-          Cl.bool(true)
+          Cl.bool(true),
         ],
         address1
       );
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_ALREADY_CONCLUDED));
+      expect(receipt.result).toBeErr(
+        Cl.uint(ErrCode.ERR_PROPOSAL_ALREADY_CONCLUDED)
+      );
     });
 
     it("fails if already voted", () => {
@@ -497,7 +485,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.stringAscii("send-message"),
           Cl.list([Cl.stringUtf8("Hello World")]),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -509,7 +497,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(2),
           Cl.contractPrincipal(addressDeployer, "test-token"),
-          Cl.bool(true)
+          Cl.bool(true),
         ],
         address1
       );
@@ -521,7 +509,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(2),
           Cl.contractPrincipal(addressDeployer, "test-token"),
-          Cl.bool(true)
+          Cl.bool(true),
         ],
         address1
       );
@@ -535,7 +523,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(2),
           Cl.contractPrincipal(addressDeployer, "test-token"),
-          Cl.bool(true)
+          Cl.bool(true),
         ],
         address2
       );
@@ -545,10 +533,7 @@ describe("aibtc-ext001-actions", () => {
       const getReceipt = simnet.callReadOnlyFn(
         contractAddress,
         "get-total-votes",
-        [
-          Cl.uint(2),
-          Cl.standardPrincipal(address2)
-        ],
+        [Cl.uint(2), Cl.standardPrincipal(address2)],
         addressDeployer
       );
       expect(getReceipt.result).toBeOk(Cl.uint(1000000));
@@ -564,7 +549,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(1),
           Cl.contractPrincipal(addressDeployer, "test-treasury"),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -593,7 +578,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(1),
           Cl.contractPrincipal(addressDeployer, "wrong-treasury"),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -608,7 +593,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.stringAscii("send-message"),
           Cl.list([Cl.stringUtf8("Hello World")]),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -619,11 +604,13 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(3),
           Cl.contractPrincipal(addressDeployer, "test-treasury"),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_STILL_ACTIVE));
+      expect(receipt.result).toBeErr(
+        Cl.uint(ErrCode.ERR_PROPOSAL_STILL_ACTIVE)
+      );
     });
 
     it("fails if proposal already concluded", () => {
@@ -637,7 +624,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(3),
           Cl.contractPrincipal(addressDeployer, "test-treasury"),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -649,11 +636,13 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(3),
           Cl.contractPrincipal(addressDeployer, "test-treasury"),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_ALREADY_CONCLUDED));
+      expect(receipt.result).toBeErr(
+        Cl.uint(ErrCode.ERR_PROPOSAL_ALREADY_CONCLUDED)
+      );
     });
 
     it("succeeds and executes if passed", () => {
@@ -664,7 +653,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.stringAscii("send-message"),
           Cl.list([Cl.stringUtf8("Hello World")]),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -676,7 +665,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(4),
           Cl.contractPrincipal(addressDeployer, "test-token"),
-          Cl.bool(true)
+          Cl.bool(true),
         ],
         address1
       );
@@ -690,7 +679,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(4),
           Cl.contractPrincipal(addressDeployer, "test-treasury"),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -705,7 +694,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.stringAscii("send-message"),
           Cl.list([Cl.stringUtf8("Hello World")]),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -717,7 +706,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(5),
           Cl.contractPrincipal(addressDeployer, "test-token"),
-          Cl.bool(false)
+          Cl.bool(false),
         ],
         address1
       );
@@ -731,7 +720,7 @@ describe("aibtc-ext001-actions", () => {
         [
           Cl.uint(5),
           Cl.contractPrincipal(addressDeployer, "test-treasury"),
-          Cl.contractPrincipal(addressDeployer, "test-token")
+          Cl.contractPrincipal(addressDeployer, "test-token"),
         ],
         address1
       );
@@ -768,7 +757,7 @@ describe("aibtc-ext001-actions", () => {
     it("returns false when treasury and token not set", () => {
       // Reset contract state
       simnet.mineBlock([]);
-      
+
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
         "is-initialized",
@@ -780,20 +769,18 @@ describe("aibtc-ext001-actions", () => {
 
     it("returns true when treasury and token are set", () => {
       // Set treasury and token
-      simnet.mineBlock([
-        simnet.callPublicFn(
-          contractAddress,
-          "set-protocol-treasury",
-          [Cl.contractPrincipal(addressDeployer, "test-treasury")],
-          addressDeployer
-        ),
-        simnet.callPublicFn(
-          contractAddress,
-          "set-voting-token",
-          [Cl.contractPrincipal(addressDeployer, "test-token")],
-          addressDeployer
-        )
-      ]);
+      simnet.callPublicFn(
+        contractAddress,
+        "set-protocol-treasury",
+        [Cl.contractPrincipal(addressDeployer, "test-treasury")],
+        addressDeployer
+      );
+      simnet.callPublicFn(
+        contractAddress,
+        "set-voting-token",
+        [Cl.contractPrincipal(addressDeployer, "test-token")],
+        addressDeployer
+      );
 
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
@@ -809,7 +796,7 @@ describe("aibtc-ext001-actions", () => {
     it("returns none when treasury not set", () => {
       // Reset contract state
       simnet.mineBlock([]);
-      
+
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
         "get-protocol-treasury",
@@ -821,14 +808,12 @@ describe("aibtc-ext001-actions", () => {
 
     it("returns some with treasury address when set", () => {
       // Set treasury
-      simnet.mineBlock([
         simnet.callPublicFn(
           contractAddress,
           "set-protocol-treasury",
           [Cl.contractPrincipal(addressDeployer, "test-treasury")],
           addressDeployer
         )
-      ]);
 
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
@@ -846,7 +831,7 @@ describe("aibtc-ext001-actions", () => {
     it("returns none when token not set", () => {
       // Reset contract state
       simnet.mineBlock([]);
-      
+
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
         "get-voting-token",
@@ -858,14 +843,12 @@ describe("aibtc-ext001-actions", () => {
 
     it("returns some with token address when set", () => {
       // Set token
-      simnet.mineBlock([
         simnet.callPublicFn(
           contractAddress,
           "set-voting-token",
           [Cl.contractPrincipal(addressDeployer, "test-token")],
           addressDeployer
         )
-      ]);
 
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
@@ -892,18 +875,16 @@ describe("aibtc-ext001-actions", () => {
 
     it("returns proposal details for existing proposal", () => {
       // Create a proposal first
-      simnet.mineBlock([
         simnet.callPublicFn(
           contractAddress,
           "propose-action",
           [
             Cl.stringAscii("send-message"),
             Cl.list([Cl.stringUtf8("Hello World")]),
-            Cl.contractPrincipal(addressDeployer, "test-token")
+            Cl.contractPrincipal(addressDeployer, "test-token"),
           ],
           address1
-        )
-      ]);
+        ),
 
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
@@ -911,7 +892,7 @@ describe("aibtc-ext001-actions", () => {
         [Cl.uint(1)],
         addressDeployer
       );
-      
+
       const proposal = receipt.result.expectOk().expectSome().expectTuple();
       expect(proposal.action).toBe("send-message");
       expect(proposal.concluded).toBe(false);
@@ -925,7 +906,7 @@ describe("aibtc-ext001-actions", () => {
     it("returns 0 when no proposals exist", () => {
       // Reset contract state
       simnet.mineBlock([]);
-      
+
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
         "get-total-proposals",
@@ -937,28 +918,26 @@ describe("aibtc-ext001-actions", () => {
 
     it("returns correct count after creating proposals", () => {
       // Create two proposals
-      simnet.mineBlock([
         simnet.callPublicFn(
           contractAddress,
           "propose-action",
           [
             Cl.stringAscii("send-message"),
             Cl.list([Cl.stringUtf8("First")]),
-            Cl.contractPrincipal(addressDeployer, "test-token")
+            Cl.contractPrincipal(addressDeployer, "test-token"),
           ],
           address1
-        ),
+        )
         simnet.callPublicFn(
           contractAddress,
           "propose-action",
           [
             Cl.stringAscii("send-message"),
             Cl.list([Cl.stringUtf8("Second")]),
-            Cl.contractPrincipal(addressDeployer, "test-token")
+            Cl.contractPrincipal(addressDeployer, "test-token"),
           ],
           address1
         )
-      ]);
 
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
@@ -975,10 +954,7 @@ describe("aibtc-ext001-actions", () => {
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
         "get-total-votes",
-        [
-          Cl.uint(1),
-          Cl.standardPrincipal(address1)
-        ],
+        [Cl.uint(1), Cl.standardPrincipal(address1)],
         addressDeployer
       );
       expect(receipt.result).toBeOk(Cl.uint(0));
@@ -986,36 +962,31 @@ describe("aibtc-ext001-actions", () => {
 
     it("returns correct vote amount for proposal with votes", () => {
       // Create proposal and vote
-      simnet.mineBlock([
         simnet.callPublicFn(
           contractAddress,
           "propose-action",
           [
             Cl.stringAscii("send-message"),
             Cl.list([Cl.stringUtf8("Hello World")]),
-            Cl.contractPrincipal(addressDeployer, "test-token")
+            Cl.contractPrincipal(addressDeployer, "test-token"),
           ],
           address1
-        ),
+        )
         simnet.callPublicFn(
           contractAddress,
           "vote-on-proposal",
           [
             Cl.uint(1),
             Cl.contractPrincipal(addressDeployer, "test-token"),
-            Cl.bool(true)
+            Cl.bool(true),
           ],
           address1
         )
-      ]);
 
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
         "get-total-votes",
-        [
-          Cl.uint(1),
-          Cl.standardPrincipal(address1)
-        ],
+        [Cl.uint(1), Cl.standardPrincipal(address1)],
         addressDeployer
       );
       expect(receipt.result).toBeOk(Cl.uint(1000000)); // Amount from previous mint
@@ -1050,7 +1021,7 @@ describe("aibtc-ext001-actions", () => {
     it("returns false when treasury and token not set", () => {
       // Reset contract state
       simnet.mineBlock([]);
-      
+
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
         "is-initialized",
@@ -1062,28 +1033,26 @@ describe("aibtc-ext001-actions", () => {
 
     it("returns true when treasury and token are set", () => {
       // Set treasury and token
-      simnet.mineBlock([
         simnet.callPublicFn(
           contractAddress,
           "set-protocol-treasury",
           [Cl.contractPrincipal(addressDeployer, "test-treasury")],
           addressDeployer
-        ),
+        )
         simnet.callPublicFn(
           contractAddress,
           "set-voting-token",
           [Cl.contractPrincipal(addressDeployer, "test-token")],
           addressDeployer
-        )
-      ]);
+        ),
 
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
         "is-initialized",
         [],
         addressDeployer
-      );
-      expect(receipt.result).toBeOk(Cl.bool(true));
+      ).result;
+      expect(receipt).toBeOk(Cl.bool(true));
     });
   });
 
@@ -1092,10 +1061,7 @@ describe("aibtc-ext001-actions", () => {
       const receipt = simnet.callPublicFn(
         contractAddress,
         "callback",
-        [
-          Cl.standardPrincipal(address1),
-          Cl.buffer(Buffer.from("test memo"))
-        ],
+        [Cl.standardPrincipal(address1), Cl.buffer(new TextEncoder().encode("memo"))],
         address1
       );
       expect(receipt.result).toBeOk(Cl.bool(true));
