@@ -238,10 +238,20 @@
       notification: "conclude-proposal",
       payload: {
         proposal: proposalContract,
-        passed: (> (get votesFor proposalRecord) (get votesAgainst proposalRecord))
+        passed: votePassed
       }
     })
-    (ok true)
+    ;; update the proposal record
+    (map-set Proposals proposalContract
+      (merge proposalRecord {
+        concluded: true,
+        passed: votePassed
+      })
+    )
+    ;; execute the proposal if it passed
+    (and votePassed (try! (contract-call? .aibtcdev-dao execute proposal tx-sender)))
+    ;; return the result
+    (ok votePassed)
   )
 )
 
