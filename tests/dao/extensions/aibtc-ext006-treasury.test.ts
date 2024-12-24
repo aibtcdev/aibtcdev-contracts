@@ -21,7 +21,7 @@ describe("aibtc-ext006-treasury", () => {
     it("succeeds and toggles status of existing asset");
   });
 
-  // Allow Assets Tests  
+  // Allow Assets Tests
   describe("allow-assets()", () => {
     it("fails if caller is not DAO or extension");
     it("succeeds and sets new allowed assets");

@@ -97,18 +97,28 @@ epoch = 2.5
 
 # testing utilities
 
+[contracts.test-abitc-treasury]
+path = 'contracts/test/aibtc-treasury.clar'
+clarity_version = 2
+epoch = 2.5
+
 [contracts.external-proxy]
-path = 'contracts/test-proxy.clar'
+path = 'contracts/test/proxy.clar'
 deployer = 'wallet_1'
 clarity_version = 2
 epoch = 2.5
 
 [contracts.proxy]
-path = 'contracts/test-proxy.clar'
+path = 'contracts/test/proxy.clar'
 clarity_version = 2
 epoch = 2.5
 
 [contracts.test-proxy]
-path = 'contracts/test-proxy.clar'
+path = 'contracts/test/proxy.clar'
+clarity_version = 2
+epoch = 2.5
+
+[contracts.test-sip010-token]
+path = 'contracts/test/sip010-token.clar'
 clarity_version = 2
 epoch = 2.5
