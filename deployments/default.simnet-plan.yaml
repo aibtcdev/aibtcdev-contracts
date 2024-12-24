@@ -48,6 +48,9 @@ genesis:
 plan:
   batches:
     - id: 0
+      transactions: []
+      epoch: "2.0"
+    - id: 1
       transactions:
         - emulated-contract-publish:
             contract-name: nft-trait
@@ -59,8 +62,26 @@ plan:
             emulated-sender: SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE
             path: "./.cache/requirements/SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.clar"
             clarity-version: 1
-      epoch: "2.0"
-    - id: 1
+      epoch: "2.1"
+    - id: 2
+      transactions: []
+      epoch: "2.1"
+    - id: 3
+      transactions: []
+      epoch: "2.1"
+    - id: 4
+      transactions: []
+      epoch: "2.1"
+    - id: 5
+      transactions: []
+      epoch: "2.1"
+    - id: 6
+      transactions: []
+      epoch: "2.1"
+    - id: 7
+      transactions: []
+      epoch: "2.1"
+    - id: 8
       transactions:
         - emulated-contract-publish:
             contract-name: aibtcdev-dao-traits-v1
@@ -137,4 +158,22 @@ plan:
             emulated-sender: ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5
             path: contracts/test-proxy.clar
             clarity-version: 2
+      epoch: "2.5"
+    - id: 9
+      transactions: []
+      epoch: "2.5"
+    - id: 10
+      transactions: []
+      epoch: "2.5"
+    - id: 11
+      transactions: []
+      epoch: "2.5"
+    - id: 12
+      transactions: []
+      epoch: "2.5"
+    - id: 13
+      transactions: []
+      epoch: "2.5"
+    - id: 14
+      transactions: []
       epoch: "2.5"
