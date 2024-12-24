@@ -5,14 +5,14 @@
 (define-public (execute (sender principal))
   (begin  
     ;; set initial extensions
-    (try! (contract-call? .aibtcdev-dao set-extensions
+    (try! (contract-call? .aibtcdev-base-dao set-extensions
       (list
-        {extension: .aibtcdev-actions, enabled: true}
-        {extension: .aibtcdev-bank-account, enabled: true}
-        {extension: .aibtcdev-direct-execute, enabled: true}
-        {extension: .aibtcdev-messaging, enabled: true}
-        {extension: .aibtcdev-payments, enabled: true}
-        {extension: .aibtcdev-treasury, enabled: true}
+        {extension: .aibtc-ext001-actions, enabled: true}
+        {extension: .aibtc-ext002-bank-account, enabled: true}
+        {extension: .aibtc-ext003-direct-execute, enabled: true}
+        {extension: .aibtc-ext004-messaging, enabled: true}
+        {extension: .aibtc-ext005-payments, enabled: true}
+        {extension: .aibtc-ext006-treasury, enabled: true}
       )
     ))
     ;; print manifest
