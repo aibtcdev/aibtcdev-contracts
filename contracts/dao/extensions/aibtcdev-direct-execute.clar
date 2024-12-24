@@ -97,11 +97,11 @@
     )
     (try! (is-dao-or-extension))
     ;; treasury must be a contract
-    (asserts! (not (is-standard treasuryContract)) ERR_MUST_BE_CONTRACT)
+    (asserts! (not (is-standard treasuryContract)) ERR_TREASURY_MUST_BE_CONTRACT)
     ;; treasury cannot be the voting contract
-    (asserts! (not (is-eq treasuryContract SELF)) ERR_INVALID)
+    (asserts! (not (is-eq treasuryContract SELF)) ERR_TREASURY_CANNOT_BE_SELF)
     ;; treasury cannot be the same value
-    (asserts! (not (is-eq treasuryContract (var-get protocolTreasury))) ERR_INVALID)
+    (asserts! (not (is-eq treasuryContract (var-get protocolTreasury))) ERR_TREASURY_ALREADY_SET)
     (print {
       notification: "set-protocol-treasury",
       payload: {
@@ -119,9 +119,9 @@
     )
     (try! (is-dao-or-extension))
     ;; token must be a contract
-    (asserts! (not (is-standard tokenContract)) ERR_INVALID)
-    (asserts! (is-eq (var-get votingToken) SELF) ERR_INVALID)
-    (asserts! (is-eq (var-get votingToken) tokenContract) ERR_INVALID)
+    (asserts! (not (is-standard tokenContract)) ERR_TOKEN_MUST_BE_CONTRACT)
+    (asserts! (is-eq (var-get votingToken) SELF) ERR_TOKEN_NOT_INITIALIZED)
+    (asserts! (is-eq (var-get votingToken) tokenContract) ERR_TOKEN_MISMATCH)
     (print {
       notification: "set-voting-token",
       payload: {
@@ -141,9 +141,9 @@
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
     ;; token matches set voting token
-    (asserts! (is-eq tokenContract (var-get votingToken)) ERR_INVALID_VOTING_TOKEN)
+    (asserts! (is-eq tokenContract (var-get votingToken)) ERR_TOKEN_MISMATCH)
     ;; caller has the required balance
-    (asserts! (> (try! (contract-call? token get-balance tx-sender)) u0) ERR_FETCHING_BALANCE)
+    (asserts! (> (try! (contract-call? token get-balance tx-sender)) u0) ERR_INSUFFICIENT_BALANCE)
     ;; proposal was not already executed
     (asserts! (is-none (contract-call? .aibtcdev-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; print proposal creation event
@@ -181,9 +181,9 @@
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
     ;; token matches set voting token
-    (asserts! (is-eq tokenContract (var-get votingToken)) ERR_INVALID_VOTING_TOKEN)
+    (asserts! (is-eq tokenContract (var-get votingToken)) ERR_TOKEN_MISMATCH)
     ;; caller has the required balance
-    (asserts! (> senderBalance u0) ERR_FETCHING_BALANCE)
+    (asserts! (> senderBalance u0) ERR_ZERO_VOTING_POWER)
     ;; proposal was not already executed
     (asserts! (is-none (contract-call? .aibtcdev-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; proposal is still active
@@ -279,6 +279,6 @@
 
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
-    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )
