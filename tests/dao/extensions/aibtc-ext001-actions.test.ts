@@ -1086,4 +1086,19 @@ describe("aibtc-ext001-actions", () => {
       expect(receipt.result).toBeOk(Cl.bool(true));
     });
   });
+
+  describe("callback()", () => {
+    it("succeeds with any sender and memo", () => {
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "callback",
+        [
+          Cl.standardPrincipal(address1),
+          Cl.buffer(Buffer.from("test memo"))
+        ],
+        address1
+      );
+      expect(receipt.result).toBeOk(Cl.bool(true));
+    });
+  });
 });
