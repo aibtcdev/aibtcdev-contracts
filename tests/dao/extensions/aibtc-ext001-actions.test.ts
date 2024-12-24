@@ -726,7 +726,7 @@ describe("aibtc-ext001-actions", () => {
         ],
         address1
       );
-      expect(receipt.result).toBeOk(Cl.bool(false));
+      expect(receipt.result).toBe(Cl.bool(false));
     });
   });
 
@@ -739,7 +739,7 @@ describe("aibtc-ext001-actions", () => {
         [],
         addressDeployer
       );
-      expect(receipt.result).toBeOk(Cl.uint(144)); // 144 blocks, ~1 day
+      expect(receipt.result).toBe(Cl.uint(144)); // 144 blocks, ~1 day
     });
   });
 
@@ -751,7 +751,7 @@ describe("aibtc-ext001-actions", () => {
         [],
         addressDeployer
       );
-      expect(receipt.result).toBeOk(Cl.uint(66)); // 66% of liquid supply
+      expect(receipt.result).toBe(Cl.uint(66)); // 66% of liquid supply
     });
   });
 
@@ -840,7 +840,7 @@ describe("aibtc-ext001-actions", () => {
         [],
         addressDeployer
       );
-      expect(receipt.result).toBeOk(Cl.none());
+      expect(receipt.result).toBe(Cl.none());
     });
 
     it("returns some with token address when set", () => {
@@ -917,7 +917,7 @@ describe("aibtc-ext001-actions", () => {
         [],
         addressDeployer
       );
-      expect(receipt.result).toBeOk(Cl.uint(0));
+      expect(receipt.result).toBe(Cl.uint(0));
     });
 
     it("returns correct count after creating proposals", () => {
