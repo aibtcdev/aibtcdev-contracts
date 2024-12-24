@@ -58,6 +58,11 @@ path = 'contracts/dao/extensions/aibtcdev-bank-account.clar'
 clarity_version = 2
 epoch = 2.5
 
+[contracts.aibtcdev-direct-execute]
+path = 'contracts/dao/extensions/aibtcdev-direct-execute.clar'
+clarity_version = 2
+epoch = 2.5
+
 [contracts.aibtcdev-messaging]
 path = 'contracts/dao/extensions/aibtcdev-messaging.clar'
 clarity_version = 2
