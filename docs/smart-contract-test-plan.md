@@ -22,6 +22,22 @@ executed-at() succeeds and returns the Bitcoin block height the proposal was exe
 
 ## Extensions
 
+### aibtcdev-actions
+
+execute-action() fails if action is not recognized
+execute-action() fails if parameters are invalid
+execute-action() succeeds with valid "send-message" action
+execute-action() succeeds with valid "add-resource" action
+execute-action() succeeds with valid "batch-messages" action
+execute-action() succeeds with valid "batch-resources" action
+execute-action() succeeds with valid "allow-asset" action
+execute-action() succeeds with valid "delegate-stx" action
+execute-action() succeeds with valid "set-account-holder" action
+execute-action() succeeds with valid "set-withdrawal-period" action
+execute-action() succeeds with valid "set-withdrawal-amount" action
+execute-action() succeeds with valid "toggle-resource" action
+execute-action() succeeds with valid "set-payment-address" action
+
 ### aibtcdev-bank-account
 
 set-account-holder() fails if caller is not DAO or extension
@@ -42,6 +58,44 @@ override-last-withdrawal-block() fails if value is set less than deployed height
 override-last-withdrawal-block() succeeds and sets the withdrawal block
 
 get-account-terms() succeeds and returns expected values
+
+### aibtcdev-direct-execute
+
+set-protocol-treasury() fails if caller is not DAO or extension
+set-protocol-treasury() fails if treasury is not a contract
+set-protocol-treasury() fails if treasury is self
+set-protocol-treasury() fails if treasury is already set
+set-protocol-treasury() succeeds and sets new treasury
+
+set-voting-token() fails if caller is not DAO or extension
+set-voting-token() fails if token is not a contract
+set-voting-token() fails if token is not initialized
+set-voting-token() fails if token mismatches
+set-voting-token() succeeds and sets new token
+
+create-proposal() fails if contract not initialized
+create-proposal() fails if token mismatches
+create-proposal() fails if caller has no balance
+create-proposal() fails if proposal already executed
+create-proposal() succeeds and creates new proposal
+
+vote-on-proposal() fails if contract not initialized
+vote-on-proposal() fails if token mismatches
+vote-on-proposal() fails if caller has no balance
+vote-on-proposal() fails if proposal already executed
+vote-on-proposal() fails if voting too soon
+vote-on-proposal() fails if voting too late
+vote-on-proposal() fails if proposal concluded
+vote-on-proposal() fails if already voted
+vote-on-proposal() succeeds and records vote
+
+conclude-proposal() fails if contract not initialized
+conclude-proposal() fails if treasury mismatches
+conclude-proposal() fails if proposal already executed
+conclude-proposal() fails if proposal still active
+conclude-proposal() fails if proposal already concluded
+conclude-proposal() succeeds and executes if passed
+conclude-proposal() succeeds without executing if failed
 
 ### aibtcdev-messaging
 
@@ -116,12 +170,8 @@ delegate-stx() fails if caller is not DAO or extension
 delegate-stx() succeeds and delegates to Stacks PoX
 
 revoke-delegate-stx() fails if caller is not DAO or extension
-revoke-delegate-stx() fails if contract is not currently stacking (?)
+revoke-delegate-stx() fails if contract is not currently stacking
 revoke-delegate-stx() succeeds and revokes stacking delegation
-
-### aibtcdev-token-vote
-
-execute() fails if proposal has already been executed via vote execute
 
 ## Proposals
 
