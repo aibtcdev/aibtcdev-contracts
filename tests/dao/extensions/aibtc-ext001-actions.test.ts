@@ -61,7 +61,7 @@ describe("aibtc-ext001-actions", () => {
         [Cl.standardPrincipal(address1)],
         addressDeployer
       );
-      expect(receipt.result).toBeErr(ErrCode.ERR_TREASURY_MUST_BE_CONTRACT);
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_TREASURY_MUST_BE_CONTRACT));
     });
 
     it("fails if treasury is self", () => {
@@ -71,7 +71,7 @@ describe("aibtc-ext001-actions", () => {
         [Cl.contractPrincipal(addressDeployer, "aibtc-ext001-actions")],
         addressDeployer
       );
-      expect(receipt.result).toBeErr(ErrCode.ERR_TREASURY_CANNOT_BE_SELF);
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_TREASURY_CANNOT_BE_SELF));
     });
 
     it("fails if treasury is already set", () => {
@@ -90,7 +90,7 @@ describe("aibtc-ext001-actions", () => {
         [Cl.contractPrincipal(addressDeployer, "test-treasury")],
         addressDeployer
       );
-      expect(receipt.result).toBeErr(ErrCode.ERR_TREASURY_ALREADY_SET);
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_TREASURY_ALREADY_SET));
     });
 
     it("succeeds and sets new treasury", () => {
@@ -113,7 +113,7 @@ describe("aibtc-ext001-actions", () => {
         [Cl.contractPrincipal(addressDeployer, "test-token")],
         address1
       );
-      expect(receipt.result).toBeErr(ErrCode.ERR_UNAUTHORIZED);
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
 
     it("fails if token is not a contract", () => {
