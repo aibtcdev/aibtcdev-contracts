@@ -113,7 +113,9 @@ describe("aibtc-ext001-actions", () => {
         [],
         addressDeployer
       );
-      expect(getReceipt.result).toBeOk(Cl.some(Cl.contractPrincipal(addressDeployer, "test-treasury")));
+      expect(getReceipt.result).toBeOk(
+        Cl.some(Cl.contractPrincipal(addressDeployer, "test-treasury"))
+      );
     });
   });
 
@@ -188,7 +190,9 @@ describe("aibtc-ext001-actions", () => {
         [],
         addressDeployer
       );
-      expect(getReceipt.result).toBeOk(Cl.some(Cl.contractPrincipal(addressDeployer, "test-token")));
+      expect(getReceipt.result).toBeOk(
+        Cl.some(Cl.contractPrincipal(addressDeployer, "test-token"))
+      );
     });
   });
 
