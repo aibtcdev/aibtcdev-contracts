@@ -45,6 +45,7 @@
 (define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u1401))
 (define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1402))
 (define-constant ERR_SAVING_PROPOSAL (err u1403))
+(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u1404))
 
 ;; error messages - voting
 (define-constant ERR_VOTE_TOO_SOON (err u1500))
@@ -189,6 +190,8 @@
     ;; proposal is still active
     (asserts! (>= burn-block-height (get startBlock proposalRecord)) ERR_VOTE_TOO_SOON)
     (asserts! (< burn-block-height (get endBlock proposalRecord)) ERR_VOTE_TOO_LATE)
+    ;; proposal not already concluded
+    (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
     ;; vote not already cast
     (asserts! (is-none (map-get? VotingRecords {proposal: proposalContract, voter: tx-sender})) ERR_ALREADY_VOTED)
     ;; print vote event
@@ -227,6 +230,8 @@
     (asserts! (is-none (contract-call? .aibtcdev-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; proposal past end block height
     (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_STILL_ACTIVE)
+    ;; proposal not already concluded
+    (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
     ;; voting quorum met
     (asserts! votePassed ERR_QUORUM_NOT_REACHED)
     ;; print conclusion event
