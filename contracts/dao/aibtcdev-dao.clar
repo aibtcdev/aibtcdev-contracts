@@ -5,9 +5,9 @@
 ;; traits
 ;;
 
-(impl-trait .aibtcdev-dao-traits-v1.executor)
-(use-trait proposal .aibtcdev-dao-traits-v1.proposal)
-(use-trait extension .aibtcdev-dao-traits-v1.extension)
+(impl-trait .aibtcdev-dao-v1.aibtc-base-dao)
+(use-trait proposal-trait .aibtcdev-dao-traits-v1.proposal)
+(use-trait extension-trait .aibtcdev-dao-traits-v1.extension)
 
 ;; constants
 ;;
@@ -35,7 +35,7 @@
 ;;
 
 ;; initial construction of the DAO
-(define-public (construct (proposal <proposal>))
+(define-public (construct (proposal <proposal-trait>))
   (let
     ((sender tx-sender))
     (asserts! (is-eq sender (var-get executive)) ERR_UNAUTHORIZED)
@@ -45,7 +45,7 @@
 )
 
 ;; execute Clarity code in a proposal
-(define-public (execute (proposal <proposal>) (sender principal))
+(define-public (execute (proposal <proposal-trait>) (sender principal))
   (begin
     (try! (is-self-or-extension))
     (asserts! (map-insert ExecutedProposals (contract-of proposal) block-height) ERR_ALREADY_EXECUTED)
@@ -85,7 +85,7 @@
 )
 
 ;; request a callback from an extension
-(define-public (request-extension-callback (extension <extension>) (memo (buff 34)))
+(define-public (request-extension-callback (extension <extension-trait>) (memo (buff 34)))
   (let
     ((sender tx-sender))
     (asserts! (is-extension contract-caller) ERR_INVALID_EXTENSION)
@@ -109,7 +109,7 @@
   (default-to false (map-get? Extensions extension))
 )
 
-(define-read-only (executed-at (proposal <proposal>))
+(define-read-only (executed-at (proposal <proposal-trait>))
   (map-get? ExecutedProposals (contract-of proposal))
 )
 

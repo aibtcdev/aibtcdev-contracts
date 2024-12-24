@@ -6,18 +6,8 @@
 
 (use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 (use-trait nft-trait 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait)
-(use-trait proposal .aibtcdev-dao-traits-v1.proposal)
 
 ;; CORE DAO TRAITS
-
-(define-trait executor (
-    ;; Execute a governance proposal
-    (execute (<proposal> principal) (response bool uint))
-    ;; Enable or disable an extension contract
-    (set-extension (principal bool) (response bool uint))
-    ;; Check if a given principal is an enabled extension
-    (is-extension (principal) (response bool uint))
-))
 
 (define-trait proposal (
   (execute (principal) (response bool uint))
@@ -30,16 +20,29 @@
 ;; EXTENSION TRAITS
 
 (define-trait bank-account (
-   ;; deposit STX to the bank account
-   ;; @param amount amount of microSTX to deposit
-   ;; @returns (response bool uint)
-   (deposit-stx (uint) (response bool uint))
-   ;; withdraw STX from the bank account
-   ;; @returns (response bool uint) 
-   (withdraw-stx () (response bool uint))
-   ;; get current account balance in microSTX
-   ;; @returns uint
-   (get-account-balance () (response uint uint))
+  ;; set account holder
+  ;; @param principal the new account holder
+  ;; @returns (response bool uint)
+  (set-account-holder (principal) (response bool uint))
+  ;; set withdrawal period
+  ;; @param period the new withdrawal period in blocks
+  ;; @returns (response bool uint)
+  (set-withdrawal-period (uint) (response bool uint))
+  ;; set withdrawal amount
+  ;; @param amount the new withdrawal amount in microSTX
+  ;; @returns (response bool uint)
+  (set-withdrawal-amount (uint) (response bool uint))
+  ;; override last withdrawal block
+  ;; @param block the new last withdrawal block
+  ;; @returns (response bool uint)
+  (override-last-withdrawal-block (uint) (response bool uint))
+  ;; deposit STX to the bank account
+  ;; @param amount amount of microSTX to deposit
+  ;; @returns (response bool uint)
+  (deposit-stx (uint) (response bool uint))
+  ;; withdraw STX from the bank account
+  ;; @returns (response bool uint) 
+  (withdraw-stx () (response bool uint))
 ))
 
 (define-trait messaging
