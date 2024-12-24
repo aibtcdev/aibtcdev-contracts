@@ -1,5 +1,7 @@
 (impl-trait .aibtcdev-dao-traits-v1.proposal)
 
+(define-constant DAO_MANIFEST "This is where the DAO can put it's mission, purpose, and goals.")
+
 (define-public (execute (sender principal))
   (begin  
     ;; set initial extensions
@@ -12,7 +14,11 @@
       )
     ))
     ;; print manifest
-    (print "manifest")
+    (print DAO_MANIFEST)
     (ok true)
   )
+)
+
+(define-read-only (get-dao-manifest)
+  DAO_MANIFEST
 )
