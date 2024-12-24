@@ -83,6 +83,11 @@ plan:
             path: contracts/dao/proposals/aibtc001-bootstrap.clar
             clarity-version: 2
         - emulated-contract-publish:
+            contract-name: aibtcdev-actions
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/extensions/aibtcdev-actions.clar
+            clarity-version: 2
+        - emulated-contract-publish:
             contract-name: aibtcdev-airdrop-1
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/aibtcdev-airdrop-1.clar
