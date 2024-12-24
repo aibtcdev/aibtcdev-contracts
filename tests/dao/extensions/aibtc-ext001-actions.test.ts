@@ -805,6 +805,171 @@ describe("aibtc-ext001-actions", () => {
     });
   });
 
+  describe("get-protocol-treasury()", () => {
+    it("returns none when treasury not set", () => {
+      // Reset contract state
+      simnet.mineBlock([]);
+      
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-protocol-treasury",
+        [],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(Cl.none());
+    });
+
+    it("returns some with treasury address when set", () => {
+      // Set treasury
+      simnet.mineBlock([
+        simnet.callPublicFn(
+          contractAddress,
+          "set-protocol-treasury",
+          [Cl.contractPrincipal(addressDeployer, "test-treasury")],
+          addressDeployer
+        )
+      ]);
+
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-protocol-treasury",
+        [],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(
+        Cl.some(Cl.contractPrincipal(addressDeployer, "test-treasury"))
+      );
+    });
+  });
+
+  describe("get-voting-token()", () => {
+    it("returns none when token not set", () => {
+      // Reset contract state
+      simnet.mineBlock([]);
+      
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-voting-token",
+        [],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(Cl.none());
+    });
+
+    it("returns some with token address when set", () => {
+      // Set token
+      simnet.mineBlock([
+        simnet.callPublicFn(
+          contractAddress,
+          "set-voting-token",
+          [Cl.contractPrincipal(addressDeployer, "test-token")],
+          addressDeployer
+        )
+      ]);
+
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-voting-token",
+        [],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(
+        Cl.some(Cl.contractPrincipal(addressDeployer, "test-token"))
+      );
+    });
+  });
+
+  describe("get-proposal()", () => {
+    it("returns none for non-existent proposal", () => {
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-proposal",
+        [Cl.uint(999)],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(Cl.none());
+    });
+
+    it("returns proposal details for existing proposal", () => {
+      // Create a proposal first
+      simnet.mineBlock([
+        simnet.callPublicFn(
+          contractAddress,
+          "propose-action",
+          [
+            Cl.stringAscii("send-message"),
+            Cl.list([Cl.stringUtf8("Hello World")]),
+            Cl.contractPrincipal(addressDeployer, "test-token")
+          ],
+          address1
+        )
+      ]);
+
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-proposal",
+        [Cl.uint(1)],
+        addressDeployer
+      );
+      
+      const proposal = receipt.result.expectOk().expectSome().expectTuple();
+      expect(proposal.action).toBe("send-message");
+      expect(proposal.concluded).toBe(false);
+      expect(proposal.passed).toBe(false);
+      expect(proposal.votesFor).toBe(0);
+      expect(proposal.votesAgainst).toBe(0);
+    });
+  });
+
+  describe("get-total-proposals()", () => {
+    it("returns 0 when no proposals exist", () => {
+      // Reset contract state
+      simnet.mineBlock([]);
+      
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-total-proposals",
+        [],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(Cl.uint(0));
+    });
+
+    it("returns correct count after creating proposals", () => {
+      // Create two proposals
+      simnet.mineBlock([
+        simnet.callPublicFn(
+          contractAddress,
+          "propose-action",
+          [
+            Cl.stringAscii("send-message"),
+            Cl.list([Cl.stringUtf8("First")]),
+            Cl.contractPrincipal(addressDeployer, "test-token")
+          ],
+          address1
+        ),
+        simnet.callPublicFn(
+          contractAddress,
+          "propose-action",
+          [
+            Cl.stringAscii("send-message"),
+            Cl.list([Cl.stringUtf8("Second")]),
+            Cl.contractPrincipal(addressDeployer, "test-token")
+          ],
+          address1
+        )
+      ]);
+
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-total-proposals",
+        [],
+        addressDeployer
+      );
+      expect(receipt.result).toBeOk(Cl.uint(2));
+    });
+  });
+
   describe("get-total-votes()", () => {
     it("returns 0 for proposal with no votes", () => {
       const receipt = simnet.callReadOnlyFn(
