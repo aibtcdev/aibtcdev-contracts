@@ -159,7 +159,8 @@
   (vote-on-proposal (<proposal> <ft-trait> bool) (response bool uint))
   ;; conclude a proposal after voting period
   ;; @param proposal the proposal contract
+  ;; @param treasury the treasury contract
   ;; @param token the voting token contract
   ;; @returns (response bool uint)
-  (conclude-proposal (<proposal> <ft-trait>) (response bool uint))
+  (conclude-proposal (<proposal> <treasury> <ft-trait>) (response bool uint))
 ))

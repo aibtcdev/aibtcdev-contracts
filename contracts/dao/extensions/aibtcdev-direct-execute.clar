@@ -223,13 +223,13 @@
       (tokenContract (contract-of token))
       (tokenTotalSupply (try! (contract-call? token get-total-supply)))
       (treasuryContract (contract-of treasury))
-      ;; verify treasury matches protocol treasury
-      (asserts! (is-eq treasuryContract (var-get protocolTreasury)) ERR_TREASURY_MISMATCH)
       (treasuryBalance (try! (contract-call? token get-balance treasuryContract)))
       (votePassed (> (get votesFor proposalRecord) (* tokenTotalSupply (- u100 treasuryBalance) VOTING_QUORUM)))
     )
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
+    ;; verify treasury matches protocol treasury
+    (asserts! (is-eq treasuryContract (var-get protocolTreasury)) ERR_TREASURY_MISMATCH)
     ;; proposal was not already executed
     (asserts! (is-none (contract-call? .aibtcdev-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; proposal past end block height
