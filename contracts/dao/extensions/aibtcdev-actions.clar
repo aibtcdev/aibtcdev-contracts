@@ -374,60 +374,55 @@
       (action (get action proposal))
       (params (get parameters proposal))
     )
-    (if (is-eq action "send-message")
-      (as-contract (contract-call? .aibtcdev-messaging send (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS) true))
-      (if (is-eq action "add-resource")
+    (match action
+      "send-message"
+        (as-contract (contract-call? .aibtcdev-messaging send 
+          (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS) true))
+      
+      "add-resource"
         (as-contract (contract-call? .aibtcdev-payments add-resource
           (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)
           (unwrap! (element-at params u1) ERR_INVALID_PARAMETERS)
           (unwrap! (to-uint (unwrap! (element-at params u2) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
-          (some (unwrap! (element-at params u3) ERR_INVALID_PARAMETERS))
-        ))
-        (if (is-eq action "batch-messages")
-          (fold process-message params (ok true))
-          (if (is-eq action "batch-resources")
-            (fold process-resource (chunk-parameters params u4) (ok true))
-            (if (is-eq action "allow-asset")
-              (as-contract (contract-call? .aibtcdev-treasury allow-asset
-                (unwrap! (to-principal (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
-                (unwrap! (to-bool (unwrap! (element-at params u1) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
-              ))
-              (if (is-eq action "delegate-stx")
-                (as-contract (contract-call? .aibtcdev-treasury delegate-stx
-                  (unwrap! (to-uint (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
-                  (unwrap! (to-principal (unwrap! (element-at params u1) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
-                ))
-                (if (is-eq action "set-account-holder")
-                  (as-contract (contract-call? .aibtcdev-bank-account set-account-holder
-                    (unwrap! (to-principal (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
-                  ))
-                  (if (is-eq action "set-withdrawal-period")
-                    (as-contract (contract-call? .aibtcdev-bank-account set-withdrawal-period
-                      (unwrap! (to-uint (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
-                    ))
-                    (if (is-eq action "set-withdrawal-amount")
-                      (as-contract (contract-call? .aibtcdev-bank-account set-withdrawal-amount
-                        (unwrap! (to-uint (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
-                      ))
-                      (if (is-eq action "toggle-resource")
-                        (as-contract (contract-call? .aibtcdev-payments toggle-resource-by-name
-                          (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)
-                        ))
-                        (if (is-eq action "set-payment-address")
-                          (as-contract (contract-call? .aibtcdev-payments set-payment-address
-                            (unwrap! (to-principal (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
-                          ))
-                          (err ERR_INVALID_ACTION)
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-      )
+          (some (unwrap! (element-at params u3) ERR_INVALID_PARAMETERS))))
+      
+      "batch-messages"
+        (fold process-message params (ok true))
+      
+      "batch-resources"
+        (fold process-resource (chunk-parameters params u4) (ok true))
+      
+      "allow-asset"
+        (as-contract (contract-call? .aibtcdev-treasury allow-asset
+          (unwrap! (to-principal (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
+          (unwrap! (to-bool (unwrap! (element-at params u1) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)))
+      
+      "delegate-stx"
+        (as-contract (contract-call? .aibtcdev-treasury delegate-stx
+          (unwrap! (to-uint (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
+          (unwrap! (to-principal (unwrap! (element-at params u1) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)))
+      
+      "set-account-holder"
+        (as-contract (contract-call? .aibtcdev-bank-account set-account-holder
+          (unwrap! (to-principal (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)))
+      
+      "set-withdrawal-period"
+        (as-contract (contract-call? .aibtcdev-bank-account set-withdrawal-period
+          (unwrap! (to-uint (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)))
+      
+      "set-withdrawal-amount"
+        (as-contract (contract-call? .aibtcdev-bank-account set-withdrawal-amount
+          (unwrap! (to-uint (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)))
+      
+      "toggle-resource"
+        (as-contract (contract-call? .aibtcdev-payments toggle-resource-by-name
+          (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)))
+      
+      "set-payment-address"
+        (as-contract (contract-call? .aibtcdev-payments set-payment-address
+          (unwrap! (to-principal (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)))
+      
+      (err ERR_INVALID_ACTION)
     )
   )
 )
