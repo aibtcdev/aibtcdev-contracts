@@ -2,7 +2,9 @@
 
 All tests will be created with and executed using the Clarinet JS SDK.
 
-## Base DAO
+## Main DAO
+
+### aibtcdev-dao
 
 set-extension() fails if caller is not DAO or extension
 set-extensions() fails if caller is not DAO or extension
@@ -20,11 +22,7 @@ executed-at() succeeds and returns the Bitcoin block height the proposal was exe
 
 ## Extensions
 
-### consensus
-
-execute() fails if proposal has already been executed via vote execute
-
-### Bank Account
+### aibtcdev-bank-account
 
 set-account-holder() fails if caller is not DAO or extension
 set-account-holder() succeeds and sets the account holder to a standard principal
@@ -45,4 +43,24 @@ override-last-withdrawal-block() succeeds and sets the withdrawal block
 
 get-account-terms() succeeds and returns expected values
 
+### aibtcdev-messaging
+
+send(): succeeds if called by any user with isFromDao false
+send(): fails if called by any user with isFromDao true
+send(): succeeds if called by a DAO proposal
+
+### aibtcdev-payments
+
+TBD
+
+### aibtcdev-treasury
+
+TBD
+
+### aibtcdev-token-vote
+
+execute() fails if proposal has already been executed via vote execute
+
 ## Proposals
+
+### aibtcdev-bootstrap
