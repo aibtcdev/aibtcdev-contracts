@@ -4,12 +4,12 @@ Extensions are modular components that add functionality to the DAO. Each extens
 
 ## Available Extensions
 
-- [Actions](actions.md) - Voting on predefined actions
-- [Bank Account](bank-account.md) - Managed STX withdrawals
-- [Direct Execute](direct-execute.md) - Voting on arbitrary code execution
-- [Messaging](messaging.md) - On-chain messaging
-- [Payments](payments.md) - Payment processing
-- [Treasury](treasury.md) - Asset management
+- [Actions](aibtc-ext001-actions.md) - Voting on predefined actions
+- [Bank Account](aibtc-ext002-bank-account.md) - Managed STX withdrawals
+- [Direct Execute](aibtc-ext003-direct-execute.md) - Voting on arbitrary code execution
+- [Messaging](aibtc-ext004-messaging.md) - On-chain messaging
+- [Payments](aibtc-ext005-payments.md) - Payment processing
+- [Treasury](aibtc-ext006-treasury.md) - Asset management
 
 ## Extension Architecture
 
