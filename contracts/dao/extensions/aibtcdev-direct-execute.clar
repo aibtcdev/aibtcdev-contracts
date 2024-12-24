@@ -291,6 +291,14 @@
   ))
 )
 
+(define-read-only (get-voting-period)
+  VOTING_PERIOD
+)
+
+(define-read-only (get-voting-quorum)
+  VOTING_QUORUM
+)
+
 ;; private functions
 ;; 
 
