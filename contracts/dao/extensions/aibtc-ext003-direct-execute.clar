@@ -21,38 +21,38 @@
 (define-constant VOTING_QUORUM u95) ;; 95% of liquid supply (total supply - treasury)
 
 ;; error messages - authorization
-(define-constant ERR_UNAUTHORIZED (err u1000))
-(define-constant ERR_NOT_DAO_OR_EXTENSION (err u1001))
+(define-constant ERR_UNAUTHORIZED (err u3000))
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u3001))
 
 ;; error messages - initialization
-(define-constant ERR_NOT_INITIALIZED (err u1100))
-(define-constant ERR_ALREADY_INITIALIZED (err u1101))
+(define-constant ERR_NOT_INITIALIZED (err u3100))
+(define-constant ERR_ALREADY_INITIALIZED (err u3101))
 
 ;; error messages - treasury
-(define-constant ERR_TREASURY_MUST_BE_CONTRACT (err u1200))
-(define-constant ERR_TREASURY_CANNOT_BE_SELF (err u1201))
-(define-constant ERR_TREASURY_ALREADY_SET (err u1202))
-(define-constant ERR_TREASURY_MISMATCH (err u1203))
+(define-constant ERR_TREASURY_MUST_BE_CONTRACT (err u3200))
+(define-constant ERR_TREASURY_CANNOT_BE_SELF (err u3201))
+(define-constant ERR_TREASURY_ALREADY_SET (err u3202))
+(define-constant ERR_TREASURY_MISMATCH (err u3203))
 
 ;; error messages - voting token
-(define-constant ERR_TOKEN_MUST_BE_CONTRACT (err u1300))
-(define-constant ERR_TOKEN_NOT_INITIALIZED (err u1301))
-(define-constant ERR_TOKEN_MISMATCH (err u1302))
-(define-constant ERR_INSUFFICIENT_BALANCE (err u1303))
+(define-constant ERR_TOKEN_MUST_BE_CONTRACT (err u3300))
+(define-constant ERR_TOKEN_NOT_INITIALIZED (err u3301))
+(define-constant ERR_TOKEN_MISMATCH (err u3302))
+(define-constant ERR_INSUFFICIENT_BALANCE (err u3303))
 
 ;; error messages - proposals
-(define-constant ERR_PROPOSAL_NOT_FOUND (err u1400))
-(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u1401))
-(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1402))
-(define-constant ERR_SAVING_PROPOSAL (err u1403))
-(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u1404))
+(define-constant ERR_PROPOSAL_NOT_FOUND (err u3400))
+(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u3401))
+(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u3402))
+(define-constant ERR_SAVING_PROPOSAL (err u3403))
+(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u3404))
 
 ;; error messages - voting
-(define-constant ERR_VOTE_TOO_SOON (err u1500))
-(define-constant ERR_VOTE_TOO_LATE (err u1501))
-(define-constant ERR_ALREADY_VOTED (err u1502))
-(define-constant ERR_ZERO_VOTING_POWER (err u1503))
-(define-constant ERR_QUORUM_NOT_REACHED (err u1504))
+(define-constant ERR_VOTE_TOO_SOON (err u3500))
+(define-constant ERR_VOTE_TOO_LATE (err u3501))
+(define-constant ERR_ALREADY_VOTED (err u3502))
+(define-constant ERR_ZERO_VOTING_POWER (err u3503))
+(define-constant ERR_QUORUM_NOT_REACHED (err u3504))
 
 ;; data vars
 ;;

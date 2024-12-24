@@ -11,10 +11,10 @@
 ;;
 (define-constant SELF (as-contract tx-sender))
 (define-constant DEPLOYED_AT burn-block-height)
-(define-constant ERR_INVALID (err u1000))
-(define-constant ERR_UNAUTHORIZED (err u1001))
-(define-constant ERR_TOO_SOON (err u1002))
-(define-constant ERR_INVALID_AMOUNT (err u1003))
+(define-constant ERR_INVALID (err u2000))
+(define-constant ERR_UNAUTHORIZED (err u2001))
+(define-constant ERR_TOO_SOON (err u2002))
+(define-constant ERR_INVALID_AMOUNT (err u2003))
 
 
 ;; data vars

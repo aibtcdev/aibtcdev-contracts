@@ -13,8 +13,8 @@
 ;; constants
 ;;
 
-(define-constant ERR_UNAUTHORIZED (err u2000))
-(define-constant ERR_UNKNOWN_ASSSET (err u2001))
+(define-constant ERR_UNAUTHORIZED (err u6000))
+(define-constant ERR_UNKNOWN_ASSSET (err u6001))
 (define-constant TREASURY (as-contract tx-sender))
 
 ;; data maps
