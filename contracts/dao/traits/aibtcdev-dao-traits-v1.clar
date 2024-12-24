@@ -57,9 +57,23 @@
 
 (define-trait resources
   (
-    (set-payment-address (principal principal) (response bool uint))
+    ;; set payment address for resource invoices
+    ;; @param principal the new payment address
+    ;; @returns (response bool uint)
+    (set-payment-address (principal) (response bool uint))
+    ;; adds a new resource that users can pay for
+    ;; @param name the name of the resource (unique!)
+    ;; @param price the price of the resource in microSTX
+    ;; @param description a description of the resource
+    ;; @returns (response uint uint)
     (add-resource ((string-utf8 50) (string-utf8 255) uint (optional (string-utf8 255))) (response uint uint))
+    ;; toggles a resource on or off for payment
+    ;; @param resource the ID of the resource
+    ;; @returns (response bool uint)
     (toggle-resource (uint) (response bool uint))
+    ;; toggles a resource on or off for payment by name
+    ;; @param name the name of the resource
+    ;; @returns (response bool uint)
     (toggle-resource-by-name ((string-utf8 50)) (response bool uint))
   )
 )

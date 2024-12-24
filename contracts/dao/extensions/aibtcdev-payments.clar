@@ -111,99 +111,6 @@
   uint ;; invoice count
 )
 
-
-;; read only functions
-;;
-
-;; returns total registered users
-(define-read-only (get-total-users)
-  (var-get userCount)
-)
-
-;; returns user index for address if known
-(define-read-only (get-user-index (user principal))
-  (map-get? UserIndexes user)
-)
-
-;; returns user data by user index if known
-(define-read-only (get-user-data (index uint))
-  (map-get? UserData index)
-)
-
-;; returns user data by address if known
-(define-read-only (get-user-data-by-address (user principal))
-  (get-user-data (unwrap! (get-user-index user) none))
-)
-
-;; returns total registered resources
-(define-read-only (get-total-resources)
-  (var-get resourceCount)
-)
-
-;; returns resource index for name if known
-(define-read-only (get-resource-index (name (string-utf8 50)))
-  (map-get? ResourceIndexes name)
-)
-
-;; returns resource data by resource index if known
-(define-read-only (get-resource (index uint))
-  (map-get? ResourceData index)
-)
-
-;; returns resource data by resource name if known
-(define-read-only (get-resource-by-name (name (string-utf8 50)))
-  (get-resource (unwrap! (get-resource-index name) none))
-)
-
-;; returns total registered invoices
-(define-read-only (get-total-invoices)
-  (var-get invoiceCount)
-)
-
-;; returns invoice data by invoice index if known
-(define-read-only (get-invoice (index uint))
-  (map-get? InvoiceData index)
-)
-
-;; returns invoice index by user index and resource index if known
-(define-read-only (get-recent-payment (resourceIndex uint) (userIndex uint))
-  (map-get? RecentPayments {
-    userIndex: userIndex,
-    resourceIndex: resourceIndex,
-  })
-)
-
-;; returns invoice data by user index and resource index if known
-(define-read-only (get-recent-payment-data (resourceIndex uint) (userIndex uint))
-  (get-invoice (unwrap! (get-recent-payment resourceIndex userIndex) none))
-)
-
-;; returns invoice data by user address and resource name if known
-(define-read-only (get-recent-payment-data-by-address (name (string-utf8 50)) (user principal))
-  (get-recent-payment-data (unwrap! (get-resource-index name) none) (unwrap! (get-user-index user) none))
-)
-
-;; returns payment address
-(define-read-only (get-payment-address)
-  (some (var-get paymentAddress))
-)
-
-;; returns total revenue
-(define-read-only (get-total-revenue)
-  (var-get totalRevenue)
-)
-
-;; returns aggregate contract data
-(define-read-only (get-contract-data)
-  {
-    paymentAddress: (get-payment-address),
-    totalInvoices: (get-total-invoices),
-    totalResources: (get-total-resources),
-    totalRevenue: (get-total-revenue),
-    totalUsers: (get-total-users)
-  }
-)
-
 ;; public functions
 ;;
 
@@ -212,23 +119,20 @@
 )
 
 ;; sets payment address used for invoices
-;; only accessible by deployer or current payment address
-(define-public (set-payment-address (oldAddress principal) (newAddress principal))
+(define-public (set-payment-address (newAddress principal))
   (begin
-    ;; check that old address matches current address
-    (asserts! (is-eq oldAddress (var-get paymentAddress)) ERR_UNAUTHORIZED)
-    ;; address cannot be the same
-    (asserts! (not (is-eq oldAddress newAddress)) ERR_UNAUTHORIZED)
     ;; check if caller is authorized
     (try! (is-dao-or-extension))
+    ;; check that new address differs from current address
+    (asserts! (not (is-eq newAddress (var-get paymentAddress))) ERR_UNAUTHORIZED)   
     ;; print details
     (print {
       notification: "set-payment-address",
       payload: {
-        oldAddress: oldAddress,
+        contractCaller: contract-caller,
+        oldAddress: (var-get paymentAddress),
         newAddress: newAddress,
         txSender: tx-sender,
-        contractCaller: contract-caller,
       }
     })
     ;; set new payment address
@@ -283,19 +187,19 @@
 )
 
 ;; toggles enabled status for resource
-(define-public (toggle-resource (index uint))
+(define-public (toggle-resource (resourceIndex uint))
   (let
     (
-      (resourceData (unwrap! (get-resource index) ERR_RESOURCE_NOT_FOUND))
+      (resourceData (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND))
       (newStatus (not (get enabled resourceData)))
     )
     ;; verify resource > 0
-    (asserts! (> index u0) ERR_INVALID_PARAMS)
+    (asserts! (> resourceIndex u0) ERR_INVALID_PARAMS)
     ;; check if caller is authorized
     (try! (is-dao-or-extension))
     ;; update ResourceData map
     (map-set ResourceData
-      index
+      resourceIndex
       (merge resourceData {
         enabled: newStatus
       })
@@ -304,8 +208,8 @@
     (print {
       notification: "toggle-resource",
       payload: {
-        resourceIndex: index,
-        resourceData: (unwrap! (get-resource index) ERR_RESOURCE_NOT_FOUND),
+        resourceIndex: resourceIndex,
+        resourceData: (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND),
         txSender: tx-sender,
         contractCaller: contract-caller
       }
@@ -401,6 +305,99 @@
 
 (define-public (pay-invoice-by-resource-name (name (string-utf8 50)) (memo (optional (buff 34))))
   (pay-invoice (unwrap! (get-resource-index name) ERR_RESOURCE_NOT_FOUND) memo)
+)
+
+
+;; read only functions
+;;
+
+;; returns total registered users
+(define-read-only (get-total-users)
+  (var-get userCount)
+)
+
+;; returns user index for address if known
+(define-read-only (get-user-index (user principal))
+  (map-get? UserIndexes user)
+)
+
+;; returns user data by user index if known
+(define-read-only (get-user-data (index uint))
+  (map-get? UserData index)
+)
+
+;; returns user data by address if known
+(define-read-only (get-user-data-by-address (user principal))
+  (get-user-data (unwrap! (get-user-index user) none))
+)
+
+;; returns total registered resources
+(define-read-only (get-total-resources)
+  (var-get resourceCount)
+)
+
+;; returns resource index for name if known
+(define-read-only (get-resource-index (name (string-utf8 50)))
+  (map-get? ResourceIndexes name)
+)
+
+;; returns resource data by resource index if known
+(define-read-only (get-resource (index uint))
+  (map-get? ResourceData index)
+)
+
+;; returns resource data by resource name if known
+(define-read-only (get-resource-by-name (name (string-utf8 50)))
+  (get-resource (unwrap! (get-resource-index name) none))
+)
+
+;; returns total registered invoices
+(define-read-only (get-total-invoices)
+  (var-get invoiceCount)
+)
+
+;; returns invoice data by invoice index if known
+(define-read-only (get-invoice (index uint))
+  (map-get? InvoiceData index)
+)
+
+;; returns invoice index by user index and resource index if known
+(define-read-only (get-recent-payment (resourceIndex uint) (userIndex uint))
+  (map-get? RecentPayments {
+    userIndex: userIndex,
+    resourceIndex: resourceIndex,
+  })
+)
+
+;; returns invoice data by user index and resource index if known
+(define-read-only (get-recent-payment-data (resourceIndex uint) (userIndex uint))
+  (get-invoice (unwrap! (get-recent-payment resourceIndex userIndex) none))
+)
+
+;; returns invoice data by user address and resource name if known
+(define-read-only (get-recent-payment-data-by-address (name (string-utf8 50)) (user principal))
+  (get-recent-payment-data (unwrap! (get-resource-index name) none) (unwrap! (get-user-index user) none))
+)
+
+;; returns payment address
+(define-read-only (get-payment-address)
+  (some (var-get paymentAddress))
+)
+
+;; returns total revenue
+(define-read-only (get-total-revenue)
+  (var-get totalRevenue)
+)
+
+;; returns aggregate contract data
+(define-read-only (get-contract-data)
+  {
+    paymentAddress: (get-payment-address),
+    totalInvoices: (get-total-invoices),
+    totalResources: (get-total-resources),
+    totalRevenue: (get-total-revenue),
+    totalUsers: (get-total-users)
+  }
 )
 
 ;; private functions
