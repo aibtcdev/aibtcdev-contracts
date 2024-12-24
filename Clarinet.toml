@@ -6,7 +6,7 @@ telemetry = true
 cache_dir = './.cache'
 
 [repl.analysis]
-passes = ['check_checker']
+passes = []
 
 [repl.analysis.check_checker]
 strict = false

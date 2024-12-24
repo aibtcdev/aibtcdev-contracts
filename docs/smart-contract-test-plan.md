@@ -120,7 +120,7 @@ conclude-proposal() succeeds without executing if failed
 
 send() succeeds if called by any user with isFromDao false
 send() fails if called by any user with isFromDao true
-send() succeeds if called by a DAO proposal
+send() succeeds if called by a DAO proposal with isFromDao true
 
 ### aibtc-ext005-payments
 

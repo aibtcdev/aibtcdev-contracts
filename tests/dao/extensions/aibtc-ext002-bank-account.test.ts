@@ -17,7 +17,7 @@ enum ErrCode {
 const withdrawalAmount = 10000000;
 const withdrawalPeriod = 144;
 
-describe("aibtcdev-bank-account", () => {
+describe("aibtc-ext002-bank-account", () => {
   describe("set-account-holder", () => {
     it("succeeds when deployer sets a valid account holder", () => {
       const response = simnet.callPublicFn(
