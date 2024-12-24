@@ -18,6 +18,20 @@
 (define-constant VOTING_PERIOD u144) ;; 144 Bitcoin blocks, ~1 day
 (define-constant VOTING_QUORUM u66) ;; 66% of liquid supply (total supply - treasury)
 
+(define-constant VALID_ACTIONS (list
+  "send-message"
+  "add-resource"
+  "batch-messages"
+  "batch-resources"
+  "allow-asset"
+  "delegate-stx"
+  "set-account-holder"
+  "set-withdrawal-period"
+  "set-withdrawal-amount"
+  "toggle-resource"
+  "set-payment-address"
+))
+
 ;; error messages - authorization
 (define-constant ERR_UNAUTHORIZED (err u1000))
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u1001))
@@ -164,7 +178,6 @@
       }
     })
     ;; create the proposal
-    (try! (validate-action action parameters))
     (asserts! (map-insert Proposals newId {
       action: action,
       parameters: parameters,
@@ -258,7 +271,7 @@
       })
     )
     ;; execute the action only if it passed
-    (and votePassed (try! (execute-action proposalRecord)))
+    ;; (and votePassed (try! (execute-action proposalRecord)))
     ;; return the result
     (ok votePassed)
   )
@@ -318,158 +331,3 @@
   ))
 )
 
-(define-private (validate-action (action (string-ascii 64)) (parameters (list 10 (string-utf8 256))))
-  (if (is-eq action "send-message")
-    (asserts! (and (is-eq (len parameters) u1)) ERR_INVALID_PARAMETERS)
-    (if (is-eq action "add-resource")
-      (asserts! (and (is-eq (len parameters) u4)) ERR_INVALID_PARAMETERS)
-      (if (is-eq action "batch-messages") 
-        (asserts! (> (len parameters) u0) ERR_INVALID_PARAMETERS)
-        (if (is-eq action "batch-resources")
-          (asserts! (and (> (len parameters) u0) (is-eq (mod (len parameters) u4) u0)) ERR_INVALID_PARAMETERS)
-          (if (is-eq action "allow-asset")
-            (asserts! (and (is-eq (len parameters) u2)) ERR_INVALID_PARAMETERS)
-            (if (is-eq action "delegate-stx")
-              (asserts! (and (is-eq (len parameters) u2)) ERR_INVALID_PARAMETERS)
-              (if (is-eq action "set-account-holder")
-                (asserts! (and (is-eq (len parameters) u1)) ERR_INVALID_PARAMETERS)
-                (if (is-eq action "set-withdrawal-period")
-                  (asserts! (and (is-eq (len parameters) u1)) ERR_INVALID_PARAMETERS)
-                  (if (is-eq action "set-withdrawal-amount")
-                    (asserts! (and (is-eq (len parameters) u1)) ERR_INVALID_PARAMETERS)
-                    (if (is-eq action "toggle-resource")
-                      (asserts! (and (is-eq (len parameters) u1)) ERR_INVALID_PARAMETERS)
-                      (if (is-eq action "set-payment-address")
-                        (asserts! (and (is-eq (len parameters) u1)) ERR_INVALID_PARAMETERS)
-                        (err ERR_INVALID_ACTION)
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-      )
-    )
-  )
-  (ok true)
-)
-
-(define-private (execute-action (proposal {
-    action: (string-ascii 64),
-    parameters: (list 10 (string-utf8 256)),
-    createdAt: uint,
-    caller: principal,
-    creator: principal,
-    startBlock: uint,
-    endBlock: uint,
-    votesFor: uint,
-    votesAgainst: uint,
-    concluded: bool,
-    passed: bool
-  }))
-  (let
-    (
-      (action (get action proposal))
-      (params (get parameters proposal))
-    )
-    (match action
-      "send-message"
-        (as-contract (contract-call? .aibtcdev-messaging send 
-          (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS) true))
-      
-      "add-resource"
-        (as-contract (contract-call? .aibtcdev-payments add-resource
-          (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)
-          (unwrap! (element-at params u1) ERR_INVALID_PARAMETERS)
-          (unwrap! (to-uint (unwrap! (element-at params u2) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
-          (some (unwrap! (element-at params u3) ERR_INVALID_PARAMETERS))))
-      
-      "batch-messages"
-        (fold process-message params (ok true))
-      
-      "batch-resources"
-        (fold process-resource (chunk-parameters params u4) (ok true))
-      
-      "allow-asset"
-        (as-contract (contract-call? .aibtcdev-treasury allow-asset
-          (unwrap! (to-principal (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
-          (unwrap! (to-bool (unwrap! (element-at params u1) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)))
-      
-      "delegate-stx"
-        (as-contract (contract-call? .aibtcdev-treasury delegate-stx
-          (unwrap! (to-uint (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
-          (unwrap! (to-principal (unwrap! (element-at params u1) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)))
-      
-      "set-account-holder"
-        (as-contract (contract-call? .aibtcdev-bank-account set-account-holder
-          (unwrap! (to-principal (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)))
-      
-      "set-withdrawal-period"
-        (as-contract (contract-call? .aibtcdev-bank-account set-withdrawal-period
-          (unwrap! (to-uint (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)))
-      
-      "set-withdrawal-amount"
-        (as-contract (contract-call? .aibtcdev-bank-account set-withdrawal-amount
-          (unwrap! (to-uint (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)))
-      
-      "toggle-resource"
-        (as-contract (contract-call? .aibtcdev-payments toggle-resource-by-name
-          (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)))
-      
-      "set-payment-address"
-        (as-contract (contract-call? .aibtcdev-payments set-payment-address
-          (unwrap! (to-principal (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)))
-      
-      (err ERR_INVALID_ACTION)
-    )
-  )
-)
-
-;; Helper function to process a single message in a batch
-(define-private (process-message (msg (string-utf8 256)) (previous (response bool uint)))
-  (match previous
-    success (as-contract (contract-call? .aibtcdev-messaging send msg true))
-    error error
-  )
-)
-
-;; Helper function to process a single resource in a batch
-(define-private (process-resource (params (list 4 (string-utf8 256))) (previous (response bool uint)))
-  (match previous
-    success (as-contract (contract-call? .aibtcdev-payments add-resource
-      (unwrap! (element-at params u0) ERR_INVALID_PARAMETERS)
-      (unwrap! (element-at params u1) ERR_INVALID_PARAMETERS)
-      (unwrap! (to-uint (unwrap! (element-at params u2) ERR_INVALID_PARAMETERS)) ERR_INVALID_PARAMETERS)
-      (some (unwrap! (element-at params u3) ERR_INVALID_PARAMETERS))
-    ))
-    error error
-  )
-)
-
-;; Helper function to chunk a list into groups of n
-(define-private (chunk-parameters (params (list 10 (string-utf8 256))) (size uint))
-  (let
-    (
-      (len (len params))
-      (chunks (/ len size))
-    )
-    (map chunk-at (list chunks uint))
-  )
-)
-
-;; Helper function to get a chunk at index
-(define-private (chunk-at (index uint))
-  (let
-    (
-      (start (* index u4))
-    )
-    (list
-      (unwrap! (element-at params start) ERR_INVALID_PARAMETERS)
-      (unwrap! (element-at params (+ start u1)) ERR_INVALID_PARAMETERS)
-      (unwrap! (element-at params (+ start u2)) ERR_INVALID_PARAMETERS)
-      (unwrap! (element-at params (+ start u3)) ERR_INVALID_PARAMETERS)
-    )
-  )
-)
