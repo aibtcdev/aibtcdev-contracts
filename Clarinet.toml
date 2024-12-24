@@ -75,18 +75,8 @@ epoch = 2.5
 
 # dao traits
 
-[contracts.aibtcdev-extension-trait]
-path = 'contracts/dao/traits/aibtcdev-extension-trait.clar'
-clarity_version = 2
-epoch = 2.5
-
-[contracts.aibtcdev-payment-traits]
-path = 'contracts/dao/traits/aibtcdev-payment-traits.clar'
-clarity_version = 2
-epoch = 2.5
-
-[contracts.aibtcdev-proposal-trait]
-path = 'contracts/dao/traits/aibtcdev-proposal-trait.clar'
+[contracts.aibtcdev-dao-traits-v1]
+path = 'contracts/dao/traits/aibtcdev-dao-traits-v1.clar'
 clarity_version = 2
 epoch = 2.5
 
