@@ -21,23 +21,37 @@
 (define-constant VOTING_PERIOD u144) ;; 144 Bitcoin blocks, ~1 day
 (define-constant VOTING_QUORUM u95) ;; 95% of liquid supply (total supply - treasury)
 
-;; error messages
+;; error messages - authorization
 (define-constant ERR_UNAUTHORIZED (err u1000))
-(define-constant ERR_INVALID (err u1001))
-(define-constant ERR_NOT_INITIALIZED (err u1002))
-(define-constant ERR_INVALID_VOTING_TOKEN (err u1003))
-(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u1004))
-(define-constant ERR_FETCHING_BALANCE (err u1005))
-(define-constant ERR_SAVING_PROPOSAL (err u1006))
-(define-constant ERR_PROPOSAL_NOT_FOUND (err u1007))
-(define-constant ERR_VOTE_TOO_SOON (err u1008))
-(define-constant ERR_VOTE_TOO_LATE (err u1009))
-(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1010))
-(define-constant ERR_QUORUM_NOT_REACHED (err u1011))
-(define-constant ERR_ALREADY_VOTED (err u1012))
-(define-constant ERR_MUST_BE_CONTRACT (err u1013))
-(define-constant ERR_ALREADY_INITIALIZED (err u1014))
-(define-constant ERR_CONTRACT_MISMATCH (err u1015))
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u1001))
+
+;; error messages - initialization
+(define-constant ERR_NOT_INITIALIZED (err u1100))
+(define-constant ERR_ALREADY_INITIALIZED (err u1101))
+
+;; error messages - treasury
+(define-constant ERR_TREASURY_MUST_BE_CONTRACT (err u1200))
+(define-constant ERR_TREASURY_CANNOT_BE_SELF (err u1201))
+(define-constant ERR_TREASURY_ALREADY_SET (err u1202))
+
+;; error messages - voting token
+(define-constant ERR_TOKEN_MUST_BE_CONTRACT (err u1300))
+(define-constant ERR_TOKEN_NOT_INITIALIZED (err u1301))
+(define-constant ERR_TOKEN_MISMATCH (err u1302))
+(define-constant ERR_INSUFFICIENT_BALANCE (err u1303))
+
+;; error messages - proposals
+(define-constant ERR_PROPOSAL_NOT_FOUND (err u1400))
+(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u1401))
+(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1402))
+(define-constant ERR_SAVING_PROPOSAL (err u1403))
+
+;; error messages - voting
+(define-constant ERR_VOTE_TOO_SOON (err u1500))
+(define-constant ERR_VOTE_TOO_LATE (err u1501))
+(define-constant ERR_ALREADY_VOTED (err u1502))
+(define-constant ERR_ZERO_VOTING_POWER (err u1503))
+(define-constant ERR_QUORUM_NOT_REACHED (err u1504))
 
 ;; data vars
 ;;
