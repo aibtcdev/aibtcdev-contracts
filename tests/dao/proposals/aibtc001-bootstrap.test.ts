@@ -1,20 +1,16 @@
+import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
+const address2 = accounts.get("wallet_2")!;
+const addressDeployer = accounts.get("deployer")!;
 
-/*
-  The test below is an example. To learn more, read the testing documentation here:
-  https://docs.hiro.so/stacks/clarinet-js-sdk
-*/
+const contractAddress = `${addressDeployer}.aibtc-prop001-bootstrap`;
 
-describe("example tests", () => {
-  it("ensures simnet is well initalised", () => {
-    expect(simnet.blockHeight).toBeDefined();
+describe("aibtc-prop001-bootstrap", () => {
+  // Manifest Tests
+  describe("get-dao-manifest()", () => {
+    it("returns DAO_MANIFEST as string");
   });
-
-  // it("shows an example", () => {
-  //   const { result } = simnet.callReadOnlyFn("counter", "get-counter", [], address1);
-  //   expect(result).toBeUint(0);
-  // });
 });
