@@ -4,9 +4,9 @@
 
 ;; traits
 ;;
-(impl-trait .aibtcdev-extension-trait.extension-trait)
-(impl-trait .aibtcdev-payment-traits.aibtcdev-resource-mgmt-v1)
-(impl-trait .aibtcdev-payment-traits.aibtcdev-invoice-v1)
+(impl-trait .aibtcdev-dao-traits-v1.extension)
+(impl-trait .aibtcdev-dao-traits-v1.invoices)
+(impl-trait .aibtcdev-dao-traits-v1.resources)
 
 ;; constants
 ;;

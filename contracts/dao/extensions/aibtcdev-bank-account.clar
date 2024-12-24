@@ -4,8 +4,8 @@
 
 ;; traits
 ;;
-(impl-trait .aibtcdev-bank-account-trait.bank-account-trait)
-(impl-trait .aibtcdev-extension-trait.extension-trait)
+(impl-trait .aibtcdev-dao-traits-v1.extension)
+(impl-trait .aibtcdev-dao-traits-v1.bank-acccount)
 
 ;; constants
 ;;

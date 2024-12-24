@@ -1,4 +1,4 @@
-(impl-trait .aibtcdev-proposal-trait.proposal-trait)
+(impl-trait .aibtcdev-dao-traits-v1.proposal)
 
 (define-public (execute (sender principal))
   (begin  

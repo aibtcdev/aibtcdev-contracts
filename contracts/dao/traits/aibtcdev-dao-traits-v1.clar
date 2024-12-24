@@ -6,12 +6,13 @@
 
 (use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 (use-trait nft-trait 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait)
+(use-trait proposal .aibtcdev-dao-traits-v1.proposal)
 
 ;; CORE DAO TRAITS
 
 (define-trait executor (
     ;; Execute a governance proposal
-    (execute (principal) (response bool uint))
+    (execute (<proposal> principal) (response bool uint))
     ;; Enable or disable an extension contract
     (set-extension (principal bool) (response bool uint))
     ;; Check if a given principal is an enabled extension

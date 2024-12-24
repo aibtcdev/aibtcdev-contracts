@@ -1,25 +1,10 @@
 
 ;; title: test-proxy
-;; version:
-;; summary:
-;; description:
-
-;; traits
-;;
-
-;; token definitions
-;;
 
 ;; constants
 ;;
 (define-constant CONTRACT (as-contract tx-sender))
 (define-constant OWNER tx-sender)
-
-;; data vars
-;;
-
-;; data maps
-;;
 
 ;; public functions
 ;;
@@ -40,10 +25,3 @@
 (define-public (mint-aibtcdev-2 (to principal))
   (contract-call? 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.aibtcdev-airdrop-2 mint to)
 )
-
-;; read only functions
-;;
-
-;; private functions
-;;
-
