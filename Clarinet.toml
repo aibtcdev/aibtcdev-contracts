@@ -97,7 +97,7 @@ epoch = 2.5
 
 # testing utilities
 
-[contracts.test-abitc-treasury]
+[contracts.test-treasury]
 path = 'contracts/test/aibtc-treasury.clar'
 clarity_version = 2
 epoch = 2.5
@@ -118,7 +118,7 @@ path = 'contracts/test/proxy.clar'
 clarity_version = 2
 epoch = 2.5
 
-[contracts.test-sip010-token]
+[contracts.test-token]
 path = 'contracts/test/sip010-token.clar'
 clarity_version = 2
 epoch = 2.5

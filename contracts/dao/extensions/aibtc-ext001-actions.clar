@@ -119,10 +119,10 @@
     (try! (is-dao-or-extension))
     ;; treasury must be a contract
     (asserts! (not (is-standard treasuryContract)) ERR_TREASURY_MUST_BE_CONTRACT)
+    ;; treasury must not be already set
+    (asserts! (is-eq (var-get protocolTreasury) SELF) ERR_TREASURY_NOT_INITIALIZED)
     ;; treasury cannot be the voting contract
     (asserts! (not (is-eq treasuryContract SELF)) ERR_TREASURY_CANNOT_BE_SELF)
-    ;; treasury cannot be the same value
-    (asserts! (not (is-eq treasuryContract (var-get protocolTreasury))) ERR_TREASURY_ALREADY_SET)
     (print {
       notification: "set-protocol-treasury",
       payload: {
@@ -141,8 +141,8 @@
     (try! (is-dao-or-extension))
     ;; token must be a contract
     (asserts! (not (is-standard tokenContract)) ERR_TOKEN_MUST_BE_CONTRACT)
+    ;; token must not be already set
     (asserts! (is-eq (var-get votingToken) SELF) ERR_TOKEN_NOT_INITIALIZED)
-    (asserts! (is-eq (var-get votingToken) tokenContract) ERR_TOKEN_MISMATCH)
     (print {
       notification: "set-voting-token",
       payload: {
@@ -199,7 +199,6 @@
 (define-public (vote-on-proposal (proposalId uint) (token <ft-trait>) (vote bool))
   (let
     (
-      (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
       (tokenContract (contract-of token))
       (senderBalance (try! (contract-call? token get-balance tx-sender)))
     )
@@ -208,7 +207,12 @@
     ;; token matches set voting token
     (asserts! (is-eq tokenContract (var-get votingToken)) ERR_TOKEN_MISMATCH)
     ;; caller has the required balance
-    (asserts! (> senderBalance u0) ERR_ZERO_VOTING_POWER)
+    (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
+    ;; get proposal record
+    (let
+      (
+        (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
+      )
     ;; proposal is still active
     (asserts! (>= burn-block-height (get startBlock proposalRecord)) ERR_VOTE_TOO_SOON)
     (asserts! (< burn-block-height (get endBlock proposalRecord)) ERR_VOTE_TOO_LATE)
