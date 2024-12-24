@@ -327,7 +327,7 @@
 
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
-    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
+    (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )
 

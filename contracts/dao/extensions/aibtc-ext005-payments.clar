@@ -45,7 +45,7 @@
 (define-data-var totalRevenue uint u0)
 
 ;; dao can update payment address
-(define-data-var paymentAddress principal .aibtcdev-bank-account)
+(define-data-var paymentAddress principal .aibtc-ext002-bank-account)
 
 ;; data maps
 ;;
@@ -404,7 +404,7 @@
 
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
-    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+    (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
   ))
 )
 
