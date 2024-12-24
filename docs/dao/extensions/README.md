@@ -9,7 +9,7 @@ Extensions are modular components that add functionality to the DAO. Each extens
 - [Direct Execute](aibtc-ext003-direct-execute.md) - Voting on arbitrary code execution
 - [Messaging](aibtc-ext004-messaging.md) - On-chain messaging up to 1MB
 - [Payments](aibtc-ext005-payments.md) - Payment processing for DAO services with invoicing
-- [Treasury](aibtc-ext006-treasury.md) - Asset management
+- [Treasury](aibtc-ext006-treasury.md) - Multi-asset treasury management (STX, NFTs, FTs)
 
 ## Extension Architecture
 
