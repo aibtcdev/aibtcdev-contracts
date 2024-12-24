@@ -4,7 +4,7 @@ All tests will be created with and executed using the Clarinet JS SDK.
 
 ## Main DAO
 
-### aibtcdev-dao
+### aibtcdev-base-dao
 
 set-extension() fails if caller is not DAO or extension
 set-extensions() fails if caller is not DAO or extension
@@ -22,7 +22,7 @@ executed-at() succeeds and returns the Bitcoin block height the proposal was exe
 
 ## Extensions
 
-### aibtcdev-actions
+### aibtc-ext001-actions
 
 execute-action() fails if action is not recognized
 execute-action() fails if parameters are invalid
@@ -38,7 +38,7 @@ execute-action() succeeds with valid "set-withdrawal-amount" action
 execute-action() succeeds with valid "toggle-resource" action
 execute-action() succeeds with valid "set-payment-address" action
 
-### aibtcdev-bank-account
+### aibtc-ext002-bank-account
 
 set-account-holder() fails if caller is not DAO or extension
 set-account-holder() succeeds and sets the account holder to a standard principal
@@ -59,7 +59,7 @@ override-last-withdrawal-block() succeeds and sets the withdrawal block
 
 get-account-terms() succeeds and returns expected values
 
-### aibtcdev-direct-execute
+### aibtc-ext003-direct-execute
 
 set-protocol-treasury() fails if caller is not DAO or extension
 set-protocol-treasury() fails if treasury is not a contract
@@ -97,13 +97,13 @@ conclude-proposal() fails if proposal already concluded
 conclude-proposal() succeeds and executes if passed
 conclude-proposal() succeeds without executing if failed
 
-### aibtcdev-messaging
+### aibtc-ext004-messaging
 
 send() succeeds if called by any user with isFromDao false
 send() fails if called by any user with isFromDao true
 send() succeeds if called by a DAO proposal
 
-### aibtcdev-payments
+### aibtc-ext005-payments
 
 set-payment-address() fails if caller is not DAO or extension
 set-payment-address() fails if old address matches current payment address
@@ -136,7 +136,7 @@ pay-invoice-by-resource-name() fails if resource is not found
 pay-invoice-by-resource-name() fails if resource is disabled
 pay-invoice-by-resource-name() succeeds and updates info for resource
 
-### aibtcdev-treasury
+### aibtc-ext006-treasury
 
 allow-asset() fails if caller is not DAO or extension
 allow-asset() succeeds and sets new allowed asset
@@ -175,6 +175,6 @@ revoke-delegate-stx() succeeds and revokes stacking delegation
 
 ## Proposals
 
-### aibtcdev-bootstrap
+### aibtc-prop001-bootstrap
 
 get-dao-manifest() returns DAO_MANIFEST as string
