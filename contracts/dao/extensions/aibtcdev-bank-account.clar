@@ -5,11 +5,12 @@
 ;; traits
 ;;
 (impl-trait .aibtcdev-dao-traits-v1.extension)
-(impl-trait .aibtcdev-dao-traits-v1.bank-acccount)
+(impl-trait .aibtcdev-dao-traits-v1.bank-account)
 
 ;; constants
 ;;
 (define-constant SELF (as-contract tx-sender))
+(define-constant DEPLOYED_AT burn-block-height)
 (define-constant ERR_INVALID (err u1000))
 (define-constant ERR_UNAUTHORIZED (err u1001))
 (define-constant ERR_TOO_SOON (err u1002))
@@ -58,73 +59,8 @@
 (define-public (override-last-withdrawal-block (block uint))
   (begin
     (try! (is-dao-or-extension))
-    (asserts! (> block u0) ERR_INVALID)
+    (asserts! (> block DEPLOYED_AT) ERR_INVALID)
     (ok (var-set lastWithdrawalBlock block))
-  )
-)
-
-(define-public (update-terms
-    (accountHolder (optional principal)) 
-    (withdrawalPeriod (optional uint))
-    (withdrawalAmount (optional uint))
-    (lastWithdrawalBlock (optional uint))
-    (opcode (optional (buff 16))))
-
-  (begin
-    ;; Check authorization
-    (try! (is-dao-or-extension))
-
-    ;; Update account holder if provided
-    (match accountHolder holder
-      (begin 
-        (asserts! (not (is-eq (var-get accountHolder) holder)) ERR_INVALID)
-        (var-set accountHolder holder)
-      )
-      true
-    )
-
-    ;; Update withdrawal period if provided
-    (match withdrawalPeriod period
-      (begin 
-        (asserts! (> period u0) ERR_INVALID)
-        (var-set withdrawalPeriod period)
-      )
-      true
-    )
-
-    ;; Update withdrawal amount if provided
-    (match withdrawalAmount amount
-      (begin
-        (asserts! (> amount u0) ERR_INVALID)
-        (var-set withdrawalAmount amount)
-      )
-      true
-    )
-
-    ;; Update last withdrawal block if provided
-    (match lastWithdrawalBlock block
-      (begin
-        (asserts! (> block u0) ERR_INVALID)
-        (var-set lastWithdrawalBlock block)
-      )
-      true
-    )
-
-    ;; Print settings update event
-    (print {
-      notification: "terms-updated",
-      payload: {
-        accountHolder: (var-get accountHolder),
-        withdrawalPeriod: (var-get withdrawalPeriod),
-        withdrawalAmount: (var-get withdrawalAmount),
-        lastWithdrawalBlock: (var-get lastWithdrawalBlock),
-        opcode: opcode,
-        caller: contract-caller,
-        sender: tx-sender
-      }
-    })
-
-    (ok true)
   )
 )
 
@@ -148,9 +84,9 @@
     ;; verify user is enabled in the map
     (try! (is-account-holder))
     ;; verify user is not withdrawing too soon
-    (asserts! (>= block-height (+ (var-get lastWithdrawalBlock) (var-get withdrawalPeriod))) ERR_TOO_SOON)
+    (asserts! (>= burn-block-height (+ (var-get lastWithdrawalBlock) (var-get withdrawalPeriod))) ERR_TOO_SOON)
     ;; update last withdrawal block
-    (var-set lastWithdrawalBlock block-height)
+    (var-set lastWithdrawalBlock burn-block-height)
     ;; print notification and transfer STX
     (print {
       notification: "withdraw-stx",
@@ -166,12 +102,20 @@
 
 ;; read only functions
 ;;
+(define-read-only (get-deployed-block)
+  DEPLOYED_AT
+)
+
 (define-read-only (get-account-balance)
   (stx-get-balance SELF)
 )
 
 (define-read-only (get-account-holder)
   (var-get accountHolder)
+)
+
+(define-read-only (get-last-withdrawal-block)
+  (var-get lastWithdrawalBlock)
 )
 
 (define-read-only (get-withdrawal-period)
@@ -182,16 +126,15 @@
   (var-get withdrawalAmount)
 )
 
-(define-read-only (get-last-withdrawal-block)
-  (var-get lastWithdrawalBlock)
-)
-
-(define-read-only (get-terms)
+(define-read-only (get-account-terms)
   {
-    accountHolder: (var-get accountHolder),
-    lastWithdrawalBlock: (var-get lastWithdrawalBlock),
-    withdrawalAmount: (var-get withdrawalAmount),
-    withdrawalPeriod: (var-get withdrawalPeriod),
+    accountBalance: (get-account-balance),
+    accountHolder: (get-account-holder),
+    contractName: SELF,
+    deployedAt: (get-deployed-block),
+    lastWithdrawalBlock: (get-last-withdrawal-block),
+    withdrawalAmount: (get-withdrawal-amount),
+    withdrawalPeriod: (get-withdrawal-period),
   }
 )
 
