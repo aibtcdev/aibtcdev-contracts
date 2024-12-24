@@ -58,7 +58,7 @@
 (define-trait resources
   (
     (set-payment-address (principal principal) (response bool uint))
-    (add-resource ((string-utf8 50) (string-utf8 255) uint) (response uint uint))
+    (add-resource ((string-utf8 50) (string-utf8 255) uint (optional (string-utf8 255))) (response uint uint))
     (toggle-resource (uint) (response bool uint))
     (toggle-resource-by-name ((string-utf8 50)) (response bool uint))
   )

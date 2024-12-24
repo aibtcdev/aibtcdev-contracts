@@ -86,9 +86,7 @@
     price: uint,
     totalSpent: uint,
     totalUsed: uint,
-    ;; TODO: for health check, setter would be nice
-    ;; TODO: expect SIP-018 open timestamp response
-    ;; url: (optional (string-utf8 255)),
+    url: (optional (string-utf8 255)),
   }
 )
 
@@ -195,14 +193,19 @@
   (var-get totalRevenue)
 )
 
+;; returns aggregate contract data
+(define-read-only (get-contract-data)
+  {
+    paymentAddress: (get-payment-address),
+    totalInvoices: (get-total-invoices),
+    totalResources: (get-total-resources),
+    totalRevenue: (get-total-revenue),
+    totalUsers: (get-total-users)
+  }
+)
+
 ;; public functions
 ;;
-
-(define-public (is-dao-or-extension)
-  (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
-    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_UNAUTHORIZED
-  ))
-)
 
 (define-public (callback (sender principal) (memo (buff 34)))
   (ok true)
@@ -234,7 +237,7 @@
 )
 
 ;; adds active resource that invoices can be generated for
-(define-public (add-resource (name (string-utf8 50)) (description (string-utf8 255)) (price uint))
+(define-public (add-resource (name (string-utf8 50)) (description (string-utf8 255)) (price uint) (url (optional (string-utf8 255))))
   (let
     (
       (newCount (+ (get-total-resources) u1))
@@ -245,19 +248,21 @@
     (asserts! (> (len name) u0) ERR_INVALID_PARAMS)
     (asserts! (> (len description) u0) ERR_INVALID_PARAMS)
     (asserts! (> price u0) ERR_INVALID_PARAMS)
+    (and (is-some url) (asserts! (> (len (unwrap-panic url)) u0) ERR_INVALID_PARAMS))
     ;; update ResourceIndexes map, check name is unique
     (asserts! (map-insert ResourceIndexes name newCount) ERR_NAME_ALREADY_USED)
     ;; update ResourceData map
     (asserts! (map-insert ResourceData
       newCount
       {
-        createdAt: block-height,
+        createdAt: burn-block-height,
         enabled: true,
         name: name,
         description: description,
         price: price,
         totalSpent: u0,
         totalUsed: u0,
+        url: url,
       }
     ) ERR_SAVING_RESOURCE_DATA)
     ;; increment resourceCount
@@ -266,10 +271,10 @@
     (print {
       notification: "add-resource",
       payload: {
-        resourceIndex: newCount,
+        contractCaller: contract-caller,
         resourceData: (unwrap! (get-resource newCount) ERR_RESOURCE_NOT_FOUND),
-        txSender: tx-sender,
-        contractCaller: contract-caller
+        resourceIndex: newCount,
+        txSender: tx-sender
       }
     })
     ;; return new count
@@ -320,7 +325,7 @@
   (let
     (
       (newCount (+ (get-total-invoices) u1))
-      (lastAnchoredBlock (- block-height u1))
+      (lastAnchoredBlock (- burn-block-height u1))
       (resourceData (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND))
       (userIndex (unwrap! (get-or-create-user contract-caller) ERR_USER_NOT_FOUND))
       (userData (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND))
@@ -334,7 +339,7 @@
       newCount
       {
         amount: (get price resourceData),
-        createdAt: block-height,
+        createdAt: burn-block-height,
         userIndex: userIndex,
         resourceName: (get name resourceData),
         resourceIndex: resourceIndex,
@@ -372,26 +377,23 @@
     (print {
       notification: "pay-invoice",
       payload: {
-        invoiceIndex: newCount,
+        contractCaller: contract-caller,
         invoiceData: (unwrap! (get-invoice newCount) ERR_INVOICE_NOT_FOUND),
+        invoiceIndex: newCount,
         recentPayment: (unwrap! (get-recent-payment resourceIndex userIndex) ERR_RECENT_PAYMENT_NOT_FOUND),
-        userIndex: userIndex,
-        userData: (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND),
-        resourceIndex: resourceIndex,
         resourceData: (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND),
+        resourceIndex: resourceIndex,
         totalRevenue: (var-get totalRevenue),
         txSender: tx-sender,
-        contractCaller: contract-caller
+        userIndex: userIndex,
+        userData: (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND)
       }
     })
     ;; make transfer
-    ;;(if (is-some memo)
-      ;; MAINNET
-      ;; xBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wbtc
-      ;; aBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-abtc
-      ;;(try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) memo))
-      ;;(try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
-    ;;)
+    (if (is-some memo)
+      (try! (stx-transfer-memo? (get price resourceData) contract-caller (var-get paymentAddress) (unwrap-panic memo)))
+      (try! (stx-transfer? (get price resourceData) contract-caller (var-get paymentAddress)))
+    )
     ;; return new count
     (ok newCount)
   )
@@ -403,6 +405,12 @@
 
 ;; private functions
 ;;
+
+(define-private (is-dao-or-extension)
+  (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
+    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+  ))
+)
 
 (define-private (get-or-create-user (address principal))
   (match (map-get? UserIndexes address)
