@@ -32,6 +32,7 @@
 (define-constant ERR_TREASURY_MUST_BE_CONTRACT (err u1200))
 (define-constant ERR_TREASURY_CANNOT_BE_SELF (err u1201))
 (define-constant ERR_TREASURY_ALREADY_SET (err u1202))
+(define-constant ERR_TREASURY_MISMATCH (err u1203))
 
 ;; error messages - voting token
 (define-constant ERR_TOKEN_MUST_BE_CONTRACT (err u1300))
@@ -222,6 +223,8 @@
       (tokenContract (contract-of token))
       (tokenTotalSupply (try! (contract-call? token get-total-supply)))
       (treasuryContract (contract-of treasury))
+      ;; verify treasury matches protocol treasury
+      (asserts! (is-eq treasuryContract (var-get protocolTreasury)) ERR_TREASURY_MISMATCH)
       (treasuryBalance (try! (contract-call? token get-balance treasuryContract)))
       (votePassed (> (get votesFor proposalRecord) (* tokenTotalSupply (- u100 treasuryBalance) VOTING_QUORUM)))
     )
