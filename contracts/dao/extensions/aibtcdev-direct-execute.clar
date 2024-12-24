@@ -214,14 +214,16 @@
   )
 )
 
-(define-public (conclude-proposal (proposal <proposal-trait>) (token <ft-trait>))
+(define-public (conclude-proposal (proposal <proposal-trait>) (treasury <treasury-trait>) (token <ft-trait>))
   (let
     (
       (proposalContract (contract-of proposal))
       (proposalRecord (unwrap! (map-get? Proposals proposalContract) ERR_PROPOSAL_NOT_FOUND))
       (tokenContract (contract-of token))
-      (totalSupply (try! (contract-call? token get-total-supply)))
-      (votePassed (>= (get votesFor proposalRecord) (/ (* totalSupply VOTING_QUORUM) u100)))
+      (tokenTotalSupply (try! (contract-call? token get-total-supply)))
+      (treasuryContract (contract-of treasury))
+      (treasuryBalance (try! (contract-call? token get-balance treasuryContract)))
+      (votePassed (> (get votesFor proposalRecord) (* tokenTotalSupply (- u100 treasuryBalance) VOTING_QUORUM)))
     )
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
@@ -231,8 +233,6 @@
     (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_STILL_ACTIVE)
     ;; proposal not already concluded
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
-    ;; voting quorum met
-    (asserts! votePassed ERR_QUORUM_NOT_REACHED)
     ;; print conclusion event
     (print {
       notification: "conclude-proposal",
@@ -248,7 +248,7 @@
         passed: votePassed
       })
     )
-    ;; execute the proposal if it passed
+    ;; execute the proposal only if it passed
     (and votePassed (try! (contract-call? .aibtcdev-dao execute proposal tx-sender)))
     ;; return the result
     (ok votePassed)
