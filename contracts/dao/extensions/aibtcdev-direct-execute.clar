@@ -29,6 +29,11 @@
 (define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u1004))
 (define-constant ERR_FETCHING_BALANCE (err u1005))
 (define-constant ERR_SAVING_PROPOSAL (err u1006))
+(define-constant ERR_PROPOSAL_NOT_FOUND (err u1007))
+(define-constant ERR_VOTE_TOO_SOON (err u1008))
+(define-constant ERR_VOTE_TOO_LATE (err u1009))
+(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1010))
+(define-constant ERR_QUORUM_NOT_REACHED (err u1011))
 
 ;; data vars
 ;;
@@ -94,7 +99,7 @@
   )
 )
 
-(define-public (create-proposal (token <ft-trait>) (proposal <proposal-trait>))
+(define-public (create-proposal (proposal <proposal-trait>) (token <ft-trait>))
   (let
     (
       (proposalContract (contract-of proposal))
@@ -105,7 +110,7 @@
     ;; token matches set voting token
     (asserts! (is-eq tokenContract (var-get votingToken)) ERR_INVALID_VOTING_TOKEN)
     ;; caller has the required balance
-    (asserts! (> u0 (try! (contract-call? token get-balance tx-sender))) ERR_FETCHING_BALANCE)
+    (asserts! (> (try! (contract-call? token get-balance tx-sender)) u0) ERR_FETCHING_BALANCE)
     ;; proposal was not already executed
     (asserts! (is-none (contract-call? .aibtcdev-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; print proposal creation event
@@ -132,18 +137,62 @@
     }) ERR_SAVING_PROPOSAL))
 ))
 
-(define-public (vote-on-proposal)
-  (begin 
+(define-public (vote-on-proposal (proposal <proposal-trait>) (token <ft-trait>) (vote bool))
+  (let
+    (
+      (proposalContract (contract-of proposal))
+      (proposalRecord (unwrap! (map-get? Proposals proposalContract) ERR_PROPOSAL_NOT_FOUND))
+      (tokenContract (contract-of token))
+      (senderBalance (try! (contract-call? token get-balance tx-sender)))
+    )
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
-    (ok true)
+    ;; token matches set voting token
+    (asserts! (is-eq tokenContract (var-get votingToken)) ERR_INVALID_VOTING_TOKEN)
+    ;; caller has the required balance
+    (asserts! (> senderBalance u0) ERR_FETCHING_BALANCE)
+    ;; proposal was not already executed
+    (asserts! (is-none (contract-call? .aibtcdev-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
+    ;; proposal is still active
+    (asserts! (>= burn-block-height (get startBlock proposalRecord)) ERR_VOTE_TOO_SOON)
+    (asserts! (< burn-block-height (get endBlock proposalRecord)) ERR_VOTE_TOO_LATE)
+    ;; print vote event
+    (print {
+      notification: "vote-on-proposal",
+      payload: {
+        proposal: proposalContract,
+        voter: tx-sender,
+        amount: senderBalance
+      }
+    })
+    ;; update the proposal record
+    (map-set Proposals proposalContract
+      (if vote
+        (merge proposalRecord {votesFor: (+ (get votesFor proposalRecord) senderBalance)})
+        (merge proposalRecord {votesAgainst: (+ (get votesAgainst proposalRecord) senderBalance)})
+      )
+    )
+    ;; record the vote for the sender
+    (ok (map-set VotingRecords {proposal: proposalContract, voter: tx-sender} senderBalance))
   )
 )
 
-(define-public (conclude-proposal)
-  (begin
+(define-public (conclude-proposal (proposal <proposal-trait>) (token <ft-trait>))
+  (let
+    (
+      (proposalContract (contract-of proposal))
+      (proposalRecord (unwrap! (map-get? Proposals proposalContract) ERR_PROPOSAL_NOT_FOUND))
+      (totalSupply (try! (contract-call? token get-total-supply)))
+    )
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
+    ;; proposal was not already executed
+    (asserts! (is-none (contract-call? .aibtcdev-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
+    ;; proposal past end block height
+    (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_STILL_ACTIVE)
+    ;; voting quorum met
+    (asserts! (>= (get votesFor proposalRecord) (/ (* totalSupply VOTING_QUORUM) u100)) ERR_QUORUM_NOT_REACHED)
+
     (ok true)
   )
 )
