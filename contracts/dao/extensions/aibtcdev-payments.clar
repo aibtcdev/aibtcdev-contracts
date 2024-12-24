@@ -25,7 +25,7 @@
 (define-constant ERR_SAVING_RESOURCE_DATA (err u1003))
 (define-constant ERR_DELETING_RESOURCE_DATA (err u1004))
 (define-constant ERR_RESOURCE_NOT_FOUND (err u1005))
-(define-constant ERR_RESOURCE_NOT_ENABLED (err u1006))
+(define-constant ERR_RESOURCE_DISABLED (err u1006))
 (define-constant ERR_USER_ALREADY_EXISTS (err u1007))
 (define-constant ERR_SAVING_USER_DATA (err u1008))
 (define-constant ERR_USER_NOT_FOUND (err u1009))
@@ -333,7 +333,7 @@
     ;; check that resourceIndex is > 0
     (asserts! (> resourceIndex u0) ERR_INVALID_PARAMS)
     ;; check that resource is enabled
-    (asserts! (get enabled resourceData) ERR_RESOURCE_NOT_ENABLED)
+    (asserts! (get enabled resourceData) ERR_RESOURCE_DISABLED)
     ;; update InvoiceData map
     (asserts! (map-insert InvoiceData
       newCount
