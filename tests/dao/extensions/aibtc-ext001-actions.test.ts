@@ -105,6 +105,15 @@ describe("aibtc-ext001-actions", () => {
         addressDeployer
       );
       expect(receipt.result).toBeOk(Cl.bool(true));
+
+      // Verify treasury was set
+      const getReceipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-protocol-treasury",
+        [],
+        addressDeployer
+      );
+      expect(getReceipt.result).toBeOk(Cl.some(Cl.contractPrincipal(addressDeployer, "test-treasury")));
     });
   });
 
@@ -171,6 +180,15 @@ describe("aibtc-ext001-actions", () => {
         addressDeployer
       );
       expect(receipt.result).toBeOk(Cl.bool(true));
+
+      // Verify token was set
+      const getReceipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-voting-token",
+        [],
+        addressDeployer
+      );
+      expect(getReceipt.result).toBeOk(Cl.some(Cl.contractPrincipal(addressDeployer, "test-token")));
     });
   });
 
