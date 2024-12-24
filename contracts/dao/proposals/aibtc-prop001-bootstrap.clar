@@ -7,7 +7,9 @@
     ;; set initial extensions
     (try! (contract-call? .aibtcdev-dao set-extensions
       (list
+        {extension: .aibtcdev-actions, enabled: true}
         {extension: .aibtcdev-bank-account, enabled: true}
+        {extension: .aibtcdev-direct-execute, enabled: true}
         {extension: .aibtcdev-messaging, enabled: true}
         {extension: .aibtcdev-payments, enabled: true}
         {extension: .aibtcdev-treasury, enabled: true}
