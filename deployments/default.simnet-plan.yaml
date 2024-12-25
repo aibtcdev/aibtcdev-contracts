@@ -57,6 +57,11 @@ plan:
             emulated-sender: SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9
             path: "./.cache/requirements/SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.clar"
             clarity-version: 1
+        - emulated-contract-publish:
+            contract-name: sip-010-trait-ft-standard
+            emulated-sender: SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE
+            path: "./.cache/requirements/SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.clar"
+            clarity-version: 1
       epoch: "2.1"
     - id: 2
       transactions: []
@@ -122,88 +127,168 @@ plan:
       transactions: []
       epoch: "2.1"
     - id: 23
-      transactions:
-        - emulated-contract-publish:
-            contract-name: aibtcdev-aibtc
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/aibtcdev-aibtc.clar
-            clarity-version: 2
-        - emulated-contract-publish:
-            contract-name: aibtcdev-traits-v1
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/aibtcdev-traits-v1.clar
-            clarity-version: 2
-        - emulated-contract-publish:
-            contract-name: aibtcdev-resources-v1
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/aibtcdev-resources-v1.clar
-            clarity-version: 2
-      epoch: "2.4"
+      transactions: []
+      epoch: "2.1"
     - id: 24
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 25
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 26
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 27
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 28
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 29
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 30
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 31
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 32
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 33
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 34
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 35
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 36
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 37
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 38
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 39
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 40
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 41
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 42
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 43
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 44
       transactions: []
-      epoch: "2.4"
+      epoch: "2.1"
     - id: 45
+      transactions: []
+      epoch: "2.1"
+    - id: 46
+      transactions: []
+      epoch: "2.1"
+    - id: 47
+      transactions: []
+      epoch: "2.1"
+    - id: 48
+      transactions: []
+      epoch: "2.1"
+    - id: 49
+      transactions: []
+      epoch: "2.1"
+    - id: 50
+      transactions: []
+      epoch: "2.1"
+    - id: 51
+      transactions: []
+      epoch: "2.1"
+    - id: 52
+      transactions: []
+      epoch: "2.1"
+    - id: 53
+      transactions: []
+      epoch: "2.1"
+    - id: 54
+      transactions: []
+      epoch: "2.1"
+    - id: 55
+      transactions: []
+      epoch: "2.1"
+    - id: 56
+      transactions: []
+      epoch: "2.1"
+    - id: 57
+      transactions: []
+      epoch: "2.1"
+    - id: 58
+      transactions: []
+      epoch: "2.1"
+    - id: 59
+      transactions: []
+      epoch: "2.1"
+    - id: 60
       transactions:
+        - emulated-contract-publish:
+            contract-name: aibtcdev-dao-traits-v1
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/traits/aibtcdev-dao-traits-v1.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: aibtcdev-dao-v1
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/traits/aibtcdev-dao-v1.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: aibtcdev-base-dao
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/aibtcdev-base-dao.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: aibtc-ext001-actions
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/extensions/aibtc-ext001-actions.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: aibtc-ext002-bank-account
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/extensions/aibtc-ext002-bank-account.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: aibtc-ext003-direct-execute
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/extensions/aibtc-ext003-direct-execute.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: aibtc-ext004-messaging
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/extensions/aibtc-ext004-messaging.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: aibtc-ext005-payments
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/extensions/aibtc-ext005-payments.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: aibtc-ext006-treasury
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/extensions/aibtc-ext006-treasury.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: aibtc-prop001-bootstrap
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/proposals/aibtc-prop001-bootstrap.clar
+            clarity-version: 2
         - emulated-contract-publish:
             contract-name: aibtcdev-airdrop-1
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
@@ -215,75 +300,30 @@ plan:
             path: contracts/aibtcdev-airdrop-2.clar
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: aibtcdev-bank-account
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/aibtcdev-bank-account.clar
-            clarity-version: 2
-        - emulated-contract-publish:
-            contract-name: aibtcdev-messaging
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/aibtcdev-messaging.clar
-            clarity-version: 2
-        - emulated-contract-publish:
             contract-name: proxy
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/test-proxy.clar
+            path: contracts/test/proxy.clar
             clarity-version: 2
         - emulated-contract-publish:
             contract-name: test-proxy
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/test-proxy.clar
+            path: contracts/test/proxy.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: test-token
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/test/sip010-token.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: test-treasury
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/test/aibtc-treasury.clar
             clarity-version: 2
         - emulated-contract-publish:
             contract-name: external-proxy
             emulated-sender: ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5
-            path: contracts/test-proxy.clar
+            path: contracts/test/proxy.clar
             clarity-version: 2
-      epoch: "2.5"
-    - id: 46
-      transactions: []
-      epoch: "2.5"
-    - id: 47
-      transactions: []
-      epoch: "2.5"
-    - id: 48
-      transactions: []
-      epoch: "2.5"
-    - id: 49
-      transactions: []
-      epoch: "2.5"
-    - id: 50
-      transactions: []
-      epoch: "2.5"
-    - id: 51
-      transactions: []
-      epoch: "2.5"
-    - id: 52
-      transactions: []
-      epoch: "2.5"
-    - id: 53
-      transactions: []
-      epoch: "2.5"
-    - id: 54
-      transactions: []
-      epoch: "2.5"
-    - id: 55
-      transactions: []
-      epoch: "2.5"
-    - id: 56
-      transactions: []
-      epoch: "2.5"
-    - id: 57
-      transactions: []
-      epoch: "2.5"
-    - id: 58
-      transactions: []
-      epoch: "2.5"
-    - id: 59
-      transactions: []
-      epoch: "2.5"
-    - id: 60
-      transactions: []
       epoch: "2.5"
     - id: 61
       transactions: []
@@ -301,5 +341,155 @@ plan:
       transactions: []
       epoch: "2.5"
     - id: 66
+      transactions: []
+      epoch: "2.5"
+    - id: 67
+      transactions: []
+      epoch: "2.5"
+    - id: 68
+      transactions: []
+      epoch: "2.5"
+    - id: 69
+      transactions: []
+      epoch: "2.5"
+    - id: 70
+      transactions: []
+      epoch: "2.5"
+    - id: 71
+      transactions: []
+      epoch: "2.5"
+    - id: 72
+      transactions: []
+      epoch: "2.5"
+    - id: 73
+      transactions: []
+      epoch: "2.5"
+    - id: 74
+      transactions: []
+      epoch: "2.5"
+    - id: 75
+      transactions: []
+      epoch: "2.5"
+    - id: 76
+      transactions: []
+      epoch: "2.5"
+    - id: 77
+      transactions: []
+      epoch: "2.5"
+    - id: 78
+      transactions: []
+      epoch: "2.5"
+    - id: 79
+      transactions: []
+      epoch: "2.5"
+    - id: 80
+      transactions: []
+      epoch: "2.5"
+    - id: 81
+      transactions: []
+      epoch: "2.5"
+    - id: 82
+      transactions: []
+      epoch: "2.5"
+    - id: 83
+      transactions: []
+      epoch: "2.5"
+    - id: 84
+      transactions: []
+      epoch: "2.5"
+    - id: 85
+      transactions: []
+      epoch: "2.5"
+    - id: 86
+      transactions: []
+      epoch: "2.5"
+    - id: 87
+      transactions: []
+      epoch: "2.5"
+    - id: 88
+      transactions: []
+      epoch: "2.5"
+    - id: 89
+      transactions: []
+      epoch: "2.5"
+    - id: 90
+      transactions: []
+      epoch: "2.5"
+    - id: 91
+      transactions: []
+      epoch: "2.5"
+    - id: 92
+      transactions: []
+      epoch: "2.5"
+    - id: 93
+      transactions: []
+      epoch: "2.5"
+    - id: 94
+      transactions: []
+      epoch: "2.5"
+    - id: 95
+      transactions: []
+      epoch: "2.5"
+    - id: 96
+      transactions: []
+      epoch: "2.5"
+    - id: 97
+      transactions: []
+      epoch: "2.5"
+    - id: 98
+      transactions: []
+      epoch: "2.5"
+    - id: 99
+      transactions: []
+      epoch: "2.5"
+    - id: 100
+      transactions: []
+      epoch: "2.5"
+    - id: 101
+      transactions: []
+      epoch: "2.5"
+    - id: 102
+      transactions: []
+      epoch: "2.5"
+    - id: 103
+      transactions: []
+      epoch: "2.5"
+    - id: 104
+      transactions: []
+      epoch: "2.5"
+    - id: 105
+      transactions: []
+      epoch: "2.5"
+    - id: 106
+      transactions: []
+      epoch: "2.5"
+    - id: 107
+      transactions: []
+      epoch: "2.5"
+    - id: 108
+      transactions: []
+      epoch: "2.5"
+    - id: 109
+      transactions: []
+      epoch: "2.5"
+    - id: 110
+      transactions: []
+      epoch: "2.5"
+    - id: 111
+      transactions: []
+      epoch: "2.5"
+    - id: 112
+      transactions: []
+      epoch: "2.5"
+    - id: 113
+      transactions: []
+      epoch: "2.5"
+    - id: 114
+      transactions: []
+      epoch: "2.5"
+    - id: 115
+      transactions: []
+      epoch: "2.5"
+    - id: 116
       transactions: []
       epoch: "2.5"

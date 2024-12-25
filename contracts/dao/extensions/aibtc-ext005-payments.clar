@@ -1,38 +1,37 @@
-
-;; title: aibtcdev-resources-v1
-;; version: 0.0.2
-;; summary: HTTP 402 payments powered by Stacks
+;; title: aibtcdev-payments
+;; version: 1.0.0
+;; summary: An extension that provides payment processing for aibtcdev services.
 
 ;; traits
 ;;
-(impl-trait .aibtcdev-traits-v1.aibtcdev-resource-mgmt-v1)
-(impl-trait .aibtcdev-traits-v1.aibtcdev-invoice-v1)
+(impl-trait .aibtcdev-dao-traits-v1.extension)
+(impl-trait .aibtcdev-dao-traits-v1.invoices)
+(impl-trait .aibtcdev-dao-traits-v1.resources)
 
 ;; constants
 ;;
 
 ;; initially scoped to service provider deploying a contract
-(define-constant DEPLOYER contract-caller)
 (define-constant SELF (as-contract tx-sender))
 
 ;; math helpers (credit: ALEX)
 (define-constant ONE_8 (pow u10 u8))
 
 ;; errors
-(define-constant ERR_UNAUTHORIZED (err u1000))
-(define-constant ERR_INVALID_PARAMS (err u1001))
-(define-constant ERR_NAME_ALREADY_USED (err u1002))
-(define-constant ERR_SAVING_RESOURCE_DATA (err u1003))
-(define-constant ERR_DELETING_RESOURCE_DATA (err u1004))
-(define-constant ERR_RESOURCE_NOT_FOUND (err u1005))
-(define-constant ERR_RESOURCE_NOT_ENABLED (err u1006))
-(define-constant ERR_USER_ALREADY_EXISTS (err u1007))
-(define-constant ERR_SAVING_USER_DATA (err u1008))
-(define-constant ERR_USER_NOT_FOUND (err u1009))
-(define-constant ERR_INVOICE_ALREADY_PAID (err u1010))
-(define-constant ERR_SAVING_INVOICE_DATA (err u1011))
-(define-constant ERR_INVOICE_NOT_FOUND (err u1012))
-(define-constant ERR_RECENT_PAYMENT_NOT_FOUND (err u1013))
+(define-constant ERR_UNAUTHORIZED (err u5000))
+(define-constant ERR_INVALID_PARAMS (err u5001))
+(define-constant ERR_NAME_ALREADY_USED (err u5002))
+(define-constant ERR_SAVING_RESOURCE_DATA (err u5003))
+(define-constant ERR_DELETING_RESOURCE_DATA (err u5004))
+(define-constant ERR_RESOURCE_NOT_FOUND (err u5005))
+(define-constant ERR_RESOURCE_DISABLED (err u5006))
+(define-constant ERR_USER_ALREADY_EXISTS (err u5007))
+(define-constant ERR_SAVING_USER_DATA (err u5008))
+(define-constant ERR_USER_NOT_FOUND (err u5009))
+(define-constant ERR_INVOICE_ALREADY_PAID (err u5010))
+(define-constant ERR_SAVING_INVOICE_DATA (err u5011))
+(define-constant ERR_INVOICE_NOT_FOUND (err u5012))
+(define-constant ERR_RECENT_PAYMENT_NOT_FOUND (err u5013))
 
 ;; data vars
 ;;
@@ -45,8 +44,8 @@
 ;; tracking overall contract revenue
 (define-data-var totalRevenue uint u0)
 
-;; payout address, deployer can set
-(define-data-var paymentAddress principal DEPLOYER)
+;; dao can update payment address
+(define-data-var paymentAddress principal .aibtc-ext002-bank-account)
 
 ;; data maps
 ;;
@@ -74,7 +73,7 @@
   uint             ;; resource index
 )
 
-;; tracks resources added by deployer keyed by resource index
+;; tracks resources added by dao, keyed by resource index
 ;; can iterate over full map with resourceCount data-var
 (define-map ResourceData
   uint ;; resource index
@@ -86,9 +85,7 @@
     price: uint,
     totalSpent: uint,
     totalUsed: uint,
-    ;; TODO: for health check, setter would be nice
-    ;; TODO: expect SIP-018 open timestamp response
-    ;; url: (optional (string-utf8 255)),
+    url: (optional (string-utf8 255)),
   }
 )
 
@@ -111,6 +108,202 @@
     resourceIndex: uint,
   }
   uint ;; invoice count
+)
+
+;; public functions
+;;
+
+(define-public (callback (sender principal) (memo (buff 34)))
+  (ok true)
+)
+
+;; sets payment address used for invoices
+(define-public (set-payment-address (newAddress principal))
+  (begin
+    ;; check if caller is authorized
+    (try! (is-dao-or-extension))
+    ;; check that new address differs from current address
+    (asserts! (not (is-eq newAddress (var-get paymentAddress))) ERR_UNAUTHORIZED)   
+    ;; print details
+    (print {
+      notification: "set-payment-address",
+      payload: {
+        contractCaller: contract-caller,
+        oldAddress: (var-get paymentAddress),
+        newAddress: newAddress,
+        txSender: tx-sender,
+      }
+    })
+    ;; set new payment address
+    (ok (var-set paymentAddress newAddress))
+  )
+)
+
+;; adds active resource that invoices can be generated for
+(define-public (add-resource (name (string-utf8 50)) (description (string-utf8 255)) (price uint) (url (optional (string-utf8 255))))
+  (let
+    (
+      (newCount (+ (get-total-resources) u1))
+    )
+    ;; check if caller is authorized
+    (try! (is-dao-or-extension))
+    ;; check all values are provided
+    (asserts! (> (len name) u0) ERR_INVALID_PARAMS)
+    (asserts! (> (len description) u0) ERR_INVALID_PARAMS)
+    (asserts! (> price u0) ERR_INVALID_PARAMS)
+    (and (is-some url) (asserts! (> (len (unwrap-panic url)) u0) ERR_INVALID_PARAMS))
+    ;; update ResourceIndexes map, check name is unique
+    (asserts! (map-insert ResourceIndexes name newCount) ERR_NAME_ALREADY_USED)
+    ;; update ResourceData map
+    (asserts! (map-insert ResourceData
+      newCount
+      {
+        createdAt: burn-block-height,
+        enabled: true,
+        name: name,
+        description: description,
+        price: price,
+        totalSpent: u0,
+        totalUsed: u0,
+        url: url,
+      }
+    ) ERR_SAVING_RESOURCE_DATA)
+    ;; increment resourceCount
+    (var-set resourceCount newCount)
+    ;; print details
+    (print {
+      notification: "add-resource",
+      payload: {
+        contractCaller: contract-caller,
+        resourceData: (unwrap! (get-resource newCount) ERR_RESOURCE_NOT_FOUND),
+        resourceIndex: newCount,
+        txSender: tx-sender
+      }
+    })
+    ;; return new count
+    (ok newCount)
+  )
+)
+
+;; toggles enabled status for resource
+(define-public (toggle-resource (resourceIndex uint))
+  (let
+    (
+      (resourceData (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND))
+      (newStatus (not (get enabled resourceData)))
+    )
+    ;; verify resource > 0
+    (asserts! (> resourceIndex u0) ERR_INVALID_PARAMS)
+    ;; check if caller is authorized
+    (try! (is-dao-or-extension))
+    ;; update ResourceData map
+    (map-set ResourceData
+      resourceIndex
+      (merge resourceData {
+        enabled: newStatus
+      })
+    )
+    ;; print details
+    (print {
+      notification: "toggle-resource",
+      payload: {
+        resourceIndex: resourceIndex,
+        resourceData: (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND),
+        txSender: tx-sender,
+        contractCaller: contract-caller
+      }
+    })
+    ;; return based on set status
+    (ok newStatus)
+  )
+)
+
+;; toggles enabled status for resource by name
+(define-public (toggle-resource-by-name (name (string-utf8 50)))
+  (toggle-resource (unwrap! (get-resource-index name) ERR_RESOURCE_NOT_FOUND))
+)
+
+;; allows a user to pay an invoice for a resource
+(define-public (pay-invoice (resourceIndex uint) (memo (optional (buff 34))))
+  (let
+    (
+      (newCount (+ (get-total-invoices) u1))
+      (lastAnchoredBlock (- burn-block-height u1))
+      (resourceData (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND))
+      (userIndex (unwrap! (get-or-create-user contract-caller) ERR_USER_NOT_FOUND))
+      (userData (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND))
+    )
+    ;; check that resourceIndex is > 0
+    (asserts! (> resourceIndex u0) ERR_INVALID_PARAMS)
+    ;; check that resource is enabled
+    (asserts! (get enabled resourceData) ERR_RESOURCE_DISABLED)
+    ;; update InvoiceData map
+    (asserts! (map-insert InvoiceData
+      newCount
+      {
+        amount: (get price resourceData),
+        createdAt: burn-block-height,
+        userIndex: userIndex,
+        resourceName: (get name resourceData),
+        resourceIndex: resourceIndex,
+      }
+    ) ERR_SAVING_INVOICE_DATA)
+    ;; update RecentPayments map
+    (map-set RecentPayments
+      {
+        userIndex: userIndex,
+        resourceIndex: resourceIndex,
+      }
+      newCount
+    )
+    ;; update UserData map
+    (map-set UserData
+      userIndex
+      (merge userData {
+        totalSpent: (+ (get totalSpent userData) (get price resourceData)),
+        totalUsed: (+ (get totalUsed userData) u1)
+      })
+    )
+    ;; update ResourceData map
+    (map-set ResourceData
+      resourceIndex
+      (merge resourceData {
+        totalSpent: (+ (get totalSpent resourceData) (get price resourceData)),
+        totalUsed: (+ (get totalUsed resourceData) u1)
+      })
+    )
+    ;; update total revenue
+    (var-set totalRevenue (+ (var-get totalRevenue) (get price resourceData)))
+    ;; increment counter
+    (var-set invoiceCount newCount)
+    ;; print details
+    (print {
+      notification: "pay-invoice",
+      payload: {
+        contractCaller: contract-caller,
+        invoiceData: (unwrap! (get-invoice newCount) ERR_INVOICE_NOT_FOUND),
+        invoiceIndex: newCount,
+        recentPayment: (unwrap! (get-recent-payment resourceIndex userIndex) ERR_RECENT_PAYMENT_NOT_FOUND),
+        resourceData: (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND),
+        resourceIndex: resourceIndex,
+        totalRevenue: (var-get totalRevenue),
+        txSender: tx-sender,
+        userIndex: userIndex,
+        userData: (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND)
+      }
+    })
+    ;; make transfer
+    (if (is-some memo)
+      (try! (stx-transfer-memo? (get price resourceData) contract-caller (var-get paymentAddress) (unwrap-panic memo)))
+      (try! (stx-transfer? (get price resourceData) contract-caller (var-get paymentAddress)))
+    )
+    ;; return new count
+    (ok newCount)
+  )
+)
+
+(define-public (pay-invoice-by-resource-name (name (string-utf8 50)) (memo (optional (buff 34))))
+  (pay-invoice (unwrap! (get-resource-index name) ERR_RESOURCE_NOT_FOUND) memo)
 )
 
 
@@ -195,213 +388,24 @@
   (var-get totalRevenue)
 )
 
-;; public functions
-;;
-
-;; sets payment address used for invoices
-;; only accessible by deployer or current payment address
-(define-public (set-payment-address (oldAddress principal) (newAddress principal))
-  (begin
-    ;; check that old address matches current address
-    (asserts! (is-eq oldAddress (var-get paymentAddress)) ERR_UNAUTHORIZED)
-    ;; address cannot be the same
-    (asserts! (not (is-eq oldAddress newAddress)) ERR_UNAUTHORIZED)
-    ;; check if caller matches deployer or oldAddress
-    (asserts! (or
-      (is-eq contract-caller oldAddress)
-      (try! (is-deployer))
-    ) ERR_UNAUTHORIZED)
-    ;; print details
-    (print {
-      notification: "set-payment-address",
-      payload: {
-        oldAddress: oldAddress,
-        newAddress: newAddress,
-        txSender: tx-sender,
-        contractCaller: contract-caller,
-      }
-    })
-    ;; set new payment address
-    (ok (var-set paymentAddress newAddress))
-  )
-)
-
-;; adds active resource that invoices can be generated for
-;; only accessible by deployer
-(define-public (add-resource (name (string-utf8 50)) (description (string-utf8 255)) (price uint))
-  (let
-    (
-      (newCount (+ (get-total-resources) u1))
-    )
-    ;; check if caller matches deployer
-    (try! (is-deployer))
-    ;; check all values are provided
-    (asserts! (> (len name) u0) ERR_INVALID_PARAMS)
-    (asserts! (> (len description) u0) ERR_INVALID_PARAMS)
-    (asserts! (> price u0) ERR_INVALID_PARAMS)
-    ;; update ResourceIndexes map, check name is unique
-    (asserts! (map-insert ResourceIndexes name newCount) ERR_NAME_ALREADY_USED)
-    ;; update ResourceData map
-    (asserts! (map-insert ResourceData
-      newCount
-      {
-        createdAt: block-height,
-        enabled: true,
-        name: name,
-        description: description,
-        price: price,
-        totalSpent: u0,
-        totalUsed: u0,
-      }
-    ) ERR_SAVING_RESOURCE_DATA)
-    ;; increment resourceCount
-    (var-set resourceCount newCount)
-    ;; print details
-    (print {
-      notification: "add-resource",
-      payload: {
-        resourceIndex: newCount,
-        resourceData: (unwrap! (get-resource newCount) ERR_RESOURCE_NOT_FOUND),
-        txSender: tx-sender,
-        contractCaller: contract-caller
-      }
-    })
-    ;; return new count
-    (ok newCount)
-  )
-)
-
-;; toggles enabled status for resource
-;; only accessible by deployer
-(define-public (toggle-resource (index uint))
-  (let
-    (
-      (resourceData (unwrap! (get-resource index) ERR_RESOURCE_NOT_FOUND))
-      (newStatus (not (get enabled resourceData)))
-    )
-    ;; verify resource > 0
-    (asserts! (> index u0) ERR_INVALID_PARAMS)
-    ;; check if caller matches deployer
-    (try! (is-deployer))
-    ;; update ResourceData map
-    (map-set ResourceData
-      index
-      (merge resourceData {
-        enabled: newStatus
-      })
-    )
-    ;; print details
-    (print {
-      notification: "toggle-resource",
-      payload: {
-        resourceIndex: index,
-        resourceData: (unwrap! (get-resource index) ERR_RESOURCE_NOT_FOUND),
-        txSender: tx-sender,
-        contractCaller: contract-caller
-      }
-    })
-    ;; return based on set status
-    (ok newStatus)
-  )
-)
-
-;; toggles enabled status for resource by name
-;; only accessible by deployer
-(define-public (toggle-resource-by-name (name (string-utf8 50)))
-  (toggle-resource (unwrap! (get-resource-index name) ERR_RESOURCE_NOT_FOUND))
-)
-
-;; allows a user to pay an invoice for a resource
-(define-public (pay-invoice (resourceIndex uint) (memo (optional (buff 34))))
-  (let
-    (
-      (newCount (+ (get-total-invoices) u1))
-      (lastAnchoredBlock (- block-height u1))
-      (resourceData (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND))
-      (userIndex (unwrap! (get-or-create-user contract-caller) ERR_USER_NOT_FOUND))
-      (userData (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND))
-    )
-    ;; check that resourceIndex is > 0
-    (asserts! (> resourceIndex u0) ERR_INVALID_PARAMS)
-    ;; check that resource is enabled
-    (asserts! (get enabled resourceData) ERR_RESOURCE_NOT_ENABLED)
-    ;; update InvoiceData map
-    (asserts! (map-insert InvoiceData
-      newCount
-      {
-        amount: (get price resourceData),
-        createdAt: block-height,
-        userIndex: userIndex,
-        resourceName: (get name resourceData),
-        resourceIndex: resourceIndex,
-      }
-    ) ERR_SAVING_INVOICE_DATA)
-    ;; update RecentPayments map
-    (map-set RecentPayments
-      {
-        userIndex: userIndex,
-        resourceIndex: resourceIndex,
-      }
-      newCount
-    )
-    ;; update UserData map
-    (map-set UserData
-      userIndex
-      (merge userData {
-        totalSpent: (+ (get totalSpent userData) (get price resourceData)),
-        totalUsed: (+ (get totalUsed userData) u1)
-      })
-    )
-    ;; update ResourceData map
-    (map-set ResourceData
-      resourceIndex
-      (merge resourceData {
-        totalSpent: (+ (get totalSpent resourceData) (get price resourceData)),
-        totalUsed: (+ (get totalUsed resourceData) u1)
-      })
-    )
-    ;; update total revenue
-    (var-set totalRevenue (+ (var-get totalRevenue) (get price resourceData)))
-    ;; increment counter
-    (var-set invoiceCount newCount)
-    ;; print details
-    (print {
-      notification: "pay-invoice",
-      payload: {
-        invoiceIndex: newCount,
-        invoiceData: (unwrap! (get-invoice newCount) ERR_INVOICE_NOT_FOUND),
-        recentPayment: (unwrap! (get-recent-payment resourceIndex userIndex) ERR_RECENT_PAYMENT_NOT_FOUND),
-        userIndex: userIndex,
-        userData: (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND),
-        resourceIndex: resourceIndex,
-        resourceData: (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND),
-        totalRevenue: (var-get totalRevenue),
-        txSender: tx-sender,
-        contractCaller: contract-caller
-      }
-    })
-    ;; make transfer
-    (if (is-some memo)
-      ;; MAINNET
-      ;; xBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wbtc
-      ;; aBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-abtc
-      (try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) memo))
-      (try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
-    )
-    ;; return new count
-    (ok newCount)
-  )
-)
-
-(define-public (pay-invoice-by-resource-name (name (string-utf8 50)) (memo (optional (buff 34))))
-  (pay-invoice (unwrap! (get-resource-index name) ERR_RESOURCE_NOT_FOUND) memo)
+;; returns aggregate contract data
+(define-read-only (get-contract-data)
+  {
+    paymentAddress: (get-payment-address),
+    totalInvoices: (get-total-invoices),
+    totalResources: (get-total-resources),
+    totalRevenue: (get-total-revenue),
+    totalUsers: (get-total-users)
+  }
 )
 
 ;; private functions
 ;;
 
-(define-private (is-deployer)
-  (ok (asserts! (is-eq contract-caller DEPLOYER) ERR_UNAUTHORIZED))
+(define-private (is-dao-or-extension)
+  (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
+    (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+  ))
 )
 
 (define-private (get-or-create-user (address principal))

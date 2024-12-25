@@ -4,3 +4,5 @@
 history.txt
 node_modules
 lcov.info
+.aider*
+.env
