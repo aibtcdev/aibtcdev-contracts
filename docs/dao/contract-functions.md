@@ -120,3 +120,44 @@
 | revoke-delegate-stx | public        | core        | Revoke STX delegation              |
 | is-allowed-asset    | read-only     | any         | Check if asset is allowed          |
 | get-allowed-asset   | read-only     | any         | Get allowed asset status           |
+
+# Function Categories by Action Type
+
+## Setup Functions
+These functions are used during initial setup and configuration of contracts:
+- `construct` (aibtcdev-base-dao)
+- `set-voting-token` (aibtc-ext001-actions)
+
+## Core Functions
+These functions represent critical administrative operations:
+- `set-extension` (aibtcdev-base-dao)
+- `set-extensions` (aibtcdev-base-dao)
+- `set-protocol-treasury` (aibtc-ext001-actions)
+- `set-withdrawal-period` (aibtc-ext002-bank-account)
+- `set-withdrawal-amount` (aibtc-ext002-bank-account)
+- `override-last-withdrawal-block` (aibtc-ext002-bank-account)
+- `set-payment-address` (aibtc-ext005-payments)
+- `withdraw-stx` (aibtc-ext006-treasury)
+- `withdraw-ft` (aibtc-ext006-treasury)
+- `withdraw-nft` (aibtc-ext006-treasury)
+- `delegate-stx` (aibtc-ext006-treasury)
+- `revoke-delegate-stx` (aibtc-ext006-treasury)
+
+## Action Functions
+These functions represent standard governance actions:
+- `set-account-holder` (aibtc-ext002-bank-account)
+- `send` (aibtc-ext004-messaging)
+- `add-resource` (aibtc-ext005-payments)
+- `toggle-resource` (aibtc-ext005-payments)
+- `toggle-resource-by-name` (aibtc-ext005-payments)
+- `allow-asset` (aibtc-ext006-treasury)
+- `allow-assets` (aibtc-ext006-treasury)
+
+## Holder Functions
+These functions are specifically for token holders:
+- `propose-action` (aibtc-ext001-actions)
+- `vote-on-proposal` (aibtc-ext001-actions)
+
+## Other Categories
+- **N/A Functions**: Typically callback handlers and execution functions
+- **Any Functions**: Usually read-only functions or general utility functions that anyone can call
