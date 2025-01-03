@@ -121,15 +121,19 @@
 | is-allowed-asset    | read-only     | any         | Check if asset is allowed          |
 | get-allowed-asset   | read-only     | any         | Get allowed asset status           |
 
-# Function Categories by Action Type
+## Function Categories by Action Type
 
-## Setup Functions
+### Setup Functions
+
 These functions are used during initial setup and configuration of contracts:
+
 - `construct` (aibtcdev-base-dao)
 - `set-voting-token` (aibtc-ext001-actions)
 
-## Core Functions
+### Core Functions
+
 These functions represent critical administrative operations:
+
 - `set-extension` (aibtcdev-base-dao)
 - `set-extensions` (aibtcdev-base-dao)
 - `set-protocol-treasury` (aibtc-ext001-actions)
@@ -143,8 +147,10 @@ These functions represent critical administrative operations:
 - `delegate-stx` (aibtc-ext006-treasury)
 - `revoke-delegate-stx` (aibtc-ext006-treasury)
 
-## Action Functions
+### Action Functions
+
 These functions represent standard governance actions:
+
 - `set-account-holder` (aibtc-ext002-bank-account)
 - `send` (aibtc-ext004-messaging)
 - `add-resource` (aibtc-ext005-payments)
@@ -153,11 +159,14 @@ These functions represent standard governance actions:
 - `allow-asset` (aibtc-ext006-treasury)
 - `allow-assets` (aibtc-ext006-treasury)
 
-## Holder Functions
+### Holder Functions
+
 These functions are specifically for token holders:
+
 - `propose-action` (aibtc-ext001-actions)
 - `vote-on-proposal` (aibtc-ext001-actions)
 
-## Other Categories
+### Other Categories
+
 - **N/A Functions**: Typically callback handlers and execution functions
 - **Any Functions**: Usually read-only functions or general utility functions that anyone can call
