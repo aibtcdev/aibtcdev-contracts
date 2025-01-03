@@ -4,9 +4,9 @@
 
 | Function Name              | Function Type | Action Type | Description                                       |
 | -------------------------- | ------------- | ----------- | ------------------------------------------------- |
-| construct                  | public        | TBD         | Initial construction of the DAO                   |
-| execute                    | public        | TBD         | Execute Clarity code in a proposal                |
-| set-extension              | public        | TBD         | Add an extension or update status of existing one |
+| construct                  | public        | n/a         | Initial construction of the DAO                   |
+| execute                    | public        | n/a         | Execute Clarity code in a proposal                |
+| set-extension              | public        | core         | Add an extension or update status of existing one |
 | set-extensions             | public        | TBD         | Add multiple extensions or update status          |
 | request-extension-callback | public        | TBD         | Request a callback from an extension              |
 | is-extension               | read-only     | TBD         | Check if given principal is an extension          |
