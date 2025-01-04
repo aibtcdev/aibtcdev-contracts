@@ -18,20 +18,6 @@
 (define-constant VOTING_PERIOD u144) ;; 144 Bitcoin blocks, ~1 day
 (define-constant VOTING_QUORUM u66) ;; 66% of liquid supply (total supply - treasury)
 
-(define-constant VALID_ACTIONS (list
-  "send-message"
-  "add-resource"
-  "batch-messages"
-  "batch-resources"
-  "allow-asset"
-  "delegate-stx"
-  "set-account-holder"
-  "set-withdrawal-period"
-  "set-withdrawal-amount"
-  "toggle-resource"
-  "set-payment-address"
-))
-
 ;; error messages - authorization
 (define-constant ERR_UNAUTHORIZED (err u1000))
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u1001))
@@ -78,6 +64,29 @@
 
 ;; data maps
 ;;
+(define-constant VALID_ACTIONS (list
+  "set-account-holder" ;; aibtc-ext002-bank-account
+  "set-withdrawal-period" ;; aibtc-ext002-bank-account, with limits
+  "set-withdrawal-amount";; aibtc-ext002-bank-account, with limits
+  "send-message" ;; aibtc-ext004-messaging
+  "add-resource" ;; aibtc-ext005-payments
+  "allow-asset" ;; aibtc-ext006-treasury
+  "toggle-resource" ;; aibtc-ext005-payments toggle-resource-by-name
+))
+
+;; exploring which structure works better vs list
+(define-map Actions
+  (string-ascii 50)
+  bool
+)
+(map-set Actions "set-account-holder" true) ;; aibtc-ext002-bank-account
+(map-set Actions "set-withdrawal-period" true) ;; aibtc-ext002-bank-account, with limits
+(map-set Actions "set-withdrawal-amount" true) ;; aibtc-ext002-bank-account, with limits
+(map-set Actions "send-message" true) ;; aibtc-ext004-messaging
+(map-set Actions "add-resource" true) ;; aibtc-ext005-payments
+(map-set Actions "toggle-resource" true) ;; aibtc-ext005-payments toggle-resource-by-name
+(map-set Actions "allow-asset" true) ;; aibtc-ext006-treasury
+
 (define-map Proposals
   uint ;; proposal id
   {
