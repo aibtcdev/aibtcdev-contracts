@@ -25,6 +25,15 @@ contract_id = 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standa
 [[project.requirements]]
 contract_id = 'ST000000000000000000002AMW42H.pox-4'
 
+[[project.requirements]]
+contract_id = 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.xyk-core-v-1-2'
+
+[[project.requirements]]
+contract_id = 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.token-stx-v-1-2'
+
+[[project.requirements]]
+contract_id = 'ST3VXT52QEQPZ5246A16RFNMR1PRJ96JK6YYX37N8.xyk-pool-trait-v-1-2'
+
 # airdrop nft contracts
 
 [contracts.aibtcdev-airdrop-1]
@@ -80,6 +89,21 @@ epoch = 2.5
 
 [contracts.aibtc-ext006-treasury]
 path = 'contracts/dao/extensions/aibtc-ext006-treasury.clar'
+clarity_version = 2
+epoch = 2.5
+
+[contracts.aibtc-ext007-token]
+path = 'contracts/dao/extensions/aibtc-ext007-token.clar'
+clarity_version = 2
+epoch = 2.5
+
+[contracts.aibtc-ext008-dex]
+path = 'contracts/dao/extensions/aibtc-ext008-dex.clar'
+clarity_version = 2
+epoch = 2.5
+
+[contracts.aibtc-ext009-bitflow-pool]
+path = 'contracts/dao/extensions/aibtc-ext009-bitflow-pool.clar'
 clarity_version = 2
 epoch = 2.5
 
