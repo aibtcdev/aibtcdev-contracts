@@ -23,6 +23,9 @@ contract_id = 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait'
 contract_id = 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard'
 
 [[project.requirements]]
+contract_id = 'ST3VXT52QEQPZ5246A16RFNMR1PRJ96JK6YYX37N8.sip-010-trait-ft-standard'
+
+[[project.requirements]]
 contract_id = 'ST000000000000000000002AMW42H.pox-4'
 
 [[project.requirements]]

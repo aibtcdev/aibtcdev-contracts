@@ -13,7 +13,7 @@
 (define-constant ERR-NOT-ENOUGH-FUND u101)
 
 ;; Constants
-(define-constant MAXSUPPLY u0) ;; <%= it.token_max_supply %>
+(define-constant MAXSUPPLY u21000000) ;; <%= it.token_max_supply %>
 
 ;; Variables
 (define-fungible-token SYMBOL MAXSUPPLY) ;; <%= it.token_symbol %>
@@ -57,7 +57,7 @@
   (ok "SYMBOL") ;; <%= it.token_symbol %>
 )
 (define-read-only (get-decimals)
-  (ok u0) ;; <%= it.token_decimals %>
+  (ok u6) ;; <%= it.token_decimals %>
 )
 (define-read-only (get-total-supply)
   (ok (ft-get-supply SYMBOL)) ;; <%= it.token_symbol %>
@@ -107,7 +107,7 @@
 
 (begin
     ;; Define the total supply
-    (let ((total-supply u0)) ;; <%= it.token_max_supply %>
+    (let ((total-supply u21000000)) ;; <%= it.token_max_supply %>
     
         ;; Calculate 40% and 60% of the total supply using inline division
         (let ((dex-allocation (/ (* total-supply u40) u100)) ;; Inline division for 40%
