@@ -45,7 +45,7 @@ for contract in "${contracts[@]}"; do
         echo "   Expected test at: $test_file"
         ((untested_contracts++))
     fi
-done < <(find contracts -name "*.clar")
+done
 
 # Print summary
 echo ""
