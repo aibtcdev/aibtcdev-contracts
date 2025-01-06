@@ -27,7 +27,7 @@ contracts=()
 echo "Finding Clarity contracts..."
 while IFS= read -r contract; do
     contracts+=("$contract")
-done < <(find contracts -name "*.clar" -not -path "contracts/test/*")
+done < <(find contracts -name "*.clar" -not -path "contracts/test/*" -not -path "contracts/traits/*")
 
 echo "Found ${#contracts[@]} contract files"
 
