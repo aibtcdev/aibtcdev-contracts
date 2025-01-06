@@ -25,9 +25,10 @@ echo "Looking for .clar files..."
 # Find all Clarity contracts and store in array
 contracts=()
 echo "Finding Clarity contracts..."
+echo "Excluding test contracts and DAO traits..."
 while IFS= read -r contract; do
     contracts+=("$contract")
-done < <(find contracts -name "*.clar" -not -path "contracts/test/*" -not -path "contracts/traits/*")
+done < <(find contracts -name "*.clar" -not -path "contracts/test/*" -not -path "contracts/dao/traits/*")
 
 echo "Found ${#contracts[@]} contract files"
 
@@ -40,6 +41,7 @@ fi
 
 # Process each contract
 echo -e "\nChecking test coverage..."
+echo "=========================="
 for contract in "${contracts[@]}"; do
     let "total_contracts=total_contracts+1"
     test_file=$(get_test_path "$contract")
