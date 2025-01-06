@@ -36,3 +36,5 @@ jobs:
         with:
           files: ./coverage.lcov
           verbose: true
+      - name: "Verify test file for each contract file"
+        run: bash ./tests/check-test-coverage.sh
