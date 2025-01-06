@@ -42,110 +42,110 @@ contract_id = 'ST3VXT52QEQPZ5246A16RFNMR1PRJ96JK6YYX37N8.xyk-pool-trait-v-1-2'
 [contracts.aibtcdev-airdrop-1]
 path = 'contracts/aibtcdev-airdrop-1.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.aibtcdev-airdrop-2]
 path = 'contracts/aibtcdev-airdrop-2.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 # dao base contract
 
 [contracts.aibtcdev-base-dao]
 path = 'contracts/dao/aibtcdev-base-dao.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 # dao proposals
 
 [contracts.aibtc-prop001-bootstrap]
 path = 'contracts/dao/proposals/aibtc-prop001-bootstrap.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 # dao extensions
 
 [contracts.aibtc-ext001-actions]
 path = 'contracts/dao/extensions/aibtc-ext001-actions.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.aibtc-ext002-bank-account]
 path = 'contracts/dao/extensions/aibtc-ext002-bank-account.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.aibtc-ext003-direct-execute]
 path = 'contracts/dao/extensions/aibtc-ext003-direct-execute.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.aibtc-ext004-messaging]
 path = 'contracts/dao/extensions/aibtc-ext004-messaging.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.aibtc-ext005-payments]
 path = 'contracts/dao/extensions/aibtc-ext005-payments.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.aibtc-ext006-treasury]
 path = 'contracts/dao/extensions/aibtc-ext006-treasury.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.aibtc-ext007-token]
 path = 'contracts/dao/extensions/aibtc-ext007-token.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.aibtc-ext008-dex]
 path = 'contracts/dao/extensions/aibtc-ext008-dex.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.aibtc-ext009-bitflow-pool]
 path = 'contracts/dao/extensions/aibtc-ext009-bitflow-pool.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 # dao traits
 
 [contracts.aibtcdev-dao-v1]
 path = 'contracts/dao/traits/aibtcdev-dao-v1.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.aibtcdev-dao-traits-v1]
 path = 'contracts/dao/traits/aibtcdev-dao-traits-v1.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 # testing utilities
 
 [contracts.test-treasury]
 path = 'contracts/test/aibtc-treasury.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.external-proxy]
 path = 'contracts/test/proxy.clar'
 deployer = 'wallet_1'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.proxy]
 path = 'contracts/test/proxy.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.test-proxy]
 path = 'contracts/test/proxy.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
 
 [contracts.test-token]
 path = 'contracts/test/sip010-token.clar'
 clarity_version = 2
-epoch = 2.5
+epoch = 3.0
