@@ -275,6 +275,26 @@ path = 'contracts/dao/proposals/aibtc-treasury-withdraw-stx.clar'
 clarity_version = 2
 epoch = 3.0
 
+[contracts.aibtc-action-proposals-set-protocol-treasury]
+path = 'contracts/dao/proposals/aibtc-action-proposals-set-protocol-treasury.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-action-proposals-set-voting-token]
+path = 'contracts/dao/proposals/aibtc-action-proposals-set-voting-token.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-core-proposals-set-protocol-treasury]
+path = 'contracts/dao/proposals/aibtc-core-proposals-set-protocol-treasury.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-core-proposals-set-voting-token]
+path = 'contracts/dao/proposals/aibtc-core-proposals-set-voting-token.clar'
+clarity_version = 2
+epoch = 3.0
+
 # dao traits
 
 [contracts.aibtcdev-dao-traits-v1]
