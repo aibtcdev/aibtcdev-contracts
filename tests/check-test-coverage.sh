@@ -24,17 +24,12 @@ echo "Looking for .clar files..."
 
 # Find all Clarity contracts and store in array
 contracts=()
-echo "Debug: Running find command..."
-find contracts -name "*.clar"
-echo "Debug: Storing files in array..."
+echo "Finding Clarity contracts..."
 while IFS= read -r contract; do
-    echo "Debug: Found contract: $contract"
     contracts+=("$contract")
 done < <(find contracts -name "*.clar")
 
-echo "Debug: Array contents:"
-printf '%s\n' "${contracts[@]}"
-echo "Debug: Array size: ${#contracts[@]}"
+echo "Found ${#contracts[@]} contract files"
 
 # Check if any contracts were found
 if [ ${#contracts[@]} -eq 0 ]; then
