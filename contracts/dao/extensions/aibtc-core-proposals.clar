@@ -56,7 +56,7 @@
 
 ;; data vars
 ;;
-(define-data-var protocolTreasury principal SELF) ;; the treasury contract for protocol funds
+(define-data-var protocolTreasury principal .aibtc-treasury) ;; the treasury contract for protocol funds
 (define-data-var votingToken principal SELF) ;; the FT contract used for voting
 
 ;; data maps
