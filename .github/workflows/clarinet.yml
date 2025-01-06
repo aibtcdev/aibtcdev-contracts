@@ -23,6 +23,8 @@ jobs:
         uses: docker://hirosystems/clarinet:latest
         with:
           args: check
+      - name: "Verify test file for each contract file"
+        run: bash ./tests/check-test-coverage.sh
       - name: "Setup Node.js"
         uses: actions/setup-node@v4
         with:
@@ -36,5 +38,3 @@ jobs:
         with:
           files: ./coverage.lcov
           verbose: true
-      - name: "Verify test file for each contract file"
-        run: bash ./tests/check-test-coverage.sh
