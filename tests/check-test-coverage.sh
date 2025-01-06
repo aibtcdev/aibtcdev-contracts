@@ -41,7 +41,6 @@ fi
 # Process each contract
 echo -e "\nChecking test coverage..."
 for contract in "${contracts[@]}"; do
-    echo "Contract: $contract"
     let "total_contracts=total_contracts+1"
     test_file=$(get_test_path "$contract")
     
