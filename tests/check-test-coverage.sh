@@ -18,8 +18,25 @@ get_test_path() {
     echo "${contract_path/contracts\//tests\/}" | sed 's/\.clar$/.test.ts/'
 }
 
-# Find all Clarity contracts
+# Debug: Print current directory
+echo "Running from directory: $(pwd)"
+echo "Looking for .clar files..."
+
+# Find all Clarity contracts and store in array
+contracts=()
 while IFS= read -r contract; do
+    contracts+=("$contract")
+done < <(find contracts -name "*.clar")
+
+# Check if any contracts were found
+if [ ${#contracts[@]} -eq 0 ]; then
+    echo "❌ No .clar files found in the contracts directory!"
+    echo "   Please make sure you're running this script from the project root."
+    exit 1
+fi
+
+# Process each contract
+for contract in "${contracts[@]}"; do
     ((total_contracts++))
     test_file=$(get_test_path "$contract")
     
