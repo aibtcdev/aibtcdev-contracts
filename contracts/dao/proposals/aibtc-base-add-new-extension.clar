@@ -2,5 +2,5 @@
 
 (define-public (execute (sender principal))
   ;; adds and enables a new extension to the DAO
-  (ok true)
+  (contract-call? .aibtcdev-base-dao set-extension .aibtc-bank-account true)
 )
