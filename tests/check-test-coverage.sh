@@ -42,14 +42,14 @@ fi
 echo -e "\nChecking test coverage..."
 for contract in "${contracts[@]}"; do
     echo "Processing contract: $contract"
-    ((total_contracts++))
+    let "total_contracts=total_contracts+1"
     test_file=$(get_test_path "$contract")
     echo "Looking for test file: $test_file"
     
     if [ ! -f "$test_file" ]; then
         echo "❌ Missing test file for: $contract"
         echo "   Expected test at: $test_file"
-        ((untested_contracts++))
+        let "untested_contracts=untested_contracts+1"
     else
         echo "✅ Found test for: $contract"
     fi
