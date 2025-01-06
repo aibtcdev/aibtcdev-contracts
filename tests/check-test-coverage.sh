@@ -50,17 +50,17 @@ for contract in "${contracts[@]}"; do
     test_file=$(get_test_path "$contract")
     test_file_alt="${test_file/.test.ts/.ts}"
     
-    echo "Checking contract: $contract"
-    echo "Looking for test files:"
-    echo "  - $test_file"
-    echo "  - $test_file_alt"
+    echo -e "\n📄 Analyzing contract: $contract"
+    echo "   Looking for test files:"
+    echo "   - $test_file"
+    echo "   - $test_file_alt"
     
     if [ -f "$test_file" ]; then
-        printf "✅ %-50s -> %s\n" "$contract" "$(basename "${test_file}")"
+        printf "   ✅ %-50s -> %s\n" "$contract" "$(basename "${test_file}")"
     elif [ -f "$test_file_alt" ]; then
-        printf "✅ %-50s -> %s\n" "$contract" "$(basename "${test_file_alt}")"
+        printf "   ✅ %-50s -> %s\n" "$contract" "$(basename "${test_file_alt}")"
     else
-        printf "❌ %-50s -> Missing test file\n" "$contract"
+        printf "   ❌ %-50s -> Missing test file\n" "$contract"
         ((untested_contracts++))
     fi
 done
