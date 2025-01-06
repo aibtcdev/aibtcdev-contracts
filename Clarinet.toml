@@ -135,11 +135,6 @@ path = 'contracts/dao/proposals/aibtc-bank-account-set-account-holder.clar'
 clarity_version = 2
 epoch = 3.0
 
-[contracts.aibtc-bank-account-set-protocol-treasury]
-path = 'contracts/dao/proposals/aibtc-bank-account-set-protocol-treasury.clar'
-clarity_version = 2
-epoch = 3.0
-
 [contracts.aibtc-bank-account-set-withdrawal-amount]
 path = 'contracts/dao/proposals/aibtc-bank-account-set-withdrawal-amount.clar'
 clarity_version = 2
