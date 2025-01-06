@@ -1,5 +1,5 @@
 (impl-trait .aibtcdev-dao-traits-v1.proposal)
 
 (define-public (execute (sender principal))
-  (contract-call? .aibtcdev-bank-account set-withdrawal-amount u10000000)
+  (contract-call? .aibtc-bank-account set-withdrawal-amount u10000000)
 )
