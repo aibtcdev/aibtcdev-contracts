@@ -44,6 +44,7 @@ if [ ${#contracts[@]} -eq 0 ]; then
 fi
 
 # Process each contract
+echo -e "\nChecking test coverage..."
 for contract in "${contracts[@]}"; do
     ((total_contracts++))
     test_file=$(get_test_path "$contract")
@@ -52,6 +53,8 @@ for contract in "${contracts[@]}"; do
         echo "❌ Missing test file for: $contract"
         echo "   Expected test at: $test_file"
         ((untested_contracts++))
+    else
+        echo "✅ Found test for: $contract"
     fi
 done
 
