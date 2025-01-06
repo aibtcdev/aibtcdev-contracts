@@ -6,14 +6,14 @@ const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const addressDeployer = accounts.get("deployer")!;
 
-const contractAddress = `${addressDeployer}.aibtc-ext006-treasury`;
+const contractAddress = `${addressDeployer}.aibtc-treasury`;
 
 enum ErrCode {
   ERR_UNAUTHORIZED = 6000,
   ERR_UNKNOWN_ASSSET = 6001,
 }
 
-describe("aibtc-ext006-treasury", () => {
+describe("aibtc-treasury", () => {
   // Allow Asset Tests
   describe("allow-asset()", () => {
     it("fails if caller is not DAO or extension");

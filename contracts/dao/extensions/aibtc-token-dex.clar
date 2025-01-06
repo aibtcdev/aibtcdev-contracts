@@ -33,7 +33,7 @@
 (define-constant BURN_ADDRESS 'ST000000000000000000002AMW42H) ;; <%= it.burn %> burn mainnet
 
 (define-constant deployer tx-sender)
-(define-constant allow-token .aibtc-ext007-token) ;; <%= it.token_contract %>
+(define-constant allow-token .aibtc-token) ;; <%= it.token_contract %>
 
 ;; data vars
 (define-data-var tradable bool false)
@@ -88,7 +88,7 @@
             ;; <%= it.pool_contract %>
             ;; <%= it.bitflow_stx_token_address %>
             ;; <%= it.bitflow_fee_address %>
-            (try! (as-contract (contract-call? 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.xyk-core-v-1-2 create-pool .aibtc-ext009-bitflow-pool 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.token-stx-v-1-2 token-trait remain-stx remain-tokens xyk-burn-amount u10 u40 u10 u40 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1 xyk-pool-uri true)))
+            (try! (as-contract (contract-call? 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.xyk-core-v-1-2 create-pool .aibtc-bitflow-pool 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.token-stx-v-1-2 token-trait remain-stx remain-tokens xyk-burn-amount u10 u40 u10 u40 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1 xyk-pool-uri true)))
             ;; send fee
             (try! (as-contract (stx-transfer? COMPLETE_FEE tx-sender STX_CITY_COMPLETE_FEE_WALLET)))
             ;; update global variables

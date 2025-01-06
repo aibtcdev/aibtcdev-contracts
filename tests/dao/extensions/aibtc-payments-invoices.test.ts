@@ -6,7 +6,7 @@ const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const addressDeployer = accounts.get("deployer")!;
 
-const contractAddress = `${addressDeployer}.aibtc-ext005-payments`;
+const contractAddress = `${addressDeployer}.aibtc-payments-invoices`;
 
 enum ErrCode {
   ERR_UNAUTHORIZED = 5000,
@@ -25,7 +25,7 @@ enum ErrCode {
   ERR_RECENT_PAYMENT_NOT_FOUND,
 }
 
-describe("aibtc-ext005-payments", () => {
+describe("aibtc-payments-invoices", () => {
   // Payment Address Tests
   describe("set-payment-address()", () => {
     it("fails if caller is not DAO or extension");

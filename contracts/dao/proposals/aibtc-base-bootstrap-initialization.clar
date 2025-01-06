@@ -7,12 +7,12 @@
     ;; set initial extensions
     (try! (contract-call? .aibtcdev-base-dao set-extensions
       (list
-        {extension: .aibtc-ext001-actions, enabled: true}
-        {extension: .aibtc-ext002-bank-account, enabled: true}
+        {extension: .aibtc-action-proposals, enabled: true}
+        {extension: .aibtc-bank-account, enabled: true}
         {extension: .aibtc-ext003-direct-execute, enabled: true}
-        {extension: .aibtc-ext004-messaging, enabled: true}
-        {extension: .aibtc-ext005-payments, enabled: true}
-        {extension: .aibtc-ext006-treasury, enabled: true}
+        {extension: .aibtc-onchain-messaging, enabled: true}
+        {extension: .aibtc-payments-invoices, enabled: true}
+        {extension: .aibtc-treasury, enabled: true}
       )
     ))
     ;; print manifest

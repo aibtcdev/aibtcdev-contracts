@@ -117,10 +117,10 @@
             (try! (send-stx 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1 u500000)) ;; <%= it.stxctiy_token_deployment_fee_address %>
             
             ;; Mint tokens to the dex_contract (40%)
-            (try! (ft-mint? SYMBOL dex-allocation .aibtc-ext008-dex)) ;; <%= it.token_symbol %> <%= it.dex_contract %>
+            (try! (ft-mint? SYMBOL dex-allocation .aibtc-token-dex)) ;; <%= it.token_symbol %> <%= it.dex_contract %>
             
             ;; Mint tokens to the treasury (60%)
-            (try! (ft-mint? SYMBOL treasury-allocation .aibtc-ext006-treasury)) ;; <%= it.token_symbol %> <%= it.treasury_contract %>
+            (try! (ft-mint? SYMBOL treasury-allocation .aibtc-treasury)) ;; <%= it.token_symbol %> <%= it.treasury_contract %>
         )
     )
 )

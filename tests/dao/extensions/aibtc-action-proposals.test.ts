@@ -6,7 +6,7 @@ const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const addressDeployer = accounts.get("deployer")!;
 
-const contractAddress = `${addressDeployer}.aibtc-ext001-actions`;
+const contractAddress = `${addressDeployer}.aibtc-action-proposals`;
 
 enum ErrCode {
   ERR_UNAUTHORIZED = 1000,
@@ -41,7 +41,7 @@ enum ErrCode {
   ERR_INVALID_PARAMETERS,
 }
 
-describe("aibtc-ext001-actions", () => {
+describe("aibtc-action-proposals", () => {
   // Protocol Treasury Tests
   describe("set-protocol-treasury()", () => {
     it("fails if caller is not DAO or extension", () => {
@@ -70,7 +70,7 @@ describe("aibtc-ext001-actions", () => {
       const receipt = simnet.callPublicFn(
         contractAddress,
         "set-protocol-treasury",
-        [Cl.contractPrincipal(addressDeployer, "aibtc-ext001-actions")],
+        [Cl.contractPrincipal(addressDeployer, "aibtc-action-proposals")],
         addressDeployer
       );
       expect(receipt.result).toBeErr(

@@ -6,13 +6,13 @@ const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const addressDeployer = accounts.get("deployer")!;
 
-const contractAddress = `${addressDeployer}.aibtc-ext004-messaging`;
+const contractAddress = `${addressDeployer}.aibtc-onchain-messaging`;
 
 enum ErrCode {
   ERR_UNAUTHORIZED = 4000,
 }
 
-describe("aibtc-ext004-messaging", () => {
+describe("aibtc-onchain-messaging", () => {
   // Message Tests
   describe("send()", () => {
     it("succeeds if called by any user with isFromDao false");

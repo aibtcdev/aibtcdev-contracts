@@ -6,7 +6,7 @@ const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const addressDeployer = accounts.get("deployer")!;
 
-const contractAddress = `${addressDeployer}.aibtc-ext002-bank-account`;
+const contractAddress = `${addressDeployer}.aibtc-bank-account`;
 
 enum ErrCode {
   ERR_INVALID = 2000,
@@ -18,7 +18,7 @@ enum ErrCode {
 const withdrawalAmount = 10000000; // 10 STX
 const withdrawalPeriod = 144; // 144 blocks
 
-describe("aibtc-ext002-bank-account", () => {
+describe("aibtc-bank-account", () => {
   // Account Holder Tests
   describe("set-account-holder()", () => {
     it("fails if caller is not DAO or extension");
