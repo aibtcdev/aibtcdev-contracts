@@ -17,7 +17,7 @@
 
 ;; Variables
 (define-fungible-token SYMBOL MAXSUPPLY) ;; <%= it.token_symbol %>
-(define-data-var contract-owner principal tx-sender) ;; TODO: set to dao? use extension? actions?
+(define-data-var contract-owner principal .aibtc-token-owner) ;; extension to manage token uri
 
 ;; SIP-10 Functions
 (define-public (transfer (amount uint) (from principal) (to principal) (memo (optional (buff 34))))
