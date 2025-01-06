@@ -2,5 +2,5 @@
 
 (define-public (execute (sender principal))
   ;; sets the token uri for the dao token
-  (ok true)
+  (contract-call? .aibtc-token-owner set-token-uri "https://example.com/token.json")
 )
