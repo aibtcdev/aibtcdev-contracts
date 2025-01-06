@@ -3,6 +3,9 @@
 # Exit on any error
 set -e
 
+echo "🔍 Checking test coverage for Clarity contracts..."
+echo "================================================"
+
 # Initialize counters
 total_contracts=0
 untested_contracts=0
@@ -28,11 +31,18 @@ while IFS= read -r contract; do
 done < <(find contracts -name "*.clar")
 
 # Print summary
-echo "Found $total_contracts contracts total"
+echo ""
+echo "📊 Summary"
+echo "=========="
+echo "Total contracts found: $total_contracts"
+echo "Contracts with tests: $(($total_contracts - $untested_contracts))"
+echo "Contracts without tests: $untested_contracts"
+echo ""
+
 if [ $untested_contracts -eq 0 ]; then
     echo "✅ All contracts have corresponding test files"
     exit 0
 else
-    echo "❌ Found $untested_contracts contracts without tests"
+    echo "❌ Action needed: $untested_contracts contract(s) are missing tests"
     exit 1
 fi
