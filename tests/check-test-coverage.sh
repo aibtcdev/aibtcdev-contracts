@@ -41,27 +41,17 @@ fi
 # Process each contract
 echo -e "\nChecking test coverage..."
 for contract in "${contracts[@]}"; do
-    # Skip test contracts directory
-    if [[ $contract == contracts/test/* ]]; then
-        continue
-    fi
-    
+    echo "Processing contract: $contract"
     ((total_contracts++))
     test_file=$(get_test_path "$contract")
-    test_file_alt="${test_file/.test.ts/.ts}"
+    echo "Looking for test file: $test_file"
     
-    echo -e "\n📄 Analyzing contract: $contract"
-    echo "   Looking for test files:"
-    echo "   - $test_file"
-    echo "   - $test_file_alt"
-    
-    if [ -f "$test_file" ]; then
-        printf "   ✅ %-50s -> %s\n" "$contract" "$(basename "${test_file}")"
-    elif [ -f "$test_file_alt" ]; then
-        printf "   ✅ %-50s -> %s\n" "$contract" "$(basename "${test_file_alt}")"
-    else
-        printf "   ❌ %-50s -> Missing test file\n" "$contract"
+    if [ ! -f "$test_file" ]; then
+        echo "❌ Missing test file for: $contract"
+        echo "   Expected test at: $test_file"
         ((untested_contracts++))
+    else
+        echo "✅ Found test for: $contract"
     fi
 done
 
