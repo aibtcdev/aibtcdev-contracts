@@ -120,8 +120,8 @@ path = 'contracts/dao/proposals/aibtc-bank-account-deposit-stx.clar'
 clarity_version = 2
 epoch = 3.0
 
-[contracts.aibtc-bank-account-initialize-new]
-path = 'contracts/dao/proposals/aibtc-bank-account-initialize-new.clar'
+[contracts.aibtc-bank-account-initialize-new-account]
+path = 'contracts/dao/proposals/aibtc-bank-account-initialize-new-account.clar'
 clarity_version = 2
 epoch = 3.0
 
@@ -247,6 +247,11 @@ epoch = 3.0
 
 [contracts.aibtc-treasury-deposit-stx]
 path = 'contracts/dao/proposals/aibtc-treasury-deposit-stx.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-treasury-freeze-asset]
+path = 'contracts/dao/proposals/aibtc-treasury-freeze-asset.clar'
 clarity_version = 2
 epoch = 3.0
 
