@@ -137,7 +137,7 @@
   (revoke-delegate-stx () (response bool uint))
 ))
 
-(define-trait direct-execute (
+(define-trait core-proposals (
   ;; set the protocol treasury contract
   ;; @param treasury the treasury contract principal
   ;; @returns (response bool uint)

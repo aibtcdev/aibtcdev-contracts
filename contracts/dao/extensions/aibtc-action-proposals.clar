@@ -1,7 +1,7 @@
-;; title: aibtcdev-actions
+;; title: aibtcdev-action-proposals
 ;; version: 1.0.0
 ;; summary: An extension that manages voting on predefined actions using a SIP-010 Stacks token.
-;; description: This contract allows voting on specific extension actions with a lower threshold than direct-execute.
+;; description: This contract allows voting on specific extension actions with a lower threshold than core proposals.
 
 ;; traits
 ;;

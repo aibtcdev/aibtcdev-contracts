@@ -1,4 +1,4 @@
-;; title: aibtcdev-direct-execute
+;; title: aibtcdev-core-proposals
 ;; version: 1.0.0
 ;; summary: An extension that manages voting on proposals to execute Clarity code using a SIP-010 Stacks token.
 ;; description: This contract can make changes to core DAO functionality with a high voting threshold by executing Clarity code in the context of the DAO.
@@ -6,7 +6,7 @@
 ;; traits
 ;;
 (impl-trait .aibtcdev-dao-traits-v1.extension)
-(impl-trait .aibtcdev-dao-traits-v1.direct-execute)
+(impl-trait .aibtcdev-dao-traits-v1.core-proposals)
 
 (use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 (use-trait proposal-trait .aibtcdev-dao-traits-v1.proposal)

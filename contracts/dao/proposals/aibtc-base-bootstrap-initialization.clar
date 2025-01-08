@@ -9,7 +9,7 @@
       (list
         {extension: .aibtc-action-proposals, enabled: true}
         {extension: .aibtc-bank-account, enabled: true}
-        {extension: .aibtc-ext003-direct-execute, enabled: true}
+        {extension: .aibtc-core-proposals, enabled: true}
         {extension: .aibtc-onchain-messaging, enabled: true}
         {extension: .aibtc-payments-invoices, enabled: true}
         {extension: .aibtc-treasury, enabled: true}
