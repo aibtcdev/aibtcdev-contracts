@@ -11,6 +11,7 @@
 (use-trait treasury-trait .aibtcdev-dao-traits-v1.treasury)
 (use-trait messaging-trait .aibtcdev-dao-traits-v1.messaging)
 (use-trait resources-trait .aibtcdev-dao-traits-v1.resources)
+(use-trait action-trait .aibtcdev-dao-traits-v1.action)
 
 ;; constants
 ;;
@@ -90,8 +91,8 @@
 (define-map Proposals
   uint ;; proposal id
   {
-    action: (string-ascii 64), ;; action name
-    parameters: (list 10 (string-utf8 256)), ;; action parameters
+    action: principal, ;; action contract
+    parameters: (buff 2048), ;; action parameters
     createdAt: uint, ;; block height
     caller: principal, ;; contract caller
     creator: principal, ;; proposal creator (tx-sender)
@@ -163,7 +164,7 @@
   )
 )
 
-(define-public (propose-action (action (string-ascii 64)) (parameters (list 10 (string-utf8 256))) (token <ft-trait>))
+(define-public (propose-action (action <action-trait>) (parameters (buff 2048)) (token <ft-trait>))
   (let
     (
       (tokenContract (contract-of token))
@@ -189,7 +190,7 @@
     })
     ;; create the proposal
     (asserts! (map-insert Proposals newId {
-      action: action,
+      action: (contract-of action),
       parameters: parameters,
       createdAt: burn-block-height,
       caller: contract-caller,
@@ -252,7 +253,7 @@
   )
 )
 
-(define-public (conclude-proposal (proposalId uint) (treasury <treasury-trait>) (token <ft-trait>))
+(define-public (conclude-proposal (proposalId uint) (action <action-trait>) (treasury <treasury-trait>) (token <ft-trait>))
   (let
     (
       (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
@@ -288,7 +289,7 @@
     ;; execute the action only if it passed
     ;; (and votePassed (try! (execute-action proposalRecord)))
     ;; return the result
-    (ok votePassed)
+    (ok (and votePassed (try! (contract-call? action run (get parameters proposalRecord)))))
   )
 )
 
