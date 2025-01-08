@@ -15,6 +15,9 @@
         {extension: .aibtc-treasury, enabled: true}
       )
     ))
+
+    (try! (contract-call? .aibtc-action-proposals set-protocol-treasury .aibtc-treasury))
+    (try! (contract-call? .aibtc-action-proposals set-voting-token .aibtc-token))
     ;; print manifest
     (print DAO_MANIFEST)
     (ok true)
