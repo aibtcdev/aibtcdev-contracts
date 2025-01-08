@@ -60,7 +60,7 @@
 
 ;; data vars
 ;;
-(define-data-var protocolTreasury principal .aibtc-treasury) ;; the treasury contract for protocol funds
+(define-data-var protocolTreasury principal SELF) ;; the treasury contract for protocol funds
 (define-data-var votingToken principal SELF) ;; the FT contract used for voting
 
 ;; data maps
@@ -128,8 +128,6 @@
       (treasuryContract (contract-of treasury))
     )
     (try! (is-dao-or-extension))
-    ;; treasury must be a contract
-    (asserts! (not (is-standard treasuryContract)) ERR_TREASURY_MUST_BE_CONTRACT)
     ;; treasury must not be already set
     (asserts! (is-eq (var-get protocolTreasury) SELF) ERR_TREASURY_NOT_INITIALIZED)
     ;; treasury cannot be the voting contract
@@ -145,22 +143,17 @@
 )
 
 (define-public (set-voting-token (token <ft-trait>))
-  (let
-    (
-      (tokenContract (contract-of token))
-    )
+  (begin
     (try! (is-dao-or-extension))
-    ;; token must be a contract
-    (asserts! (not (is-standard tokenContract)) ERR_TOKEN_MUST_BE_CONTRACT)
     ;; token must not be already set
     (asserts! (is-eq (var-get votingToken) SELF) ERR_TOKEN_NOT_INITIALIZED)
     (print {
       notification: "set-voting-token",
       payload: {
-        token: tokenContract
+        token: token
       }
     })
-    (ok (var-set votingToken tokenContract))
+    (ok (var-set votingToken (contract-of token)))
   )
 )
 
