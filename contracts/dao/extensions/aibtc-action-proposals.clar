@@ -264,6 +264,8 @@
     (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_STILL_ACTIVE)
     ;; proposal not already concluded
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
+    ;; action must be the same as the one in proposal
+    (asserts! (is-eq (get action proposalRecord) (contract-of action)) ERR_INVALID_ACTION)
     ;; print conclusion event
     (print {
       notification: "conclude-proposal",
