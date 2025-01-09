@@ -282,9 +282,10 @@
       })
     )
     ;; execute the action only if it passed
-    ;; (and votePassed (try! (execute-action proposalRecord)))
-    ;; return the result
-    (ok (and votePassed (try! (contract-call? action run (get parameters proposalRecord)))))
+    (ok (if votePassed
+      (match (contract-call? action run (get parameters proposalRecord)) ok_ true err_ (begin (print {err:err_}) false))
+      false
+    ))
   )
 )
 
