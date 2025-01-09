@@ -65,28 +65,6 @@
 
 ;; data maps
 ;;
-(define-constant VALID_ACTIONS (list
-  "set-account-holder" ;; aibtc-bank-account
-  "set-withdrawal-period" ;; aibtc-bank-account, with limits
-  "set-withdrawal-amount";; aibtc-bank-account, with limits
-  "send-message" ;; aibtc-onchain-messaging
-  "add-resource" ;; aibtc-payments-invoices
-  "allow-asset" ;; aibtc-treasury
-  "toggle-resource" ;; aibtc-payments-invoices toggle-resource-by-name
-))
-
-;; exploring which structure works better vs list
-(define-map Actions
-  (string-ascii 50)
-  bool
-)
-(map-set Actions "set-account-holder" true) ;; aibtc-bank-account
-(map-set Actions "set-withdrawal-period" true) ;; aibtc-bank-account, with limits
-(map-set Actions "set-withdrawal-amount" true) ;; aibtc-bank-account, with limits
-(map-set Actions "send-message" true) ;; aibtc-onchain-messaging
-(map-set Actions "add-resource" true) ;; aibtc-payments-invoices
-(map-set Actions "toggle-resource" true) ;; aibtc-payments-invoices toggle-resource-by-name
-(map-set Actions "allow-asset" true) ;; aibtc-treasury
 
 (define-map Proposals
   uint ;; proposal id
