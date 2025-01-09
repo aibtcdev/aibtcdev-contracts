@@ -13,6 +13,8 @@
         {extension: .aibtc-onchain-messaging, enabled: true}
         {extension: .aibtc-payments-invoices, enabled: true}
         {extension: .aibtc-treasury, enabled: true}
+        {extension: .set-account-holder, enabled: true}
+        {extension: .send-message, enabled: true}
       )
     ))
 
