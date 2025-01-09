@@ -73,11 +73,6 @@ path = 'contracts/dao/extensions/aibtc-bitflow-pool.clar'
 clarity_version = 2
 epoch = 3.0
 
-[contracts.aibtc-bitflow-pool-owner]
-path = 'contracts/dao/extensions/aibtc-bitflow-pool-owner.clar'
-clarity_version = 2
-epoch = 3.0
-
 [contracts.aibtc-core-proposals]
 path = 'contracts/dao/extensions/aibtc-core-proposals.clar'
 clarity_version = 2
