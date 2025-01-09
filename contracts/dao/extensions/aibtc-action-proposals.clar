@@ -11,6 +11,7 @@
 (use-trait treasury-trait .aibtcdev-dao-traits-v1.treasury)
 (use-trait messaging-trait .aibtcdev-dao-traits-v1.messaging)
 (use-trait resources-trait .aibtcdev-dao-traits-v1.resources)
+(use-trait action-trait .aibtcdev-dao-traits-v1.action)
 
 ;; constants
 ;;
@@ -59,7 +60,7 @@
 
 ;; data vars
 ;;
-(define-data-var protocolTreasury principal .aibtc-treasury) ;; the treasury contract for protocol funds
+(define-data-var protocolTreasury principal SELF) ;; the treasury contract for protocol funds
 (define-data-var votingToken principal SELF) ;; the FT contract used for voting
 
 ;; data maps
@@ -90,8 +91,8 @@
 (define-map Proposals
   uint ;; proposal id
   {
-    action: (string-ascii 64), ;; action name
-    parameters: (list 10 (string-utf8 256)), ;; action parameters
+    action: principal, ;; action contract
+    parameters: (buff 2048), ;; action parameters
     createdAt: uint, ;; block height
     caller: principal, ;; contract caller
     creator: principal, ;; proposal creator (tx-sender)
@@ -127,8 +128,6 @@
       (treasuryContract (contract-of treasury))
     )
     (try! (is-dao-or-extension))
-    ;; treasury must be a contract
-    (asserts! (not (is-standard treasuryContract)) ERR_TREASURY_MUST_BE_CONTRACT)
     ;; treasury must not be already set
     (asserts! (is-eq (var-get protocolTreasury) SELF) ERR_TREASURY_NOT_INITIALIZED)
     ;; treasury cannot be the voting contract
@@ -144,26 +143,21 @@
 )
 
 (define-public (set-voting-token (token <ft-trait>))
-  (let
-    (
-      (tokenContract (contract-of token))
-    )
+  (begin
     (try! (is-dao-or-extension))
-    ;; token must be a contract
-    (asserts! (not (is-standard tokenContract)) ERR_TOKEN_MUST_BE_CONTRACT)
     ;; token must not be already set
     (asserts! (is-eq (var-get votingToken) SELF) ERR_TOKEN_NOT_INITIALIZED)
     (print {
       notification: "set-voting-token",
       payload: {
-        token: tokenContract
+        token: token
       }
     })
-    (ok (var-set votingToken tokenContract))
+    (ok (var-set votingToken (contract-of token)))
   )
 )
 
-(define-public (propose-action (action (string-ascii 64)) (parameters (list 10 (string-utf8 256))) (token <ft-trait>))
+(define-public (propose-action (action <action-trait>) (parameters (buff 2048)) (token <ft-trait>))
   (let
     (
       (tokenContract (contract-of token))
@@ -189,7 +183,7 @@
     })
     ;; create the proposal
     (asserts! (map-insert Proposals newId {
-      action: action,
+      action: (contract-of action),
       parameters: parameters,
       createdAt: burn-block-height,
       caller: contract-caller,
@@ -252,7 +246,7 @@
   )
 )
 
-(define-public (conclude-proposal (proposalId uint) (treasury <treasury-trait>) (token <ft-trait>))
+(define-public (conclude-proposal (proposalId uint) (action <action-trait>) (treasury <treasury-trait>) (token <ft-trait>))
   (let
     (
       (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
@@ -270,6 +264,8 @@
     (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_STILL_ACTIVE)
     ;; proposal not already concluded
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
+    ;; action must be the same as the one in proposal
+    (asserts! (is-eq (get action proposalRecord) (contract-of action)) ERR_INVALID_ACTION)
     ;; print conclusion event
     (print {
       notification: "conclude-proposal",
@@ -286,9 +282,10 @@
       })
     )
     ;; execute the action only if it passed
-    ;; (and votePassed (try! (execute-action proposalRecord)))
-    ;; return the result
-    (ok votePassed)
+    (ok (if votePassed
+      (match (contract-call? action run (get parameters proposalRecord)) ok_ true err_ (begin (print {err:err_}) false))
+      false
+    ))
   )
 )
 

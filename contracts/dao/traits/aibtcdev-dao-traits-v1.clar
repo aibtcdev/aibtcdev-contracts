@@ -164,3 +164,9 @@
   ;; @returns (response bool uint)
   (conclude-proposal (<proposal> <treasury> <ft-trait>) (response bool uint))
 ))
+
+(define-trait action (
+  ;; @param parameters encoded action parameters
+  ;; @returns (response bool uint)
+  (run ((buff 2048)) (response bool uint))
+))

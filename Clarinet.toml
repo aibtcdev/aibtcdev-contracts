@@ -302,6 +302,17 @@ path = 'contracts/dao/traits/aibtcdev-dao-v1.clar'
 clarity_version = 2
 epoch = 3.0
 
+# actions
+[contracts.set-account-holder]
+path = 'contracts/dao/extensions/actions/set-account-holder.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.send-message]
+path = 'contracts/dao/extensions/actions/send-message.clar'
+clarity_version = 2
+epoch = 3.0
+
 # testing utilities
 
 [contracts.test-treasury]

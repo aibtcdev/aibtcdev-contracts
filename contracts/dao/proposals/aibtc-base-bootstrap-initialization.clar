@@ -13,8 +13,13 @@
         {extension: .aibtc-onchain-messaging, enabled: true}
         {extension: .aibtc-payments-invoices, enabled: true}
         {extension: .aibtc-treasury, enabled: true}
+        {extension: .set-account-holder, enabled: true}
+        {extension: .send-message, enabled: true}
       )
     ))
+
+    (try! (contract-call? .aibtc-action-proposals set-protocol-treasury .aibtc-treasury))
+    (try! (contract-call? .aibtc-action-proposals set-voting-token .aibtc-token))
     ;; print manifest
     (print DAO_MANIFEST)
     (ok true)
