@@ -108,6 +108,18 @@ path = 'contracts/dao/extensions/aibtc-treasury.clar'
 clarity_version = 2
 epoch = 3.0
 
+# dao actions (as extensions)
+
+[contracts.aibtc-action-send-message]
+path = 'contracts/dao/extensions/actions/aibtc-action-send-message.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-action-set-account-holder]
+path = 'contracts/dao/extensions/actions/aibtc-action-set-account-holder.clar'
+clarity_version = 2
+epoch = 3.0
+
 # dao proposals
 
 [contracts.aibtc-bank-account-deposit-stx]
@@ -294,17 +306,6 @@ epoch = 3.0
 
 [contracts.aibtcdev-dao-v1]
 path = 'contracts/dao/traits/aibtcdev-dao-v1.clar'
-clarity_version = 2
-epoch = 3.0
-
-# actions
-[contracts.set-account-holder]
-path = 'contracts/dao/extensions/actions/set-account-holder.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.send-message]
-path = 'contracts/dao/extensions/actions/send-message.clar'
 clarity_version = 2
 epoch = 3.0
 
