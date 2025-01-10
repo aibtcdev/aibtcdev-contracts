@@ -5,6 +5,7 @@
 ;; @dev The deployer has no ownership privileges or control over the contract's operations.
 ;; @version 2.0
 
+(impl-trait .aibtcdev-dao-traits-v1.token-dex) ;; <%= it.token_dex_trait %>
 ;; Implement SIP 010 trait
 (use-trait sip-010-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait) ;; <%= it.sip10_trait %>
 
