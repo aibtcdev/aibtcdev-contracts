@@ -2,6 +2,9 @@
 (impl-trait 'ST3VXT52QEQPZ5246A16RFNMR1PRJ96JK6YYX37N8.xyk-pool-trait-v-1-2.xyk-pool-trait) ;; <%= it.bitflow_pool_trait %>
 (use-trait sip-010-trait 'ST3VXT52QEQPZ5246A16RFNMR1PRJ96JK6YYX37N8.sip-010-trait-ft-standard.sip-010-trait) ;; <%= it.sip10_trait %>
 
+;; implement aibtcdev trait
+(impl-trait .aibtcdev-dao-traits-v1.bitflow-pool)
+
 ;; Define fungible pool token
 (define-fungible-token pool-token)
 

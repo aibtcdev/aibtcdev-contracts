@@ -75,6 +75,12 @@
   (withdraw-stx () (response bool uint))
 ))
 
+(define-trait bitflow-pool (
+  ;; transfer funds (limited as we're just tagging this)
+  ;; all functions are covered between sip-010 and bitflow-xyk
+  (transfer (uint principal principal (optional (buff 34))) (response bool uint))
+))
+
 (define-trait messaging (
   ;; send a message on-chain (opt from DAO)
   ;; @param msg the message to send (up to 1MB)
