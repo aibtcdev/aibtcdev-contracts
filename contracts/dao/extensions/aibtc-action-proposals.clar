@@ -10,8 +10,6 @@
 
 (use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 (use-trait treasury-trait .aibtcdev-dao-traits-v1.treasury)
-(use-trait messaging-trait .aibtcdev-dao-traits-v1.messaging)
-(use-trait resources-trait .aibtcdev-dao-traits-v1.resources)
 (use-trait action-trait .aibtcdev-dao-traits-v1.action)
 
 ;; constants
