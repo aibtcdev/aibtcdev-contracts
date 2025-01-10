@@ -128,10 +128,10 @@
     (print {
       notification: "set-voting-token",
       payload: {
-        token: token
+        token: tokenContract
       }
     })
-    (ok (var-set votingToken (contract-of token)))
+    (ok (var-set votingToken tokenContract))
   )
 )
 
