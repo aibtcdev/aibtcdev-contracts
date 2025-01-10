@@ -109,11 +109,8 @@
 (begin
   ;; Send STX fees
   (try! (send-stx 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1 u500000)) ;; <%= it.stxcity_token_deployment_fee_address %>
-
   ;; mint tokens to the dex_contract (20%)
   (try! (ft-mint? SYMBOL (/ (* MAXSUPPLY u20) u100) .aibtc-token-dex)) ;; <%= it.token_symbol %> <%= it.dex_contract %>
-
   ;; mint tokens to the treasury (80%)
   (try! (ft-mint? SYMBOL (/ (* MAXSUPPLY u80) u100) .aibtc-treasury)) ;; <%= it.token_symbol %> <%= it.treasury_contract %>
-
 )
