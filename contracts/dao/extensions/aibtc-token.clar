@@ -107,21 +107,13 @@
 )
 
 (begin
-    ;; Define the total supply
-    (let ((total-supply u21000000)) ;; <%= it.token_max_supply %>
-    
-        ;; Calculate 40% and 60% of the total supply using inline division
-        (let ((dex-allocation (/ (* total-supply u40) u100)) ;; Inline division for 40%
-              (treasury-allocation (/ (* total-supply u60) u100))) ;; Inline division for 60%
-              
-            ;; Send STX fees
-            (try! (send-stx 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1 u500000)) ;; <%= it.stxctiy_token_deployment_fee_address %>
-            
-            ;; Mint tokens to the dex_contract (40%)
-            (try! (ft-mint? SYMBOL dex-allocation .aibtc-token-dex)) ;; <%= it.token_symbol %> <%= it.dex_contract %>
-            
-            ;; Mint tokens to the treasury (60%)
-            (try! (ft-mint? SYMBOL treasury-allocation .aibtc-treasury)) ;; <%= it.token_symbol %> <%= it.treasury_contract %>
-        )
-    )
+  ;; Send STX fees
+  (try! (send-stx 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1 u500000)) ;; <%= it.stxcity_token_deployment_fee_address %>
+
+  ;; mint tokens to the dex_contract (20%)
+  (try! (ft-mint? SYMBOL (/ (* MAXSUPPLY u20) u100) .aibtc-token-dex)) ;; <%= it.token_symbol %> <%= it.dex_contract %>
+
+  ;; mint tokens to the treasury (80%)
+  (try! (ft-mint? SYMBOL (/ (* MAXSUPPLY u80) u100) .aibtc-treasury)) ;; <%= it.token_symbol %> <%= it.treasury_contract %>
+
 )
