@@ -34,6 +34,7 @@
 (define-constant ERR_TOKEN_ALREADY_INITIALIZED (err u1300))
 (define-constant ERR_TOKEN_MISMATCH (err u1301))
 (define-constant ERR_INSUFFICIENT_BALANCE (err u1302))
+(define-constant ERR_TOKEN_CANNOT_BE_SELF (err u1303))
 
 ;; error messages - proposals
 (define-constant ERR_PROPOSAL_NOT_FOUND (err u1400))
@@ -117,6 +118,7 @@
     (try! (is-dao-or-extension))
     ;; token must not be already set
     (asserts! (is-eq (var-get votingToken) SELF) ERR_TOKEN_ALREADY_INITIALIZED)
+    (asserts! (not (is-eq (contract-of token) SELF)) ERR_TOKEN_CANNOT_BE_SELF)
     (print {
       notification: "set-voting-token",
       payload: {
