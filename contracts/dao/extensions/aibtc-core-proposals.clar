@@ -48,7 +48,6 @@
 (define-constant ERR_VOTE_TOO_SOON (err u3500))
 (define-constant ERR_VOTE_TOO_LATE (err u3501))
 (define-constant ERR_ALREADY_VOTED (err u3502))
-(define-constant ERR_ZERO_VOTING_POWER (err u3503))
 (define-constant ERR_QUORUM_NOT_REACHED (err u3504))
 
 ;; data vars
@@ -181,7 +180,7 @@
     ;; token matches set voting token
     (asserts! (is-eq tokenContract (var-get votingToken)) ERR_TOKEN_MISMATCH)
     ;; caller has the required balance
-    (asserts! (> senderBalance u0) ERR_ZERO_VOTING_POWER)
+    (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
     ;; proposal was not already executed
     (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; proposal is still active
