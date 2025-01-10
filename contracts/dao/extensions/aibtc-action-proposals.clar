@@ -20,32 +20,26 @@
 (define-constant VOTING_QUORUM u66) ;; 66% of liquid supply (total supply - treasury)
 
 ;; error messages - authorization
-(define-constant ERR_UNAUTHORIZED (err u1000))
-(define-constant ERR_NOT_DAO_OR_EXTENSION (err u1001))
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u1000))
 
 ;; error messages - initialization
 (define-constant ERR_NOT_INITIALIZED (err u1100))
-(define-constant ERR_ALREADY_INITIALIZED (err u1101))
 
 ;; error messages - treasury
-(define-constant ERR_TREASURY_MUST_BE_CONTRACT (err u1200))
-(define-constant ERR_TREASURY_CANNOT_BE_SELF (err u1201))
-(define-constant ERR_TREASURY_ALREADY_SET (err u1202))
-(define-constant ERR_TREASURY_MISMATCH (err u1203))
-(define-constant ERR_TREASURY_NOT_INITIALIZED (err u1204))
+(define-constant ERR_TREASURY_CANNOT_BE_SELF (err u1200))
+(define-constant ERR_TREASURY_MISMATCH (err u1201))
+(define-constant ERR_TREASURY_NOT_INITIALIZED (err u1202))
 
 ;; error messages - voting token
-(define-constant ERR_TOKEN_MUST_BE_CONTRACT (err u1300))
-(define-constant ERR_TOKEN_NOT_INITIALIZED (err u1301))
-(define-constant ERR_TOKEN_MISMATCH (err u1302))
-(define-constant ERR_INSUFFICIENT_BALANCE (err u1303))
+(define-constant ERR_TOKEN_ALREADY_INITIALIZED (err u1300))
+(define-constant ERR_TOKEN_MISMATCH (err u1301))
+(define-constant ERR_INSUFFICIENT_BALANCE (err u1302))
 
 ;; error messages - proposals
 (define-constant ERR_PROPOSAL_NOT_FOUND (err u1400))
-(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u1401))
-(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1402))
-(define-constant ERR_SAVING_PROPOSAL (err u1403))
-(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u1404))
+(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1401))
+(define-constant ERR_SAVING_PROPOSAL (err u1402))
+(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u1403))
 
 ;; error messages - voting
 (define-constant ERR_VOTE_TOO_SOON (err u1500))
@@ -56,12 +50,12 @@
 
 ;; error messages - actions
 (define-constant ERR_INVALID_ACTION (err u1600))
-(define-constant ERR_INVALID_PARAMETERS (err u1601))
 
 ;; data vars
 ;;
 (define-data-var protocolTreasury principal SELF) ;; the treasury contract for protocol funds
 (define-data-var votingToken principal SELF) ;; the FT contract used for voting
+(define-data-var proposalCount uint u0) ;; total number of proposals
 
 ;; data maps
 ;;
@@ -90,8 +84,6 @@
   }
   uint ;; total votes
 )
-
-(define-data-var proposalCount uint u0)
 
 ;; public functions
 ;;
@@ -124,7 +116,7 @@
   (begin
     (try! (is-dao-or-extension))
     ;; token must not be already set
-    (asserts! (is-eq (var-get votingToken) SELF) ERR_TOKEN_NOT_INITIALIZED)
+    (asserts! (is-eq (var-get votingToken) SELF) ERR_TOKEN_ALREADY_INITIALIZED)
     (print {
       notification: "set-voting-token",
       payload: {
