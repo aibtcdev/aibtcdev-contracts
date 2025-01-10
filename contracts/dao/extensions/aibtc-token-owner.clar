@@ -5,6 +5,7 @@
 ;; traits
 ;;
 (impl-trait .aibtcdev-dao-traits-v1.extension)
+(impl-trait .aibtcdev-dao-traits-v1.token-owner)
 
 ;; constants
 ;;

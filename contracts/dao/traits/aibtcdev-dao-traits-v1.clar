@@ -201,6 +201,17 @@
   (conclude-proposal (<proposal> <treasury> <ft-trait>) (response bool uint))
 ))
 
+(define-trait token-owner (
+  ;; set the token URI
+  ;; @param value the new token URI
+  ;; @returns (response bool uint)
+  (set-token-uri ((string-utf8 256)) (response bool uint))
+  ;; transfer ownership of the token
+  ;; @param new-owner the new owner of the token
+  ;; @returns (response bool uint)
+  (transfer-ownership (principal) (response bool uint))
+))
+
 (define-trait action (
   ;; @param parameters encoded action parameters
   ;; @returns (response bool uint)
