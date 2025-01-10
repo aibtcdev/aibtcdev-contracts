@@ -60,7 +60,6 @@
 
 ;; data maps
 ;;
-
 (define-map Proposals
   uint ;; proposal id
   {
