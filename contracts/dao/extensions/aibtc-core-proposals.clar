@@ -12,7 +12,6 @@
 (use-trait proposal-trait .aibtcdev-dao-traits-v1.proposal)
 (use-trait treasury-trait .aibtcdev-dao-traits-v1.treasury)
 
-
 ;; constants
 ;;
 
@@ -21,24 +20,22 @@
 (define-constant VOTING_QUORUM u95) ;; 95% of liquid supply (total supply - treasury)
 
 ;; error messages - authorization
-(define-constant ERR_UNAUTHORIZED (err u3000))
-(define-constant ERR_NOT_DAO_OR_EXTENSION (err u3001))
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u3000))
 
 ;; error messages - initialization
 (define-constant ERR_NOT_INITIALIZED (err u3100))
-(define-constant ERR_ALREADY_INITIALIZED (err u3101))
 
 ;; error messages - treasury
-(define-constant ERR_TREASURY_MUST_BE_CONTRACT (err u3200))
-(define-constant ERR_TREASURY_CANNOT_BE_SELF (err u3201))
-(define-constant ERR_TREASURY_ALREADY_SET (err u3202))
-(define-constant ERR_TREASURY_MISMATCH (err u3203))
+(define-constant ERR_TREASURY_CANNOT_BE_SELF (err u3200))
+(define-constant ERR_TREASURY_MISMATCH (err u3201))
+(define-constant ERR_TREASURY_CANNOT_BE_SAME (err u3202))
 
 ;; error messages - voting token
-(define-constant ERR_TOKEN_MUST_BE_CONTRACT (err u3300))
-(define-constant ERR_TOKEN_NOT_INITIALIZED (err u3301))
-(define-constant ERR_TOKEN_MISMATCH (err u3302))
-(define-constant ERR_INSUFFICIENT_BALANCE (err u3303))
+(define-constant ERR_TOKEN_ALREADY_INITIALIZED (err u3300))
+(define-constant ERR_TOKEN_MISMATCH (err u3301))
+(define-constant ERR_INSUFFICIENT_BALANCE (err u3302))
+(define-constant ERR_TOKEN_CANNOT_BE_SELF (err u3303))
+(define-constant ERR_TOKEN_CANNOT_BE_SAME (err u3304))
 
 ;; error messages - proposals
 (define-constant ERR_PROPOSAL_NOT_FOUND (err u3400))
@@ -56,7 +53,7 @@
 
 ;; data vars
 ;;
-(define-data-var protocolTreasury principal .aibtc-treasury) ;; the treasury contract for protocol funds
+(define-data-var protocolTreasury principal SELF) ;; the treasury contract for protocol funds
 (define-data-var votingToken principal SELF) ;; the FT contract used for voting
 
 ;; data maps
@@ -97,12 +94,10 @@
       (treasuryContract (contract-of treasury))
     )
     (try! (is-dao-or-extension))
-    ;; treasury must be a contract
-    (asserts! (not (is-standard treasuryContract)) ERR_TREASURY_MUST_BE_CONTRACT)
-    ;; treasury cannot be the voting contract
+    ;; cannot set treasury to self
     (asserts! (not (is-eq treasuryContract SELF)) ERR_TREASURY_CANNOT_BE_SELF)
-    ;; treasury cannot be the same value
-    (asserts! (not (is-eq treasuryContract (var-get protocolTreasury))) ERR_TREASURY_ALREADY_SET)
+    ;; cannot set treasury to same value
+    (asserts! (not (is-eq treasuryContract (var-get protocolTreasury))) ERR_TREASURY_CANNOT_BE_SAME)
     (print {
       notification: "set-protocol-treasury",
       payload: {
@@ -119,17 +114,19 @@
       (tokenContract (contract-of token))
     )
     (try! (is-dao-or-extension))
-    ;; token must be a contract
-    (asserts! (not (is-standard tokenContract)) ERR_TOKEN_MUST_BE_CONTRACT)
-    (asserts! (is-eq (var-get votingToken) SELF) ERR_TOKEN_NOT_INITIALIZED)
-    (asserts! (is-eq (var-get votingToken) tokenContract) ERR_TOKEN_MISMATCH)
+    ;; cannot set token to self
+    (asserts! (not (is-eq tokenContract SELF)) ERR_TOKEN_CANNOT_BE_SELF)
+    ;; cannot set token to same value
+    (asserts! (not (is-eq tokenContract (var-get votingToken))) ERR_TOKEN_CANNOT_BE_SAME)
+    ;; cannot set token if already set once
+    (asserts! (is-eq (var-get votingToken) SELF) ERR_TOKEN_ALREADY_INITIALIZED)
     (print {
       notification: "set-voting-token",
       payload: {
-        token: tokenContract
+        token: token
       }
     })
-    (ok (var-set votingToken tokenContract))
+    (ok (var-set votingToken (contract-of token)))
   )
 )
 
