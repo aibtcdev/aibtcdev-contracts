@@ -14,11 +14,11 @@
 (define-constant ERR-NOT-ENOUGH-FUND u101)
 
 ;; Constants
-(define-constant MAXSUPPLY u21000000) ;; <%= it.token_max_supply %>
+(define-constant MAXSUPPLY u1000000000000000) ;; <%= it.token_max_supply %>
 
 ;; Variables
 (define-fungible-token SYMBOL MAXSUPPLY) ;; <%= it.token_symbol %>
-(define-data-var contract-owner principal .aibtc-token-owner) ;; extension to manage token uri
+(define-data-var contract-owner principal .aibtc-token-owner) ;; <%= it.token_owner %>
 
 ;; SIP-10 Functions
 (define-public (transfer (amount uint) (from principal) (to principal) (memo (optional (buff 34))))
@@ -29,7 +29,7 @@
 )
 
 ;; Define token metadata
-(define-data-var token-uri (optional (string-utf8 256)) (some u"")) ;; (some u"<%= it.token_uri %>")
+(define-data-var token-uri (optional (string-utf8 256)) (some u"<%= it.token_uri %>"))
 
 ;; Set token uri
 (define-public (set-token-uri (value (string-utf8 256)))
