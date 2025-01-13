@@ -5,8 +5,8 @@
 ;; @dev The deployer has no ownership privileges or control over the contract's operations.
 ;; @version 2.0
 
+;; traits
 (impl-trait .aibtcdev-dao-traits-v1.token-dex) ;; <%= it.token_dex_trait %>
-;; Implement SIP 010 trait
 (use-trait sip-010-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait) ;; <%= it.sip10_trait %>
 
 ;; error constants
@@ -20,13 +20,13 @@
 (define-constant BUY-INFO-ERROR (err u2001))
 (define-constant SELL-INFO-ERROR (err u2002))
 
-(define-constant token-supply u21000000) ;; <%= it.token_max_supply %> match with the token's supply (6 decimals)
+(define-constant token-supply u1000000000000000) ;; <%= it.token_max_supply %> match with the token's supply (use decimals)
 (define-constant BONDING-DEX-ADDRESS (as-contract tx-sender)) ;; one contract per token
 
 ;; bonding curve config
-(define-constant STX_TARGET_AMOUNT u0) ;; <%= it.stx_target_amount %>
-(define-constant VIRTUAL_STX_VALUE u0) ;; <%= it.virtual_stx_value %> 1/5 of STX_TARGET_AMOUNT
-(define-constant COMPLETE_FEE u0) ;; <%= it.complete_fee % >2% of STX_TARGET_AMOUNT
+(define-constant STX_TARGET_AMOUNT u2000000000) ;; <%= it.stx_target_amount %>
+(define-constant VIRTUAL_STX_VALUE u400000000) ;; <%= it.virtual_stx_value %> 1/5 of STX_TARGET_AMOUNT
+(define-constant COMPLETE_FEE u40000000) ;; <%= it.complete_fee % >2% of STX_TARGET_AMOUNT
 
 ;; FEE AND DEX WALLETS
 (define-constant STX_CITY_SWAP_FEE_WALLET 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1) ;; <%= it.stxcity_swap_fee %>
