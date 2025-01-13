@@ -3,8 +3,8 @@
 ;; @hash <%= it.hash %> 
 ;; @targetstx <%= it.target_stx %> 
 
+;; Traits
 (impl-trait .aibtcdev-dao-traits-v1.token) ;; <%= it.token_trait %>
-;; SIP-10 Trait
 (impl-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 
 ;; Errors 
@@ -14,11 +14,11 @@
 (define-constant ERR-NOT-ENOUGH-FUND u101)
 
 ;; Constants
-(define-constant MAXSUPPLY u21000000) ;; <%= it.token_max_supply %>
+(define-constant MAXSUPPLY u1000000000000000) ;; <%= it.token_max_supply %>
 
 ;; Variables
 (define-fungible-token SYMBOL MAXSUPPLY) ;; <%= it.token_symbol %>
-(define-data-var contract-owner principal .aibtc-token-owner) ;; extension to manage token uri
+(define-data-var contract-owner principal .aibtc-token-owner) ;; <%= it.token_owner %>
 
 ;; SIP-10 Functions
 (define-public (transfer (amount uint) (from principal) (to principal) (memo (optional (buff 34))))
@@ -58,7 +58,7 @@
   (ok "SYMBOL") ;; <%= it.token_symbol %>
 )
 (define-read-only (get-decimals)
-  (ok u6) ;; <%= it.token_decimals %>
+  (ok u8) ;; <%= it.token_decimals %>
 )
 (define-read-only (get-total-supply)
   (ok (ft-get-supply SYMBOL)) ;; <%= it.token_symbol %>
