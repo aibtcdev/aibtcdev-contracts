@@ -26,14 +26,13 @@
 ;; bonding curve config
 (define-constant STX_TARGET_AMOUNT u2000000000) ;; <%= it.stx_target_amount %>
 (define-constant VIRTUAL_STX_VALUE u400000000) ;; <%= it.virtual_stx_value %> 1/5 of STX_TARGET_AMOUNT
-(define-constant COMPLETE_FEE u40000000) ;; <%= it.complete_fee % >2% of STX_TARGET_AMOUNT
+(define-constant COMPLETE_FEE u40000000) ;; <%= it.complete_fee % > 2% of STX_TARGET_AMOUNT
 
 ;; FEE AND DEX WALLETS
 (define-constant STX_CITY_SWAP_FEE_WALLET 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1) ;; <%= it.stxcity_swap_fee %>
 (define-constant STX_CITY_COMPLETE_FEE_WALLET 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1) ;; <%= it.stxcity_complete_fee %>
 (define-constant BURN_ADDRESS 'ST000000000000000000002AMW42H) ;; <%= it.burn %> burn mainnet
 
-(define-constant deployer tx-sender)
 (define-constant allow-token .aibtc-token) ;; <%= it.token_contract %>
 
 ;; data vars
@@ -41,8 +40,7 @@
 (define-data-var virtual-stx-amount uint u0)
 (define-data-var token-balance uint u0)
 (define-data-var stx-balance uint u0)
-(define-data-var burn-percent uint u10)
-(define-data-var deployer-percent uint u10)
+(define-data-var burn-percent uint u25)
 
 (define-public (buy (token-trait <sip-010-trait>) (stx-amount uint) ) 
   (begin
@@ -75,20 +73,13 @@
             (burn-amount (/ (* contract-token-balance burn-percent-val) u100)) ;; burn tokens for a deflationary boost after the bonding curve completed
             (remain-tokens (- contract-token-balance burn-amount))
             (remain-stx (- (var-get stx-balance) COMPLETE_FEE))
-            (deployer-amount (/ (* burn-amount (var-get deployer-percent)) u100)) ;; deployer-amount is based on the burn amount
-            (burn-after-deployer-amount (- burn-amount deployer-amount))
             (xyk-pool-uri (default-to u"https://bitflow.finance" (try! (contract-call? token-trait get-token-uri)) ))
             (xyk-burn-amount (- (sqrti (* remain-stx remain-tokens)) u1))
           )
             ;; burn tokens
-            (try! (as-contract (contract-call? token-trait transfer burn-after-deployer-amount tx-sender BURN_ADDRESS none)))
-            ;; send to deployer
-            (try! (as-contract (contract-call? token-trait transfer deployer-amount tx-sender deployer none)))
+            (try! (as-contract (contract-call? token-trait transfer burn-amount tx-sender BURN_ADDRESS none)))
             ;; Call XYK Core v-1-2 pool by Bitflow
-            ;; <%= it.bitflow_core_contract %>
-            ;; <%= it.pool_contract %>
-            ;; <%= it.bitflow_stx_token_address %>
-            ;; <%= it.bitflow_fee_address %>
+            ;; <%= it.bitflow_core_contract %> <%= it.pool_contract %> <%= it.bitflow_stx_token_address %> <%= it.bitflow_fee_address %>
             (try! (as-contract (contract-call? 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.xyk-core-v-1-2 create-pool .aibtc-bitflow-pool 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.token-stx-v-1-2 token-trait remain-stx remain-tokens xyk-burn-amount u10 u40 u10 u40 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1 xyk-pool-uri true)))
             ;; send fee
             (try! (as-contract (stx-transfer? COMPLETE_FEE tx-sender STX_CITY_COMPLETE_FEE_WALLET)))
@@ -188,22 +179,14 @@
 (begin
   ;; Set the virtual STX amount
   (var-set virtual-stx-amount VIRTUAL_STX_VALUE)
-  
-  ;; Set the token balance to 40% of the total supply using inline division
-  (var-set token-balance (/ (* token-supply u40) u100)) ;; Direct calculation of 40% of total supply
-  
+  ;; Set the token balance to 20% of the total supply using inline division
+  (var-set token-balance (/ (* token-supply u20) u100)) ;; Direct calculation of 20% of total supply
   ;; Set tradable flag
   (var-set tradable true)
-  
   ;; Set burn percentage
-  (var-set burn-percent u20)
-  
-  ;; Set deployer percentage (based on burn amount)
-  (var-set deployer-percent u10) ;; About ~0.1 to 0.5% supply based on burn-amount
-  
+  (var-set burn-percent u25)
   ;; Transfer STX deployment fee
   (try! (stx-transfer? u500000 tx-sender 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1)) ;; <%= it.stxcity_dex_deployment_fee_address %>
-  
   ;; Return success
   (ok true)
 )
