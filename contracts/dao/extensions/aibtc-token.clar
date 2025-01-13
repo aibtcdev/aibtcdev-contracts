@@ -58,7 +58,7 @@
   (ok "SYMBOL") ;; <%= it.token_symbol %>
 )
 (define-read-only (get-decimals)
-  (ok u8) ;; <%= it.token_decimals %>
+  (ok u6) ;; <%= it.token_decimals %>
 )
 (define-read-only (get-total-supply)
   (ok (ft-get-supply SYMBOL)) ;; <%= it.token_symbol %>
