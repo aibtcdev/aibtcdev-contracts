@@ -41,6 +41,7 @@
 (define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1401))
 (define-constant ERR_SAVING_PROPOSAL (err u1402))
 (define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u1403))
+(define-constant ERR_RETRIEVING_START_BLOCK_HASH (err u1404))
 
 ;; error messages - voting
 (define-constant ERR_VOTE_TOO_SOON (err u1500))
@@ -180,8 +181,12 @@
 (define-public (vote-on-proposal (proposalId uint) (token <ft-trait>) (vote bool))
   (let
     (
+      (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
+      (proposalBlock (get startBlock proposalRecord))
+      (proposalBlockHash (unwrap! (get-block-hash proposalBlock) ERR_RETRIEVING_START_BLOCK_HASH))
       (tokenContract (contract-of token))
-      (senderBalance (try! (contract-call? token get-balance tx-sender)))
+      (senderBalanceResponse (at-block proposalBlockHash (contract-call? .aibtc-token get-balance tx-sender)))
+      (senderBalance (unwrap-panic senderBalanceResponse))
     )
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
@@ -189,37 +194,31 @@
     (asserts! (is-eq tokenContract (var-get votingToken)) ERR_TOKEN_MISMATCH)
     ;; caller has the required balance
     (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
-    ;; get proposal record
-    (let
-      (
-        (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
+    ;; proposal is still active
+    (asserts! (>= burn-block-height (get startBlock proposalRecord)) ERR_VOTE_TOO_SOON)
+    (asserts! (< burn-block-height (get endBlock proposalRecord)) ERR_VOTE_TOO_LATE)
+    ;; proposal not already concluded
+    (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
+    ;; vote not already cast
+    (asserts! (is-none (map-get? VotingRecords {proposalId: proposalId, voter: tx-sender})) ERR_ALREADY_VOTED)
+    ;; print vote event
+    (print {
+      notification: "vote-on-proposal",
+      payload: {
+        proposalId: proposalId,
+        voter: tx-sender,
+        amount: senderBalance
+      }
+    })
+    ;; update the proposal record
+    (map-set Proposals proposalId
+      (if vote
+        (merge proposalRecord {votesFor: (+ (get votesFor proposalRecord) senderBalance)})
+        (merge proposalRecord {votesAgainst: (+ (get votesAgainst proposalRecord) senderBalance)})
       )
-      ;; proposal is still active
-      (asserts! (>= burn-block-height (get startBlock proposalRecord)) ERR_VOTE_TOO_SOON)
-      (asserts! (< burn-block-height (get endBlock proposalRecord)) ERR_VOTE_TOO_LATE)
-      ;; proposal not already concluded
-      (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
-      ;; vote not already cast
-      (asserts! (is-none (map-get? VotingRecords {proposalId: proposalId, voter: tx-sender})) ERR_ALREADY_VOTED)
-      ;; print vote event
-      (print {
-        notification: "vote-on-proposal",
-        payload: {
-          proposalId: proposalId,
-          voter: tx-sender,
-          amount: senderBalance
-        }
-      })
-      ;; update the proposal record
-      (map-set Proposals proposalId
-        (if vote
-          (merge proposalRecord {votesFor: (+ (get votesFor proposalRecord) senderBalance)})
-          (merge proposalRecord {votesAgainst: (+ (get votesAgainst proposalRecord) senderBalance)})
-        )
-      )
-      ;; record the vote for the sender
-      (ok (map-set VotingRecords {proposalId: proposalId, voter: tx-sender} senderBalance))
     )
+    ;; record the vote for the sender
+    (ok (map-set VotingRecords {proposalId: proposalId, voter: tx-sender} senderBalance))
   )
 )
 
@@ -320,3 +319,7 @@
   ))
 )
 
+;; get block hash by height
+(define-private (get-block-hash (blockHeight uint))
+  (get-block-info? id-header-hash blockHeight)
+)
