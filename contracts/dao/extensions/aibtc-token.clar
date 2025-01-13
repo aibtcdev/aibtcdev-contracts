@@ -29,7 +29,7 @@
 )
 
 ;; Define token metadata
-(define-data-var token-uri (optional (string-utf8 256)) (some u"")) ;; (some u"<%= it.token_uri %>")
+(define-data-var token-uri (optional (string-utf8 256)) (some u"<%= it.token_uri %>"))
 
 ;; Set token uri
 (define-public (set-token-uri (value (string-utf8 256)))
