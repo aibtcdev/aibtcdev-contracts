@@ -90,7 +90,7 @@
     (
       (newId (+ (var-get proposalCount) u1))
       (voterBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
-      (liquidTokens (contract-call? .aibtc-token get-liquid-supply))
+      (liquidTokens (try! (get-liquid-supply block-height)))
     )
     ;; caller has the required balance
     (asserts! (> voterBalance u0) ERR_INSUFFICIENT_BALANCE)
@@ -255,4 +255,17 @@
 ;; get block hash by height
 (define-private (get-block-hash (blockHeight uint))
   (get-block-info? id-header-hash blockHeight)
+)
+
+(define-private (get-liquid-supply (blockHeight uint))
+  (let
+    (
+      (blockHash (unwrap! (get-block-hash blockHeight) ERR_RETRIEVING_START_BLOCK_HASH))
+      (totalSupply (unwrap! (at-block blockHash (contract-call? .aibtc-token get-total-supply)) ERR_FETCHING_TOKEN_DATA))
+      (dexBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_DEX)) ERR_FETCHING_TOKEN_DATA))
+      (poolBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_POOL)) ERR_FETCHING_TOKEN_DATA))
+      (treasuryBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TREASURY)) ERR_FETCHING_TOKEN_DATA))
+    )
+    (ok (- totalSupply (+ dexBalance poolBalance treasuryBalance)))
+  )
 )

@@ -114,7 +114,3 @@
   ;; mint tokens to the treasury (80%)
   (try! (ft-mint? SYMBOL (/ (* MAXSUPPLY u80) u100) .aibtc-treasury)) ;; <%= it.token_symbol %> <%= it.treasury_contract %>
 )
-;; Total supply - tokens in treasury - tokens in dex
-(define-read-only (get-liquid-supply)
-  (- (ft-get-supply SYMBOL) (ft-get-balance SYMBOL .aibtc-treasury) (ft-get-balance SYMBOL .aibtc-token-dex))
-)
