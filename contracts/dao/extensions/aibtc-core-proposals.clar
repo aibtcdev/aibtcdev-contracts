@@ -172,7 +172,8 @@
       (proposalRecord (unwrap! (map-get? Proposals proposalContract) ERR_PROPOSAL_NOT_FOUND))
       (tokenTotalSupply (unwrap! (contract-call? .aibtc-token get-total-supply) ERR_FETCHING_TOKEN_DATA))
       (treasuryBalance (unwrap! (contract-call? .aibtc-token get-balance .aibtc-treasury) ERR_FETCHING_TOKEN_DATA))
-      (votePassed (> (get votesFor proposalRecord) (* tokenTotalSupply (- u100 treasuryBalance) VOTING_QUORUM)))
+      ;; if VOTING_QUORUM <= ((votesFor * 100) / liquidTokens)
+      (votePassed (<= VOTING_QUORUM (/ (* (get votesFor proposalRecord) u100) (get liquidTokens proposalRecord))))
     )
     ;; proposal was not already executed
     (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
