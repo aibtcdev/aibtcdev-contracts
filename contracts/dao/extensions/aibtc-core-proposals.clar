@@ -19,35 +19,19 @@
 (define-constant VOTING_PERIOD u144) ;; 144 Bitcoin blocks, ~1 day
 (define-constant VOTING_QUORUM u95) ;; 95% of liquid supply
 
-;; error messages - authorization
+;; error messages
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u3000))
 (define-constant ERR_FETCHING_TOKEN_DATA (err u3001))
-
-;; error messages - treasury
-(define-constant ERR_TREASURY_CANNOT_BE_SELF (err u3200))
-(define-constant ERR_TREASURY_MISMATCH (err u3201))
-(define-constant ERR_TREASURY_CANNOT_BE_SAME (err u3202))
-
-;; error messages - voting token
-(define-constant ERR_TOKEN_ALREADY_INITIALIZED (err u3300))
-(define-constant ERR_TOKEN_MISMATCH (err u3301))
-(define-constant ERR_INSUFFICIENT_BALANCE (err u3302))
-(define-constant ERR_TOKEN_CANNOT_BE_SELF (err u3303))
-(define-constant ERR_TOKEN_CANNOT_BE_SAME (err u3304))
-
-;; error messages - proposals
-(define-constant ERR_PROPOSAL_NOT_FOUND (err u3400))
-(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u3401))
-(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u3402))
-(define-constant ERR_SAVING_PROPOSAL (err u3403))
-(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u3404))
-(define-constant ERR_RETRIEVING_START_BLOCK_HASH (err u3405))
-
-;; error messages - voting
-(define-constant ERR_VOTE_TOO_SOON (err u3500))
-(define-constant ERR_VOTE_TOO_LATE (err u3501))
-(define-constant ERR_ALREADY_VOTED (err u3502))
-(define-constant ERR_QUORUM_NOT_REACHED (err u3503))
+(define-constant ERR_INSUFFICIENT_BALANCE (err u3002))
+(define-constant ERR_PROPOSAL_NOT_FOUND (err u3003))
+(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u3004))
+(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u3005))
+(define-constant ERR_SAVING_PROPOSAL (err u3006))
+(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u3007))
+(define-constant ERR_RETRIEVING_START_BLOCK_HASH (err u3008))
+(define-constant ERR_VOTE_TOO_SOON (err u3009))
+(define-constant ERR_VOTE_TOO_LATE (err u3010))
+(define-constant ERR_ALREADY_VOTED (err u3011))
 
 ;; contracts used for voting calculations
 (define-constant VOTING_TOKEN_DEX .aibtc-token-dex)

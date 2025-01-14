@@ -4,13 +4,22 @@ import { describe, expect, it } from "vitest";
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
-const addressDeployer = accounts.get("deployer")!;
+const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${addressDeployer}.aibtc-prop001-bootstrap`;
+const contractAddress = `${deployer}.aibtc-base-bootstrap-initialization`;
 
-describe("aibtc-prop001-bootstrap", () => {
+const daoManifest =
+  "This is where the DAO can put it's mission, purpose, and goals.";
+
+describe("aibtc-base-bootstrap-proposal", () => {
   // Manifest Tests
-  describe("get-dao-manifest()", () => {
-    it("returns DAO_MANIFEST as string");
+  it("get-dao-manifest() returns DAO_MANIFEST as string", () => {
+    const receipt = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-dao-manifest",
+      [],
+      deployer
+    );
+    expect(receipt.result).toStrictEqual(Cl.stringAscii(daoManifest));
   });
 });

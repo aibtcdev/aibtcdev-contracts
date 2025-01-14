@@ -8,8 +8,9 @@ const deployer = accounts.get("deployer")!;
 
 const contractAddress = `${deployer}.aibtc-onchain-messaging`;
 
-enum ErrCode {
-  ERR_UNAUTHORIZED = 4000,
+export enum ErrCode {
+  INPUT_ERROR = 4000,
+  ERR_UNAUTHORIZED,
 }
 
 describe("aibtc-onchain-messaging", () => {

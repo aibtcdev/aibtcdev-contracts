@@ -18,28 +18,19 @@
 (define-constant VOTING_PERIOD u144) ;; 144 Bitcoin blocks, ~1 day
 (define-constant VOTING_QUORUM u66) ;; 66% of liquid supply
 
-;; error messages - authorization
+;; error messages
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u1000))
-
-;; error messages - voting token
-(define-constant ERR_INSUFFICIENT_BALANCE (err u1100))
-(define-constant ERR_FETCHING_TOKEN_DATA (err u1101))
-
-;; error messages - proposals
-(define-constant ERR_PROPOSAL_NOT_FOUND (err u1200))
-(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1201))
-(define-constant ERR_SAVING_PROPOSAL (err u1202))
-(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u1203))
-(define-constant ERR_RETRIEVING_START_BLOCK_HASH (err u1204))
-
-;; error messages - voting
-(define-constant ERR_VOTE_TOO_SOON (err u1300))
-(define-constant ERR_VOTE_TOO_LATE (err u1301))
-(define-constant ERR_ALREADY_VOTED (err u1302))
-(define-constant ERR_QUORUM_NOT_REACHED (err u1303))
-
-;; error messages - actions
-(define-constant ERR_INVALID_ACTION (err u1400))
+(define-constant ERR_INSUFFICIENT_BALANCE (err u1001))
+(define-constant ERR_FETCHING_TOKEN_DATA (err u1002))
+(define-constant ERR_PROPOSAL_NOT_FOUND (err u1003))
+(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1004))
+(define-constant ERR_SAVING_PROPOSAL (err u1005))
+(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u1006))
+(define-constant ERR_RETRIEVING_START_BLOCK_HASH (err u1007))
+(define-constant ERR_VOTE_TOO_SOON (err u1008))
+(define-constant ERR_VOTE_TOO_LATE (err u1009))
+(define-constant ERR_ALREADY_VOTED (err u1010))
+(define-constant ERR_INVALID_ACTION (err u1011))
 
 ;; contracts used for voting calculations
 (define-constant VOTING_TOKEN_DEX .aibtc-token-dex)
