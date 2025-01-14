@@ -43,6 +43,7 @@
 (define-constant ERR_PROPOSAL_STILL_ACTIVE (err u3402))
 (define-constant ERR_SAVING_PROPOSAL (err u3403))
 (define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u3404))
+(define-constant ERR_RETRIEVING_START_BLOCK_HASH (err u3405))
 
 ;; error messages - voting
 (define-constant ERR_VOTE_TOO_SOON (err u3500))
@@ -172,8 +173,11 @@
     (
       (proposalContract (contract-of proposal))
       (proposalRecord (unwrap! (map-get? Proposals proposalContract) ERR_PROPOSAL_NOT_FOUND))
+      (proposalBlock (get startBlock proposalRecord))
+      (proposalBlockHash (unwrap! (get-block-hash proposalBlock) ERR_RETRIEVING_START_BLOCK_HASH))
       (tokenContract (contract-of token))
-      (senderBalance (try! (contract-call? token get-balance tx-sender)))
+      (senderBalanceResponse (at-block proposalBlockHash (contract-call? .aibtc-token get-balance tx-sender)))
+      (senderBalance (unwrap-panic senderBalanceResponse))
     )
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
@@ -302,4 +306,9 @@
   (ok (asserts! (or (is-eq tx-sender .aibtcdev-base-dao)
     (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
+)
+
+;; get block hash by height
+(define-private (get-block-hash (blockHeight uint))
+  (get-block-info? id-header-hash blockHeight)
 )
