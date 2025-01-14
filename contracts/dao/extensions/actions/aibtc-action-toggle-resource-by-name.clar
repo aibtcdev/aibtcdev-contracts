@@ -9,7 +9,7 @@
 (define-public (run (parameters (buff 2048)))
   (begin
     (try! (is-dao-or-extension))
-    (contract-call? .aibtc-onchain-messaging send (unwrap! (from-consensus-buff? (string-ascii 2043) parameters) ERR_INVALID_PARAMS) true)
+    (contract-call? .aibtc-payments-invoices toggle-resource-by-name (unwrap! (from-consensus-buff? (string-utf8 50) parameters) ERR_INVALID_PARAMS))
   )
 )
 
