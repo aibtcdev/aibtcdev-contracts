@@ -4,7 +4,7 @@
 
 (define-public (execute (sender principal))
   (begin  
-    ;; set initial extensions list
+    ;; set initial dao extensions list
     (try! (contract-call? .aibtcdev-base-dao set-extensions
       (list
         {extension: .aibtc-action-proposals, enabled: true}
@@ -14,6 +14,18 @@
         {extension: .aibtc-payments-invoices, enabled: true}
         {extension: .aibtc-token-owner, enabled: true}
         {extension: .aibtc-treasury, enabled: true}
+      )
+    ))
+    ;; set initial action proposals list
+    (try! (contract-call? .aibtcdev-base-dao set-extensions
+      (list
+        {extension: .aibtc-action-add-resource, enabled: true}
+        {extension: .aibtc-action-allow-asset, enabled: true}
+        {extension: .aibtc-action-send-message, enabled: true}
+        {extension: .aibtc-action-set-account-holder, enabled: true}
+        {extension: .aibtc-action-set-withdrawal-amount, enabled: true}
+        {extension: .aibtc-action-set-withdrawal-period, enabled: true}
+        {extension: .aibtc-action-toggle-resource-by-name, enabled: true}
       )
     ))
     ;; initialize action proposals
