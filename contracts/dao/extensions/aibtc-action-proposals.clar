@@ -238,6 +238,17 @@
 ;; read only functions
 ;;
 
+(define-read-only (get-voting-power (who principal) (proposalId uint))
+  (let
+    (
+      (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
+      (proposalBlockHash (unwrap! (get-block-hash (get startBlock proposalRecord)) ERR_RETRIEVING_START_BLOCK_HASH))
+    )
+    (at-block proposalBlockHash (contract-call? .aibtc-token get-balance who))
+  )
+)
+
+
 (define-read-only (get-protocol-treasury)
   (if (is-eq (var-get protocolTreasury) SELF)
     none
