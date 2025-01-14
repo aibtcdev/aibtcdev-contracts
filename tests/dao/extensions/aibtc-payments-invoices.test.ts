@@ -6,9 +6,10 @@ const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${deployer}.aibtc-payments-invoices`;
+const contractName = "aibtc-payments-invoices";
+const contractAddress = `${deployer}.${contractName}`;
 
-enum ErrCode {
+export enum ErrCode {
   ERR_UNAUTHORIZED = 5000,
   ERR_INVALID_PARAMS,
   ERR_NAME_ALREADY_USED,
@@ -25,7 +26,7 @@ enum ErrCode {
   ERR_RECENT_PAYMENT_NOT_FOUND,
 }
 
-describe("aibtc-payments-invoices", () => {
+describe(`extension: ${contractName}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,

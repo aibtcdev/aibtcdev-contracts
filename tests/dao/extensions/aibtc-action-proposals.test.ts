@@ -6,7 +6,8 @@ const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${deployer}.aibtc-action-proposals`;
+const contractName = "aibtc-action-proposals";
+const contractAddress = `${deployer}.${contractName}`;
 
 export enum ErrCode {
   ERR_NOT_DAO_OR_EXTENSION = 1000,
@@ -26,7 +27,7 @@ export enum ErrCode {
 const votingPeriod = 144; // 24 hours in BTC blocks
 const votingQuorum = 66; // 66% quorum
 
-describe("aibtc-action-proposals", () => {
+describe(`extension: ${contractName}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,

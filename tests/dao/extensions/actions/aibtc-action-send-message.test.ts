@@ -4,9 +4,10 @@ import { describe, expect, it } from "vitest";
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${deployer}.aibtc-action-add-resource`;
+const contractName = "aibtc-action-send-message";
+const contractAddress = `${deployer}.${contractName}`;
 
-describe("aibtc-action-send-message", () => {
+describe(`action extension: ${contractName}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,

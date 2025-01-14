@@ -4,7 +4,8 @@ import { describe, expect, it } from "vitest";
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${deployer}.aibtc-core-proposals`;
+const contractName = "aibtc-core-proposals";
+const contractAddress = `${deployer}.${contractName}`;
 
 export enum ErrCode {
   ERR_NOT_DAO_OR_EXTENSION = 3000,
@@ -24,7 +25,7 @@ export enum ErrCode {
 const votingPeriod = 144; // 24 hours in BTC blocks
 const votingQuorum = 95; // 95% quorum
 
-describe("aibtc-core-proposals", () => {
+describe(`extension: ${contractName}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,

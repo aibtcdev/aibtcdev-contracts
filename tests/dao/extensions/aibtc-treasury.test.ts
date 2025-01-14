@@ -6,14 +6,15 @@ const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${deployer}.aibtc-treasury`;
+const contractName = "aibtc-treasury";
+const contractAddress = `${deployer}.${contractName}`;
 
-enum ErrCode {
+export enum ErrCode {
   ERR_UNAUTHORIZED = 6000,
   ERR_UNKNOWN_ASSSET = 6001,
 }
 
-describe("aibtc-treasury", () => {
+describe(`extension: ${contractName}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,

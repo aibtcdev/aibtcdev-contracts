@@ -9,7 +9,7 @@ const contractAddress = `${deployer}.${contractName}`;
 
 const expectedErr = Cl.uint(ErrCode.ERR_UNAUTHORIZED);
 
-describe(contractName, () => {
+describe(`core proposal: ${contractName}`, () => {
   it("execute() fails if called directly", () => {
     const receipt = simnet.callPublicFn(
       contractAddress,

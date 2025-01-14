@@ -4,9 +4,14 @@ import { describe, expect, it } from "vitest";
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${deployer}.aibtc-token-owner`;
+const contractName = "aibtc-token-owner";
+const contractAddress = `${deployer}.${contractName}`;
 
-describe("aibtc-token-owner", () => {
+export enum ErrCode {
+  ERR_UNAUTHORIZED = 7000,
+}
+
+describe(`extension: ${contractName}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,
