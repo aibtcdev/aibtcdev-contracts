@@ -69,6 +69,7 @@
     endBlock: uint, ;; block height
     votesFor: uint, ;; total votes for
     votesAgainst: uint, ;; total votes against
+    liquidTokens: uint, ;; liquid tokens
     concluded: bool, ;; has the proposal concluded
     passed: bool, ;; did the proposal pass
   }
@@ -114,6 +115,7 @@
     (
       (newId (+ (var-get proposalCount) u1))
       (voterBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
+      (liquidTokens (contract-call? .aibtc-token get-liquid-supply))
     )
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
@@ -142,6 +144,7 @@
       endBlock: (+ burn-block-height VOTING_PERIOD),
       votesFor: u0,
       votesAgainst: u0,
+      liquidTokens: liquidTokens,
       concluded: false,
       passed: false,
     }) ERR_SAVING_PROPOSAL)
@@ -194,17 +197,15 @@
   (let
     (
       (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
-      (tokenTotalSupply (unwrap! (contract-call? .aibtc-token get-total-supply) ERR_FETCHING_TOKEN_DATA))
-      (treasuryContract (contract-of treasury))
-      (treasuryBalance (unwrap! (contract-call? .aibtc-token get-balance treasuryContract) ERR_FETCHING_TOKEN_DATA))
-      (votePassed (> (get votesFor proposalRecord) (* tokenTotalSupply (- u100 treasuryBalance) VOTING_QUORUM)))
+      ;; if VOTING_QUORUM <= ((votesFor * 100) / liquidTokens)
+      (votePassed (<= VOTING_QUORUM (/ (* (get votesFor proposalRecord) u100) (get liquidTokens proposalRecord))))
     )
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
     ;; verify extension still active in dao
     (try! (as-contract (is-dao-or-extension)))
     ;; verify treasury matches protocol treasury
-    (asserts! (is-eq treasuryContract (var-get protocolTreasury)) ERR_TREASURY_MISMATCH)
+    (asserts! (is-eq (contract-of treasury) (var-get protocolTreasury)) ERR_TREASURY_MISMATCH)
     ;; proposal past end block height
     (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_STILL_ACTIVE)
     ;; proposal not already concluded
