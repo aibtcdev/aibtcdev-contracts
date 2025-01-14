@@ -8,7 +8,7 @@ const deployer = accounts.get("deployer")!;
 
 const contractAddress = `${deployer}.aibtc-bank-account`;
 
-enum ErrCode {
+export enum ErrCode {
   ERR_INVALID = 2000,
   ERR_UNAUTHORIZED,
   ERR_TOO_SOON,
