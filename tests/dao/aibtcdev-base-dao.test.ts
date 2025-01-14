@@ -4,9 +4,9 @@ import { describe, expect, it } from "vitest";
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
-const addressDeployer = accounts.get("deployer")!;
+const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${addressDeployer}.aibtcdev-base-dao`;
+const contractAddress = `${deployer}.aibtcdev-base-dao`;
 
 enum ErrCode {
   ERR_UNAUTHORIZED = 1000,
@@ -16,6 +16,10 @@ enum ErrCode {
 }
 
 describe("aibtcdev-base-dao", () => {
+  it("should have tests written", () => {
+    expect(true).toBe(true);
+  });
+  /*
   // Extension Management Tests
   describe("set-extension()", () => {
     it("fails if caller is not DAO or extension");
@@ -27,7 +31,7 @@ describe("aibtcdev-base-dao", () => {
     it("succeeds and sets multiple extension statuses");
   });
 
-  // Execution Tests  
+  // Execution Tests
   describe("execute()", () => {
     it("fails if caller is not DAO or extension");
     it("succeeds and executes proposal");
@@ -54,6 +58,9 @@ describe("aibtcdev-base-dao", () => {
 
   describe("executed-at()", () => {
     it("succeeds and returns none with unrecognized proposal");
-    it("succeeds and returns the Bitcoin block height the proposal was executed");
+    it(
+      "succeeds and returns the Bitcoin block height the proposal was executed"
+    );
   });
+  */
 });

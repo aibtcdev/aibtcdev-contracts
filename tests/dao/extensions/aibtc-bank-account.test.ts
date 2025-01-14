@@ -4,9 +4,9 @@ import { describe, expect, it } from "vitest";
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
-const addressDeployer = accounts.get("deployer")!;
+const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${addressDeployer}.aibtc-bank-account`;
+const contractAddress = `${deployer}.aibtc-bank-account`;
 
 enum ErrCode {
   ERR_INVALID = 2000,
@@ -19,6 +19,16 @@ const withdrawalAmount = 10000000; // 10 STX
 const withdrawalPeriod = 144; // 144 blocks
 
 describe("aibtc-bank-account", () => {
+  it("callback() should respond with (ok true)", () => {
+    const callback = simnet.callPublicFn(
+      contractAddress,
+      "callback",
+      [Cl.principal(deployer), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(callback.result).toBeOk(Cl.bool(true));
+  });
+  /*
   // Account Holder Tests
   describe("set-account-holder()", () => {
     it("fails if caller is not DAO or extension");
@@ -59,4 +69,5 @@ describe("aibtc-bank-account", () => {
     it("fails if withdrawing too soon");
     it("succeeds and transfers STX to account holder");
   });
+  */
 });

@@ -2,41 +2,44 @@ import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 
 const accounts = simnet.getAccounts();
-const address1 = accounts.get("wallet_1")!;
-const address2 = accounts.get("wallet_2")!;
-const addressDeployer = accounts.get("deployer")!;
+const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${addressDeployer}.aibtc-ext003-direct-execute`;
+const contractAddress = `${deployer}.aibtc-core-proposals`;
 
-enum ErrCode {
-  ERR_UNAUTHORIZED = 3000,
-  ERR_NOT_DAO_OR_EXTENSION,
-
-  ERR_NOT_INITIALIZED = 3100,
-  ERR_ALREADY_INITIALIZED,
-
-  ERR_TREASURY_MUST_BE_CONTRACT = 3200,
-  ERR_TREASURY_CANNOT_BE_SELF,
-  ERR_TREASURY_ALREADY_SET,
-  ERR_TREASURY_MISMATCH,
-
-  ERR_TOKEN_MUST_BE_CONTRACT = 3300,
-  ERR_TOKEN_NOT_INITIALIZED,
-  ERR_TOKEN_MISMATCH,
+export enum ErrCode {
+  ERR_NOT_DAO_OR_EXTENSION = 3000,
+  ERR_FETCHING_TOKEN_DATA,
   ERR_INSUFFICIENT_BALANCE,
-
-  ERR_PROPOSAL_NOT_FOUND = 3400,
+  ERR_PROPOSAL_NOT_FOUND,
   ERR_PROPOSAL_ALREADY_EXECUTED,
   ERR_PROPOSAL_STILL_ACTIVE,
   ERR_SAVING_PROPOSAL,
   ERR_PROPOSAL_ALREADY_CONCLUDED,
-
-  ERR_VOTE_TOO_SOON = 3500,
+  ERR_RETRIEVING_START_BLOCK_HASH,
+  ERR_VOTE_TOO_SOON,
   ERR_VOTE_TOO_LATE,
   ERR_ALREADY_VOTED,
-  ERR_ZERO_VOTING_POWER,
-  ERR_QUORUM_NOT_REACHED,
 }
+
+const votingPeriod = 144; // 24 hours in BTC blocks
+const votingQuorum = 95; // 95% quorum
+
+describe("aibtc-core-proposals", () => {
+  it("callback() should respond with (ok true)", () => {
+    const callback = simnet.callPublicFn(
+      contractAddress,
+      "callback",
+      [Cl.principal(deployer), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(callback.result).toBeOk(Cl.bool(true));
+  });
+});
+
+/*
+
+
+
 
 describe("aibtc-ext003-direct-execute", () => {
   // Protocol Treasury Tests
@@ -90,3 +93,5 @@ describe("aibtc-ext003-direct-execute", () => {
     it("succeeds without executing if failed");
   });
 });
+
+*/

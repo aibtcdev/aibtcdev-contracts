@@ -4,9 +4,9 @@ import { describe, expect, it } from "vitest";
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
-const addressDeployer = accounts.get("deployer")!;
+const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${addressDeployer}.aibtc-payments-invoices`;
+const contractAddress = `${deployer}.aibtc-payments-invoices`;
 
 enum ErrCode {
   ERR_UNAUTHORIZED = 5000,
@@ -26,6 +26,16 @@ enum ErrCode {
 }
 
 describe("aibtc-payments-invoices", () => {
+  it("callback() should respond with (ok true)", () => {
+    const callback = simnet.callPublicFn(
+      contractAddress,
+      "callback",
+      [Cl.principal(deployer), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(callback.result).toBeOk(Cl.bool(true));
+  });
+  /*
   // Payment Address Tests
   describe("set-payment-address()", () => {
     it("fails if caller is not DAO or extension");
@@ -72,4 +82,5 @@ describe("aibtc-payments-invoices", () => {
     it("fails if resource is disabled");
     it("succeeds and updates info for resource");
   });
+  */
 });

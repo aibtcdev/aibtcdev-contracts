@@ -16,43 +16,29 @@
 ;;
 (define-constant SELF (as-contract tx-sender))
 (define-constant VOTING_PERIOD u144) ;; 144 Bitcoin blocks, ~1 day
-(define-constant VOTING_QUORUM u66) ;; 66% of liquid supply (total supply - treasury)
+(define-constant VOTING_QUORUM u66) ;; 66% of liquid supply
 
-;; error messages - authorization
+;; error messages
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u1000))
+(define-constant ERR_INSUFFICIENT_BALANCE (err u1001))
+(define-constant ERR_FETCHING_TOKEN_DATA (err u1002))
+(define-constant ERR_PROPOSAL_NOT_FOUND (err u1003))
+(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1004))
+(define-constant ERR_SAVING_PROPOSAL (err u1005))
+(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u1006))
+(define-constant ERR_RETRIEVING_START_BLOCK_HASH (err u1007))
+(define-constant ERR_VOTE_TOO_SOON (err u1008))
+(define-constant ERR_VOTE_TOO_LATE (err u1009))
+(define-constant ERR_ALREADY_VOTED (err u1010))
+(define-constant ERR_INVALID_ACTION (err u1011))
 
-;; error messages - initialization
-(define-constant ERR_NOT_INITIALIZED (err u1100))
-
-;; error messages - treasury
-(define-constant ERR_TREASURY_CANNOT_BE_SELF (err u1200))
-(define-constant ERR_TREASURY_MISMATCH (err u1201))
-(define-constant ERR_TREASURY_CANNOT_BE_SAME (err u1202))
-
-;; error messages - voting token
-(define-constant ERR_INSUFFICIENT_BALANCE (err u1300))
-(define-constant ERR_FETCHING_TOKEN_DATA (err u1301))
-
-;; error messages - proposals
-(define-constant ERR_PROPOSAL_NOT_FOUND (err u1400))
-(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1401))
-(define-constant ERR_SAVING_PROPOSAL (err u1402))
-(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u1403))
-(define-constant ERR_RETRIEVING_START_BLOCK_HASH (err u1404))
-
-;; error messages - voting
-(define-constant ERR_VOTE_TOO_SOON (err u1500))
-(define-constant ERR_VOTE_TOO_LATE (err u1501))
-(define-constant ERR_ALREADY_VOTED (err u1502))
-(define-constant ERR_ZERO_VOTING_POWER (err u1503))
-(define-constant ERR_QUORUM_NOT_REACHED (err u1504))
-
-;; error messages - actions
-(define-constant ERR_INVALID_ACTION (err u1600))
+;; contracts used for voting calculations
+(define-constant VOTING_TOKEN_DEX .aibtc-token-dex)
+(define-constant VOTING_TOKEN_POOL .aibtc-bitflow-pool)
+(define-constant VOTING_TREASURY .aibtc-treasury)
 
 ;; data vars
 ;;
-(define-data-var protocolTreasury principal SELF) ;; the treasury contract for protocol funds
 (define-data-var proposalCount uint u0) ;; total number of proposals
 
 ;; data maps
@@ -69,6 +55,7 @@
     endBlock: uint, ;; block height
     votesFor: uint, ;; total votes for
     votesAgainst: uint, ;; total votes against
+    liquidTokens: uint, ;; liquid tokens
     concluded: bool, ;; has the proposal concluded
     passed: bool, ;; did the proposal pass
   }
@@ -89,34 +76,13 @@
   (ok true)
 )
 
-(define-public (set-protocol-treasury (treasury <treasury-trait>))
-  (let
-    (
-      (treasuryContract (contract-of treasury))
-    )
-    (try! (is-dao-or-extension))
-    ;; cannot set treasury to self
-    (asserts! (not (is-eq treasuryContract SELF)) ERR_TREASURY_CANNOT_BE_SELF)
-    ;; cannot set treasury to same value
-    (asserts! (not (is-eq treasuryContract (var-get protocolTreasury))) ERR_TREASURY_CANNOT_BE_SAME)
-    (print {
-      notification: "set-protocol-treasury",
-      payload: {
-        treasury: treasuryContract
-      }
-    })
-    (ok (var-set protocolTreasury treasuryContract))
-  )
-)
-
 (define-public (propose-action (action <action-trait>) (parameters (buff 2048)))
   (let
     (
       (newId (+ (var-get proposalCount) u1))
       (voterBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
+      (liquidTokens (try! (get-liquid-supply block-height)))
     )
-    ;; required variables must be set
-    (asserts! (is-initialized) ERR_NOT_INITIALIZED)
     ;; caller has the required balance
     (asserts! (> voterBalance u0) ERR_INSUFFICIENT_BALANCE)
     ;; print proposal creation event
@@ -127,6 +93,7 @@
         action: action,
         parameters: parameters,
         creator: tx-sender,
+        liquidTokens: liquidTokens,
         startBlock: burn-block-height,
         endBlock: (+ burn-block-height VOTING_PERIOD)
       }
@@ -142,6 +109,7 @@
       endBlock: (+ burn-block-height VOTING_PERIOD),
       votesFor: u0,
       votesAgainst: u0,
+      liquidTokens: liquidTokens,
       concluded: false,
       passed: false,
     }) ERR_SAVING_PROPOSAL)
@@ -158,8 +126,6 @@
       (proposalBlockHash (unwrap! (get-block-hash proposalBlock) ERR_RETRIEVING_START_BLOCK_HASH))
       (senderBalance (unwrap! (at-block proposalBlockHash (contract-call? .aibtc-token get-balance tx-sender)) ERR_FETCHING_TOKEN_DATA))
     )
-    ;; required variables must be set
-    (asserts! (is-initialized) ERR_NOT_INITIALIZED)
     ;; caller has the required balance
     (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
     ;; proposal not still active
@@ -190,21 +156,15 @@
   )
 )
 
-(define-public (conclude-proposal (proposalId uint) (action <action-trait>) (treasury <treasury-trait>))
+(define-public (conclude-proposal (proposalId uint) (action <action-trait>))
   (let
     (
       (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
-      (tokenTotalSupply (unwrap! (contract-call? .aibtc-token get-total-supply) ERR_FETCHING_TOKEN_DATA))
-      (treasuryContract (contract-of treasury))
-      (treasuryBalance (unwrap! (contract-call? .aibtc-token get-balance treasuryContract) ERR_FETCHING_TOKEN_DATA))
-      (votePassed (> (get votesFor proposalRecord) (* tokenTotalSupply (- u100 treasuryBalance) VOTING_QUORUM)))
+      ;; if VOTING_QUORUM <= ((votesFor * 100) / liquidTokens)
+      (votePassed (<= VOTING_QUORUM (/ (* (get votesFor proposalRecord) u100) (get liquidTokens proposalRecord))))
     )
-    ;; required variables must be set
-    (asserts! (is-initialized) ERR_NOT_INITIALIZED)
     ;; verify extension still active in dao
     (try! (as-contract (is-dao-or-extension)))
-    ;; verify treasury matches protocol treasury
-    (asserts! (is-eq treasuryContract (var-get protocolTreasury)) ERR_TREASURY_MISMATCH)
     ;; proposal past end block height
     (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_STILL_ACTIVE)
     ;; proposal not already concluded
@@ -237,11 +197,22 @@
 ;; read only functions
 ;;
 
-(define-read-only (get-protocol-treasury)
-  (if (is-eq (var-get protocolTreasury) SELF)
-    none
-    (some (var-get protocolTreasury))
+(define-read-only (get-voting-power (who principal) (proposalId uint))
+  (let
+    (
+      (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
+      (proposalBlockHash (unwrap! (get-block-hash (get startBlock proposalRecord)) ERR_RETRIEVING_START_BLOCK_HASH))
+    )
+    (at-block proposalBlockHash (contract-call? .aibtc-token get-balance who))
   )
+)
+
+(define-read-only (get-linked-voting-contracts)
+  {
+    treasury: VOTING_TREASURY,
+    token-dex: VOTING_TOKEN_DEX,
+    token-pool: VOTING_TOKEN_POOL
+  }
 )
 
 (define-read-only (get-proposal (proposalId uint))
@@ -250,10 +221,6 @@
 
 (define-read-only (get-total-votes (proposalId uint) (voter principal))
   (default-to u0 (map-get? VotingRecords {proposalId: proposalId, voter: voter}))
-)
-
-(define-read-only (is-initialized)
-  (not (is-eq (var-get protocolTreasury) SELF))
 )
 
 (define-read-only (get-voting-period)
@@ -280,4 +247,17 @@
 ;; get block hash by height
 (define-private (get-block-hash (blockHeight uint))
   (get-block-info? id-header-hash blockHeight)
+)
+
+(define-private (get-liquid-supply (blockHeight uint))
+  (let
+    (
+      (blockHash (unwrap! (get-block-hash blockHeight) ERR_RETRIEVING_START_BLOCK_HASH))
+      (totalSupply (unwrap! (at-block blockHash (contract-call? .aibtc-token get-total-supply)) ERR_FETCHING_TOKEN_DATA))
+      (dexBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_DEX)) ERR_FETCHING_TOKEN_DATA))
+      (poolBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_POOL)) ERR_FETCHING_TOKEN_DATA))
+      (treasuryBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TREASURY)) ERR_FETCHING_TOKEN_DATA))
+    )
+    (ok (- totalSupply (+ dexBalance poolBalance treasuryBalance)))
+  )
 )

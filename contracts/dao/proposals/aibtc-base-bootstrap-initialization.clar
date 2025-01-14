@@ -28,10 +28,6 @@
         {extension: .aibtc-action-toggle-resource-by-name, enabled: true}
       )
     ))
-    ;; initialize action proposals
-    (try! (contract-call? .aibtc-action-proposals set-protocol-treasury .aibtc-treasury))
-    ;; initialize core proposals
-    (try! (contract-call? .aibtc-core-proposals set-protocol-treasury .aibtc-treasury))
     ;; send DAO manifest as onchain message
     (try! (contract-call? .aibtc-onchain-messaging send DAO_MANIFEST true))
     ;; allow assets in treasury
