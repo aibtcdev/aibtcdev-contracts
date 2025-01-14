@@ -9,10 +9,13 @@
 (define-public (run (parameters (buff 2048)))
   (let
     (
-      (accountHolder (unwrap! (from-consensus-buff? principal parameters) ERR_INVALID_PARAMS))
+      (paramsTuple (unwrap! (from-consensus-buff?
+        { name: (string-utf8 50), description: (string-utf8 255), price: uint, url: (optional (string-utf8 255)) }
+        parameters) ERR_INVALID_PARAMS))
     )
     (try! (is-dao-or-extension))
-    (contract-call? .aibtc-bank-account set-account-holder accountHolder)
+    (try! (contract-call? .aibtc-payments-invoices add-resource (get name paramsTuple) (get description paramsTuple) (get price paramsTuple) (get url paramsTuple)))
+    (ok true)
   )
 )
 
