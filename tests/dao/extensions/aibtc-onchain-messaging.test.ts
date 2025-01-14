@@ -1,9 +1,13 @@
-import { Cl } from "@stacks/transactions";
+import { Cl, cvToValue } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
+import {
+  constructDao,
+  getDaoTokens,
+  passCoreProposal,
+} from "../../test-utilities";
 
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
-const address2 = accounts.get("wallet_2")!;
 const deployer = accounts.get("deployer")!;
 
 const contractName = "aibtc-onchain-messaging";
@@ -24,6 +28,75 @@ describe(`extension: ${contractName}`, () => {
     );
     expect(callback.result).toBeOk(Cl.bool(true));
   });
+
+  it("send() succeeds if called by any user with isFromDao false", () => {
+    const message = "test";
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "send",
+      [Cl.stringAscii(message), Cl.bool(false)],
+      address1
+    );
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+
+  it("send() fails if called by any user with isFromDao true", () => {
+    const message = "test";
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "send",
+      [Cl.stringAscii(message), Cl.bool(true)],
+      address1
+    );
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+
+  it("send() succeeds if called by a DAO proposal with isFromDao true", () => {
+    const proposalContractName = "aibtc-onchain-messaging-send";
+    const proposalContractAddress = `${deployer}.${proposalContractName}`;
+    const message = "test";
+
+    // fund account that sends proposal
+    const getDaoTokensReceipt = getDaoTokens(deployer, deployer);
+
+    console.log("getDaoTokensReceipt");
+    console.log(getDaoTokensReceipt);
+
+    // construct DAO
+    const constructReceipt = constructDao(deployer);
+
+    console.log("constructReceipt");
+    console.log(constructReceipt);
+
+    // pass proposal
+    const proposalReceipt = passCoreProposal(proposalContractAddress, deployer);
+
+    console.log("proposalReceipt");
+    console.log(proposalReceipt);
+
+    const votingPowerReceipt = simnet.callReadOnlyFn(
+      `${deployer}.aibtc-core-proposals`,
+      "get-voting-power",
+      [Cl.principal(deployer), Cl.principal(proposalContractAddress)],
+      deployer
+    );
+
+    console.log("votingPowerReceipt");
+    console.log(cvToValue(votingPowerReceipt.result));
+
+    const addressBalanceReceipt = simnet.callReadOnlyFn(
+      `${deployer}.aibtc-token`,
+      "get-balance",
+      [Cl.principal(deployer)],
+      deployer
+    );
+
+    console.log("addressBalanceReceipt");
+    console.log(cvToValue(addressBalanceReceipt.result));
+
+    expect(proposalReceipt.result).toBeOk(Cl.bool(true));
+  });
+
   /*
   // Message Tests
   describe("send()", () => {
