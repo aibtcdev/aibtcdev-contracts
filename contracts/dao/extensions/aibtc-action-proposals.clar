@@ -102,6 +102,7 @@
         action: action,
         parameters: parameters,
         creator: tx-sender,
+        liquidTokens: liquidTokens,
         startBlock: burn-block-height,
         endBlock: (+ burn-block-height VOTING_PERIOD)
       }

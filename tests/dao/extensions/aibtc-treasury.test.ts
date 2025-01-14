@@ -4,9 +4,9 @@ import { describe, expect, it } from "vitest";
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
-const addressDeployer = accounts.get("deployer")!;
+const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${addressDeployer}.aibtc-treasury`;
+const contractAddress = `${deployer}.aibtc-treasury`;
 
 enum ErrCode {
   ERR_UNAUTHORIZED = 6000,
@@ -14,6 +14,16 @@ enum ErrCode {
 }
 
 describe("aibtc-treasury", () => {
+  it("callback() should respond with (ok true)", () => {
+    const callback = simnet.callPublicFn(
+      contractAddress,
+      "callback",
+      [Cl.principal(deployer), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(callback.result).toBeOk(Cl.bool(true));
+  });
+  /*
   // Allow Asset Tests
   describe("allow-asset()", () => {
     it("fails if caller is not DAO or extension");
@@ -78,4 +88,5 @@ describe("aibtc-treasury", () => {
     it("fails if contract is not currently stacking");
     it("succeeds and revokes stacking delegation");
   });
+  */
 });

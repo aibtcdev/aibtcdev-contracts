@@ -2,11 +2,23 @@ import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 
 const accounts = simnet.getAccounts();
-const address1 = accounts.get("wallet_1")!;
-const address2 = accounts.get("wallet_2")!;
-const addressDeployer = accounts.get("deployer")!;
+const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${addressDeployer}.aibtc-ext003-direct-execute`;
+const contractAddress = `${deployer}.aibtc-core-proposals`;
+
+describe("aibtc-core-proposals", () => {
+  it("callback() should respond with (ok true)", () => {
+    const callback = simnet.callPublicFn(
+      contractAddress,
+      "callback",
+      [Cl.principal(deployer), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(callback.result).toBeOk(Cl.bool(true));
+  });
+});
+
+/*
 
 enum ErrCode {
   ERR_UNAUTHORIZED = 3000,
@@ -37,6 +49,7 @@ enum ErrCode {
   ERR_ZERO_VOTING_POWER,
   ERR_QUORUM_NOT_REACHED,
 }
+
 
 describe("aibtc-ext003-direct-execute", () => {
   // Protocol Treasury Tests
@@ -90,3 +103,5 @@ describe("aibtc-ext003-direct-execute", () => {
     it("succeeds without executing if failed");
   });
 });
+
+*/
