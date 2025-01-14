@@ -30,11 +30,8 @@
 (define-constant ERR_TREASURY_CANNOT_BE_SAME (err u1202))
 
 ;; error messages - voting token
-(define-constant ERR_TOKEN_ALREADY_INITIALIZED (err u1300))
-(define-constant ERR_TOKEN_MISMATCH (err u1301))
-(define-constant ERR_INSUFFICIENT_BALANCE (err u1302))
-(define-constant ERR_TOKEN_CANNOT_BE_SELF (err u1303))
-(define-constant ERR_TOKEN_CANNOT_BE_SAME (err u1304))
+(define-constant ERR_INSUFFICIENT_BALANCE (err u1300))
+(define-constant ERR_FETCHING_TOKEN_DATA (err u1301))
 
 ;; error messages - proposals
 (define-constant ERR_PROPOSAL_NOT_FOUND (err u1400))
@@ -56,7 +53,6 @@
 ;; data vars
 ;;
 (define-data-var protocolTreasury principal SELF) ;; the treasury contract for protocol funds
-(define-data-var votingToken principal SELF) ;; the FT contract used for voting
 (define-data-var proposalCount uint u0) ;; total number of proposals
 
 ;; data maps
@@ -113,40 +109,16 @@
   )
 )
 
-(define-public (set-voting-token (token <ft-trait>))
+(define-public (propose-action (action <action-trait>) (parameters (buff 2048)))
   (let
     (
-      (tokenContract (contract-of token))
-    )
-    (try! (is-dao-or-extension))
-    ;; cannot set token to self
-    (asserts! (not (is-eq tokenContract SELF)) ERR_TOKEN_CANNOT_BE_SELF)
-    ;; cannot set token to same value
-    (asserts! (not (is-eq tokenContract (var-get votingToken))) ERR_TOKEN_CANNOT_BE_SAME)
-    ;; cannot set token if already set once
-    (asserts! (is-eq (var-get votingToken) SELF) ERR_TOKEN_ALREADY_INITIALIZED)
-    (print {
-      notification: "set-voting-token",
-      payload: {
-        token: tokenContract
-      }
-    })
-    (ok (var-set votingToken tokenContract))
-  )
-)
-
-(define-public (propose-action (action <action-trait>) (parameters (buff 2048)) (token <ft-trait>))
-  (let
-    (
-      (tokenContract (contract-of token))
       (newId (+ (var-get proposalCount) u1))
+      (voterBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
     )
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
-    ;; token matches set voting token
-    (asserts! (is-eq tokenContract (var-get votingToken)) ERR_TOKEN_MISMATCH)
     ;; caller has the required balance
-    (asserts! (> (try! (contract-call? token get-balance tx-sender)) u0) ERR_INSUFFICIENT_BALANCE)
+    (asserts! (> voterBalance u0) ERR_INSUFFICIENT_BALANCE)
     ;; print proposal creation event
     (print {
       notification: "propose-action",
@@ -178,23 +150,19 @@
   )
 )
 
-(define-public (vote-on-proposal (proposalId uint) (token <ft-trait>) (vote bool))
+(define-public (vote-on-proposal (proposalId uint) (vote bool))
   (let
     (
       (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
       (proposalBlock (get startBlock proposalRecord))
       (proposalBlockHash (unwrap! (get-block-hash proposalBlock) ERR_RETRIEVING_START_BLOCK_HASH))
-      (tokenContract (contract-of token))
-      (senderBalanceResponse (at-block proposalBlockHash (contract-call? .aibtc-token get-balance tx-sender)))
-      (senderBalance (unwrap-panic senderBalanceResponse))
+      (senderBalance (unwrap! (at-block proposalBlockHash (contract-call? .aibtc-token get-balance tx-sender)) ERR_FETCHING_TOKEN_DATA))
     )
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
-    ;; token matches set voting token
-    (asserts! (is-eq tokenContract (var-get votingToken)) ERR_TOKEN_MISMATCH)
     ;; caller has the required balance
     (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
-    ;; proposal is still active
+    ;; proposal not still active
     (asserts! (>= burn-block-height (get startBlock proposalRecord)) ERR_VOTE_TOO_SOON)
     (asserts! (< burn-block-height (get endBlock proposalRecord)) ERR_VOTE_TOO_LATE)
     ;; proposal not already concluded
@@ -222,14 +190,13 @@
   )
 )
 
-(define-public (conclude-proposal (proposalId uint) (action <action-trait>) (treasury <treasury-trait>) (token <ft-trait>))
+(define-public (conclude-proposal (proposalId uint) (action <action-trait>) (treasury <treasury-trait>))
   (let
     (
       (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
-      (tokenContract (contract-of token))
-      (tokenTotalSupply (try! (contract-call? token get-total-supply)))
+      (tokenTotalSupply (unwrap! (contract-call? .aibtc-token get-total-supply) ERR_FETCHING_TOKEN_DATA))
       (treasuryContract (contract-of treasury))
-      (treasuryBalance (try! (contract-call? token get-balance treasuryContract)))
+      (treasuryBalance (unwrap! (contract-call? .aibtc-token get-balance treasuryContract) ERR_FETCHING_TOKEN_DATA))
       (votePassed (> (get votesFor proposalRecord) (* tokenTotalSupply (- u100 treasuryBalance) VOTING_QUORUM)))
     )
     ;; required variables must be set
@@ -277,13 +244,6 @@
   )
 )
 
-(define-read-only (get-voting-token)
-  (if (is-eq (var-get votingToken) SELF)
-    none
-    (some (var-get votingToken))
-  )
-)
-
 (define-read-only (get-proposal (proposalId uint))
   (map-get? Proposals proposalId)
 )
@@ -293,11 +253,7 @@
 )
 
 (define-read-only (is-initialized)
-  ;; check if the required variables are set
-  (not (or
-    (is-eq (var-get votingToken) SELF)
-    (is-eq (var-get protocolTreasury) SELF)
-  ))
+  (not (is-eq (var-get protocolTreasury) SELF))
 )
 
 (define-read-only (get-voting-period)

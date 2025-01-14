@@ -42,7 +42,7 @@
 (define-data-var totalRevenue uint u0)
 
 ;; dao can update payment address
-(define-data-var paymentAddress principal .aibtc-bank-account)
+(define-data-var paymentAddress principal .aibtc-treasury)
 
 ;; data maps
 ;;
