@@ -17,13 +17,11 @@
 
 (define-constant SELF (as-contract tx-sender))
 (define-constant VOTING_PERIOD u144) ;; 144 Bitcoin blocks, ~1 day
-(define-constant VOTING_QUORUM u95) ;; 95% of liquid supply (total supply - treasury)
+(define-constant VOTING_QUORUM u95) ;; 95% of liquid supply
 
 ;; error messages - authorization
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u3000))
-
-;; error messages - initialization
-(define-constant ERR_NOT_INITIALIZED (err u3100))
+(define-constant ERR_FETCHING_TOKEN_DATA (err u3001))
 
 ;; error messages - treasury
 (define-constant ERR_TREASURY_CANNOT_BE_SELF (err u3200))
@@ -49,12 +47,12 @@
 (define-constant ERR_VOTE_TOO_SOON (err u3500))
 (define-constant ERR_VOTE_TOO_LATE (err u3501))
 (define-constant ERR_ALREADY_VOTED (err u3502))
-(define-constant ERR_QUORUM_NOT_REACHED (err u3504))
+(define-constant ERR_QUORUM_NOT_REACHED (err u3503))
 
-;; data vars
-;;
-(define-data-var protocolTreasury principal SELF) ;; the treasury contract for protocol funds
-(define-data-var votingToken principal SELF) ;; the FT contract used for voting
+;; contracts used for voting calculations
+(define-constant VOTING_TOKEN_DEX .aibtc-token-dex)
+(define-constant VOTING_TOKEN_POOL .aibtc-bitflow-pool)
+(define-constant VOTING_TREASURY .aibtc-treasury)
 
 ;; data maps
 ;;
@@ -88,60 +86,13 @@
   (ok true)
 )
 
-(define-public (set-protocol-treasury (treasury <treasury-trait>))
-  (let
-    (
-      (treasuryContract (contract-of treasury))
-    )
-    (try! (is-dao-or-extension))
-    ;; cannot set treasury to self
-    (asserts! (not (is-eq treasuryContract SELF)) ERR_TREASURY_CANNOT_BE_SELF)
-    ;; cannot set treasury to same value
-    (asserts! (not (is-eq treasuryContract (var-get protocolTreasury))) ERR_TREASURY_CANNOT_BE_SAME)
-    (print {
-      notification: "set-protocol-treasury",
-      payload: {
-        treasury: treasuryContract
-      }
-    })
-    (ok (var-set protocolTreasury treasuryContract))
-  )
-)
-
-(define-public (set-voting-token (token <ft-trait>))
-  (let
-    (
-      (tokenContract (contract-of token))
-    )
-    (try! (is-dao-or-extension))
-    ;; cannot set token to self
-    (asserts! (not (is-eq tokenContract SELF)) ERR_TOKEN_CANNOT_BE_SELF)
-    ;; cannot set token to same value
-    (asserts! (not (is-eq tokenContract (var-get votingToken))) ERR_TOKEN_CANNOT_BE_SAME)
-    ;; cannot set token if already set once
-    (asserts! (is-eq (var-get votingToken) SELF) ERR_TOKEN_ALREADY_INITIALIZED)
-    (print {
-      notification: "set-voting-token",
-      payload: {
-        token: tokenContract
-      }
-    })
-    (ok (var-set votingToken tokenContract))
-  )
-)
-
-(define-public (create-proposal (proposal <proposal-trait>) (token <ft-trait>))
+(define-public (create-proposal (proposal <proposal-trait>))
   (let
     (
       (proposalContract (contract-of proposal))
-      (tokenContract (contract-of token))
     )
-    ;; required variables must be set
-    (asserts! (is-initialized) ERR_NOT_INITIALIZED)
-    ;; token matches set voting token
-    (asserts! (is-eq tokenContract (var-get votingToken)) ERR_TOKEN_MISMATCH)
     ;; caller has the required balance
-    (asserts! (> (try! (contract-call? token get-balance tx-sender)) u0) ERR_INSUFFICIENT_BALANCE)
+    (asserts! (> (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA) u0) ERR_INSUFFICIENT_BALANCE)
     ;; proposal was not already executed
     (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; print proposal creation event
@@ -168,21 +119,16 @@
     }) ERR_SAVING_PROPOSAL))
 ))
 
-(define-public (vote-on-proposal (proposal <proposal-trait>) (token <ft-trait>) (vote bool))
+(define-public (vote-on-proposal (proposal <proposal-trait>) (vote bool))
   (let
     (
       (proposalContract (contract-of proposal))
       (proposalRecord (unwrap! (map-get? Proposals proposalContract) ERR_PROPOSAL_NOT_FOUND))
       (proposalBlock (get startBlock proposalRecord))
       (proposalBlockHash (unwrap! (get-block-hash proposalBlock) ERR_RETRIEVING_START_BLOCK_HASH))
-      (tokenContract (contract-of token))
       (senderBalanceResponse (at-block proposalBlockHash (contract-call? .aibtc-token get-balance tx-sender)))
       (senderBalance (unwrap-panic senderBalanceResponse))
     )
-    ;; required variables must be set
-    (asserts! (is-initialized) ERR_NOT_INITIALIZED)
-    ;; token matches set voting token
-    (asserts! (is-eq tokenContract (var-get votingToken)) ERR_TOKEN_MISMATCH)
     ;; caller has the required balance
     (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
     ;; proposal was not already executed
@@ -215,21 +161,15 @@
   )
 )
 
-(define-public (conclude-proposal (proposal <proposal-trait>) (treasury <treasury-trait>) (token <ft-trait>))
+(define-public (conclude-proposal (proposal <proposal-trait>))
   (let
     (
       (proposalContract (contract-of proposal))
       (proposalRecord (unwrap! (map-get? Proposals proposalContract) ERR_PROPOSAL_NOT_FOUND))
-      (tokenContract (contract-of token))
-      (tokenTotalSupply (try! (contract-call? token get-total-supply)))
-      (treasuryContract (contract-of treasury))
-      (treasuryBalance (try! (contract-call? token get-balance treasuryContract)))
+      (tokenTotalSupply (unwrap! (contract-call? .aibtc-token get-total-supply) ERR_FETCHING_TOKEN_DATA))
+      (treasuryBalance (unwrap! (contract-call? .aibtc-token get-balance .aibtc-treasury) ERR_FETCHING_TOKEN_DATA))
       (votePassed (> (get votesFor proposalRecord) (* tokenTotalSupply (- u100 treasuryBalance) VOTING_QUORUM)))
     )
-    ;; required variables must be set
-    (asserts! (is-initialized) ERR_NOT_INITIALIZED)
-    ;; verify treasury matches protocol treasury
-    (asserts! (is-eq treasuryContract (var-get protocolTreasury)) ERR_TREASURY_MISMATCH)
     ;; proposal was not already executed
     (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; proposal past end block height
@@ -261,18 +201,12 @@
 ;; read only functions
 ;;
 
-(define-read-only (get-protocol-treasury)
-  (if (is-eq (var-get protocolTreasury) SELF)
-    none
-    (some (var-get protocolTreasury))
-  )
-)
-
-(define-read-only (get-voting-token)
-  (if (is-eq (var-get votingToken) SELF)
-    none
-    (some (var-get votingToken))
-  )
+(define-read-only (get-linked-voting-contracts)
+  {
+    treasury: VOTING_TREASURY,
+    token-dex: VOTING_TOKEN_DEX,
+    token-pool: VOTING_TOKEN_POOL
+  }
 )
 
 (define-read-only (get-proposal (proposal principal))
@@ -281,14 +215,6 @@
 
 (define-read-only (get-total-votes (proposal principal) (voter principal))
   (default-to u0 (map-get? VotingRecords {proposal: proposal, voter: voter}))
-)
-
-(define-read-only (is-initialized)
-  ;; check if the required variables are set
-  (not (or
-    (is-eq (var-get votingToken) SELF)
-    (is-eq (var-get protocolTreasury) SELF)
-  ))
 )
 
 (define-read-only (get-voting-period)
