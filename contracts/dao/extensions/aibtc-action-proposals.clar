@@ -234,6 +234,8 @@
     )
     ;; required variables must be set
     (asserts! (is-initialized) ERR_NOT_INITIALIZED)
+    ;; verify extension still active in dao
+    (try! (as-contract (is-dao-or-extension)))
     ;; verify treasury matches protocol treasury
     (asserts! (is-eq treasuryContract (var-get protocolTreasury)) ERR_TREASURY_MISMATCH)
     ;; proposal past end block height
