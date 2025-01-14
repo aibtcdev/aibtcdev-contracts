@@ -7,9 +7,12 @@
 (define-public (callback (sender principal) (memo (buff 34))) (ok true))
 
 (define-public (run (parameters (buff 2048)))
-  (begin
+  (let
+    (
+      (message (unwrap! (from-consensus-buff? (string-ascii 2043) parameters) ERR_INVALID_PARAMS))
+    )
     (try! (is-dao-or-extension))
-    (contract-call? .aibtc-onchain-messaging send (unwrap! (from-consensus-buff? (string-ascii 2043) parameters) ERR_INVALID_PARAMS) true)
+    (contract-call? .aibtc-onchain-messaging send message true)
   )
 )
 

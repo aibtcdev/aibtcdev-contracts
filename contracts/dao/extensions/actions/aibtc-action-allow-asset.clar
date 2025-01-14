@@ -7,9 +7,12 @@
 (define-public (callback (sender principal) (memo (buff 34))) (ok true))
 
 (define-public (run (parameters (buff 2048)))
-  (begin
+  (let
+    (
+      (asset (unwrap! (from-consensus-buff? principal parameters) ERR_INVALID_PARAMS))
+    )
     (try! (is-dao-or-extension))
-    (contract-call? .aibtc-treasury allow-asset (unwrap! (from-consensus-buff? principal parameters) ERR_INVALID_PARAMS) true)
+    (contract-call? .aibtc-treasury allow-asset asset true)
   )
 )
 
