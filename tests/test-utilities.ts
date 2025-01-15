@@ -1,12 +1,14 @@
-import { Cl, cvToValue } from "@stacks/transactions";
+import { Cl } from "@stacks/transactions";
+import { expect } from "vitest";
 
 export const actionProposalsContractName = "aibtc-action-proposals";
 export const coreProposalsContractName = "aibtc-core-proposals";
+const votingPeriod = 144; // 24 hours
 
 function getPercentageOfSupply(amount: number, totalSupply: number) {
   const rawPercentage = (amount / totalSupply) * 100;
   const percentage = rawPercentage.toFixed(2);
-  return `${percentage}% supply`;
+  return percentage;
 }
 
 export function getDaoTokens(
@@ -18,57 +20,6 @@ export function getDaoTokens(
   const tokenContractAddress = `${deployer}.${tokenContractName}`;
   const tokenDexContractName = "aibtc-token-dex";
   const tokenDexContractAddress = `${deployer}.${tokenDexContractName}`;
-  const tokenTreasuryContractName = "aibtc-treasury";
-  const treasuryContractAddress = `${deployer}.${tokenTreasuryContractName}`;
-
-  const getTotalSupplyReceipt = simnet.callReadOnlyFn(
-    tokenContractAddress,
-    "get-total-supply",
-    [],
-    deployer
-  );
-  const totalSupply = parseInt(cvToValue(getTotalSupplyReceipt.result).value);
-
-  const getTreasuryBalanceReceipt = simnet.callReadOnlyFn(
-    tokenContractAddress,
-    "get-balance",
-    [Cl.principal(treasuryContractAddress)],
-    deployer
-  );
-  const treasuryBalance = parseInt(
-    cvToValue(getTreasuryBalanceReceipt.result).value
-  );
-
-  const getTokenDexBalanceReceipt = simnet.callReadOnlyFn(
-    tokenContractAddress,
-    "get-balance",
-    [Cl.principal(tokenDexContractAddress)],
-    deployer
-  );
-  const tokenDexBalance = parseInt(
-    cvToValue(getTokenDexBalanceReceipt.result).value
-  );
-
-  const liquidTokenSupply = totalSupply - treasuryBalance - tokenDexBalance;
-
-  console.log("=========================");
-  console.log("BEFORE BUY");
-  console.log("totalSupply", totalSupply);
-  console.log(
-    "treasuryBalance",
-    treasuryBalance,
-    getPercentageOfSupply(treasuryBalance, totalSupply)
-  );
-  console.log(
-    "tokenDexBalance",
-    tokenDexBalance,
-    getPercentageOfSupply(tokenDexBalance, totalSupply)
-  );
-  console.log(
-    "liquidTokenSupply",
-    liquidTokenSupply,
-    getPercentageOfSupply(liquidTokenSupply, totalSupply)
-  );
 
   const getDaoTokensReceipt = simnet.callPublicFn(
     tokenDexContractAddress,
@@ -76,86 +27,6 @@ export function getDaoTokens(
     [Cl.principal(tokenContractAddress), Cl.uint(stxAmount)], // 1000 STX buy test
     address
   );
-
-  const getTreasuryBalanceReceipt2 = simnet.callReadOnlyFn(
-    tokenContractAddress,
-    "get-balance",
-    [Cl.principal(treasuryContractAddress)],
-    deployer
-  );
-
-  const getTokenDexBalanceReceipt2 = simnet.callReadOnlyFn(
-    tokenContractAddress,
-    "get-balance",
-    [Cl.principal(tokenDexContractAddress)],
-    deployer
-  );
-
-  const getTotalSupplyReceipt2 = simnet.callReadOnlyFn(
-    tokenContractAddress,
-    "get-total-supply",
-    [],
-    deployer
-  );
-
-  const addressBalanceReceipt = simnet.callReadOnlyFn(
-    tokenContractAddress,
-    "get-balance",
-    [Cl.principal(address)],
-    deployer
-  );
-
-  const totalSupply2 = parseInt(cvToValue(getTotalSupplyReceipt2.result).value);
-  const treasuryBalance2 = parseInt(
-    cvToValue(getTreasuryBalanceReceipt2.result).value
-  );
-  const tokenDexBalance2 = parseInt(
-    cvToValue(getTokenDexBalanceReceipt2.result).value
-  );
-
-  const liquidTokenSupply2 = totalSupply2 - treasuryBalance2 - tokenDexBalance2;
-
-  console.log("=========================");
-  console.log("AFTER BUY");
-  console.log("totalSupply2", totalSupply2);
-  console.log(
-    "treasuryBalance2",
-    treasuryBalance2,
-    getPercentageOfSupply(treasuryBalance2, totalSupply2)
-  );
-  console.log(
-    "tokenDexBalance2",
-    tokenDexBalance2,
-    getPercentageOfSupply(tokenDexBalance2, totalSupply2)
-  );
-  console.log(
-    "liquidTokenSupply2",
-    liquidTokenSupply2,
-    getPercentageOfSupply(liquidTokenSupply2, totalSupply2)
-  );
-
-  const addressBalance = parseInt(
-    cvToValue(addressBalanceReceipt.result).value
-  );
-  const addressVotingPower = addressBalance / liquidTokenSupply2;
-
-  console.log("=========================");
-  console.log("ADDRESS INFO");
-  console.log(
-    "addressBalance",
-    addressBalance,
-    getPercentageOfSupply(addressBalance, totalSupply2)
-  );
-  console.log(
-    "addressBalance voting power calculated",
-    addressVotingPower,
-    getPercentageOfSupply(addressBalance, liquidTokenSupply2)
-  );
-
-  /*
-  ;; if VOTING_QUORUM <= ((votesFor * 100) / liquidTokens)
-  (votePassed (<= VOTING_QUORUM (/ (* (get votesFor proposalRecord) u100) (get liquidTokens proposalRecord))))
-  */
 
   return getDaoTokensReceipt;
 }
@@ -178,8 +49,8 @@ export function constructDao(deployer: string) {
 
 export function passCoreProposal(
   proposalContractAddress: string,
-  deployer: string
-  // voters: string[]
+  deployer: string,
+  voters: string[]
 ) {
   // create-proposal
   const createProposalReceipt = simnet.callPublicFn(
@@ -188,10 +59,30 @@ export function passCoreProposal(
     [Cl.principal(proposalContractAddress)],
     deployer
   );
-  // temporary
-  return createProposalReceipt;
+  expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
   // vote-on-proposal
+  for (const voter of voters) {
+    const voteReceipt = simnet.callPublicFn(
+      `${deployer}.${coreProposalsContractName}`,
+      "vote-on-proposal",
+      [Cl.principal(proposalContractAddress), Cl.bool(true)],
+      voter
+    );
+    console.log(`voteReceipt: ${voter}`);
+    console.log(voteReceipt.result);
+    expect(voteReceipt.result).toBeOk(Cl.bool(true));
+  }
+  // progress past the end block
+  simnet.mineEmptyBlocks(votingPeriod);
   // conclude-proposal
+  const concludeProposalReceipt = simnet.callPublicFn(
+    `${deployer}.${coreProposalsContractName}`,
+    "conclude-proposal",
+    [Cl.principal(proposalContractAddress)],
+    deployer
+  );
+  // return final receipt for processing
+  return concludeProposalReceipt;
 }
 
 export function passActionProposal(

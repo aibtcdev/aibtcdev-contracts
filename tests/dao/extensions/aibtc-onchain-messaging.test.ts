@@ -55,7 +55,6 @@ describe(`extension: ${contractName}`, () => {
   it("send() succeeds if called by a DAO proposal with isFromDao true", () => {
     const proposalContractName = "aibtc-onchain-messaging-send";
     const proposalContractAddress = `${deployer}.${proposalContractName}`;
-    const message = "test";
 
     // fund account that sends proposal
     const getDaoTokensReceipts = [
@@ -63,28 +62,62 @@ describe(`extension: ${contractName}`, () => {
       getDaoTokens(deployer, address1, 500000000), // 500 STX
       getDaoTokens(deployer, address2, 250000000), // 250 STX
     ];
-
-    console.log("===========================");
-    console.log("getDaoTokensReceipts");
-    for (const receipt of getDaoTokensReceipts) {
-      console.log(receipt);
+    const getAddressBalances = [
+      simnet.callReadOnlyFn(
+        `${deployer}.aibtc-token`,
+        "get-balance",
+        [Cl.principal(deployer)],
+        deployer
+      ),
+      simnet.callReadOnlyFn(
+        `${deployer}.aibtc-token`,
+        "get-balance",
+        [Cl.principal(address1)],
+        deployer
+      ),
+      simnet.callReadOnlyFn(
+        `${deployer}.aibtc-token`,
+        "get-balance",
+        [Cl.principal(address2)],
+        deployer
+      ),
+    ];
+    for (let i = 0; i < getDaoTokensReceipts.length; i++) {
+      const expectedBalance = parseInt(
+        cvToValue(getAddressBalances[i].result).value
+      );
+      console.log(`expectedBalance: ${expectedBalance}`);
+      expect(getDaoTokensReceipts[i].result).toBeOk(Cl.uint(expectedBalance));
     }
 
     // construct DAO
     const constructReceipt = constructDao(deployer);
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
 
-    console.log("===========================");
-    console.log("constructReceipt");
-    console.log(constructReceipt);
-
+    // progres the chain for at-block calls
     simnet.mineEmptyBlocks(10);
 
     // pass proposal
-    const proposalReceipt = passCoreProposal(proposalContractAddress, deployer);
+    const concludeProposalReceipt = passCoreProposal(
+      proposalContractAddress,
+      deployer,
+      [deployer, address1, address2]
+    );
 
     console.log("===========================");
-    console.log("proposalReceipt");
-    console.log(proposalReceipt);
+    console.log("concludeProposalReceipt");
+    console.log(concludeProposalReceipt);
+    for (const event of concludeProposalReceipt.events) {
+      const eventValue = cvToValue(event.data.value!);
+      // if event value is an object stringify it
+      console.log(
+        `- event: ${
+          typeof eventValue === "object"
+            ? JSON.stringify(eventValue)
+            : eventValue
+        }`
+      );
+    }
 
     const proposalDetails = simnet.callReadOnlyFn(
       `${deployer}.aibtc-core-proposals`,
@@ -97,41 +130,6 @@ describe(`extension: ${contractName}`, () => {
     console.log("proposalDetails");
     console.log(cvToValue(proposalDetails.result).value);
 
-    simnet.mineEmptyBlocks(100);
-
-    const votingPowerReceipt = simnet.callReadOnlyFn(
-      `${deployer}.aibtc-core-proposals`,
-      "get-voting-power",
-      [Cl.principal(deployer), Cl.principal(proposalContractAddress)],
-      deployer
-    );
-
-    console.log("===========================");
-    console.log("votingPowerReceipt");
-    console.log(cvToValue(votingPowerReceipt.result));
-
-    const addressBalanceReceipt = simnet.callReadOnlyFn(
-      `${deployer}.aibtc-token`,
-      "get-balance",
-      [Cl.principal(deployer)],
-      deployer
-    );
-
-    console.log("===========================");
-    console.log("addressBalanceReceipt");
-    console.log(cvToValue(addressBalanceReceipt.result));
-
-    const voteReceipt = simnet.callPublicFn(
-      `${deployer}.aibtc-core-proposals`,
-      "vote-on-proposal",
-      [Cl.principal(proposalContractAddress), Cl.bool(true)],
-      deployer
-    );
-
-    console.log("===========================");
-    console.log("voteReceipt");
-    console.log(voteReceipt);
-
-    expect(voteReceipt.result).toBeOk(Cl.bool(true));
+    expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
   });
 });
