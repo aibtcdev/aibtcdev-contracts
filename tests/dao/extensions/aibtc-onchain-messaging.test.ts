@@ -74,6 +74,18 @@ describe(`extension: ${contractName}`, () => {
     console.log("proposalReceipt");
     console.log(proposalReceipt);
 
+    const proposalDetails = simnet.callReadOnlyFn(
+      `${deployer}.aibtc-core-proposals`,
+      "get-proposal",
+      [Cl.principal(proposalContractAddress)],
+      deployer
+    );
+
+    console.log("proposalDetails");
+    console.log(cvToValue(proposalDetails.result));
+
+    simnet.mineEmptyBlocks(100);
+
     const votingPowerReceipt = simnet.callReadOnlyFn(
       `${deployer}.aibtc-core-proposals`,
       "get-voting-power",
@@ -94,7 +106,17 @@ describe(`extension: ${contractName}`, () => {
     console.log("addressBalanceReceipt");
     console.log(cvToValue(addressBalanceReceipt.result));
 
-    expect(proposalReceipt.result).toBeOk(Cl.bool(true));
+    const voteReceipt = simnet.callPublicFn(
+      `${deployer}.aibtc-core-proposals`,
+      "vote-on-proposal",
+      [Cl.principal(proposalContractAddress), Cl.bool(true)],
+      deployer
+    );
+
+    console.log("voteReceipt");
+    console.log(voteReceipt);
+
+    expect(voteReceipt.result).toBeOk(Cl.bool(true));
   });
 
   /*

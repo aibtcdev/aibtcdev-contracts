@@ -3,6 +3,12 @@ import { Cl, cvToValue } from "@stacks/transactions";
 export const actionProposalsContractName = "aibtc-action-proposals";
 export const coreProposalsContractName = "aibtc-core-proposals";
 
+function getPercentageOfSupply(amount: number, totalSupply: number) {
+  const rawPercentage = (amount / totalSupply) * 100;
+  const percentage = rawPercentage.toFixed(2);
+  return `${percentage}% supply`;
+}
+
 export function getDaoTokens(deployer: string, address: string) {
   const tokenContractName = "aibtc-token";
   const tokenContractAddress = `${deployer}.${tokenContractName}`;
@@ -17,7 +23,7 @@ export function getDaoTokens(deployer: string, address: string) {
     [],
     deployer
   );
-  const totalSupply = cvToValue(getTotalSupplyReceipt.result);
+  const totalSupply = parseInt(cvToValue(getTotalSupplyReceipt.result).value);
 
   const getTreasuryBalanceReceipt = simnet.callReadOnlyFn(
     tokenContractAddress,
@@ -25,7 +31,9 @@ export function getDaoTokens(deployer: string, address: string) {
     [Cl.principal(treasuryContractAddress)],
     deployer
   );
-  const treasuryBalance = cvToValue(getTreasuryBalanceReceipt.result);
+  const treasuryBalance = parseInt(
+    cvToValue(getTreasuryBalanceReceipt.result).value
+  );
 
   const getTokenDexBalanceReceipt = simnet.callReadOnlyFn(
     tokenContractAddress,
@@ -33,18 +41,30 @@ export function getDaoTokens(deployer: string, address: string) {
     [Cl.principal(tokenDexContractAddress)],
     deployer
   );
-  const tokenDexBalance = cvToValue(getTokenDexBalanceReceipt.result);
+  const tokenDexBalance = parseInt(
+    cvToValue(getTokenDexBalanceReceipt.result).value
+  );
 
-  const liquidTokenSupply =
-    parseInt(totalSupply.value) -
-    parseInt(treasuryBalance.value) -
-    parseInt(tokenDexBalance.value);
+  const liquidTokenSupply = totalSupply - treasuryBalance - tokenDexBalance;
 
   console.log("BEFORE BUY");
+  console.log("=========================");
   console.log("totalSupply", totalSupply);
-  console.log("treasuryBalance", treasuryBalance);
-  console.log("tokenDexBalance", tokenDexBalance);
-  console.log("liquidTokenSupply", liquidTokenSupply);
+  console.log(
+    "treasuryBalance",
+    treasuryBalance,
+    getPercentageOfSupply(treasuryBalance, totalSupply)
+  );
+  console.log(
+    "tokenDexBalance",
+    tokenDexBalance,
+    getPercentageOfSupply(tokenDexBalance, totalSupply)
+  );
+  console.log(
+    "liquidTokenSupply",
+    liquidTokenSupply,
+    getPercentageOfSupply(liquidTokenSupply, totalSupply)
+  );
 
   const getDaoTokensReceipt = simnet.callPublicFn(
     tokenDexContractAddress,
@@ -81,28 +101,57 @@ export function getDaoTokens(deployer: string, address: string) {
     deployer
   );
 
-  const totalSupply2 = cvToValue(getTotalSupplyReceipt2.result);
-  const treasuryBalance2 = cvToValue(getTreasuryBalanceReceipt2.result);
-  const tokenDexBalance2 = cvToValue(getTokenDexBalanceReceipt2.result);
+  const totalSupply2 = parseInt(cvToValue(getTotalSupplyReceipt2.result).value);
+  const treasuryBalance2 = parseInt(
+    cvToValue(getTreasuryBalanceReceipt2.result).value
+  );
+  const tokenDexBalance2 = parseInt(
+    cvToValue(getTokenDexBalanceReceipt2.result).value
+  );
 
-  const liquidTokenSupply2 =
-    parseInt(totalSupply2.value) -
-    parseInt(treasuryBalance2.value) -
-    parseInt(tokenDexBalance2.value);
+  const liquidTokenSupply2 = totalSupply2 - treasuryBalance2 - tokenDexBalance2;
 
   console.log("AFTER BUY");
+  console.log("=========================");
   console.log("totalSupply2", totalSupply2);
-  console.log("treasuryBalance2", treasuryBalance2);
-  console.log("tokenDexBalance2", tokenDexBalance2);
-  console.log("liquidTokenSupply2", liquidTokenSupply2);
+  console.log(
+    "treasuryBalance2",
+    treasuryBalance2,
+    getPercentageOfSupply(treasuryBalance2, totalSupply2)
+  );
+  console.log(
+    "tokenDexBalance2",
+    tokenDexBalance2,
+    getPercentageOfSupply(tokenDexBalance2, totalSupply2)
+  );
+  console.log(
+    "liquidTokenSupply2",
+    liquidTokenSupply2,
+    getPercentageOfSupply(liquidTokenSupply2, totalSupply2)
+  );
 
-  const addressBalance = cvToValue(addressBalanceReceipt.result);
-  const addressVotingPower =
-    parseInt(addressBalance.value) / parseInt(totalSupply2.value);
+  const addressBalance = parseInt(
+    cvToValue(addressBalanceReceipt.result).value
+  );
+  const addressVotingPower = addressBalance / liquidTokenSupply2;
 
   console.log("ADDRESS INFO");
-  console.log("addressBalance", addressBalance);
-  console.log("addressBalance voting power", addressVotingPower);
+  console.log("=========================");
+  console.log(
+    "addressBalance",
+    addressBalance,
+    getPercentageOfSupply(addressBalance, totalSupply2)
+  );
+  console.log(
+    "addressBalance voting power calculated",
+    addressVotingPower,
+    getPercentageOfSupply(addressBalance, liquidTokenSupply2)
+  );
+
+  /*
+  ;; if VOTING_QUORUM <= ((votesFor * 100) / liquidTokens)
+  (votePassed (<= VOTING_QUORUM (/ (* (get votesFor proposalRecord) u100) (get liquidTokens proposalRecord))))
+  */
 
   return getDaoTokensReceipt;
 }
