@@ -89,6 +89,7 @@
         proposal: proposalContract,
         creator: tx-sender,
         liquidTokens: liquidTokens,
+        startBlockStx: block-height,
         startBlock: burn-block-height,
         endBlock: (+ burn-block-height VOTING_PERIOD)
       }
@@ -116,8 +117,7 @@
       (proposalRecord (unwrap! (map-get? Proposals proposalContract) ERR_PROPOSAL_NOT_FOUND))
       (proposalBlock (get startBlockStx proposalRecord))
       (proposalBlockHash (unwrap! (get-block-hash proposalBlock) ERR_RETRIEVING_START_BLOCK_HASH))
-      (senderBalanceResponse (at-block proposalBlockHash (contract-call? .aibtc-token get-balance tx-sender)))
-      (senderBalance (unwrap-panic senderBalanceResponse))
+      (senderBalance (unwrap! (at-block proposalBlockHash (contract-call? .aibtc-token get-balance tx-sender)) ERR_FETCHING_TOKEN_DATA))
     )
     ;; caller has the required balance
     (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
@@ -156,8 +156,6 @@
     (
       (proposalContract (contract-of proposal))
       (proposalRecord (unwrap! (map-get? Proposals proposalContract) ERR_PROPOSAL_NOT_FOUND))
-      (tokenTotalSupply (unwrap! (contract-call? .aibtc-token get-total-supply) ERR_FETCHING_TOKEN_DATA))
-      (treasuryBalance (unwrap! (contract-call? .aibtc-token get-balance .aibtc-treasury) ERR_FETCHING_TOKEN_DATA))
       ;; if VOTING_QUORUM <= ((votesFor * 100) / liquidTokens)
       (votePassed (<= VOTING_QUORUM (/ (* (get votesFor proposalRecord) u100) (get liquidTokens proposalRecord))))
     )
@@ -235,7 +233,6 @@
   ))
 )
 
-;; get block hash by height
 (define-private (get-block-hash (blockHeight uint))
   (get-block-info? id-header-hash blockHeight)
 )

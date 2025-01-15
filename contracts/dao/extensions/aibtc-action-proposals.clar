@@ -51,8 +51,9 @@
     createdAt: uint, ;; block height
     caller: principal, ;; contract caller
     creator: principal, ;; proposal creator (tx-sender)
-    startBlock: uint, ;; block height
-    endBlock: uint, ;; block height
+    startBlockStx: uint, ;; block height for at-block calls
+    startBlock: uint, ;; burn block height
+    endBlock: uint, ;; burn block height
     votesFor: uint, ;; total votes for
     votesAgainst: uint, ;; total votes against
     liquidTokens: uint, ;; liquid tokens
@@ -94,6 +95,7 @@
         parameters: parameters,
         creator: tx-sender,
         liquidTokens: liquidTokens,
+        startBlockStx: block-height,
         startBlock: burn-block-height,
         endBlock: (+ burn-block-height VOTING_PERIOD)
       }
@@ -105,6 +107,7 @@
       createdAt: burn-block-height,
       caller: contract-caller,
       creator: tx-sender,
+      startBlockStx: block-height,
       startBlock: burn-block-height,
       endBlock: (+ burn-block-height VOTING_PERIOD),
       votesFor: u0,
@@ -122,7 +125,7 @@
   (let
     (
       (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
-      (proposalBlock (get startBlock proposalRecord))
+      (proposalBlock (get startBlockStx proposalRecord))
       (proposalBlockHash (unwrap! (get-block-hash proposalBlock) ERR_RETRIEVING_START_BLOCK_HASH))
       (senderBalance (unwrap! (at-block proposalBlockHash (contract-call? .aibtc-token get-balance tx-sender)) ERR_FETCHING_TOKEN_DATA))
     )
@@ -201,7 +204,7 @@
   (let
     (
       (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
-      (proposalBlockHash (unwrap! (get-block-hash (get startBlock proposalRecord)) ERR_RETRIEVING_START_BLOCK_HASH))
+      (proposalBlockHash (unwrap! (get-block-hash (get startBlockStx proposalRecord)) ERR_RETRIEVING_START_BLOCK_HASH))
     )
     (at-block proposalBlockHash (contract-call? .aibtc-token get-balance who))
   )
@@ -244,7 +247,6 @@
   ))
 )
 
-;; get block hash by height
 (define-private (get-block-hash (blockHeight uint))
   (get-block-info? id-header-hash blockHeight)
 )
