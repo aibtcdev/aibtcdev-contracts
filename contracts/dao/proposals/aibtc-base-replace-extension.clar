@@ -1,6 +1,6 @@
 (impl-trait .aibtcdev-dao-traits-v1.proposal)
 
-(define-constant ERR_EXTENSION_NOT_FOUND (err u404))
+(define-constant ERR_EXTENSION_NOT_FOUND (err u3003))
 
 (define-public (execute (sender principal))
   ;; replaces an extension in the DAO
