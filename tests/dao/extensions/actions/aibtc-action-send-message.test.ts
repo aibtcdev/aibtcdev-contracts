@@ -1,16 +1,16 @@
 import { Cl, cvToValue } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import {
-  actionProposalsContractName,
   constructDao,
   getDaoTokens,
   passActionProposal,
 } from "../../../test-utilities";
+import { ActionErrCode } from "../../../error-codes";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
-const address1 = accounts.get("address1")!;
-const address2 = accounts.get("address2")!;
+const address1 = accounts.get("wallet_1")!;
+const address2 = accounts.get("wallet_2")!;
 
 const contractName = "aibtc-action-send-message";
 const contractAddress = `${deployer}.${contractName}`;
@@ -27,21 +27,23 @@ describe(`action extension: ${contractName}`, () => {
   });
 
   it("run() fails if called directly", () => {
+    const message = "hello world";
     const receipt = simnet.callPublicFn(
       contractAddress,
       "run",
-      [Cl.principal(deployer)],
+      [Cl.buffer(Cl.serialize(Cl.stringAscii(message)))],
       deployer
     );
-    expect(receipt.result).toBeErr(Cl.uint(0));
+    expect(receipt.result).toBeErr(Cl.uint(ActionErrCode.ERR_UNAUTHORIZED));
   });
 
   it("run() succeeds if called as a DAO action proposal", () => {
+    const message = "hello world";
     // fund accounts for creating and voting on proposals
     const getDaoTokensReceipts = [
-      getDaoTokens(deployer, deployer, 1000000000), // 1000 STX
-      getDaoTokens(deployer, address1, 500000000), // 500 STX
-      getDaoTokens(deployer, address2, 250000000), // 250 STX
+      getDaoTokens(deployer, deployer, 100000000), // 100 STX
+      getDaoTokens(deployer, address1, 50000000), // 50 STX
+      getDaoTokens(deployer, address2, 25000000), // 25 STX
     ];
     const getAddressBalances = [
       simnet.callReadOnlyFn(
@@ -67,7 +69,7 @@ describe(`action extension: ${contractName}`, () => {
       const expectedBalance = parseInt(
         cvToValue(getAddressBalances[i].result).value
       );
-      console.log(`expectedBalance: ${expectedBalance}`);
+      // console.log(`expectedBalance: ${expectedBalance}`);
       expect(getDaoTokensReceipts[i].result).toBeOk(Cl.uint(expectedBalance));
     }
 
@@ -81,19 +83,22 @@ describe(`action extension: ${contractName}`, () => {
     // pass action proposal
     const concludeProposalReceipt = passActionProposal(
       contractAddress,
+      Cl.stringAscii(message),
       deployer,
       deployer,
       [deployer, address1, address2]
     );
 
+    /*
     console.log("===========================");
     console.log("concludeProposalReceipt");
     console.log(concludeProposalReceipt);
+    console.log("events:");
     for (const event of concludeProposalReceipt.events) {
       const eventValue = cvToValue(event.data.value!);
       // if event value is an object stringify it
       console.log(
-        `- event: ${
+        `${
           typeof eventValue === "object"
             ? JSON.stringify(eventValue)
             : eventValue
@@ -111,6 +116,7 @@ describe(`action extension: ${contractName}`, () => {
     console.log("===========================");
     console.log("proposalDetails");
     console.log(cvToValue(proposalDetails.result).value);
+    */
 
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
   });

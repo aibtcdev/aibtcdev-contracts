@@ -56,9 +56,9 @@ describe(`extension: ${contractName}`, () => {
 
     // fund accounts for creating and voting on proposals
     const getDaoTokensReceipts = [
-      getDaoTokens(deployer, deployer, 1000000000), // 1000 STX
-      getDaoTokens(deployer, address1, 500000000), // 500 STX
-      getDaoTokens(deployer, address2, 250000000), // 250 STX
+      getDaoTokens(deployer, deployer, 100000000), // 100 STX
+      getDaoTokens(deployer, address1, 50000000), // 50 STX
+      getDaoTokens(deployer, address2, 25000000), // 25 STX
     ];
     const getAddressBalances = [
       simnet.callReadOnlyFn(
@@ -84,7 +84,7 @@ describe(`extension: ${contractName}`, () => {
       const expectedBalance = parseInt(
         cvToValue(getAddressBalances[i].result).value
       );
-      console.log(`expectedBalance: ${expectedBalance}`);
+      // console.log(`expectedBalance: ${expectedBalance}`);
       expect(getDaoTokensReceipts[i].result).toBeOk(Cl.uint(expectedBalance));
     }
 
@@ -102,6 +102,7 @@ describe(`extension: ${contractName}`, () => {
       [deployer, address1, address2]
     );
 
+    /*
     console.log("===========================");
     console.log("concludeProposalReceipt");
     console.log(concludeProposalReceipt);
@@ -117,6 +118,7 @@ describe(`extension: ${contractName}`, () => {
       );
     }
 
+    
     const proposalDetails = simnet.callReadOnlyFn(
       `${deployer}.aibtc-core-proposals`,
       "get-proposal",
@@ -127,6 +129,7 @@ describe(`extension: ${contractName}`, () => {
     console.log("===========================");
     console.log("proposalDetails");
     console.log(cvToValue(proposalDetails.result).value);
+    */
 
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
   });

@@ -20,6 +20,11 @@ export enum ActionProposalsErrCode {
   ERR_INVALID_ACTION,
 }
 
+export enum ActionErrCode {
+  ERR_UNAUTHORIZED = 10001,
+  ERR_INVALID_PARAMS,
+}
+
 export enum BankAccountErrCode {
   ERR_INVALID = 2000,
   ERR_UNAUTHORIZED,

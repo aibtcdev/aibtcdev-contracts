@@ -1,4 +1,4 @@
-import { Cl } from "@stacks/transactions";
+import { Cl, ClarityValue } from "@stacks/transactions";
 import { expect } from "vitest";
 
 export const actionProposalsContractName = "aibtc-action-proposals";
@@ -24,7 +24,7 @@ export function getDaoTokens(
   const getDaoTokensReceipt = simnet.callPublicFn(
     tokenDexContractAddress,
     "buy",
-    [Cl.principal(tokenContractAddress), Cl.uint(stxAmount)], // 1000 STX buy test
+    [Cl.principal(tokenContractAddress), Cl.uint(stxAmount)],
     address
   );
 
@@ -85,15 +85,21 @@ export function passCoreProposal(
 
 export function passActionProposal(
   proposalContractAddress: string,
+  proposalParams: ClarityValue,
   deployer: string,
   sender: string,
   voters: string[]
 ) {
+  // TODO: hardcoded
+  const proposalId = 1;
   // propose-action
   const proposeActionReceipt = simnet.callPublicFn(
     `${deployer}.${actionProposalsContractName}`,
     "propose-action",
-    [Cl.principal(proposalContractAddress)],
+    [
+      Cl.principal(proposalContractAddress),
+      Cl.buffer(Cl.serialize(proposalParams)),
+    ],
     sender
   );
   expect(proposeActionReceipt.result).toBeOk(Cl.bool(true));
@@ -102,16 +108,18 @@ export function passActionProposal(
     const voteReceipt = simnet.callPublicFn(
       `${deployer}.${actionProposalsContractName}`,
       "vote-on-proposal",
-      [Cl.principal(proposalContractAddress), Cl.bool(true)],
+      [Cl.uint(proposalId), Cl.bool(true)],
       voter
     );
     expect(voteReceipt.result).toBeOk(Cl.bool(true));
   }
+  // progress past the end block
+  simnet.mineEmptyBlocks(votingPeriod);
   // conclude-proposal
   const concludeProposalReceipt = simnet.callPublicFn(
     `${deployer}.${actionProposalsContractName}`,
     "conclude-proposal",
-    [Cl.principal(proposalContractAddress)],
+    [Cl.uint(proposalId), Cl.principal(proposalContractAddress)],
     deployer
   );
   // return final receipt for processing
