@@ -5,6 +5,7 @@ import {
   getDaoTokens,
   passCoreProposal,
 } from "../../test-utilities";
+import { OnchainMessagingErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
@@ -14,10 +15,7 @@ const address2 = accounts.get("wallet_2")!;
 const contractName = "aibtc-onchain-messaging";
 const contractAddress = `${deployer}.${contractName}`;
 
-export enum ErrCode {
-  INPUT_ERROR = 4000,
-  ERR_UNAUTHORIZED,
-}
+const ErrCode = OnchainMessagingErrCode;
 
 describe(`extension: ${contractName}`, () => {
   it("callback() should respond with (ok true)", () => {

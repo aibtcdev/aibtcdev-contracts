@@ -1,6 +1,6 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
-import { ErrCode } from "../aibtcdev-base-dao.test";
+import { BaseDaoErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
@@ -10,7 +10,7 @@ const deployer = accounts.get("deployer")!;
 const contractName = "aibtc-base-bootstrap-initialization";
 const contractAddress = `${deployer}.${contractName}`;
 
-const expectedErr = Cl.uint(ErrCode.ERR_UNAUTHORIZED);
+const expectedErr = Cl.uint(BaseDaoErrCode.ERR_UNAUTHORIZED);
 
 const daoManifest =
   "This is where the DAO can put it's mission, purpose, and goals.";
