@@ -18,6 +18,7 @@
 (define-constant SELF (as-contract tx-sender))
 (define-constant VOTING_PERIOD u144) ;; 144 Bitcoin blocks, ~1 day
 (define-constant VOTING_QUORUM u95) ;; 95% of liquid supply
+(define-constant DEPLOYED_AT burn-block-height)
 
 ;; error messages
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u3000))
@@ -32,6 +33,7 @@
 (define-constant ERR_VOTE_TOO_SOON (err u3009))
 (define-constant ERR_VOTE_TOO_LATE (err u3010))
 (define-constant ERR_ALREADY_VOTED (err u3011))
+(define-constant ERR_FIRST_VOTING_PERIOD (err u3012))
 
 ;; contracts used for voting calculations
 (define-constant VOTING_TOKEN_DEX .aibtc-token-dex)
@@ -78,6 +80,8 @@
       (proposalContract (contract-of proposal))
       (liquidTokens (try! (get-liquid-supply block-height)))
     )
+    ;; at least one voting period passed
+    (asserts! (>= burn-block-height (+ DEPLOYED_AT VOTING_PERIOD)) ERR_FIRST_VOTING_PERIOD)
     ;; caller has the required balance
     (asserts! (> (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA) u0) ERR_INSUFFICIENT_BALANCE)
     ;; proposal was not already executed

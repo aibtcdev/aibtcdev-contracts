@@ -55,6 +55,7 @@ describe(`extension: ${contractName}`, () => {
     const proposalContractAddress = `${deployer}.${proposalContractName}`;
 
     // fund accounts for creating and voting on proposals
+    // TODO: consolidate as fundVoters()
     const getDaoTokensReceipts = [
       getDaoTokens(deployer, deployer, 100000000), // 100 STX
       getDaoTokens(deployer, address1, 50000000), // 50 STX
@@ -93,7 +94,8 @@ describe(`extension: ${contractName}`, () => {
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
 
     // progress the chain for at-block calls
-    simnet.mineEmptyBlocks(10);
+    // and to pass first core proposal voting period
+    simnet.mineEmptyBlocks(144);
 
     // pass proposal
     const concludeProposalReceipt = passCoreProposal(

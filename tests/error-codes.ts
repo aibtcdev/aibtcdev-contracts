@@ -45,6 +45,7 @@ export enum CoreProposalErrCode {
   ERR_VOTE_TOO_SOON,
   ERR_VOTE_TOO_LATE,
   ERR_ALREADY_VOTED,
+  ERR_FIRST_VOTING_PERIOD,
 }
 
 export enum OnchainMessagingErrCode {
