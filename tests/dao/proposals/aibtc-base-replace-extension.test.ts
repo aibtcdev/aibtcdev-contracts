@@ -1,6 +1,6 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
-import { ErrCode } from "../aibtcdev-base-dao.test";
+import { CoreProposalErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
@@ -8,7 +8,7 @@ const contractName = "aibtc-base-replace-extension";
 const contractAddress = `${deployer}.${contractName}`;
 
 // custom error because proposal is not found / setup yet
-const expectedErr = Cl.uint(404);
+const expectedErr = Cl.uint(CoreProposalErrCode.ERR_PROPOSAL_NOT_FOUND);
 
 describe(`core proposal: ${contractName}`, () => {
   it("execute() fails if called directly before dao is initialized", () => {
