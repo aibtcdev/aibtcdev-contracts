@@ -1,19 +1,18 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
+import { TreasuryErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${deployer}.aibtc-treasury`;
+const contractName = "aibtc-treasury";
+const contractAddress = `${deployer}.${contractName}`;
 
-enum ErrCode {
-  ERR_UNAUTHORIZED = 6000,
-  ERR_UNKNOWN_ASSSET = 6001,
-}
+const ErrCode = TreasuryErrCode;
 
-describe("aibtc-treasury", () => {
+describe(`extension: ${contractName}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,

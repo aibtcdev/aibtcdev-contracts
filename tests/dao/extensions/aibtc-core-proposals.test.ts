@@ -1,30 +1,19 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
+import { CoreProposalErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${deployer}.aibtc-core-proposals`;
+const contractName = "aibtc-core-proposals";
+const contractAddress = `${deployer}.${contractName}`;
 
-export enum ErrCode {
-  ERR_NOT_DAO_OR_EXTENSION = 3000,
-  ERR_FETCHING_TOKEN_DATA,
-  ERR_INSUFFICIENT_BALANCE,
-  ERR_PROPOSAL_NOT_FOUND,
-  ERR_PROPOSAL_ALREADY_EXECUTED,
-  ERR_PROPOSAL_STILL_ACTIVE,
-  ERR_SAVING_PROPOSAL,
-  ERR_PROPOSAL_ALREADY_CONCLUDED,
-  ERR_RETRIEVING_START_BLOCK_HASH,
-  ERR_VOTE_TOO_SOON,
-  ERR_VOTE_TOO_LATE,
-  ERR_ALREADY_VOTED,
-}
+const ErrCode = CoreProposalErrCode;
 
 const votingPeriod = 144; // 24 hours in BTC blocks
 const votingQuorum = 95; // 95% quorum
 
-describe("aibtc-core-proposals", () => {
+describe(`extension: ${contractName}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,

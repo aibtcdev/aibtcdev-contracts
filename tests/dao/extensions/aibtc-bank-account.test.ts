@@ -1,24 +1,21 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
+import { BankAccountErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${deployer}.aibtc-bank-account`;
+const contractName = "aibtc-bank-account";
+const contractAddress = `${deployer}.${contractName}`;
 
-enum ErrCode {
-  ERR_INVALID = 2000,
-  ERR_UNAUTHORIZED,
-  ERR_TOO_SOON,
-  ERR_INVALID_AMOUNT,
-}
+const ErrCode = BankAccountErrCode;
 
 const withdrawalAmount = 10000000; // 10 STX
 const withdrawalPeriod = 144; // 144 blocks
 
-describe("aibtc-bank-account", () => {
+describe(`extension: ${contractName}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,
