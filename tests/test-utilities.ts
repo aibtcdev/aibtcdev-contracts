@@ -1,4 +1,4 @@
-import { Cl, ClarityValue } from "@stacks/transactions";
+import { Cl, ClarityValue, cvToValue } from "@stacks/transactions";
 import { expect } from "vitest";
 
 export const actionProposalsContractName = "aibtc-action-proposals";
@@ -9,6 +9,21 @@ function getPercentageOfSupply(amount: number, totalSupply: number) {
   const rawPercentage = (amount / totalSupply) * 100;
   const percentage = rawPercentage.toFixed(2);
   return percentage;
+}
+
+export function fundVoters(deployer: string, voters: string[]) {
+  for (const voter of voters) {
+    const stxAmount = Math.floor(Math.random() * 500000000) + 1000000;
+    const getDaoTokensReceipt = getDaoTokens(deployer, voter, stxAmount);
+    const getAddressBalanceResult = simnet.callReadOnlyFn(
+      `${deployer}.aibtc-token`,
+      "get-balance",
+      [Cl.principal(voter)],
+      deployer
+    ).result;
+    const expectedBalance = parseInt(cvToValue(getAddressBalanceResult).value);
+    expect(getDaoTokensReceipt.result).toBeOk(Cl.uint(expectedBalance));
+  }
 }
 
 export function getDaoTokens(

@@ -2,6 +2,7 @@ import { Cl, cvToValue } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import {
   constructDao,
+  fundVoters,
   getDaoTokens,
   passCoreProposal,
 } from "../../test-utilities";
@@ -55,39 +56,7 @@ describe(`extension: ${contractName}`, () => {
     const proposalContractAddress = `${deployer}.${proposalContractName}`;
 
     // fund accounts for creating and voting on proposals
-    // TODO: consolidate as fundVoters()
-    const getDaoTokensReceipts = [
-      getDaoTokens(deployer, deployer, 100000000), // 100 STX
-      getDaoTokens(deployer, address1, 50000000), // 50 STX
-      getDaoTokens(deployer, address2, 25000000), // 25 STX
-    ];
-    const getAddressBalances = [
-      simnet.callReadOnlyFn(
-        `${deployer}.aibtc-token`,
-        "get-balance",
-        [Cl.principal(deployer)],
-        deployer
-      ),
-      simnet.callReadOnlyFn(
-        `${deployer}.aibtc-token`,
-        "get-balance",
-        [Cl.principal(address1)],
-        deployer
-      ),
-      simnet.callReadOnlyFn(
-        `${deployer}.aibtc-token`,
-        "get-balance",
-        [Cl.principal(address2)],
-        deployer
-      ),
-    ];
-    for (let i = 0; i < getDaoTokensReceipts.length; i++) {
-      const expectedBalance = parseInt(
-        cvToValue(getAddressBalances[i].result).value
-      );
-      // console.log(`expectedBalance: ${expectedBalance}`);
-      expect(getDaoTokensReceipts[i].result).toBeOk(Cl.uint(expectedBalance));
-    }
+    fundVoters(deployer, [deployer, address1, address2]);
 
     // construct DAO
     const constructReceipt = constructDao(deployer);
