@@ -56,7 +56,7 @@ describe(`extension: ${contractName}`, () => {
     const proposalContractName = "aibtc-onchain-messaging-send";
     const proposalContractAddress = `${deployer}.${proposalContractName}`;
 
-    // fund account that sends proposal
+    // fund accounts for creating and voting on proposals
     const getDaoTokensReceipts = [
       getDaoTokens(deployer, deployer, 1000000000), // 1000 STX
       getDaoTokens(deployer, address1, 500000000), // 500 STX
@@ -94,7 +94,7 @@ describe(`extension: ${contractName}`, () => {
     const constructReceipt = constructDao(deployer);
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
 
-    // progres the chain for at-block calls
+    // progress the chain for at-block calls
     simnet.mineEmptyBlocks(10);
 
     // pass proposal

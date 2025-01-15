@@ -68,8 +68,6 @@ export function passCoreProposal(
       [Cl.principal(proposalContractAddress), Cl.bool(true)],
       voter
     );
-    console.log(`voteReceipt: ${voter}`);
-    console.log(voteReceipt.result);
     expect(voteReceipt.result).toBeOk(Cl.bool(true));
   }
   // progress past the end block
@@ -87,9 +85,35 @@ export function passCoreProposal(
 
 export function passActionProposal(
   proposalContractAddress: string,
-  sender: string
+  deployer: string,
+  sender: string,
+  voters: string[]
 ) {
   // propose-action
+  const proposeActionReceipt = simnet.callPublicFn(
+    `${deployer}.${actionProposalsContractName}`,
+    "propose-action",
+    [Cl.principal(proposalContractAddress)],
+    sender
+  );
+  expect(proposeActionReceipt.result).toBeOk(Cl.bool(true));
   // vote-on-proposal
-  // conclude-propsal
+  for (const voter of voters) {
+    const voteReceipt = simnet.callPublicFn(
+      `${deployer}.${actionProposalsContractName}`,
+      "vote-on-proposal",
+      [Cl.principal(proposalContractAddress), Cl.bool(true)],
+      voter
+    );
+    expect(voteReceipt.result).toBeOk(Cl.bool(true));
+  }
+  // conclude-proposal
+  const concludeProposalReceipt = simnet.callPublicFn(
+    `${deployer}.${actionProposalsContractName}`,
+    "conclude-proposal",
+    [Cl.principal(proposalContractAddress)],
+    deployer
+  );
+  // return final receipt for processing
+  return concludeProposalReceipt;
 }
