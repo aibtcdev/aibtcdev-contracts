@@ -9,7 +9,11 @@ function getPercentageOfSupply(amount: number, totalSupply: number) {
   return `${percentage}% supply`;
 }
 
-export function getDaoTokens(deployer: string, address: string) {
+export function getDaoTokens(
+  deployer: string,
+  address: string,
+  stxAmount: number
+) {
   const tokenContractName = "aibtc-token";
   const tokenContractAddress = `${deployer}.${tokenContractName}`;
   const tokenDexContractName = "aibtc-token-dex";
@@ -47,8 +51,8 @@ export function getDaoTokens(deployer: string, address: string) {
 
   const liquidTokenSupply = totalSupply - treasuryBalance - tokenDexBalance;
 
-  console.log("BEFORE BUY");
   console.log("=========================");
+  console.log("BEFORE BUY");
   console.log("totalSupply", totalSupply);
   console.log(
     "treasuryBalance",
@@ -69,7 +73,7 @@ export function getDaoTokens(deployer: string, address: string) {
   const getDaoTokensReceipt = simnet.callPublicFn(
     tokenDexContractAddress,
     "buy",
-    [Cl.principal(tokenContractAddress), Cl.uint(1000000000)], // 1000 STX buy test
+    [Cl.principal(tokenContractAddress), Cl.uint(stxAmount)], // 1000 STX buy test
     address
   );
 
@@ -111,8 +115,8 @@ export function getDaoTokens(deployer: string, address: string) {
 
   const liquidTokenSupply2 = totalSupply2 - treasuryBalance2 - tokenDexBalance2;
 
-  console.log("AFTER BUY");
   console.log("=========================");
+  console.log("AFTER BUY");
   console.log("totalSupply2", totalSupply2);
   console.log(
     "treasuryBalance2",
@@ -135,8 +139,8 @@ export function getDaoTokens(deployer: string, address: string) {
   );
   const addressVotingPower = addressBalance / liquidTokenSupply2;
 
-  console.log("ADDRESS INFO");
   console.log("=========================");
+  console.log("ADDRESS INFO");
   console.log(
     "addressBalance",
     addressBalance,
@@ -175,6 +179,7 @@ export function constructDao(deployer: string) {
 export function passCoreProposal(
   proposalContractAddress: string,
   deployer: string
+  // voters: string[]
 ) {
   // create-proposal
   const createProposalReceipt = simnet.callPublicFn(

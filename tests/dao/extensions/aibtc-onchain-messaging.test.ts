@@ -7,8 +7,9 @@ import {
 } from "../../test-utilities";
 
 const accounts = simnet.getAccounts();
-const address1 = accounts.get("wallet_1")!;
 const deployer = accounts.get("deployer")!;
+const address1 = accounts.get("wallet_1")!;
+const address2 = accounts.get("wallet_2")!;
 
 const contractName = "aibtc-onchain-messaging";
 const contractAddress = `${deployer}.${contractName}`;
@@ -57,20 +58,31 @@ describe(`extension: ${contractName}`, () => {
     const message = "test";
 
     // fund account that sends proposal
-    const getDaoTokensReceipt = getDaoTokens(deployer, deployer);
+    const getDaoTokensReceipts = [
+      getDaoTokens(deployer, deployer, 1000000000), // 1000 STX
+      getDaoTokens(deployer, address1, 500000000), // 500 STX
+      getDaoTokens(deployer, address2, 250000000), // 250 STX
+    ];
 
-    console.log("getDaoTokensReceipt");
-    console.log(getDaoTokensReceipt);
+    console.log("===========================");
+    console.log("getDaoTokensReceipts");
+    for (const receipt of getDaoTokensReceipts) {
+      console.log(receipt);
+    }
 
     // construct DAO
     const constructReceipt = constructDao(deployer);
 
+    console.log("===========================");
     console.log("constructReceipt");
     console.log(constructReceipt);
+
+    simnet.mineEmptyBlocks(10);
 
     // pass proposal
     const proposalReceipt = passCoreProposal(proposalContractAddress, deployer);
 
+    console.log("===========================");
     console.log("proposalReceipt");
     console.log(proposalReceipt);
 
@@ -81,8 +93,9 @@ describe(`extension: ${contractName}`, () => {
       deployer
     );
 
+    console.log("===========================");
     console.log("proposalDetails");
-    console.log(cvToValue(proposalDetails.result));
+    console.log(cvToValue(proposalDetails.result).value);
 
     simnet.mineEmptyBlocks(100);
 
@@ -93,6 +106,7 @@ describe(`extension: ${contractName}`, () => {
       deployer
     );
 
+    console.log("===========================");
     console.log("votingPowerReceipt");
     console.log(cvToValue(votingPowerReceipt.result));
 
@@ -103,6 +117,7 @@ describe(`extension: ${contractName}`, () => {
       deployer
     );
 
+    console.log("===========================");
     console.log("addressBalanceReceipt");
     console.log(cvToValue(addressBalanceReceipt.result));
 
@@ -113,18 +128,10 @@ describe(`extension: ${contractName}`, () => {
       deployer
     );
 
+    console.log("===========================");
     console.log("voteReceipt");
     console.log(voteReceipt);
 
     expect(voteReceipt.result).toBeOk(Cl.bool(true));
   });
-
-  /*
-  // Message Tests
-  describe("send()", () => {
-    it("succeeds if called by any user with isFromDao false");
-    it("fails if called by any user with isFromDao true");
-    it("succeeds if called by a DAO proposal with isFromDao true");
-  });
-  */
 });
