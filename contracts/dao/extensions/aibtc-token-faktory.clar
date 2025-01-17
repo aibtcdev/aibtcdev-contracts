@@ -16,13 +16,7 @@
 (define-public (transfer (amount uint) (sender principal) (recipient principal) (memo (optional (buff 34))))
     (begin
        (asserts! (is-eq tx-sender sender) (err ERR-NOT-AUTHORIZED))
-       ;; TODO: remove match
-       (match (ft-transfer? SYMBOL amount sender recipient) ;; <%= it.token_symbol %>
-          response (begin
-            (print memo)
-            (ok response))
-          error (err error)
-        )
+       (ft-transfer? SYMBOL amount sender recipient) ;; <%= it.token_symbol %>
     )
 )
 
@@ -94,11 +88,7 @@
 ;; ---------------------------------------------------------
 
 (define-private (stx-transfer-to (recipient principal) (amount uint))
-  ;; TODO: simplify
-  (begin
-    (try! (stx-transfer? amount tx-sender recipient))
-    (ok true) 
-  )
+  (stx-transfer? amount tx-sender recipient)
 )
 
 (begin 
