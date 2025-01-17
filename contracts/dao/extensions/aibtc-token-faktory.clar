@@ -24,12 +24,14 @@
     (begin
         (asserts! (is-eq tx-sender (var-get contract-owner)) (err ERR-NOT-AUTHORIZED))
         (var-set token-uri (some value))
-        ;; TODO: SIP-019 format
-        (print {
-              notification: "uri-update",
-              contract-id: (as-contract tx-sender),
-              token-uri: value})
-        (ok true)
+        (ok (print {
+              notification: "token-metadata-update",
+              payload: {
+                contract-id: (as-contract tx-sender),
+                token-class: "ft"
+              }
+            })
+        )
     )
 )
 
