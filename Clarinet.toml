@@ -93,8 +93,8 @@ path = 'contracts/dao/extensions/aibtc-token.clar'
 clarity_version = 2
 epoch = 3.0
 
-[contracts.aibtc-token-fak]
-path = 'contracts/dao/extensions/aibtc-token-fak.clar'
+[contracts.aibtc-token-faktory]
+path = 'contracts/dao/extensions/aibtc-token-faktory.clar'
 clarity_version = 2
 epoch = 3.0
 
@@ -103,8 +103,8 @@ path = 'contracts/dao/extensions/aibtc-token-dex.clar'
 clarity_version = 2
 epoch = 3.0
 
-[contracts.aibtc-token-dex-fak]
-path = 'contracts/dao/extensions/aibtc-token-dex-fak.clar'
+[contracts.aibtc-token-dex-faktory]
+path = 'contracts/dao/extensions/aibtc-token-dex-faktory.clar'
 clarity_version = 2
 epoch = 3.0
 
