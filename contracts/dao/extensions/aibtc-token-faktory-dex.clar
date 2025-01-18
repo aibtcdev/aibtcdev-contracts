@@ -89,19 +89,9 @@
                 (xyk-pool-uri (default-to u"https://bitflow.finance" (try! (contract-call? ft get-token-uri))))
                 (xyk-burn-amount (- (sqrti (* amm-ustx amm-amount)) u1)))
             (try! (as-contract (contract-call? ft transfer burn-amount tx-sender CANT-BE-EVIL none)))
-          ;; TODO: add actual graduation
-          ;;   (try! (as-contract 
-          ;;          (contract-call? 
-          ;;            'SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-core-v-1-2 
-          ;;                create-pool 
-          ;;                'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.xyk-pool-stx-ai1-v1-1
-          ;;                'SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.token-stx-v-1-2 
-          ;;                ft
-          ;;                amm-ustx 
-          ;;                amm-amount 
-          ;;                xyk-burn-amount 
-          ;;                u10 u40 u10 u40 
-          ;;                'SP31C60QVZKZ9CMMZX73TQ3F3ZZNS89YX2DCCFT8P xyk-pool-uri true)))
+            ;; Call XYK Core v-1-2 pool by Bitflow
+            ;; <%= it.bitflow_core_contract %> <%= it.pool_contract %> <%= it.bitflow_stx_token_address %> <%= it.bitflow_fee_address %>
+            (try! (as-contract (contract-call? 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.xyk-core-v-1-2 create-pool .aibtc-bitflow-pool 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.token-stx-v-1-2 ft amm-ustx amm-amount xyk-burn-amount u10 u40 u10 u40 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1 xyk-pool-uri true)))
             (try! (as-contract (stx-transfer? GRAD-FEE tx-sender G-RECEIVER)))
             (var-set open false)
             (var-set stx-balance u0)
