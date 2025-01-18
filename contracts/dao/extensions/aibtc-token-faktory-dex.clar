@@ -2,7 +2,7 @@
 ;; aibtc.dev DAO faktory.fun DEX @version 1.0
 
   (impl-trait .aibtcdev-dao-traits-v1-1.faktory-dex) ;; <%= it.token_faktory_dex_trait %>
-  (impl-trait .faktory-dex-trait-v1.dex-trait) ;; <%= it.faktory_dex_trait %>
+  (impl-trait .faktory-dex-trait-v1-1.dex-trait) ;; <%= it.faktory_dex_trait %>
   (use-trait faktory-token .faktory-trait-v1.sip-010-trait) ;; <%= it.faktory_sip10_trait %>
   
   (define-constant ERR-MARKET-CLOSED (err u1001))
