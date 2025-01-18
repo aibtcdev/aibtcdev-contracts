@@ -16,6 +16,7 @@
 (define-public (transfer (amount uint) (sender principal) (recipient principal) (memo (optional (buff 34))))
     (begin
        (asserts! (is-eq tx-sender sender) (err ERR-NOT-AUTHORIZED))
+       (and (is-some memo) (is-some (print memo)))
        (ft-transfer? SYMBOL amount sender recipient) ;; <%= it.token_symbol %>
     )
 )
@@ -96,7 +97,7 @@
 (begin 
     ;; ft distribution
     (try! (ft-mint? SYMBOL (/ (* MAX u80) u100) .aibtc-treasury)) ;; 80% treasury SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22
-    (try! (ft-mint? SYMBOL (/ (* MAX u20) u100) .aibtc-dex-faktory)) ;; 20% dex SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22
+    (try! (ft-mint? SYMBOL (/ (* MAX u20) u100) .aibtc-token-faktory-dex)) ;; 20% dex SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22
 
     ;; deploy fixed fee
    ;; (try! (stx-transfer-to 'SMH8FRN30ERW1SX26NJTJCKTDR3H27NRJ6W75WQE u500000)) 
