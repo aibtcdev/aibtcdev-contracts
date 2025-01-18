@@ -9,14 +9,17 @@ const address2 = accounts.get("wallet_2")!;
 const contractName = "aibtc-token-faktory-dex";
 const contractAddress = `${deployer}.${contractName}`;
 
+const tokenContractName = "aibtc-token-faktory";
+const tokenContractAddress = `${deployer}.${tokenContractName}`;
+
 describe(`extension: ${contractName}`, () => {
-  it("callback() should respond with (ok true)", () => {
-    const callback = simnet.callPublicFn(
+  it("buy() succeeds and transfers token to buyer", () => {
+    const receipt = simnet.callPublicFn(
       contractAddress,
-      "callback",
-      [Cl.principal(deployer), Cl.bufferFromAscii("test")],
-      deployer
+      "buy",
+      [Cl.principal(tokenContractAddress), Cl.uint(1)],
+      address1
     );
-    expect(callback.result).toBeOk(Cl.bool(true));
+    expect(receipt.result).toBeOk(Cl.bool(true));
   });
 });

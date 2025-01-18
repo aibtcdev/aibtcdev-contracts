@@ -117,6 +117,8 @@ export function passActionProposal(
     ],
     sender
   );
+  console.log("proposeActionReceipt");
+  console.log(proposeActionReceipt);
   expect(proposeActionReceipt.result).toBeOk(Cl.bool(true));
   // vote-on-proposal
   for (const voter of voters) {
