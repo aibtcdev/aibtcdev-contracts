@@ -20,7 +20,6 @@
 
   (define-constant CANT-BE-EVIL 'ST000000000000000000002AMW42H) ;;'SP000000000000000000002Q6VF78)
   (define-constant DEX-TOKEN .aibtc-token-faktory) ;; SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22
-  (define-constant AUTHORIZED-CONTRACT .buy-with-velar-faktory) ;; 'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.buy-with-velar-faktory)
   
   ;; token constants
   (define-constant TARGET_STX u2000000000) ;; <%= it.stx_target_amount %>
@@ -33,20 +32,10 @@
   (define-data-var ft-balance uint u0) ;; <%= it.token_max_supply %> match with the token's supply (use decimals)
   (define-data-var stx-balance uint u0)
   (define-data-var burn-rate uint u25)
-  
-  ;; Helper function to check if caller is authorized
-  ;; TODO: does this prevent a proxy contract?
-  (define-private (is-valid-caller)
-    (or 
-      (is-eq contract-caller tx-sender)
-      (is-eq contract-caller AUTHORIZED-CONTRACT)
-    ))
-  
+   
   (define-public (buy (ft <faktory-token>) (ustx uint))
     (begin
       (asserts! (is-eq DEX-TOKEN (contract-of ft)) ERR-TOKEN-NOT-AUTH)
-      ;; TODO: review proxy contract usage
-      (asserts! (is-valid-caller) ERR-UNAUTHORIZED-CALLER)
       (asserts! (var-get open) ERR-MARKET-CLOSED)
       (asserts! (> ustx u0) ERR-STX-NON-POSITIVE)
       ;; TODO: use get-in function
@@ -140,8 +129,6 @@
   (define-public (sell (ft <faktory-token>) (amount uint))
     (begin
       (asserts! (is-eq DEX-TOKEN (contract-of ft)) ERR-TOKEN-NOT-AUTH)
-      ;; TODO: review proxy contract usage
-      (asserts! (is-valid-caller) ERR-UNAUTHORIZED-CALLER)
       (asserts! (var-get open) ERR-MARKET-CLOSED)
       (asserts! (> amount u0) ERR-FT-NON-POSITIVE)
       ;; TODO: use get-out function
@@ -223,7 +210,9 @@
         (print { 
             type: "faktory-dex-trait-v1", 
             dexContract: (as-contract tx-sender),
-            ;; ammReceiver: 'SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-core-v-1-2,
-            ;; poolName: 'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.xyk-pool-stx-ai1-v1-1
+            ammReceiver: 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.xyk-core-v-1-2, ;; 'SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-core-v-1-2
+            poolName: .aibtc-bitflow-pool ;; 'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.xyk-pool-stx-NAME-v1-1
+            ;; ammReceiver: ,
+            ;; poolName: 
        })
       (ok true))
