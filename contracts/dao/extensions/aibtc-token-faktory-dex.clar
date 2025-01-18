@@ -82,7 +82,6 @@
         (try! (stx-transfer? fee tx-sender FEE-RECEIVER))
         (try! (stx-transfer? stx-in tx-sender (as-contract tx-sender)))
         (try! (as-contract (contract-call? ft transfer tokens-out tx-sender ft-receiver none)))
-        ;; TODO: short-circuit if with and
         (if (>= new-stx TARGET_STX)
           ;; TODO: remove duplicate begin/let statement
           (begin
