@@ -2,9 +2,9 @@
 ;; 99af7ff63e5e4bd7542e55d88bacc25a7a6f79004f9937ea0bab3ca4c2438061
   ;; aibtc.dev DAO faktory.fun DEX @version 1.0
 
-  ;; (impl-trait 'SP29CK9990DQGE9RGTT1VEQTTYH8KY4E3JE5XP4EC.aibtcdev-dao-traits-v1.token-dex)
-  ;; (impl-trait 'SP3XXMS38VTAWTVPE5682XSBFXPTH7XCPEBTX8AN2.faktory-dex-trait-v1.dex-trait)
-  (use-trait faktory-token .faktory-trait-v1.sip-010-trait) ;;SP3XXMS38VTAWTVPE5682XSBFXPTH7XCPEBTX8AN2
+  (impl-trait .aibtcdev-dao-traits-v1-1.faktory-dex) ;; <%= it.token_faktory_dex_trait %>
+  (impl-trait .faktory-dex-trait-v1.dex-trait) ;; <%= it.faktory_dex_trait %>
+  (use-trait faktory-token .faktory-trait-v1.sip-010-trait) ;; <%= it.faktory_sip10_trait %>
   
   (define-constant ERR-MARKET-CLOSED (err u1001))
   (define-constant ERR-STX-NON-POSITIVE (err u1002))
@@ -16,24 +16,24 @@
   (define-constant FEE-RECEIVER 'ST3S2565C4DP2MGR3CMANMGYDCDA314Q25AQGR26R) ;; 'SMHAVPYZ8BVD0BHBBQGY5AQVVGNQY4TNHAKGPYP)
   (define-constant G-RECEIVER 'ST3CZY55VJE5P5DJAP5E58X123BZKMYDCNEZMRTV2) ;;'SM3NY5HXXRNCHS1B65R78CYAC1TQ6DEMN3C0DN74S)
 
-  (define-constant CANT-BE-EVIL 'ST3S5KBK62Z4K9XV2HFADJDA5QSRQWGQWTBP0APDY) ;;'SP000000000000000000002Q6VF78)
-  (define-constant DEV tx-sender)
-  (define-constant DEX-TOKEN .ai1-faktory) ;; SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22
-  (define-constant AUTHORIZED-CONTRACT .ai1-faktory) ;; 'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.buy-with-velar-faktory)
+  (define-constant CANT-BE-EVIL 'ST000000000000000000002AMW42H) ;;'SP000000000000000000002Q6VF78)
+  (define-constant DEX-TOKEN .aibtc-token-faktory) ;; SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22
+  (define-constant AUTHORIZED-CONTRACT .buy-with-velar-faktory) ;; 'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.buy-with-velar-faktory)
   
   ;; token constants
-  (define-constant TARGET_STX u2000000000)
-  (define-constant FAK_STX u400000000)
-  (define-constant GRAD-FEE u40000000)
+  (define-constant TARGET_STX u2000000000) ;; <%= it.stx_target_amount %>
+  (define-constant FAK_STX u400000000) ;; <%= it.virtual_stx_value %> 1/5 of STX_TARGET_AMOUNT
+  (define-constant GRAD-FEE u40000000) ;; <%= it.complete_fee % > 2% of STX_TARGET_AMOUNT
   
   ;; data vars
   (define-data-var open bool false)
   (define-data-var fak-ustx uint u0)
-  (define-data-var ft-balance uint u0)
+  (define-data-var ft-balance uint u0) ;; <%= it.token_max_supply %> match with the token's supply (use decimals)
   (define-data-var stx-balance uint u0)
   (define-data-var burn-rate uint u25)
   
   ;; Helper function to check if caller is authorized
+  ;; TODO: does this prevent a proxy contract?
   (define-private (is-valid-caller)
     (or 
       (is-eq contract-caller tx-sender)
@@ -43,9 +43,11 @@
   (define-public (buy (ft <faktory-token>) (ustx uint))
     (begin
       (asserts! (is-eq DEX-TOKEN (contract-of ft)) ERR-TOKEN-NOT-AUTH)
+      ;; TODO: review proxy contract usage
       (asserts! (is-valid-caller) ERR-UNAUTHORIZED-CALLER)
       (asserts! (var-get open) ERR-MARKET-CLOSED)
       (asserts! (> ustx u0) ERR-STX-NON-POSITIVE)
+      ;; TODO: use get-in function
       (let ((total-stx (var-get stx-balance))
             (total-stk (+ total-stx (var-get fak-ustx)))
             (total-ft (var-get ft-balance))
@@ -60,7 +62,9 @@
         (try! (stx-transfer? fee tx-sender FEE-RECEIVER))
         (try! (stx-transfer? stx-in tx-sender (as-contract tx-sender)))
         (try! (as-contract (contract-call? ft transfer tokens-out tx-sender ft-receiver none)))
+        ;; TODO: short-circuit if with and
         (if (>= new-stx TARGET_STX)
+          ;; TODO: remove duplicate begin/let statement
           (begin
             (let ((burn-amount (/ (* new-ft (var-get burn-rate)) u100))
                   (amm-amount (- new-ft burn-amount))
@@ -68,6 +72,7 @@
                   (xyk-pool-uri (default-to u"https://bitflow.finance" (try! (contract-call? ft get-token-uri))))
                   (xyk-burn-amount (- (sqrti (* amm-ustx amm-amount)) u1)))
               (try! (as-contract (contract-call? ft transfer burn-amount tx-sender CANT-BE-EVIL none)))
+            ;; TODO: add actual graduation
             ;;   (try! (as-contract 
             ;;          (contract-call? 
             ;;            'SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-core-v-1-2 
@@ -123,9 +128,11 @@
   (define-public (sell (ft <faktory-token>) (amount uint))
     (begin
       (asserts! (is-eq DEX-TOKEN (contract-of ft)) ERR-TOKEN-NOT-AUTH)
+      ;; TODO: review proxy contract usage
       (asserts! (is-valid-caller) ERR-UNAUTHORIZED-CALLER)
       (asserts! (var-get open) ERR-MARKET-CLOSED)
       (asserts! (> amount u0) ERR-FT-NON-POSITIVE)
+      ;; TODO: use get-out function
       (let ((total-stx (var-get stx-balance))
             (total-stk (+ total-stx (var-get fak-ustx)))
             (total-ft (var-get ft-balance))
