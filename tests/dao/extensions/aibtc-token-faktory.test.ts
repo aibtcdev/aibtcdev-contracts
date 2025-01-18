@@ -10,13 +10,13 @@ const contractName = "aibtc-token-faktory";
 const contractAddress = `${deployer}.${contractName}`;
 
 describe(`extension: ${contractName}`, () => {
-  it("callback() should respond with (ok true)", () => {
-    const callback = simnet.callPublicFn(
+  it("get-symbol() should return the token symbol", () => {
+    const result = simnet.callReadOnlyFn(
       contractAddress,
-      "callback",
-      [Cl.principal(deployer), Cl.bufferFromAscii("test")],
+      "get-symbol",
+      [],
       deployer
-    );
-    expect(callback.result).toBeOk(Cl.bool(true));
+    ).result;
+    expect(result).toBeOk(Cl.stringAscii("SYMBOL"));
   });
 });

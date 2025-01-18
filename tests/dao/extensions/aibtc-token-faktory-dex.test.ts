@@ -14,10 +14,11 @@ const tokenContractAddress = `${deployer}.${tokenContractName}`;
 
 describe(`extension: ${contractName}`, () => {
   it("buy() succeeds and transfers token to buyer", () => {
+    const buyAmount = 1000000; // 1 STX
     const receipt = simnet.callPublicFn(
       contractAddress,
       "buy",
-      [Cl.principal(tokenContractAddress), Cl.uint(1)],
+      [Cl.principal(tokenContractAddress), Cl.uint(buyAmount)],
       address1
     );
     expect(receipt.result).toBeOk(Cl.bool(true));
