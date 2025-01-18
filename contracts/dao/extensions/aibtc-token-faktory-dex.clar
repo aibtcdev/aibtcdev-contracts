@@ -10,6 +10,8 @@
   (define-constant ERR-STX-NON-POSITIVE (err u1002))
   (define-constant ERR-STX-BALANCE-TOO-LOW (err u1003))
   (define-constant ERR-FT-NON-POSITIVE (err u1004))
+  (define-constant ERR-FETCHING-BUY-INFO (err u1005))
+  (define-constant ERR-FETCHING-SELL-INFO (err u1006))
   (define-constant ERR-TOKEN-NOT-AUTH (err u401))
   (define-constant ERR-UNAUTHORIZED-CALLER (err u402))
   
@@ -48,6 +50,24 @@
       (asserts! (var-get open) ERR-MARKET-CLOSED)
       (asserts! (> ustx u0) ERR-STX-NON-POSITIVE)
       ;; TODO: use get-in function
+      ;; needs to return all values from get-in params
+      ;;(let
+      ;;  (
+      ;;    (in-info (unwrap! (get-in ustx) ERR-FETCHING-BUY-INFO))
+      ;;    (total-stx (get total-stx in-info))
+      ;;    (total-stk (get total-stk in-info))
+      ;;    (total-ft (get ft-balance in-info))
+      ;;    (k (get k in-info))
+      ;;    (fee (get fee in-info))
+      ;;    (stx-in (get stx-in in-info))
+      ;;    (new-stk (get new-stk in-info))
+      ;;    (new-ft (get new-ft in-info))
+      ;;    (tokens-out (get tokens-out in-info))
+      ;;    (new-stx (get new-stx in-info))
+      ;;    (ft-receiver tx-sender)
+      ;;  )
+      ;;  true
+      ;;)
       (let ((total-stx (var-get stx-balance))
             (total-stk (+ total-stx (var-get fak-ustx)))
             (total-ft (var-get ft-balance))
@@ -116,14 +136,19 @@
           (tokens-out (- total-ft new-ft))
           (raw-to-grad (- TARGET_STX total-stx))
           (stx-to-grad (/ (* raw-to-grad u103) u100)))
-      (ok {stx-in: stx-in,
-           fee: fee,
-           tokens-out: tokens-out,
-           ft-balance: total-ft,
-           new-ft: new-ft,
-           total-stx: total-stx,
-           new-stx: (+ total-stx stx-in),
-           stx-to-grad: stx-to-grad})))
+      (ok {
+        total-stx: total-stx,
+        ;; total-stk: total-stk,
+        ft-balance: total-ft,
+        ;; k: k,
+        fee: fee,
+        stx-in: stx-in,
+        ;; new-stk: new-stk,
+        new-ft: new-ft,
+        tokens-out: tokens-out,
+        new-stx: (+ total-stx stx-in),
+        stx-to-grad: stx-to-grad
+      })))
   
   (define-public (sell (ft <faktory-token>) (amount uint))
     (begin
@@ -133,6 +158,24 @@
       (asserts! (var-get open) ERR-MARKET-CLOSED)
       (asserts! (> amount u0) ERR-FT-NON-POSITIVE)
       ;; TODO: use get-out function
+      ;; needs to return all values from get-in params
+      ;;(let
+      ;;  (
+      ;;    (out-info (unwrap! (get-out amount) ERR-FETCHING-SELL-INFO))
+      ;;    (total-stx (get total-stx out-info))
+      ;;    (total-stk (get total-stk out-info))
+      ;;    (total-ft (get ft-balance out-info))
+      ;;    (k (get k out-info))
+      ;;    (new-ft (get new-ft out-info))
+      ;;    (new-stk (get new-stk out-info))
+      ;;    (stx-out (get stx-out out-info))
+      ;;    (fee (get fee out-info))
+      ;;    (stx-to-receiver (get stx-to-receiver out-info))
+      ;;    (new-stx (get new-stx out-info))
+      ;;    (stx-receiver tx-sender)
+      ;;  )
+      ;;  true
+      ;;)
       (let ((total-stx (var-get stx-balance))
             (total-stk (+ total-stx (var-get fak-ustx)))
             (total-ft (var-get ft-balance))
@@ -166,14 +209,19 @@
           (stx-out (- (- total-stk new-stk) u1))
           (fee (/ (* stx-out u2) u100))
           (stx-to-receiver (- stx-out fee)))
-      (ok {amount-in: amount,
-           stx-out: stx-out,
-           fee: fee,
-           stx-to-receiver: stx-to-receiver,
-           total-stx: total-stx,
-           new-stx: (- total-stx stx-out),
-           ft-balance: total-ft,
-           new-ft: new-ft})))
+      (ok {
+        total-stx: total-stx,
+        ;; total-stk: total-stk,
+        ft-balance: total-ft,
+        ;; k: k,
+        new-ft: new-ft,
+        ;; new-stk: new-stk,
+        stx-out: stx-out,
+        fee: fee,
+        stx-to-receiver: stx-to-receiver,
+        amount-in: amount,
+        new-stx: (- total-stx stx-out)
+      })))
   
   (define-read-only (get-open)
     (ok (var-get open)))
