@@ -83,37 +83,35 @@
         (try! (stx-transfer? stx-in tx-sender (as-contract tx-sender)))
         (try! (as-contract (contract-call? ft transfer tokens-out tx-sender ft-receiver none)))
         (if (>= new-stx TARGET_STX)
-          ;; TODO: remove duplicate begin/let statement
-          (begin
-            (let ((burn-amount (/ (* new-ft (var-get burn-rate)) u100))
-                  (amm-amount (- new-ft burn-amount))
-                  (amm-ustx (- new-stx GRAD-FEE))
-                  (xyk-pool-uri (default-to u"https://bitflow.finance" (try! (contract-call? ft get-token-uri))))
-                  (xyk-burn-amount (- (sqrti (* amm-ustx amm-amount)) u1)))
-              (try! (as-contract (contract-call? ft transfer burn-amount tx-sender CANT-BE-EVIL none)))
-            ;; TODO: add actual graduation
-            ;;   (try! (as-contract 
-            ;;          (contract-call? 
-            ;;            'SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-core-v-1-2 
-            ;;                create-pool 
-            ;;                'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.xyk-pool-stx-ai1-v1-1
-            ;;                'SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.token-stx-v-1-2 
-            ;;                ft
-            ;;                amm-ustx 
-            ;;                amm-amount 
-            ;;                xyk-burn-amount 
-            ;;                u10 u40 u10 u40 
-            ;;                'SP31C60QVZKZ9CMMZX73TQ3F3ZZNS89YX2DCCFT8P xyk-pool-uri true)))
-              (try! (as-contract (stx-transfer? GRAD-FEE tx-sender G-RECEIVER)))
-              (var-set open false)
-              (var-set stx-balance u0)
-              (var-set ft-balance u0)
-              (print {type: "buy", ft: (contract-of ft), tokens-out: tokens-out, ustx: ustx, burn-amount: burn-amount, amm-amount: amm-amount,
-                      amm-ustx: amm-ustx,
-                      stx-balance: u0, ft-balance: u0,
-                      fee: fee, grad-fee: GRAD-FEE, maker: tx-sender,
-                      open: false})
-              (ok true)))
+          (let ((burn-amount (/ (* new-ft (var-get burn-rate)) u100))
+                (amm-amount (- new-ft burn-amount))
+                (amm-ustx (- new-stx GRAD-FEE))
+                (xyk-pool-uri (default-to u"https://bitflow.finance" (try! (contract-call? ft get-token-uri))))
+                (xyk-burn-amount (- (sqrti (* amm-ustx amm-amount)) u1)))
+            (try! (as-contract (contract-call? ft transfer burn-amount tx-sender CANT-BE-EVIL none)))
+          ;; TODO: add actual graduation
+          ;;   (try! (as-contract 
+          ;;          (contract-call? 
+          ;;            'SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-core-v-1-2 
+          ;;                create-pool 
+          ;;                'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.xyk-pool-stx-ai1-v1-1
+          ;;                'SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.token-stx-v-1-2 
+          ;;                ft
+          ;;                amm-ustx 
+          ;;                amm-amount 
+          ;;                xyk-burn-amount 
+          ;;                u10 u40 u10 u40 
+          ;;                'SP31C60QVZKZ9CMMZX73TQ3F3ZZNS89YX2DCCFT8P xyk-pool-uri true)))
+            (try! (as-contract (stx-transfer? GRAD-FEE tx-sender G-RECEIVER)))
+            (var-set open false)
+            (var-set stx-balance u0)
+            (var-set ft-balance u0)
+            (print {type: "buy", ft: (contract-of ft), tokens-out: tokens-out, ustx: ustx, burn-amount: burn-amount, amm-amount: amm-amount,
+                    amm-ustx: amm-ustx,
+                    stx-balance: u0, ft-balance: u0,
+                    fee: fee, grad-fee: GRAD-FEE, maker: tx-sender,
+                    open: false})
+            (ok true))
           (begin
             (var-set stx-balance new-stx)
             (var-set ft-balance new-ft)
