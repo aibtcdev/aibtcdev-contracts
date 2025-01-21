@@ -78,3 +78,18 @@ export enum TreasuryErrCode {
 export enum TokenOwnerErrCode {
   ERR_UNAUTHORIZED = 7000,
 }
+
+export enum TokenFaktoryErrCode {
+  ERR_NOT_AUTHORIZED = 401,
+  ERR_NOT_OWNER,
+}
+
+export enum TokenFaktoryDexErrCode {
+  ERR_MARKET_CLOSED = 1001,
+  ERR_STX_NON_POSITIVE,
+  ERR_STX_BALANCE_TOO_LOW,
+  ERR_FT_NON_POSITIVE,
+  ERR_FETCHING_BUY_INFO,
+  ERR_FETCHING_SELL_INFO,
+  ERR_TOKEN_NOT_AUTH = 401,
+}
