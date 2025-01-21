@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { CoreProposalErrCode } from "../../error-codes";
 import {
   constructDao,
+  failCoreProposal,
   fundVoters,
   getDaoTokens,
   passCoreProposal,
@@ -289,5 +290,146 @@ describe(`extension: ${contractName}`, () => {
       deployer
     );
     expect(voteResponse.result).toBeOk(Cl.bool(true));
+  });
+  it("conclude-proposal() fails if the proposal is not found", () => {
+    const response = simnet.callPublicFn(
+      contractAddress,
+      "conclude-proposal",
+      [Cl.principal(proposalContractAddress)],
+      deployer
+    );
+    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_NOT_FOUND));
+  });
+  it("conclude-proposal() fails if the proposal is already executed", () => {
+    // fund accounts for creating and voting on proposals
+    fundVoters(deployer, [deployer, address1, address2]);
+
+    // construct DAO
+    const constructReceipt = constructDao(deployer);
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress the chain for at-block calls
+    // and to pass first core proposal voting period
+    simnet.mineEmptyBlocks(votingPeriod);
+
+    // pass proposal
+    const proposalTx = passCoreProposal(proposalContractAddress, deployer, [
+      deployer,
+      address1,
+      address2,
+    ]);
+    expect(proposalTx.result).toBeOk(Cl.bool(true));
+
+    // try to conclude the proposal again
+    const response = simnet.callPublicFn(
+      contractAddress,
+      "conclude-proposal",
+      [Cl.principal(proposalContractAddress)],
+      deployer
+    );
+    expect(response.result).toBeErr(
+      Cl.uint(ErrCode.ERR_PROPOSAL_ALREADY_EXECUTED)
+    );
+  });
+  it("conclude-proposal() fails if the proposal is still active", () => {
+    // fund accounts for creating and voting on proposals
+    fundVoters(deployer, [deployer, address1, address2]);
+
+    // construct DAO
+    const constructReceipt = constructDao(deployer);
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress the chain for at-block calls
+    // and to pass first core proposal voting period
+    simnet.mineEmptyBlocks(votingPeriod);
+
+    // create proposal
+    const createProposalResponse = simnet.callPublicFn(
+      contractAddress,
+      "create-proposal",
+      [Cl.principal(proposalContractAddress)],
+      deployer
+    );
+    expect(createProposalResponse.result).toBeOk(Cl.bool(true));
+
+    // try to conclude the proposal before the voting period ends
+    const response = simnet.callPublicFn(
+      contractAddress,
+      "conclude-proposal",
+      [Cl.principal(proposalContractAddress)],
+      deployer
+    );
+    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_STILL_ACTIVE));
+  });
+  it("conclude-proposal() fails if the proposal is already concluded", () => {
+    // fund accounts for creating and voting on proposals
+    fundVoters(deployer, [deployer, address1, address2]);
+
+    // construct DAO
+    const constructReceipt = constructDao(deployer);
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress the chain for at-block calls
+    // and to pass first core proposal voting period
+    simnet.mineEmptyBlocks(votingPeriod);
+
+    // pass proposal
+    const proposalTx = failCoreProposal(proposalContractAddress, deployer, [
+      deployer,
+      address1,
+      address2,
+    ]);
+    expect(proposalTx.result).toBeOk(Cl.bool(false));
+
+    // try to conclude the proposal again
+    const response = simnet.callPublicFn(
+      contractAddress,
+      "conclude-proposal",
+      [Cl.principal(proposalContractAddress)],
+      deployer
+    );
+    expect(response.result).toBeErr(
+      Cl.uint(ErrCode.ERR_PROPOSAL_ALREADY_CONCLUDED)
+    );
+  });
+  it("conclude-proposal() succeeds and concludes then executes the proposal", () => {
+    // fund accounts for creating and voting on proposals
+    fundVoters(deployer, [deployer, address1, address2]);
+
+    // construct DAO
+    const constructReceipt = constructDao(deployer);
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress the chain for at-block calls
+    // and to pass first core proposal voting period
+    simnet.mineEmptyBlocks(votingPeriod);
+
+    // pass proposal
+    const proposalTx = passCoreProposal(proposalContractAddress, deployer, [
+      deployer,
+      address1,
+      address2,
+    ]);
+    expect(proposalTx.result).toBeOk(Cl.bool(true));
+  });
+  it("conclude-proposal() succeeds and concludes the proposal without execution", () => {
+    // fund accounts for creating and voting on proposals
+    fundVoters(deployer, [deployer, address1, address2]);
+
+    // construct DAO
+    const constructReceipt = constructDao(deployer);
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress the chain for at-block calls
+    // and to pass first core proposal voting period
+    simnet.mineEmptyBlocks(votingPeriod);
+
+    // pass proposal
+    const proposalTx = failCoreProposal(proposalContractAddress, deployer, [
+      deployer,
+      address1,
+      address2,
+    ]);
+    expect(proposalTx.result).toBeOk(Cl.bool(false));
   });
 });
