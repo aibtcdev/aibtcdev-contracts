@@ -106,6 +106,42 @@ export function passCoreProposal(
   return concludeProposalReceipt;
 }
 
+export function failCoreProposal(
+  proposalContractAddress: string,
+  deployer: string,
+  voters: string[]
+) {
+  // create-proposal
+  const createProposalReceipt = simnet.callPublicFn(
+    `${deployer}.${coreProposalsContractName}`,
+    "create-proposal",
+    [Cl.principal(proposalContractAddress)],
+    deployer
+  );
+  expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
+  // vote-on-proposal
+  for (const voter of voters) {
+    const voteReceipt = simnet.callPublicFn(
+      `${deployer}.${coreProposalsContractName}`,
+      "vote-on-proposal",
+      [Cl.principal(proposalContractAddress), Cl.bool(false)],
+      voter
+    );
+    expect(voteReceipt.result).toBeOk(Cl.bool(true));
+  }
+  // progress past the end block
+  simnet.mineEmptyBlocks(votingPeriod);
+  // conclude-proposal
+  const concludeProposalReceipt = simnet.callPublicFn(
+    `${deployer}.${coreProposalsContractName}`,
+    "conclude-proposal",
+    [Cl.principal(proposalContractAddress)],
+    deployer
+  );
+  // return final receipt for processing
+  return concludeProposalReceipt;
+}
+
 export function passActionProposal(
   proposalContractAddress: string,
   proposalParams: ClarityValue,
