@@ -14,15 +14,21 @@ function getPercentageOfSupply(amount: number, totalSupply: number) {
 export function fundVoters(deployer: string, voters: string[]) {
   for (const voter of voters) {
     const stxAmount = Math.floor(Math.random() * 500000000) + 1000000;
-    const getDaoTokensReceipt = getDaoTokens(deployer, voter, stxAmount);
+    const { swappedAmount, getDaoTokensReceipt } = getDaoTokens(
+      deployer,
+      voter,
+      stxAmount
+    );
     const getAddressBalanceResult = simnet.callReadOnlyFn(
       `${deployer}.aibtc-token`,
       "get-balance",
       [Cl.principal(voter)],
       deployer
     ).result;
-    const expectedBalance = parseInt(cvToValue(getAddressBalanceResult).value);
-    expect(getDaoTokensReceipt.result).toBeOk(Cl.uint(expectedBalance));
+    const expectedBalance: string = cvToValue(getAddressBalanceResult).value;
+    const expectedBalanceInt = parseInt(expectedBalance);
+    expect(expectedBalanceInt).toEqual(swappedAmount);
+    expect(getDaoTokensReceipt.result).toBeOk(Cl.uint(swappedAmount));
   }
 }
 
@@ -42,8 +48,10 @@ export function getDaoTokens(
     [Cl.principal(tokenContractAddress), Cl.uint(stxAmount)],
     address
   );
+  // extract swapped amount from receipt
+  const swappedAmount = cvToValue(getDaoTokensReceipt.result, true).value;
 
-  return getDaoTokensReceipt;
+  return { swappedAmount: parseInt(swappedAmount), getDaoTokensReceipt };
 }
 
 export function constructDao(deployer: string) {
