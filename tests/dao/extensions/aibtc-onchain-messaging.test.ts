@@ -16,6 +16,8 @@ const address2 = accounts.get("wallet_2")!;
 const contractName = "aibtc-onchain-messaging";
 const contractAddress = `${deployer}.${contractName}`;
 
+const votingPeriod = 144;
+
 const ErrCode = OnchainMessagingErrCode;
 
 describe(`extension: ${contractName}`, () => {
@@ -64,7 +66,7 @@ describe(`extension: ${contractName}`, () => {
 
     // progress the chain for at-block calls
     // and to pass first core proposal voting period
-    simnet.mineEmptyBlocks(144);
+    simnet.mineEmptyBlocks(votingPeriod);
 
     // pass proposal
     const concludeProposalReceipt = passCoreProposal(
