@@ -1,40 +1,29 @@
-;; @title Bonding Curve Token by STX.CITY
-;; @version 2.0
-;; @hash <%= it.hash %> 
-;; @targetstx <%= it.target_stx %> 
+;; <%= it.hash %>
+;; <%= it.token_symbol %> Powered By Faktory.fun v1.0 
 
-;; Traits
-(impl-trait .aibtcdev-dao-traits-v1.token) ;; <%= it.token_trait %>
-(impl-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
+(impl-trait .faktory-trait-v1.sip-010-trait) ;; 'SP3XXMS38VTAWTVPE5682XSBFXPTH7XCPEBTX8AN2
+(impl-trait .aibtcdev-dao-traits-v1.token) ;; 'SP29CK9990DQGE9RGTT1VEQTTYH8KY4E3JE5XP4EC
 
-;; Errors 
-(define-constant ERR-UNAUTHORIZED u401)
+(define-constant ERR-NOT-AUTHORIZED u401)
 (define-constant ERR-NOT-OWNER u402)
-(define-constant ERR-INVALID-PARAMETERS u403)
-(define-constant ERR-NOT-ENOUGH-FUND u101)
 
-;; Constants
-(define-constant MAXSUPPLY u1000000000000000) ;; <%= it.token_max_supply %>
-
-;; Variables
-(define-fungible-token SYMBOL MAXSUPPLY) ;; <%= it.token_symbol %>
+(define-fungible-token SYMBOL MAX) ;; <%= it.token_symbol %>
+(define-constant MAX u69000000000000) ;; <%= it.token_max_supply %>
 (define-data-var contract-owner principal .aibtc-token-owner) ;; <%= it.token_owner %>
+(define-data-var token-uri (optional (string-utf8 256)) (some u"<%= it.token_uri %>")) 
 
 ;; SIP-10 Functions
-(define-public (transfer (amount uint) (from principal) (to principal) (memo (optional (buff 34))))
+(define-public (transfer (amount uint) (sender principal) (recipient principal) (memo (optional (buff 34))))
     (begin
-        (asserts! (is-eq from tx-sender) (err ERR-UNAUTHORIZED))
-        (ft-transfer? SYMBOL amount from to) ;; <%= it.token_symbol %>
+       (asserts! (is-eq tx-sender sender) (err ERR-NOT-AUTHORIZED))
+       (and (is-some memo) (is-some (print memo)))
+       (ft-transfer? SYMBOL amount sender recipient) ;; <%= it.token_symbol %>
     )
 )
 
-;; Define token metadata
-(define-data-var token-uri (optional (string-utf8 256)) (some u"<%= it.token_uri %>"))
-
-;; Set token uri
 (define-public (set-token-uri (value (string-utf8 256)))
     (begin
-        (asserts! (is-eq tx-sender (var-get contract-owner)) (err ERR-UNAUTHORIZED))
+        (asserts! (is-eq tx-sender (var-get contract-owner)) (err ERR-NOT-AUTHORIZED))
         (var-set token-uri (some value))
         (ok (print {
               notification: "token-metadata-update",
@@ -47,39 +36,39 @@
     )
 )
 
-;; Read-Only Functions
-(define-read-only (get-balance (owner principal))
-  (ok (ft-get-balance SYMBOL owner)) ;; <%= it.token_symbol %>
+(define-read-only (get-balance (account principal))
+  (ok (ft-get-balance SYMBOL account)) ;; <%= it.token_symbol %>
 )
+
 (define-read-only (get-name)
   (ok "NAME") ;; <%= it.token_name %>
 )
+
 (define-read-only (get-symbol)
   (ok "SYMBOL") ;; <%= it.token_symbol %>
 )
+
 (define-read-only (get-decimals)
   (ok u6) ;; <%= it.token_decimals %>
 )
+
 (define-read-only (get-total-supply)
   (ok (ft-get-supply SYMBOL)) ;; <%= it.token_symbol %>
 )
+
 (define-read-only (get-token-uri)
-  (ok (var-get token-uri))
+    (ok (var-get token-uri))
 )
 
-;; transfer ownership
-(define-public (transfer-ownership (new-owner principal))
+(define-public (set-contract-owner (new-owner principal))
   (begin
-    ;; Checks if the sender is the current owner
-    (if (is-eq tx-sender (var-get contract-owner))
-      (begin
-        ;; Sets the new owner
-        (var-set contract-owner new-owner)
-        ;; Returns success message
-        (ok "Ownership transferred successfully"))
-      ;; Error if the sender is not the owner
-      (err ERR-NOT-OWNER)))
+    (asserts! (is-eq tx-sender (var-get contract-owner)) (err ERR-NOT-AUTHORIZED))
+    (print {new-owner: new-owner})
+    (ok (var-set contract-owner new-owner))
+  )
 )
+
+;; ---------------------------------------------------------
 
 (define-public (send-many (recipients (list 200 { to: principal, amount: uint, memo: (optional (buff 34)) })))
   (fold check-err (map send-token recipients) (ok true))
@@ -99,18 +88,32 @@
   )
 )
 
-(define-private (send-stx (recipient principal) (amount uint))
-  (begin
-    (try! (stx-transfer? amount tx-sender recipient))
-    (ok true)
-  )
+;; ---------------------------------------------------------
+
+(define-private (stx-transfer-to (recipient principal) (amount uint))
+  (stx-transfer? amount tx-sender recipient)
 )
 
-(begin
-  ;; Send STX fees
-  (try! (send-stx 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1 u500000)) ;; <%= it.stxcity_token_deployment_fee_address %>
-  ;; mint tokens to the dex_contract (20%)
-  (try! (ft-mint? SYMBOL (/ (* MAXSUPPLY u20) u100) .aibtc-token-dex)) ;; <%= it.token_symbol %> <%= it.dex_contract %>
-  ;; mint tokens to the treasury (80%)
-  (try! (ft-mint? SYMBOL (/ (* MAXSUPPLY u80) u100) .aibtc-treasury)) ;; <%= it.token_symbol %> <%= it.treasury_contract %>
+(begin 
+    ;; ft distribution
+    (try! (ft-mint? SYMBOL (/ (* MAX u80) u100) .aibtc-treasury)) ;; 80% treasury SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22
+    (try! (ft-mint? SYMBOL (/ (* MAX u20) u100) .aibtc-token-dex)) ;; 20% dex SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22
+
+    ;; deploy fixed fee
+   ;; (try! (stx-transfer-to 'SMH8FRN30ERW1SX26NJTJCKTDR3H27NRJ6W75WQE u500000)) 
+
+    (print { 
+        type: "faktory-trait-v1", 
+        name: "NAME", ;; <%= it.token_name %>
+        symbol: "SYMBOL", ;; <%= it.token_symbol %>
+        token-uri: u"<%= it.token_uri %>", 
+        tokenContract: (as-contract tx-sender),
+        supply: MAX, 
+        decimals: u6, ;; <%= it.token_decimals %>
+        targetStx: u2000000000, ;; <%= it.target_stx %> 
+        tokenToDex: (/ (* MAX u20) u100),
+        tokenToDeployer: u0,
+        stxToDex: u0,
+        stxBuyFirstFee: u0,
+    })
 )

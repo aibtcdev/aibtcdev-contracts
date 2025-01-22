@@ -10,6 +10,8 @@ const contractAddress = `${deployer}.${contractName}`;
 const expectedErr = Cl.uint(BankAccountErrCode.ERR_UNAUTHORIZED);
 
 describe(`core proposal: ${contractName}`, () => {
+  //console.log(`core proposal: ${contractName}`);
+  //console.log(`contractAddress: ${contractAddress}`);
   it("execute() fails if called directly", () => {
     const receipt = simnet.callPublicFn(
       contractAddress,

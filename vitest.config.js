@@ -32,6 +32,7 @@ export default defineConfig({
     environmentOptions: {
       clarinet: {
         ...getClarinetVitestsArgv(),
+        retryCount: 0,
         // add or override options
       },
     },
