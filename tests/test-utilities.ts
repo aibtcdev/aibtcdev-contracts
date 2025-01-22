@@ -15,14 +15,7 @@ export function fundVoters(deployer: string, voters: string[]) {
   for (const voter of voters) {
     const stxAmount = Math.floor(Math.random() * 500000000) + 1000000;
     const getDaoTokensReceipt = getDaoTokens(deployer, voter, stxAmount);
-    const getAddressBalanceResult = simnet.callReadOnlyFn(
-      `${deployer}.aibtc-token`,
-      "get-balance",
-      [Cl.principal(voter)],
-      deployer
-    ).result;
-    const expectedBalance = parseInt(cvToValue(getAddressBalanceResult).value);
-    expect(getDaoTokensReceipt.result).toBeOk(Cl.uint(expectedBalance));
+    expect(getDaoTokensReceipt.result).toBeOk(Cl.bool(true));
   }
 }
 
@@ -117,8 +110,8 @@ export function passActionProposal(
     ],
     sender
   );
-  console.log("proposeActionReceipt");
-  console.log(proposeActionReceipt);
+  //console.log("proposeActionReceipt");
+  //console.log(proposeActionReceipt);
   expect(proposeActionReceipt.result).toBeOk(Cl.bool(true));
   // vote-on-proposal
   for (const voter of voters) {

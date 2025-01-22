@@ -121,6 +121,11 @@ plan:
             path: contracts/dao/extensions/actions/aibtc-action-allow-asset.clar
             clarity-version: 2
         - emulated-contract-publish:
+            contract-name: faktory-trait-v1
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/traits/faktory-trait-v1.clar
+            clarity-version: 2
+        - emulated-contract-publish:
             contract-name: aibtc-token
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/extensions/aibtc-token.clar
@@ -205,14 +210,14 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/proposals/aibtc-base-add-new-extension.clar
             clarity-version: 2
+      epoch: "3.0"
+    - id: 3
+      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-base-bootstrap-initialization
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/proposals/aibtc-base-bootstrap-initialization.clar
             clarity-version: 2
-      epoch: "3.0"
-    - id: 3
-      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-base-disable-extension
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
@@ -274,21 +279,6 @@ plan:
             path: contracts/dao/proposals/aibtc-payments-invoices-toggle-resource-by-name.clar
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: aibtc-token-dex
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/dao/extensions/aibtc-token-dex.clar
-            clarity-version: 2
-        - emulated-contract-publish:
-            contract-name: faktory-trait-v1
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/dao/traits/faktory-trait-v1.clar
-            clarity-version: 2
-        - emulated-contract-publish:
-            contract-name: aibtc-token-faktory
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/dao/extensions/aibtc-token-faktory.clar
-            clarity-version: 2
-        - emulated-contract-publish:
             contract-name: aibtcdev-dao-traits-v1-1
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/traits/aibtcdev-dao-traits-v1-1.clar
@@ -299,9 +289,9 @@ plan:
             path: contracts/dao/traits/faktory-dex-trait-v1-1.clar
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: aibtc-token-faktory-dex
+            contract-name: aibtc-token-dex
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/dao/extensions/aibtc-token-faktory-dex.clar
+            path: contracts/dao/extensions/aibtc-token-dex.clar
             clarity-version: 2
         - emulated-contract-publish:
             contract-name: aibtc-token-owner
@@ -338,9 +328,6 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/aibtcdev-airdrop-1.clar
             clarity-version: 2
-      epoch: "3.0"
-    - id: 4
-      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-treasury-deposit-nft
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
@@ -351,6 +338,9 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/proposals/aibtc-treasury-deposit-stx.clar
             clarity-version: 2
+      epoch: "3.0"
+    - id: 4
+      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-treasury-freeze-asset
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
