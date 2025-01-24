@@ -8,8 +8,6 @@
 (impl-trait .aibtcdev-dao-traits-v1.extension)
 (impl-trait .aibtcdev-dao-traits-v1.core-proposals)
 
-;; TODO: verify correct sip010 trait
-(use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 (use-trait proposal-trait .aibtcdev-dao-traits-v1.proposal)
 (use-trait treasury-trait .aibtcdev-dao-traits-v1.treasury)
 
