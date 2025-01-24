@@ -1,0 +1,283 @@
+;; title: aibtcdev-core-proposals
+;; version: 2.0.0
+;; summary: An extension that manages voting on proposals to execute Clarity code using a SIP-010 Stacks token.
+;; description: This contract can make changes to core DAO functionality with a high voting threshold by executing Clarity code in the context of the DAO.
+
+;; traits
+;;
+(impl-trait .aibtcdev-dao-traits-v1.extension)
+(impl-trait .aibtcdev-dao-traits-v1.core-proposals)
+
+;; TODO: verify correct sip010 trait
+(use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
+(use-trait proposal-trait .aibtcdev-dao-traits-v1.proposal)
+(use-trait treasury-trait .aibtcdev-dao-traits-v1.treasury)
+
+;; constants
+;;
+
+(define-constant SELF (as-contract tx-sender))
+(define-constant DEPLOYED_BURN_BLOCK burn-block-height)
+(define-constant DEPLOYED_STACKS_BLOCK block-height)
+
+;; error messages
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u3000))
+(define-constant ERR_FETCHING_TOKEN_DATA (err u3001))
+(define-constant ERR_INSUFFICIENT_BALANCE (err u3002))
+(define-constant ERR_PROPOSAL_NOT_FOUND (err u3003))
+(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u3004))
+(define-constant ERR_PROPOSAL_VOTING_ACTIVE (err u3005))
+(define-constant ERR_PROPOSAL_EXECUTION_DELAY (err u3006))
+(define-constant ERR_SAVING_PROPOSAL (err u3007))
+(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u3008))
+(define-constant ERR_RETRIEVING_START_BLOCK_HASH (err u3009))
+(define-constant ERR_VOTE_TOO_SOON (err u3010))
+(define-constant ERR_VOTE_TOO_LATE (err u3011))
+(define-constant ERR_ALREADY_VOTED (err u3012))
+(define-constant ERR_FIRST_VOTING_PERIOD (err u3013))
+
+;; voting configuration
+(define-constant VOTING_DELAY u432) ;; 3 x 144 Bitcoin blocks, ~3 days
+(define-constant VOTING_PERIOD u432) ;; 3 x 144 Bitcoin blocks, ~3 days
+(define-constant VOTING_QUORUM u25) ;; 25% of liquid supply must participate
+(define-constant VOTING_THRESHOLD u90) ;; 90% of votes must be in favor
+
+;; contracts used for voting calculations
+(define-constant VOTING_TOKEN_DEX .aibtc-token-dex)
+(define-constant VOTING_TOKEN_POOL .aibtc-bitflow-pool)
+(define-constant VOTING_TREASURY .aibtc-treasury)
+
+;; data maps
+;;
+(define-map Proposals
+  principal ;; proposal contract
+  {
+    createdAt: uint, ;; stacks block height for at-block calls
+    caller: principal, ;; contract caller
+    creator: principal, ;; proposal creator (tx-sender)
+    startBlock: uint, ;; burn block height
+    endBlock: uint, ;; burn block height
+    votesFor: uint, ;; total votes for
+    votesAgainst: uint, ;; total votes against
+    liquidTokens: uint, ;; liquid tokens at start block
+    concluded: bool, ;; has the proposal concluded
+    metQuorum: bool, ;; did the proposal meet quorum
+    metThreshold: bool, ;; did the proposal meet threshold
+    passed: bool, ;; did the proposal pass
+  }
+)
+
+(define-map VoteRecords
+  {
+    proposal: principal, ;; proposal contract
+    voter: principal ;; voter address
+  }
+  uint ;; total votes
+)
+
+;; public functions
+;;
+
+(define-public (callback (sender principal) (memo (buff 34)))
+  (ok true)
+)
+
+(define-public (create-proposal (proposal <proposal-trait>))
+  (let
+    (
+      (proposalContract (contract-of proposal))
+      (liquidTokens (try! (get-liquid-supply block-height)))
+      (createdAt block-height)
+      (startBlock (+ burn-block-height VOTING_DELAY))
+      (endBlock (+ startBlock VOTING_PERIOD))
+    )
+    ;; liquidTokens is greater than zero
+    (asserts! (> liquidTokens u0) ERR_FETCHING_TOKEN_DATA)
+    ;; at least one voting period passed
+    (asserts! (>= burn-block-height (+ DEPLOYED_BURN_BLOCK VOTING_PERIOD)) ERR_FIRST_VOTING_PERIOD)
+    ;; caller has the required balance
+    (asserts! (> (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA) u0) ERR_INSUFFICIENT_BALANCE)
+    ;; proposal was not already executed
+    (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
+    ;; print proposal creation event
+    (print {
+      notification: "create-proposal",
+      payload: {
+        proposal: proposalContract,
+        caller: contract-caller,
+        creator: tx-sender,
+        createdAt: createdAt,
+        startBlock: startBlock,
+        endBlock: endBlock,
+        liquidTokens: liquidTokens,
+      }
+    })
+    ;; create the proposal
+    (ok (asserts! (map-insert Proposals proposalContract {
+      createdAt: createdAt,
+      caller: contract-caller,
+      creator: tx-sender,
+      startBlock: startBlock,
+      endBlock: endBlock,
+      liquidTokens: liquidTokens,
+      votesFor: u0,
+      votesAgainst: u0,
+      concluded: false,
+      metQuorum: false,
+      metThreshold: false,
+      passed: false,
+    }) ERR_SAVING_PROPOSAL))
+))
+
+(define-public (vote-on-proposal (proposal <proposal-trait>) (vote bool))
+  (let
+    (
+      (proposalContract (contract-of proposal))
+      (proposalRecord (unwrap! (map-get? Proposals proposalContract) ERR_PROPOSAL_NOT_FOUND))
+      (proposalBlock (get createdAt proposalRecord))
+      (proposalBlockHash (unwrap! (get-block-hash proposalBlock) ERR_RETRIEVING_START_BLOCK_HASH))
+      (senderBalance (unwrap! (at-block proposalBlockHash (contract-call? .aibtc-token get-balance tx-sender)) ERR_FETCHING_TOKEN_DATA))
+    )
+    ;; caller has the required balance
+    (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
+    ;; proposal was not already executed
+    (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
+    ;; proposal was not already concluded
+    (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
+    ;; proposal vote is still active
+    (asserts! (>= burn-block-height (get startBlock proposalRecord)) ERR_VOTE_TOO_SOON)
+    (asserts! (< burn-block-height (get endBlock proposalRecord)) ERR_VOTE_TOO_LATE)
+    ;; vote not already cast
+    (asserts! (is-none (map-get? VoteRecords {proposal: proposalContract, voter: tx-sender})) ERR_ALREADY_VOTED)
+    ;; print vote event
+    (print {
+      notification: "vote-on-proposal",
+      payload: {
+        proposal: proposalContract,
+        caller: contract-caller,
+        voter: tx-sender,
+        amount: senderBalance
+      }
+    })
+    ;; update the proposal record
+    (map-set Proposals proposalContract
+      (if vote
+        (merge proposalRecord {votesFor: (+ (get votesFor proposalRecord) senderBalance)})
+        (merge proposalRecord {votesAgainst: (+ (get votesAgainst proposalRecord) senderBalance)})
+      )
+    )
+    ;; record the vote for the sender
+    (ok (map-set VoteRecords {proposal: proposalContract, voter: tx-sender} senderBalance))
+  )
+)
+
+(define-public (conclude-proposal (proposal <proposal-trait>))
+  (let
+    (
+      (proposalContract (contract-of proposal))
+      (proposalRecord (unwrap! (map-get? Proposals proposalContract) ERR_PROPOSAL_NOT_FOUND))
+      (votesFor (get votesFor proposalRecord))
+      (votesAgainst (get votesAgainst proposalRecord))
+      (liquidTokens (get liquidTokens proposalRecord))
+      ;; quorum: check if enough total votes vs liquid supply (25% participation)
+      (metQuorum (>= (/ (* (+ votesFor votesAgainst) u100) liquidTokens) VOTING_QUORUM))
+      ;; threshold: check if enough yes votes vs total votes (90% approval)
+      (metThreshold (>= (/ (* votesFor u100) (+ votesFor votesAgainst)) VOTING_THRESHOLD))
+      ;; proposal passed if quorum and threshold are met
+      (votePassed (and metQuorum metThreshold))
+    )
+    ;; proposal was not already executed
+    (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
+    ;; proposal was not already concluded
+    (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
+    ;; proposal is past voting period
+    (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_VOTING_ACTIVE)
+    ;; proposal is past execution delay
+    (asserts! (>= burn-block-height (+ (get endBlock proposalRecord) VOTING_DELAY)) ERR_PROPOSAL_EXECUTION_DELAY)
+    ;; print conclusion event
+    (print {
+      notification: "conclude-proposal",
+      payload: {
+        caller: contract-caller,
+        concludedBy: tx-sender,
+        proposal: proposalContract,
+        metQuorum: metQuorum,
+        metThreshold: metThreshold,
+        passed: votePassed
+      }
+    })
+    ;; update the proposal record
+    (map-set Proposals proposalContract
+      (merge proposalRecord {
+        concluded: true,
+        metQuorum: metQuorum,
+        metThreshold: metThreshold,
+        passed: votePassed
+      })
+    )
+    ;; execute the proposal only if it passed
+    (and votePassed (try! (contract-call? .aibtcdev-base-dao execute proposal tx-sender)))
+    ;; return the result
+    (ok votePassed)
+  )
+)
+
+;; read only functions
+;;
+
+(define-read-only (get-voting-power (who principal) (proposal <proposal-trait>))
+  (let
+    (
+      (proposalRecord (unwrap! (map-get? Proposals (contract-of proposal)) ERR_PROPOSAL_NOT_FOUND))
+      (proposalBlockHash (unwrap! (get-block-hash (get createdAt proposalRecord)) ERR_RETRIEVING_START_BLOCK_HASH))
+    )
+    (at-block proposalBlockHash (contract-call? .aibtc-token get-balance who))
+  )
+)
+
+(define-read-only (get-proposal (proposal principal))
+  (map-get? Proposals proposal)
+)
+
+(define-read-only (get-vote-record (proposal principal) (voter principal))
+  (default-to u0 (map-get? VoteRecords {proposal: proposal, voter: voter}))
+)
+
+(define-read-only (get-voting-configuration)
+  {
+    delay: VOTING_DELAY,
+    period: VOTING_PERIOD,
+    quorum: VOTING_QUORUM,
+    threshold: VOTING_THRESHOLD,
+    tokenDex: VOTING_TOKEN_DEX,
+    tokenPool: VOTING_TOKEN_POOL,
+    treasury: VOTING_TREASURY
+  }
+)
+
+;; private functions
+;; 
+
+(define-private (is-dao-or-extension)
+  (ok (asserts! (or (is-eq tx-sender .aibtcdev-base-dao)
+    (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
+  ))
+)
+
+(define-private (get-block-hash (blockHeight uint))
+  (get-block-info? id-header-hash blockHeight)
+)
+
+;; calculate the liquid supply of the dao token
+(define-private (get-liquid-supply (blockHeight uint))
+  (let
+    (
+      (blockHash (unwrap! (get-block-hash blockHeight) ERR_RETRIEVING_START_BLOCK_HASH))
+      (totalSupply (unwrap! (at-block blockHash (contract-call? .aibtc-token get-total-supply)) ERR_FETCHING_TOKEN_DATA))
+      (dexBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_DEX)) ERR_FETCHING_TOKEN_DATA))
+      (poolBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_POOL)) ERR_FETCHING_TOKEN_DATA))
+      (treasuryBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TREASURY)) ERR_FETCHING_TOKEN_DATA))
+    )
+    (ok (- totalSupply (+ dexBalance poolBalance treasuryBalance)))
+  )
+)

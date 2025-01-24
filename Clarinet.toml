@@ -108,6 +108,16 @@ path = 'contracts/dao/extensions/aibtc-treasury.clar'
 clarity_version = 2
 epoch = 3.0
 
+[contracts.aibtc-action-proposals-v2]
+path = 'contracts/dao/extensions/aibtc-action-proposals-v2.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-core-proposals-v2]
+path = 'contracts/dao/extensions/aibtc-core-proposals-v2.clar'
+clarity_version = 2
+epoch = 3.0
+
 # dao actions (as extensions)
 
 [contracts.aibtc-action-add-resource]
