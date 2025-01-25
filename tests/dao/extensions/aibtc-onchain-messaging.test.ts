@@ -1,24 +1,23 @@
-import { Cl, cvToValue } from "@stacks/transactions";
+import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import {
   constructDao,
   fundVoters,
-  getDaoTokens,
   passCoreProposal,
+  VOTING_CONFIG,
 } from "../../test-utilities";
 import { OnchainMessagingErrCode } from "../../error-codes";
+import { ContractProposalType, ContractType } from "../../dao-types";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 
-const contractName = "aibtc-onchain-messaging";
-const contractAddress = `${deployer}.${contractName}`;
-
+const contractAddress = `${deployer}.${ContractType.DAO_MESSAGING}`;
 const ErrCode = OnchainMessagingErrCode;
 
-describe(`extension: ${contractName}`, () => {
+describe(`extension: ${ContractType.DAO_MESSAGING}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,
@@ -52,56 +51,40 @@ describe(`extension: ${contractName}`, () => {
   });
 
   it("send() succeeds if called by a DAO proposal with isFromDao true", () => {
-    const proposalContractName = "aibtc-onchain-messaging-send";
-    const proposalContractAddress = `${deployer}.${proposalContractName}`;
+    // setup contract names
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_ONCHAIN_MESSAGING_SEND}`;
+
+    // select voting config
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
 
     // fund accounts for creating and voting on proposals
-    fundVoters(deployer, [deployer, address1, address2]);
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
 
     // construct DAO
-    const constructReceipt = constructDao(deployer, false);
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
 
-    // progress the chain for at-block calls
-    // and to pass first core proposal voting period
-    simnet.mineEmptyBlocks(144);
-
-    // pass proposal
+    // conclude proposal
     const concludeProposalReceipt = passCoreProposal(
+      coreProposalsContractAddress,
       proposalContractAddress,
       deployer,
-      [deployer, address1, address2]
+      [deployer, address1, address2],
+      votingConfig
     );
-
-    /*
-    console.log("===========================");
-    console.log("concludeProposalReceipt");
-    console.log(concludeProposalReceipt);
-    for (const event of concludeProposalReceipt.events) {
-      const eventValue = cvToValue(event.data.value!);
-      // if event value is an object stringify it
-      console.log(
-        `- event: ${
-          typeof eventValue === "object"
-            ? JSON.stringify(eventValue)
-            : eventValue
-        }`
-      );
-    }
-
-    
-    const proposalDetails = simnet.callReadOnlyFn(
-      `${deployer}.aibtc-core-proposals`,
-      "get-proposal",
-      [Cl.principal(proposalContractAddress)],
-      deployer
-    );
-
-    console.log("===========================");
-    console.log("proposalDetails");
-    console.log(cvToValue(proposalDetails.result).value);
-    */
-
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
   });
 });
