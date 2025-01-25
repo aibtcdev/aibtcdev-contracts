@@ -13,7 +13,6 @@
 
 ;; constants
 ;;
-
 (define-constant SELF (as-contract tx-sender))
 (define-constant DEPLOYED_BURN_BLOCK burn-block-height)
 (define-constant DEPLOYED_STACKS_BLOCK block-height)
@@ -75,7 +74,6 @@
 
 ;; public functions
 ;;
-
 (define-public (callback (sender principal) (memo (buff 34)))
   (ok true)
 )
@@ -88,13 +86,14 @@
       (createdAt block-height)
       (startBlock (+ burn-block-height VOTING_DELAY))
       (endBlock (+ startBlock VOTING_PERIOD))
+      (senderBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
     )
     ;; liquidTokens is greater than zero
     (asserts! (> liquidTokens u0) ERR_FETCHING_TOKEN_DATA)
     ;; at least one voting period passed
     (asserts! (>= burn-block-height (+ DEPLOYED_BURN_BLOCK VOTING_PERIOD)) ERR_FIRST_VOTING_PERIOD)
     ;; caller has the required balance
-    (asserts! (> (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA) u0) ERR_INSUFFICIENT_BALANCE)
+    (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
     ;; proposal was not already executed
     (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; print proposal creation event
@@ -112,9 +111,9 @@
     })
     ;; create the proposal
     (ok (asserts! (map-insert Proposals proposalContract {
-      createdAt: createdAt,
       caller: contract-caller,
       creator: tx-sender,
+      createdAt: createdAt,
       startBlock: startBlock,
       endBlock: endBlock,
       liquidTokens: liquidTokens,
@@ -177,9 +176,9 @@
       (votesFor (get votesFor proposalRecord))
       (votesAgainst (get votesAgainst proposalRecord))
       (liquidTokens (get liquidTokens proposalRecord))
-      ;; quorum: check if enough total votes vs liquid supply (25% participation)
+      ;; quorum: check if enough total votes vs liquid supply
       (metQuorum (>= (/ (* (+ votesFor votesAgainst) u100) liquidTokens) VOTING_QUORUM))
-      ;; threshold: check if enough yes votes vs total votes (90% approval)
+      ;; threshold: check if enough yes votes vs total votes
       (metThreshold (>= (/ (* votesFor u100) (+ votesFor votesAgainst)) VOTING_THRESHOLD))
       ;; proposal passed if quorum and threshold are met
       (votePassed (and metQuorum metThreshold))
@@ -222,7 +221,6 @@
 
 ;; read only functions
 ;;
-
 (define-read-only (get-voting-power (who principal) (proposal <proposal-trait>))
   (let
     (
@@ -243,6 +241,9 @@
 
 (define-read-only (get-voting-configuration)
   {
+    self: SELF,
+    deployedBurnBlock: DEPLOYED_BURN_BLOCK,
+    deployedStacksBlock: DEPLOYED_STACKS_BLOCK,
     delay: VOTING_DELAY,
     period: VOTING_PERIOD,
     quorum: VOTING_QUORUM,
@@ -254,8 +255,7 @@
 )
 
 ;; private functions
-;; 
-
+;;
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtcdev-base-dao)
     (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION

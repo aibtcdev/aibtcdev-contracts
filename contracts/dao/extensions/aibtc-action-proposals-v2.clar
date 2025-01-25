@@ -14,22 +14,30 @@
 ;; constants
 ;;
 (define-constant SELF (as-contract tx-sender))
-(define-constant VOTING_PERIOD u144) ;; 144 Bitcoin blocks, ~1 day
-(define-constant VOTING_QUORUM u66) ;; 66% of liquid supply
+(define-constant DEPLOYED_BURN_BLOCK burn-block-height)
+(define-constant DEPLOYED_STACKS_BLOCK block-height)
 
 ;; error messages
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u1000))
 (define-constant ERR_INSUFFICIENT_BALANCE (err u1001))
 (define-constant ERR_FETCHING_TOKEN_DATA (err u1002))
 (define-constant ERR_PROPOSAL_NOT_FOUND (err u1003))
-(define-constant ERR_PROPOSAL_STILL_ACTIVE (err u1004))
-(define-constant ERR_SAVING_PROPOSAL (err u1005))
-(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u1006))
-(define-constant ERR_RETRIEVING_START_BLOCK_HASH (err u1007))
-(define-constant ERR_VOTE_TOO_SOON (err u1008))
-(define-constant ERR_VOTE_TOO_LATE (err u1009))
-(define-constant ERR_ALREADY_VOTED (err u1010))
-(define-constant ERR_INVALID_ACTION (err u1011))
+(define-constant ERR_PROPOSAL_VOTING_ACTIVE (err u1004))
+(define-constant ERR_PROPOSAL_EXECUTION_DELAY (err u1005))
+(define-constant ERR_ALREADY_PROPOSAL_AT_BLOCK (err u1006))
+(define-constant ERR_SAVING_PROPOSAL (err u1007))
+(define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u1008))
+(define-constant ERR_RETRIEVING_START_BLOCK_HASH (err u1009))
+(define-constant ERR_VOTE_TOO_SOON (err u1010))
+(define-constant ERR_VOTE_TOO_LATE (err u1011))
+(define-constant ERR_ALREADY_VOTED (err u1012)) 
+(define-constant ERR_INVALID_ACTION (err u1013))
+
+;; voting configuration
+(define-constant VOTING_DELAY u144) ;; 144 Bitcoin blocks, ~1 days
+(define-constant VOTING_PERIOD u288) ;; 2 x 144 Bitcoin blocks, ~2 days
+(define-constant VOTING_QUORUM u15) ;; 15% of liquid supply must participate
+(define-constant VOTING_THRESHOLD u66) ;; 66% of votes must be in favor
 
 ;; contracts used for voting calculations
 (define-constant VOTING_TOKEN_DEX .aibtc-token-dex)
@@ -39,6 +47,7 @@
 ;; data vars
 ;;
 (define-data-var proposalCount uint u0) ;; total number of proposals
+(define-data-var lastProposalCreated uint u0) ;; block height of last proposal created
 
 ;; data maps
 ;;
@@ -47,21 +56,22 @@
   {
     action: principal, ;; action contract
     parameters: (buff 2048), ;; action parameters
-    createdAt: uint, ;; block height
+    createdAt: uint, ;; stacks block height for at-block calls
     caller: principal, ;; contract caller
     creator: principal, ;; proposal creator (tx-sender)
-    startBlockStx: uint, ;; block height for at-block calls
     startBlock: uint, ;; burn block height
     endBlock: uint, ;; burn block height
     votesFor: uint, ;; total votes for
     votesAgainst: uint, ;; total votes against
     liquidTokens: uint, ;; liquid tokens
     concluded: bool, ;; has the proposal concluded
+    metQuorum: bool, ;; did the proposal meet quorum
+    metThreshold: bool, ;; did the proposal meet threshold
     passed: bool, ;; did the proposal pass
   }
 )
 
-(define-map VotingRecords
+(define-map VoteRecords
   {
     proposalId: uint, ;; proposal id
     voter: principal ;; voter address
@@ -71,7 +81,6 @@
 
 ;; public functions
 ;;
-
 (define-public (callback (sender principal) (memo (buff 34)))
   (ok true)
 )
@@ -79,42 +88,56 @@
 (define-public (propose-action (action <action-trait>) (parameters (buff 2048)))
   (let
     (
+      (actionContract (contract-of action))
       (newId (+ (var-get proposalCount) u1))
-      (voterBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
       (liquidTokens (try! (get-liquid-supply block-height)))
+      (createdAt block-height)
+      (startBlock (+ burn-block-height VOTING_DELAY))
+      (endBlock (+ startBlock VOTING_PERIOD))
+      (senderBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
     )
+    ;; liquidTokens is greater than zero
+    (asserts! (> liquidTokens u0) ERR_FETCHING_TOKEN_DATA)
+    ;; verify this extension and action contract are active in dao
+    (try! (is-action-valid action))
+    ;; at least one stx block has passed since last proposal
+    (asserts! (> createdAt (var-get lastProposalCreated)) ERR_ALREADY_PROPOSAL_AT_BLOCK)
     ;; caller has the required balance
-    (asserts! (> voterBalance u0) ERR_INSUFFICIENT_BALANCE)
+    (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
     ;; print proposal creation event
     (print {
       notification: "propose-action",
       payload: {
         proposalId: newId,
-        action: action,
+        action: actionContract,
         parameters: parameters,
+        caller: contract-caller,
         creator: tx-sender,
+        createdAt: createdAt,
+        startBlock: startBlock,
+        endBlock: endBlock,
         liquidTokens: liquidTokens,
-        startBlockStx: block-height,
-        startBlock: burn-block-height,
-        endBlock: (+ burn-block-height VOTING_PERIOD)
       }
     })
     ;; create the proposal
     (asserts! (map-insert Proposals newId {
-      action: (contract-of action),
+      action: actionContract,
       parameters: parameters,
-      createdAt: burn-block-height,
       caller: contract-caller,
       creator: tx-sender,
-      startBlockStx: block-height,
-      startBlock: burn-block-height,
-      endBlock: (+ burn-block-height VOTING_PERIOD),
+      createdAt: createdAt,
+      startBlock: startBlock,
+      endBlock: endBlock,
+      liquidTokens: liquidTokens,
       votesFor: u0,
       votesAgainst: u0,
-      liquidTokens: liquidTokens,
       concluded: false,
+      metQuorum: false,
+      metThreshold: false,
       passed: false,
     }) ERR_SAVING_PROPOSAL)
+    ;; set last proposal created block height
+    (var-set lastProposalCreated createdAt)
     ;; increment proposal count
     (ok (var-set proposalCount newId))
   )
@@ -124,24 +147,25 @@
   (let
     (
       (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
-      (proposalBlock (get startBlockStx proposalRecord))
+      (proposalBlock (get createdAt proposalRecord))
       (proposalBlockHash (unwrap! (get-block-hash proposalBlock) ERR_RETRIEVING_START_BLOCK_HASH))
       (senderBalance (unwrap! (at-block proposalBlockHash (contract-call? .aibtc-token get-balance tx-sender)) ERR_FETCHING_TOKEN_DATA))
     )
     ;; caller has the required balance
     (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
-    ;; proposal not still active
+    ;; proposal was not already concluded
+    (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
+    ;; proposal vote is still active
     (asserts! (>= burn-block-height (get startBlock proposalRecord)) ERR_VOTE_TOO_SOON)
     (asserts! (< burn-block-height (get endBlock proposalRecord)) ERR_VOTE_TOO_LATE)
-    ;; proposal not already concluded
-    (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
     ;; vote not already cast
-    (asserts! (is-none (map-get? VotingRecords {proposalId: proposalId, voter: tx-sender})) ERR_ALREADY_VOTED)
+    (asserts! (is-none (map-get? VoteRecords {proposalId: proposalId, voter: tx-sender})) ERR_ALREADY_VOTED)
     ;; print vote event
     (print {
       notification: "vote-on-proposal",
       payload: {
         proposalId: proposalId,
+        caller: contract-caller,
         voter: tx-sender,
         amount: senderBalance
       }
@@ -154,30 +178,44 @@
       )
     )
     ;; record the vote for the sender
-    (ok (map-set VotingRecords {proposalId: proposalId, voter: tx-sender} senderBalance))
+    (ok (map-set VoteRecords {proposalId: proposalId, voter: tx-sender} senderBalance))
   )
 )
 
 (define-public (conclude-proposal (proposalId uint) (action <action-trait>))
   (let
     (
+      (actionContract (contract-of action))
       (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
-      ;; if VOTING_QUORUM <= ((votesFor * 100) / liquidTokens)
-      (votePassed (<= VOTING_QUORUM (/ (* (get votesFor proposalRecord) u100) (get liquidTokens proposalRecord))))
+      (votesFor (get votesFor proposalRecord))
+      (votesAgainst (get votesAgainst proposalRecord))
+      (liquidTokens (get liquidTokens proposalRecord))
+      ;; quorum: check if enough total votes vs liquid supply
+      (metQuorum (>= (/ (* (+ votesFor votesAgainst) u100) liquidTokens) VOTING_QUORUM))
+      ;; threshold: check if enough yes votes vs total votes
+      (metThreshold (>= (/ (* votesFor u100) (+ votesFor votesAgainst)) VOTING_THRESHOLD))
+      ;; proposal passed if quorum and threshold are met
+      (votePassed (and metQuorum metThreshold))
     )
-    ;; verify extension still active in dao
-    (try! (as-contract (is-dao-or-extension)))
-    ;; proposal past end block height
-    (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_STILL_ACTIVE)
+    ;; verify this extension and action contract are active in dao
+    (try! (is-action-valid action))
     ;; proposal not already concluded
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
+    ;; proposal is past voting period
+    (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_VOTING_ACTIVE)
+    ;; proposal is past execution delay
+    (asserts! (>= burn-block-height (+ (get endBlock proposalRecord) VOTING_DELAY)) ERR_PROPOSAL_EXECUTION_DELAY)
     ;; action must be the same as the one in proposal
-    (asserts! (is-eq (get action proposalRecord) (contract-of action)) ERR_INVALID_ACTION)
+    (asserts! (is-eq (get action proposalRecord) actionContract) ERR_INVALID_ACTION)
     ;; print conclusion event
     (print {
       notification: "conclude-proposal",
       payload: {
+        caller: contract-caller,
+        concludedBy: tx-sender,
         proposalId: proposalId,
+        metQuorum: metQuorum,
+        metThreshold: metThreshold,
         passed: votePassed
       }
     })
@@ -185,6 +223,8 @@
     (map-set Proposals proposalId
       (merge proposalRecord {
         concluded: true,
+        metQuorum: metQuorum,
+        metThreshold: metThreshold,
         passed: votePassed
       })
     )
@@ -198,58 +238,67 @@
 
 ;; read only functions
 ;;
-
 (define-read-only (get-voting-power (who principal) (proposalId uint))
   (let
     (
       (proposalRecord (unwrap! (map-get? Proposals proposalId) ERR_PROPOSAL_NOT_FOUND))
-      (proposalBlockHash (unwrap! (get-block-hash (get startBlockStx proposalRecord)) ERR_RETRIEVING_START_BLOCK_HASH))
+      (proposalBlockHash (unwrap! (get-block-hash (get createdAt proposalRecord)) ERR_RETRIEVING_START_BLOCK_HASH))
     )
     (at-block proposalBlockHash (contract-call? .aibtc-token get-balance who))
   )
-)
-
-(define-read-only (get-linked-voting-contracts)
-  {
-    treasury: VOTING_TREASURY,
-    token-dex: VOTING_TOKEN_DEX,
-    token-pool: VOTING_TOKEN_POOL
-  }
 )
 
 (define-read-only (get-proposal (proposalId uint))
   (map-get? Proposals proposalId)
 )
 
-(define-read-only (get-total-votes (proposalId uint) (voter principal))
-  (default-to u0 (map-get? VotingRecords {proposalId: proposalId, voter: voter}))
-)
-
-(define-read-only (get-voting-period)
-  VOTING_PERIOD
-)
-
-(define-read-only (get-voting-quorum)
-  VOTING_QUORUM
+(define-read-only (get-vote-record (proposalId uint) (voter principal))
+  (default-to u0 (map-get? VoteRecords {proposalId: proposalId, voter: voter}))
 )
 
 (define-read-only (get-total-proposals)
   (var-get proposalCount)
 )
 
+(define-read-only (get-voting-configuration)
+  {
+    self: SELF,
+    deployedBurnBlock: DEPLOYED_BURN_BLOCK,
+    deployedStacksBlock: DEPLOYED_STACKS_BLOCK,
+    delay: VOTING_DELAY,
+    period: VOTING_PERIOD,
+    quorum: VOTING_QUORUM,
+    threshold: VOTING_THRESHOLD,
+    tokenDex: VOTING_TOKEN_DEX,
+    tokenPool: VOTING_TOKEN_POOL,
+    treasury: VOTING_TREASURY
+  }
+)
+
 ;; private functions
 ;;
-
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtcdev-base-dao)
     (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )
 
+(define-private (is-action-valid (action <action-trait>))
+  (begin
+    ;; verify this extension still active in dao
+    (try! (as-contract (is-dao-or-extension)))
+    ;; verify the proposed action is an active extension in the dao
+    (asserts! (contract-call? .aibtcdev-base-dao is-extension (contract-of action)) ERR_INVALID_ACTION)
+    ;; return true if all checks pass
+    (ok true)
+  )
+)
+
 (define-private (get-block-hash (blockHeight uint))
   (get-block-info? id-header-hash blockHeight)
 )
 
+;; calculate the liquid supply of the dao token
 (define-private (get-liquid-supply (blockHeight uint))
   (let
     (
