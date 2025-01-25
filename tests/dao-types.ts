@@ -25,7 +25,7 @@ export enum ContractActionType {
   DAO_ACTION_SET_ACCOUNT_HOLDER = "aibtc-action-set-account-holder",
   DAO_ACTION_SET_WITHDRAWAL_AMOUNT = "aibtc-action-set-withdrawal-amount",
   DAO_ACTION_SET_WITHDRAWAL_PERIOD = "aibtc-action-set-withdrawal-period",
-  DAO_ACTION_TOGGLE_RESOURCE = "aibtc-action-toggle-resource",
+  DAO_ACTION_TOGGLE_RESOURCE_BY_NAME = "aibtc-action-toggle-resource-by-name",
 }
 
 export enum ContractProposalType {

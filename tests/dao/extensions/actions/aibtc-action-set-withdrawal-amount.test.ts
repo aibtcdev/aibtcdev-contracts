@@ -1,13 +1,13 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
+import { ContractActionType } from "../../../dao-types";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 
-const contractName = "aibtc-action-set-withdrawal-amount";
-const contractAddress = `${deployer}.${contractName}`;
+const contractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SET_WITHDRAWAL_AMOUNT}`;
 
-describe(`action extension: ${contractName}`, () => {
+describe(`action extension: ${ContractActionType.DAO_ACTION_SET_WITHDRAWAL_AMOUNT}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,
