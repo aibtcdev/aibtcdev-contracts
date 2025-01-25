@@ -445,4 +445,78 @@ describe(`extension: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(receipt2.result).toBeErr(Cl.uint(ErrCode.ERR_ALREADY_VOTED));
   });
+
+  // it("conclude-proposal()", () => {})
+  it("conclude-proposal(): fails if proposal id is not found", () => {
+    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
+    const invalidProposalId = 25;
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "conclude-proposal",
+      [Cl.uint(invalidProposalId), Cl.principal(actionProposalContractAddress)],
+      deployer
+    );
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_NOT_FOUND));
+  });
+  it("conclude-proposal(): fails if the action proposal extension is disabled", () => {
+    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+    const disableExtensionContractAddress = `${deployer}.test-disable-onchain-messaging-action`;
+    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+
+    // fund voters to pass proposals
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay for at-block calls
+    const coreProposalVoteSettings =
+      VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
+    simnet.mineEmptyBlocks(coreProposalVoteSettings.votingDelay);
+
+    // create proposal
+    const actionProposalReceipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay for at-block calls
+    simnet.mineEmptyBlocks(coreProposalVoteSettings.votingPeriod);
+
+    // disable the action extension
+    const disableReceipt = passCoreProposal(
+      coreProposalsContractAddress,
+      disableExtensionContractAddress,
+      deployer,
+      [deployer, address1, address2],
+      coreProposalVoteSettings
+    );
+    expect(disableReceipt.result).toBeOk(Cl.bool(true));
+
+    // conclude proposal
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "conclude-proposal",
+      [Cl.uint(1), Cl.principal(actionProposalContractAddress)],
+      deployer
+    );
+    // why division by zero?
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_ACTION));
+  });
 });
