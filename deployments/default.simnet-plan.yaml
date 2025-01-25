@@ -402,6 +402,16 @@ plan:
             path: contracts/test/proxy.clar
             clarity-version: 2
         - emulated-contract-publish:
+            contract-name: test-disable-action-proposals-v2
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/test/disable-action-proposals-v2.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: test-disable-onchain-messaging-action
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/test/disable-onchain-messaging-action.clar
+            clarity-version: 2
+        - emulated-contract-publish:
             contract-name: test-proxy
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/test/proxy.clar
@@ -415,6 +425,11 @@ plan:
             contract-name: test-treasury
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/test/aibtc-treasury.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: test-unknown-action-proposal
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/test/unknown-action-proposal.clar
             clarity-version: 2
         - emulated-contract-publish:
             contract-name: external-proxy

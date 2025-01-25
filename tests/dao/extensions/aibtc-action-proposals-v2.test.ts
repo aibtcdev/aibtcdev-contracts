@@ -8,27 +8,22 @@ import {
 } from "../../dao-types";
 import {
   constructDao,
+  fundVoters,
   getDaoTokens,
+  passCoreProposal,
   VOTING_CONFIG,
 } from "../../test-utilities";
-import { address } from "@stacks/transactions/dist/cl";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 const address1 = accounts.get("wallet_1")!;
+const address2 = accounts.get("wallet_2")!;
 
 const contractAddress = `${deployer}.${ContractType.DAO_ACTION_PROPOSALS_V2}`;
 
-const votingDelay = 144; // 144 Bitcoin blocks (~1 day)
-const votingPeriod = 288; // 2 x 144 Bitcoin blocks (~2 days)
-const votingQuorum = 15; // 15% of liquid supply must participate
-const votingThreshold = 66; // 66% of votes must be in favor
-
-const votingTokenDex = `${deployer}.aibtc-token-dex`;
-const votingToken = `${deployer}.aibtc-token`;
-const votingTreasury = `${deployer}.aibtc-treasury`;
-
 const ErrCode = ActionProposalsV2ErrCode;
+
+const voteSettings = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
 
 describe(`extension: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   it("callback() should respond with (ok true)", () => {
@@ -49,6 +44,150 @@ describe(`extension: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       deployer
     );
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_FETCHING_TOKEN_DATA));
+  });
+  it("propose-action() fails if the action extension is disabled", () => {
+    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+    const disableExtensionContractAddress = `${deployer}.test-disable-action-proposals-v2`;
+    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+
+    // fund voters to pass proposals
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay for at-block calls
+    const coreProposalVoteSettings =
+      VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
+    simnet.mineEmptyBlocks(coreProposalVoteSettings.votingDelay);
+
+    // disable the action extension
+    const disableReceipt = passCoreProposal(
+      coreProposalsContractAddress,
+      disableExtensionContractAddress,
+      deployer,
+      [deployer, address1, address2],
+      coreProposalVoteSettings
+    );
+    expect(disableReceipt.result).toBeOk(Cl.bool(true));
+
+    // call propose action
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
+  });
+  it("propose-action() fails if the action proposal extension is disabled", () => {
+    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+    const disableExtensionContractAddress = `${deployer}.test-disable-onchain-messaging-action`;
+    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+
+    // fund voters to pass proposals
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay for at-block calls
+    const coreProposalVoteSettings =
+      VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
+    simnet.mineEmptyBlocks(coreProposalVoteSettings.votingDelay);
+
+    // disable the action extension
+    const disableReceipt = passCoreProposal(
+      coreProposalsContractAddress,
+      disableExtensionContractAddress,
+      deployer,
+      [deployer, address1, address2],
+      coreProposalVoteSettings
+    );
+    expect(disableReceipt.result).toBeOk(Cl.bool(true));
+
+    // call propose action
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_ACTION));
+  });
+  it("propose-action() fails if the action proposal is not a dao extension", () => {
+    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+    const disableExtensionContractAddress = `${deployer}.test-disable-onchain-messaging-action`;
+    const actionProposalContractAddress = `${deployer}.test-unknown-action-proposal`;
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+
+    // fund voters to pass proposals
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay for at-block calls
+    const coreProposalVoteSettings =
+      VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
+    simnet.mineEmptyBlocks(coreProposalVoteSettings.votingDelay);
+
+    // disable the action extension
+    const disableReceipt = passCoreProposal(
+      coreProposalsContractAddress,
+      disableExtensionContractAddress,
+      deployer,
+      [deployer, address1, address2],
+      coreProposalVoteSettings
+    );
+    expect(disableReceipt.result).toBeOk(Cl.bool(true));
+
+    // call propose action
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_ACTION));
   });
   it("propose-action() fails if the user does not own the token", () => {
     const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;

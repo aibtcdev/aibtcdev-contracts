@@ -383,3 +383,18 @@ epoch = 3.0
 path = 'contracts/test/sip010-token.clar'
 clarity_version = 2
 epoch = 3.0
+
+[contracts.test-disable-action-proposals-v2]
+path = 'contracts/test/disable-action-proposals-v2.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.test-disable-onchain-messaging-action]
+path = 'contracts/test/disable-onchain-messaging-action.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.test-unknown-action-proposal]
+path = 'contracts/test/unknown-action-proposal.clar'
+clarity_version = 2
+epoch = 3.0
