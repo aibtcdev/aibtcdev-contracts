@@ -202,6 +202,11 @@ path = 'contracts/dao/proposals/aibtc-base-bootstrap-initialization.clar'
 clarity_version = 2
 epoch = 3.0
 
+[contracts.aibtc-base-bootstrap-initialization-v2]
+path = 'contracts/dao/proposals/aibtc-base-bootstrap-initialization-v2.clar'
+clarity_version = 2
+epoch = 3.0
+
 [contracts.aibtc-base-disable-extension]
 path = 'contracts/dao/proposals/aibtc-base-disable-extension.clar'
 clarity_version = 2
@@ -214,6 +219,11 @@ epoch = 3.0
 
 [contracts.aibtc-base-replace-extension]
 path = 'contracts/dao/proposals/aibtc-base-replace-extension.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-base-replace-extension-proposal-voting]
+path = 'contracts/dao/proposals/aibtc-base-replace-extension-proposal-voting.clar'
 clarity_version = 2
 epoch = 3.0
 
