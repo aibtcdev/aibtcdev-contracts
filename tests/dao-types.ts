@@ -7,14 +7,17 @@ export enum ContractType {
   DAO_BASE = "aibtcdev-base-dao",
   // dao extensions
   DAO_ACTION_PROPOSALS = "aibtc-action-proposals",
+  DAO_ACTION_PROPOSALS_V2 = "aibtc-action-proposals-v2",
   DAO_BANK_ACCOUNT = "aibtc-bank-account",
   DAO_CORE_PROPOSALS = "aibtc-core-proposals",
+  DAO_CORE_PROPOSALS_V2 = "aibtc-core-proposals-v2",
   DAO_MESSAGING = "aibtc-onchain-messaging",
   DAO_PAYMENTS = "aibtc-payments-invoices",
   DAO_TOKEN_OWNER = "aibtc-token-owner",
   DAO_TREASURY = "aibtc-treasury",
   // dao proposals
   DAO_PROPOSAL_BOOTSTRAP = "aibtc-base-bootstrap-initialization",
+  DAO_PROPOSAL_BOOTSTRAP_V2 = "aibtc-base-bootstrap-initialization-v2",
 }
 
 export enum ContractActionType {
