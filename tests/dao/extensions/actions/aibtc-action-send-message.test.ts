@@ -44,7 +44,7 @@ describe(`action extension: ${contractName}`, () => {
     fundVoters(deployer, [deployer, address1, address2]);
 
     // construct DAO
-    const constructReceipt = constructDao(deployer);
+    const constructReceipt = constructDao(deployer, false);
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
 
     // progress the chain for at-block calls

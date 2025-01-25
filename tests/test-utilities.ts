@@ -39,10 +39,12 @@ export function getDaoTokens(
   return getDaoTokensReceipt;
 }
 
-export function constructDao(deployer: string) {
+export function constructDao(deployer: string, bootstrapV2: boolean) {
   const baseDaoContractName = "aibtcdev-base-dao";
   const baseDaoContractAddress = `${deployer}.${baseDaoContractName}`;
-  const bootstrapContractName = "aibtc-base-bootstrap-initialization";
+  const bootstrapContractName = bootstrapV2
+    ? "aibtc-base-bootstrap-initialization-v2"
+    : "aibtc-base-bootstrap-initialization";
   const bootstrapContractAddress = `${deployer}.${bootstrapContractName}`;
 
   const constructDaoReceipt = simnet.callPublicFn(
@@ -78,7 +80,7 @@ export function passCoreProposal(
     );
     expect(voteReceipt.result).toBeOk(Cl.bool(true));
   }
-  // progress past the end block
+  // progress past the end block (and v2 delay)
   simnet.mineEmptyBlocks(votingPeriod);
   // conclude-proposal
   const concludeProposalReceipt = simnet.callPublicFn(
