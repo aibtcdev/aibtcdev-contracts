@@ -57,7 +57,7 @@ export function generateContractNames(tokenSymbol: string): ContractNames {
     [ContractActionType.DAO_ACTION_SET_ACCOUNT_HOLDER]: `${tokenSymbol.toLowerCase()}-action-set-account-holder`,
     [ContractActionType.DAO_ACTION_SET_WITHDRAWAL_AMOUNT]: `${tokenSymbol.toLowerCase()}-action-set-withdrawal-amount`,
     [ContractActionType.DAO_ACTION_SET_WITHDRAWAL_PERIOD]: `${tokenSymbol.toLowerCase()}-action-set-withdrawal-period`,
-    [ContractActionType.DAO_ACTION_TOGGLE_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-toggle-resource`,
+    [ContractActionType.DAO_ACTION_TOGGLE_RESOURCE_BY_NAME]: `${tokenSymbol.toLowerCase()}-action-toggle-resource`,
   };
 }
 

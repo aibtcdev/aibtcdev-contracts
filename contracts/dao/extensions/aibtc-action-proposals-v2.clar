@@ -286,7 +286,7 @@
 (define-private (is-action-valid (action <action-trait>))
   (begin
     ;; verify this extension still active in dao
-    (try! (as-contract (is-dao-or-extension)))
+    (as-contract (try! (is-dao-or-extension)))
     ;; verify the proposed action is an active extension in the dao
     (asserts! (contract-call? .aibtcdev-base-dao is-extension (contract-of action)) ERR_INVALID_ACTION)
     ;; return true if all checks pass
