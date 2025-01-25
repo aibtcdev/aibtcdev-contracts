@@ -1,14 +1,18 @@
 import { Cl, ClarityValue } from "@stacks/transactions";
 import { expect } from "vitest";
-import { ContractActionType, ContractNames, ContractType } from "./dao-types";
-
-const votingPeriod = 144; // 24 hours
+import {
+  ContractActionType,
+  ContractNames,
+  ContractType,
+  VoteSettings,
+  VotingConfig,
+} from "./dao-types";
 
 // voting configuration
-export const VOTING_CONFIG = {
+export const VOTING_CONFIG: VotingConfig = {
   [ContractType.DAO_CORE_PROPOSALS]: {
-    votingDelay: 144, // 144 Bitcoin blocks (~3 days)
-    votingPeriod: 144, // 144 Bitcoin blocks (~3 days)
+    votingDelay: 0, // no delay
+    votingPeriod: 144, // 144 Bitcoin blocks (~1 days)
     votingQuorum: 95, // 95% of liquid supply must participate
     votingThreshold: 95, // 95% of votes must be in favor
   },
@@ -17,6 +21,18 @@ export const VOTING_CONFIG = {
     votingPeriod: 432, // 3 x 144 Bitcoin blocks (~3 days)
     votingQuorum: 25, // 25% of liquid supply must participate
     votingThreshold: 90, // 90% of votes must be in favor
+  },
+  [ContractType.DAO_ACTION_PROPOSALS]: {
+    votingDelay: 0, // no delay
+    votingPeriod: 144, // 144 Bitcoin blocks (~1 days)
+    votingQuorum: 66, // 66% of liquid supply must participate
+    votingThreshold: 66, // 66% of votes must be in favor
+  },
+  [ContractType.DAO_ACTION_PROPOSALS_V2]: {
+    votingDelay: 144, // 1 x 144 Bitcoin blocks (~3 days)
+    votingPeriod: 432, // 3 x 144 Bitcoin blocks (~3 days)
+    votingQuorum: 15, // 15% of liquid supply must participate
+    votingThreshold: 66, // 66% of votes must be in favor
   },
 };
 
@@ -35,8 +51,6 @@ export function generateContractNames(tokenSymbol: string): ContractNames {
     [ContractType.DAO_MESSAGING]: `${tokenSymbol.toLowerCase()}-onchain-messaging`,
     [ContractType.DAO_PAYMENTS]: `${tokenSymbol.toLowerCase()}-payments-invoices`,
     [ContractType.DAO_TREASURY]: `${tokenSymbol.toLowerCase()}-treasury`,
-    [ContractType.DAO_PROPOSAL_BOOTSTRAP]: `${tokenSymbol.toLowerCase()}-base-bootstrap-initialization`,
-    [ContractType.DAO_PROPOSAL_BOOTSTRAP_V2]: `${tokenSymbol.toLowerCase()}-base-bootstrap-initialization-v2`,
     [ContractActionType.DAO_ACTION_ADD_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-add-resource`,
     [ContractActionType.DAO_ACTION_ALLOW_ASSET]: `${tokenSymbol.toLowerCase()}-action-allow-asset`,
     [ContractActionType.DAO_ACTION_SEND_MESSAGE]: `${tokenSymbol.toLowerCase()}-action-send-message`,
@@ -78,13 +92,15 @@ export function fundVoters(
     );
     expect(getDaoTokensReceipt.result).toBeOk(Cl.bool(true));
   }
+  // progress chain for at-block calls
+  simnet.mineEmptyBlocks(10);
 }
 
 export function constructDao(
   deployer: string,
+  baseDaoContractAddress: string,
   bootstrapContractAddress: string
 ) {
-  const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
   const constructDaoReceipt = simnet.callPublicFn(
     baseDaoContractAddress,
     "construct",
@@ -96,38 +112,45 @@ export function constructDao(
 }
 
 export function passCoreProposal(
-  coreProposalsContractName: string,
+  coreProposalsContractAddress: string,
   proposalContractAddress: string,
-  deployer: string,
+  sender: string,
   voters: string[],
-  votingPeriod: number
+  voteSettings: VoteSettings
 ) {
+  // progress past the first voting period
+  simnet.mineEmptyBlocks(voteSettings.votingPeriod);
+
   // create-proposal
   const createProposalReceipt = simnet.callPublicFn(
-    `${deployer}.${coreProposalsContractName}`,
+    coreProposalsContractAddress,
     "create-proposal",
     [Cl.principal(proposalContractAddress)],
-    deployer
+    sender
   );
   expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
+
+  // progress past the voting delay
+  simnet.mineEmptyBlocks(voteSettings.votingDelay);
+
   // vote-on-proposal
   for (const voter of voters) {
     const voteReceipt = simnet.callPublicFn(
-      `${deployer}.${coreProposalsContractName}`,
+      coreProposalsContractAddress,
       "vote-on-proposal",
       [Cl.principal(proposalContractAddress), Cl.bool(true)],
       voter
     );
     expect(voteReceipt.result).toBeOk(Cl.bool(true));
   }
-  // progress past the end block (and v2 delay)
-  simnet.mineEmptyBlocks(votingPeriod);
+  // progress past the voting period + execution delay
+  simnet.mineEmptyBlocks(voteSettings.votingPeriod + voteSettings.votingDelay);
   // conclude-proposal
   const concludeProposalReceipt = simnet.callPublicFn(
-    `${deployer}.${coreProposalsContractName}`,
+    coreProposalsContractAddress,
     "conclude-proposal",
     [Cl.principal(proposalContractAddress)],
-    deployer
+    sender
   );
   // return final receipt for processing
   return concludeProposalReceipt;
@@ -140,7 +163,8 @@ export function passActionProposal(
   proposalParams: ClarityValue,
   deployer: string,
   sender: string,
-  voters: string[]
+  voters: string[],
+  voteSettings: VoteSettings
 ) {
   // propose-action
   const proposeActionReceipt = simnet.callPublicFn(
@@ -152,9 +176,10 @@ export function passActionProposal(
     ],
     sender
   );
-  //console.log("proposeActionReceipt");
-  //console.log(proposeActionReceipt);
   expect(proposeActionReceipt.result).toBeOk(Cl.bool(true));
+
+  // progress past the voting delay
+  simnet.mineEmptyBlocks(voteSettings.votingDelay);
   // vote-on-proposal
   for (const voter of voters) {
     const voteReceipt = simnet.callPublicFn(
@@ -165,8 +190,8 @@ export function passActionProposal(
     );
     expect(voteReceipt.result).toBeOk(Cl.bool(true));
   }
-  // progress past the end block
-  simnet.mineEmptyBlocks(votingPeriod);
+  // progress past the end block and delay
+  simnet.mineEmptyBlocks(voteSettings.votingPeriod + voteSettings.votingDelay);
   // conclude-proposal
   const concludeProposalReceipt = simnet.callPublicFn(
     actionProposalsContractAddress,
