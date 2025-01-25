@@ -1,16 +1,24 @@
-import { Cl, ClarityValue, cvToValue } from "@stacks/transactions";
+import { Cl, ClarityValue } from "@stacks/transactions";
 import { expect } from "vitest";
 import { ContractActionType, ContractNames, ContractType } from "./dao-types";
 
-export const actionProposalsContractName = "aibtc-action-proposals";
-export const coreProposalsContractName = "aibtc-core-proposals";
 const votingPeriod = 144; // 24 hours
 
-function getPercentageOfSupply(amount: number, totalSupply: number) {
-  const rawPercentage = (amount / totalSupply) * 100;
-  const percentage = rawPercentage.toFixed(2);
-  return percentage;
-}
+// voting configuration
+export const VOTING_CONFIG = {
+  [ContractType.DAO_CORE_PROPOSALS]: {
+    votingDelay: 144, // 144 Bitcoin blocks (~3 days)
+    votingPeriod: 144, // 144 Bitcoin blocks (~3 days)
+    votingQuorum: 95, // 95% of liquid supply must participate
+    votingThreshold: 95, // 95% of votes must be in favor
+  },
+  [ContractType.DAO_CORE_PROPOSALS_V2]: {
+    votingDelay: 432, // 3 x 144 Bitcoin blocks (~3 days)
+    votingPeriod: 432, // 3 x 144 Bitcoin blocks (~3 days)
+    votingQuorum: 25, // 25% of liquid supply must participate
+    votingThreshold: 90, // 90% of votes must be in favor
+  },
+};
 
 export function generateContractNames(tokenSymbol: string): ContractNames {
   return {
@@ -39,24 +47,12 @@ export function generateContractNames(tokenSymbol: string): ContractNames {
   };
 }
 
-export function fundVoters(deployer: string, voters: string[]) {
-  for (const voter of voters) {
-    const stxAmount = Math.floor(Math.random() * 500000000) + 1000000;
-    const getDaoTokensReceipt = getDaoTokens(deployer, voter, stxAmount);
-    expect(getDaoTokensReceipt.result).toBeOk(Cl.bool(true));
-  }
-}
-
 export function getDaoTokens(
-  deployer: string,
+  tokenContractAddress: string,
+  tokenDexContractAddress: string,
   address: string,
   stxAmount: number
 ) {
-  const tokenContractName = "aibtc-token";
-  const tokenContractAddress = `${deployer}.${tokenContractName}`;
-  const tokenDexContractName = "aibtc-token-dex";
-  const tokenDexContractAddress = `${deployer}.${tokenDexContractName}`;
-
   const getDaoTokensReceipt = simnet.callPublicFn(
     tokenDexContractAddress,
     "buy",
@@ -67,14 +63,28 @@ export function getDaoTokens(
   return getDaoTokensReceipt;
 }
 
-export function constructDao(deployer: string, bootstrapV2: boolean) {
-  const baseDaoContractName = "aibtcdev-base-dao";
-  const baseDaoContractAddress = `${deployer}.${baseDaoContractName}`;
-  const bootstrapContractName = bootstrapV2
-    ? "aibtc-base-bootstrap-initialization-v2"
-    : "aibtc-base-bootstrap-initialization";
-  const bootstrapContractAddress = `${deployer}.${bootstrapContractName}`;
+export function fundVoters(
+  tokenContractAddress: string,
+  tokenDexContractAddress: string,
+  voters: string[]
+) {
+  for (const voter of voters) {
+    const stxAmount = Math.floor(Math.random() * 500000000) + 1000000;
+    const getDaoTokensReceipt = getDaoTokens(
+      tokenContractAddress,
+      tokenDexContractAddress,
+      voter,
+      stxAmount
+    );
+    expect(getDaoTokensReceipt.result).toBeOk(Cl.bool(true));
+  }
+}
 
+export function constructDao(
+  deployer: string,
+  bootstrapContractAddress: string
+) {
+  const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
   const constructDaoReceipt = simnet.callPublicFn(
     baseDaoContractAddress,
     "construct",
@@ -86,9 +96,11 @@ export function constructDao(deployer: string, bootstrapV2: boolean) {
 }
 
 export function passCoreProposal(
+  coreProposalsContractName: string,
   proposalContractAddress: string,
   deployer: string,
-  voters: string[]
+  voters: string[],
+  votingPeriod: number
 ) {
   // create-proposal
   const createProposalReceipt = simnet.callPublicFn(
@@ -122,17 +134,17 @@ export function passCoreProposal(
 }
 
 export function passActionProposal(
+  actionProposalsContractAddress: string,
   proposalContractAddress: string,
+  proposalId: number,
   proposalParams: ClarityValue,
   deployer: string,
   sender: string,
   voters: string[]
 ) {
-  // TODO: hardcoded
-  const proposalId = 1;
   // propose-action
   const proposeActionReceipt = simnet.callPublicFn(
-    `${deployer}.${actionProposalsContractName}`,
+    actionProposalsContractAddress,
     "propose-action",
     [
       Cl.principal(proposalContractAddress),
@@ -146,7 +158,7 @@ export function passActionProposal(
   // vote-on-proposal
   for (const voter of voters) {
     const voteReceipt = simnet.callPublicFn(
-      `${deployer}.${actionProposalsContractName}`,
+      actionProposalsContractAddress,
       "vote-on-proposal",
       [Cl.uint(proposalId), Cl.bool(true)],
       voter
@@ -157,7 +169,7 @@ export function passActionProposal(
   simnet.mineEmptyBlocks(votingPeriod);
   // conclude-proposal
   const concludeProposalReceipt = simnet.callPublicFn(
-    `${deployer}.${actionProposalsContractName}`,
+    actionProposalsContractAddress,
     "conclude-proposal",
     [Cl.uint(proposalId), Cl.principal(proposalContractAddress)],
     deployer

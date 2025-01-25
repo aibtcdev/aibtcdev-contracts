@@ -1,6 +1,8 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { CoreProposalV2ErrCode } from "../../error-codes";
+import { VOTING_CONFIG } from "../../test-utilities";
+import { ContractType } from "../../dao-types";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
@@ -10,11 +12,8 @@ const contractAddress = `${deployer}.${contractName}`;
 
 const ErrCode = CoreProposalV2ErrCode;
 
-// voting configuration
-const votingDelay = 432; // 3 x 144 Bitcoin blocks (~3 days)
-const votingPeriod = 432; // 3 x 144 Bitcoin blocks (~3 days)
-const votingQuorum = 25; // 25% of liquid supply must participate
-const votingThreshold = 90; // 90% of votes must be in favor
+const { votingDelay, votingPeriod, votingQuorum, votingThreshold } =
+  VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
 
 const votingTokenDex = `${deployer}.aibtc-token-dex`;
 const votingToken = `${deployer}.aibtc-token`;
