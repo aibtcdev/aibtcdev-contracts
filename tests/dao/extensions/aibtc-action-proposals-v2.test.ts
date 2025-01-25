@@ -1,19 +1,23 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
-import { ActionProposalsErrCode } from "../../error-codes";
+import { ActionProposalsV2ErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
-const address1 = accounts.get("wallet_1")!;
-const address2 = accounts.get("wallet_2")!;
 const deployer = accounts.get("deployer")!;
 
 const contractName = "aibtc-action-proposals-v2";
 const contractAddress = `${deployer}.${contractName}`;
 
-const votingPeriod = 144; // 24 hours in BTC blocks
-const votingQuorum = 66; // 66% quorum
+const votingDelay = 144; // 144 Bitcoin blocks (~1 day)
+const votingPeriod = 288; // 2 x 144 Bitcoin blocks (~2 days)
+const votingQuorum = 15; // 15% of liquid supply must participate
+const votingThreshold = 66; // 66% of votes must be in favor
 
-const ErrCode = ActionProposalsErrCode;
+const votingTokenDex = `${deployer}.aibtc-token-dex`;
+const votingToken = `${deployer}.aibtc-token`;
+const votingTreasury = `${deployer}.aibtc-treasury`;
+
+const ErrCode = ActionProposalsV2ErrCode;
 
 describe(`extension: ${contractName}`, () => {
   it("callback() should respond with (ok true)", () => {
