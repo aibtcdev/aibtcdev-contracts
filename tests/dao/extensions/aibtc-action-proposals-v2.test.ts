@@ -227,4 +227,222 @@ describe(`extension: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INSUFFICIENT_BALANCE));
   });
+
+  // it("vote-on-proposal()", () => {})
+  it("vote-on-proposal(): fails if proposal id is not found", () => {
+    const invalidProposalId = 25;
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-proposal",
+      [Cl.uint(invalidProposalId), Cl.bool(true)],
+      deployer
+    );
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_NOT_FOUND));
+  });
+  it("vote-on-proposal(): fails if the user does not own the token", () => {
+    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const proposalId = 1;
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+    // get dao tokens for deployer, increases liquid tokens
+    const daoTokensReceipt = getDaoTokens(
+      tokenContractAddress,
+      tokenDexContractAddress,
+      deployer,
+      1000
+    );
+    expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay for at-block calls
+    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+
+    // create proposal
+    const actionProposalReceipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay for at-block calls
+    simnet.mineEmptyBlocks(votingConfig.votingPeriod);
+
+    // vote on proposal from another wallet
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-proposal",
+      [Cl.uint(proposalId), Cl.bool(true)],
+      address1
+    );
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INSUFFICIENT_BALANCE));
+  });
+  it("vote-on-proposal(): fails if the vote happens before proposal start block", () => {
+    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const proposalId = 1;
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+    // get dao tokens for deployer, increases liquid tokens
+    const daoTokensReceipt = getDaoTokens(
+      tokenContractAddress,
+      tokenDexContractAddress,
+      deployer,
+      1000
+    );
+    expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay for at-block calls
+    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+
+    // create proposal
+    const actionProposalReceipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+
+    // vote on proposal
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-proposal",
+      [Cl.uint(proposalId), Cl.bool(true)],
+      deployer
+    );
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_VOTE_TOO_SOON));
+  });
+  it("vote-on-proposal(): fails if vote happens after proposal end block", () => {
+    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const proposalId = 1;
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+    // get dao tokens for deployer, increases liquid tokens
+    const daoTokensReceipt = getDaoTokens(
+      tokenContractAddress,
+      tokenDexContractAddress,
+      deployer,
+      1000
+    );
+    expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay for at-block calls
+    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+
+    // create proposal
+    const actionProposalReceipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting period
+    simnet.mineEmptyBlocks(votingConfig.votingPeriod);
+
+    // vote on proposal
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-proposal",
+      [Cl.uint(proposalId), Cl.bool(true)],
+      deployer
+    );
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_VOTE_TOO_LATE));
+  });
+  it("vote-on-proposal(): fails if user votes more than once on a proposal", () => {
+    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const proposalId = 1;
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+    // get dao tokens for deployer, increases liquid tokens
+    const daoTokensReceipt = getDaoTokens(
+      tokenContractAddress,
+      tokenDexContractAddress,
+      deployer,
+      1000
+    );
+    expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay for at-block calls
+    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+
+    // create proposal
+    const actionProposalReceipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay
+    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+
+    // vote on proposal
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-proposal",
+      [Cl.uint(proposalId), Cl.bool(true)],
+      deployer
+    );
+    expect(receipt.result).toBeOk(Cl.bool(true));
+
+    // attempt to vote again
+    const receipt2 = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-proposal",
+      [Cl.uint(proposalId), Cl.bool(true)],
+      deployer
+    );
+    expect(receipt2.result).toBeErr(Cl.uint(ErrCode.ERR_ALREADY_VOTED));
+  });
 });
