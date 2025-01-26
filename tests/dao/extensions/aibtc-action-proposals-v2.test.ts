@@ -1,4 +1,4 @@
-import { Cl, cvToJSON, cvToValue, SomeCV, TupleCV } from "@stacks/transactions";
+import { Cl, SomeCV } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { ActionProposalsV2ErrCode } from "../../error-codes";
 import {
@@ -24,7 +24,7 @@ const contractAddress = `${deployer}.${ContractType.DAO_ACTION_PROPOSALS_V2}`;
 
 const ErrCode = ActionProposalsV2ErrCode;
 
-describe(`extension: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
+describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,
@@ -726,4 +726,26 @@ describe(`extension: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
 
     expect(proposalData.data.executed).toStrictEqual(Cl.bool(false));
   });
+});
+
+describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
+  it("get-voting-power(): fails if proposal is not found", () => {
+    const invalidProposalId = 25;
+    const receipt = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-voting-power",
+      [Cl.principal(deployer), Cl.uint(invalidProposalId)],
+      deployer
+    );
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_NOT_FOUND));
+  });
+  //it("get-voting-power(): fails if unable to find block hash", () => {});
+  //it("get-voting-power(): succeeds and returns token balance at block height", () => {});
+  /*
+    it("get-proposal(): ", () => {});
+    it("get-vote-record(): ", () => {});
+    it("get-total-proposals(): ", () => {});
+    it("get-voting-configuration(): ", () => {});
+    it("get-liquid-supply(): ", () => {});
+    */
 });
