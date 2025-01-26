@@ -30,7 +30,7 @@ export const VOTING_CONFIG: VotingConfig = {
   },
   [ContractType.DAO_ACTION_PROPOSALS_V2]: {
     votingDelay: 144, // 1 x 144 Bitcoin blocks (~3 days)
-    votingPeriod: 432, // 3 x 144 Bitcoin blocks (~3 days)
+    votingPeriod: 288, // 2 x 144 Bitcoin blocks (~2 days)
     votingQuorum: 15, // 15% of liquid supply must participate
     votingThreshold: 66, // 66% of votes must be in favor
   },
