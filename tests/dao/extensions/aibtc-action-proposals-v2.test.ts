@@ -1,7 +1,8 @@
-import { Cl, cvToJSON, cvToValue } from "@stacks/transactions";
+import { Cl, cvToJSON, cvToValue, SomeCV, TupleCV } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { ActionProposalsV2ErrCode } from "../../error-codes";
 import {
+  ActionProposalsV2ProposalData,
   ContractActionType,
   ContractProposalType,
   ContractType,
@@ -89,7 +90,7 @@ describe(`extension: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       [Cl.principal(actionProposalContractAddress), Cl.bufferFromAscii("test")],
       deployer
     );
-    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_ACTION));
   });
   it("propose-action() fails if the action proposal extension is disabled", () => {
     const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
@@ -456,7 +457,7 @@ describe(`extension: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_NOT_FOUND));
   });
-  it("conclude-proposal(): fails if the action proposal extension is disabled", () => {
+  it("conclude-proposal(): succeeds and does not execute if the action proposal extension is disabled", () => {
     const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
     const disableExtensionContractAddress = `${deployer}.test-disable-onchain-messaging-action`;
     const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
@@ -514,6 +515,18 @@ describe(`extension: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       [Cl.uint(1), Cl.principal(actionProposalContractAddress)],
       deployer
     );
-    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_ACTION));
+    expect(receipt.result).toBeOk(Cl.bool(false));
+
+    // verify proposal was not executed
+    const proposalInfo = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-proposal",
+      [Cl.uint(1)],
+      deployer
+    ).result as SomeCV;
+
+    const proposalData = proposalInfo.value as ActionProposalsV2ProposalData;
+
+    expect(proposalData.data.executed).toStrictEqual(Cl.bool(false));
   });
 });

@@ -68,6 +68,7 @@
     metQuorum: bool, ;; did the proposal meet quorum
     metThreshold: bool, ;; did the proposal meet threshold
     passed: bool, ;; did the proposal pass
+    executed: bool, ;; did the proposal execute
   }
 )
 
@@ -95,11 +96,12 @@
       (startBlock (+ burn-block-height VOTING_DELAY))
       (endBlock (+ startBlock VOTING_PERIOD))
       (senderBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
+      (validAction (is-action-valid action))
     )
     ;; liquidTokens is greater than zero
     (asserts! (> liquidTokens u0) ERR_FETCHING_TOKEN_DATA)
     ;; verify this extension and action contract are active in dao
-    (try! (is-action-valid action))
+    (asserts! validAction ERR_INVALID_ACTION)
     ;; at least one stx block has passed since last proposal
     (asserts! (> createdAt (var-get lastProposalCreated)) ERR_ALREADY_PROPOSAL_AT_BLOCK)
     ;; caller has the required balance
@@ -135,6 +137,7 @@
       metQuorum: false,
       metThreshold: false,
       passed: false,
+      executed: false,
     }) ERR_SAVING_PROPOSAL)
     ;; set last proposal created block height
     (var-set lastProposalCreated createdAt)
@@ -201,9 +204,8 @@
         false))
       ;; proposal passed if quorum and threshold are met
       (votePassed (and hasVotes metQuorum metThreshold))
+      (validAction (is-action-valid action))
     )
-    ;; verify this extension and action contract are active in dao
-    (try! (is-action-valid action))
     ;; proposal not already concluded
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
     ;; proposal is past voting period
@@ -221,7 +223,8 @@
         proposalId: proposalId,
         metQuorum: metQuorum,
         metThreshold: metThreshold,
-        passed: votePassed
+        passed: votePassed,
+        executed: (if (and votePassed validAction) true false)
       }
     })
     ;; update the proposal record
@@ -230,11 +233,12 @@
         concluded: true,
         metQuorum: metQuorum,
         metThreshold: metThreshold,
-        passed: votePassed
+        passed: votePassed,
+        executed: (if (and votePassed validAction) true false)
       })
     )
     ;; execute the action only if it passed
-    (ok (if votePassed
+    (ok (if (and votePassed validAction)
       (match (contract-call? action run (get parameters proposalRecord)) ok_ true err_ (begin (print {err:err_}) false))
       false
     ))
@@ -289,13 +293,12 @@
 )
 
 (define-private (is-action-valid (action <action-trait>))
-  (begin
-    ;; verify this extension still active in dao
-    (as-contract (try! (is-dao-or-extension)))
-    ;; verify the proposed action is an active extension in the dao
-    (asserts! (contract-call? .aibtcdev-base-dao is-extension (contract-of action)) ERR_INVALID_ACTION)
-    ;; return true if all checks pass
-    (ok true)
+  (let
+    (
+      (extensionActive (is-ok (as-contract (is-dao-or-extension))))
+      (actionActive (is-eq true (contract-call? .aibtcdev-base-dao is-extension (contract-of action))))
+    )
+    (and extensionActive actionActive)
   )
 )
 

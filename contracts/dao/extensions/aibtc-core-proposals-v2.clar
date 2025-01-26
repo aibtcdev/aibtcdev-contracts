@@ -187,9 +187,8 @@
         false))
       ;; proposal passed if quorum and threshold are met
       (votePassed (and hasVotes metQuorum metThreshold))
+      (proposalExecuted (is-some (contract-call? .aibtcdev-base-dao executed-at proposal)))
     )
-    ;; proposal was not already executed
-    (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; proposal was not already concluded
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
     ;; proposal is past voting period
@@ -218,7 +217,8 @@
       })
     )
     ;; execute the proposal only if it passed
-    (and votePassed (try! (contract-call? .aibtcdev-base-dao execute proposal tx-sender)))
+    (and (not proposalExecuted) votePassed
+      (try! (contract-call? .aibtcdev-base-dao execute proposal tx-sender)))
     ;; return the result
     (ok votePassed)
   )
