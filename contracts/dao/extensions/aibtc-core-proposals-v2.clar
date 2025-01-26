@@ -176,12 +176,17 @@
       (votesFor (get votesFor proposalRecord))
       (votesAgainst (get votesAgainst proposalRecord))
       (liquidTokens (get liquidTokens proposalRecord))
+      (hasVotes (> (+ votesFor votesAgainst) u0))
       ;; quorum: check if enough total votes vs liquid supply
-      (metQuorum (>= (/ (* (+ votesFor votesAgainst) u100) liquidTokens) VOTING_QUORUM))
+      (metQuorum (if hasVotes
+        (>= (/ (* (+ votesFor votesAgainst) u100) liquidTokens) VOTING_QUORUM)
+        false))
       ;; threshold: check if enough yes votes vs total votes
-      (metThreshold (>= (/ (* votesFor u100) (+ votesFor votesAgainst)) VOTING_THRESHOLD))
+      (metThreshold (if hasVotes
+        (>= (/ (* votesFor u100) (+ votesFor votesAgainst)) VOTING_THRESHOLD)
+        false))
       ;; proposal passed if quorum and threshold are met
-      (votePassed (and metQuorum metThreshold))
+      (votePassed (and hasVotes metQuorum metThreshold))
     )
     ;; proposal was not already executed
     (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)

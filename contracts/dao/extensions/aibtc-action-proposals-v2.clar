@@ -30,7 +30,7 @@
 (define-constant ERR_RETRIEVING_START_BLOCK_HASH (err u1009))
 (define-constant ERR_VOTE_TOO_SOON (err u1010))
 (define-constant ERR_VOTE_TOO_LATE (err u1011))
-(define-constant ERR_ALREADY_VOTED (err u1012)) 
+(define-constant ERR_ALREADY_VOTED (err u1012))
 (define-constant ERR_INVALID_ACTION (err u1013))
 
 ;; voting configuration
@@ -190,12 +190,17 @@
       (votesFor (get votesFor proposalRecord))
       (votesAgainst (get votesAgainst proposalRecord))
       (liquidTokens (get liquidTokens proposalRecord))
+      (hasVotes (> (+ votesFor votesAgainst) u0))
       ;; quorum: check if enough total votes vs liquid supply
-      (metQuorum (>= (/ (* (+ votesFor votesAgainst) u100) liquidTokens) VOTING_QUORUM))
+      (metQuorum (if hasVotes
+        (>= (/ (* (+ votesFor votesAgainst) u100) liquidTokens) VOTING_QUORUM)
+        false))
       ;; threshold: check if enough yes votes vs total votes
-      (metThreshold (>= (/ (* votesFor u100) (+ votesFor votesAgainst)) VOTING_THRESHOLD))
+      (metThreshold (if hasVotes
+        (>= (/ (* votesFor u100) (+ votesFor votesAgainst)) VOTING_THRESHOLD)
+        false))
       ;; proposal passed if quorum and threshold are met
-      (votePassed (and metQuorum metThreshold))
+      (votePassed (and hasVotes metQuorum metThreshold))
     )
     ;; verify this extension and action contract are active in dao
     (try! (is-action-valid action))

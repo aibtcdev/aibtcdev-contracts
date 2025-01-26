@@ -1,4 +1,4 @@
-import { Cl } from "@stacks/transactions";
+import { Cl, cvToJSON, cvToValue } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { ActionProposalsV2ErrCode } from "../../error-codes";
 import {
@@ -22,8 +22,6 @@ const address2 = accounts.get("wallet_2")!;
 const contractAddress = `${deployer}.${ContractType.DAO_ACTION_PROPOSALS_V2}`;
 
 const ErrCode = ActionProposalsV2ErrCode;
-
-const voteSettings = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
 
 describe(`extension: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   it("callback() should respond with (ok true)", () => {
@@ -516,7 +514,6 @@ describe(`extension: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       [Cl.uint(1), Cl.principal(actionProposalContractAddress)],
       deployer
     );
-    // why division by zero?
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_ACTION));
   });
 });
