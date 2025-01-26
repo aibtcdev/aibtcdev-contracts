@@ -259,20 +259,8 @@
   }
 )
 
-;; private functions
-;;
-(define-private (is-dao-or-extension)
-  (ok (asserts! (or (is-eq tx-sender .aibtcdev-base-dao)
-    (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
-  ))
-)
-
-(define-private (get-block-hash (blockHeight uint))
-  (get-block-info? id-header-hash blockHeight)
-)
-
 ;; calculate the liquid supply of the dao token
-(define-private (get-liquid-supply (blockHeight uint))
+(define-read-only (get-liquid-supply (blockHeight uint))
   (let
     (
       (blockHash (unwrap! (get-block-hash blockHeight) ERR_RETRIEVING_START_BLOCK_HASH))
@@ -283,4 +271,16 @@
     )
     (ok (- totalSupply (+ dexBalance poolBalance treasuryBalance)))
   )
+)
+
+;; private functions
+;;
+(define-private (is-dao-or-extension)
+  (ok (asserts! (or (is-eq tx-sender .aibtcdev-base-dao)
+    (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
+  ))
+)
+
+(define-private (get-block-hash (blockHeight uint))
+  (get-block-info? id-header-hash blockHeight)
 )

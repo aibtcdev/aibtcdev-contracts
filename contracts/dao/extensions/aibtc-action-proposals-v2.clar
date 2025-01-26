@@ -284,6 +284,20 @@
   }
 )
 
+;; calculate the liquid supply of the dao token
+(define-read-only (get-liquid-supply (blockHeight uint))
+  (let
+    (
+      (blockHash (unwrap! (get-block-hash blockHeight) ERR_RETRIEVING_START_BLOCK_HASH))
+      (totalSupply (unwrap! (at-block blockHash (contract-call? .aibtc-token get-total-supply)) ERR_FETCHING_TOKEN_DATA))
+      (dexBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_DEX)) ERR_FETCHING_TOKEN_DATA))
+      (poolBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_POOL)) ERR_FETCHING_TOKEN_DATA))
+      (treasuryBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TREASURY)) ERR_FETCHING_TOKEN_DATA))
+    )
+    (ok (- totalSupply (+ dexBalance poolBalance treasuryBalance)))
+  )
+)
+
 ;; private functions
 ;;
 (define-private (is-dao-or-extension)
@@ -304,18 +318,4 @@
 
 (define-private (get-block-hash (blockHeight uint))
   (get-block-info? id-header-hash blockHeight)
-)
-
-;; calculate the liquid supply of the dao token
-(define-private (get-liquid-supply (blockHeight uint))
-  (let
-    (
-      (blockHash (unwrap! (get-block-hash blockHeight) ERR_RETRIEVING_START_BLOCK_HASH))
-      (totalSupply (unwrap! (at-block blockHash (contract-call? .aibtc-token get-total-supply)) ERR_FETCHING_TOKEN_DATA))
-      (dexBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_DEX)) ERR_FETCHING_TOKEN_DATA))
-      (poolBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_POOL)) ERR_FETCHING_TOKEN_DATA))
-      (treasuryBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TREASURY)) ERR_FETCHING_TOKEN_DATA))
-    )
-    (ok (- totalSupply (+ dexBalance poolBalance treasuryBalance)))
-  )
 )
