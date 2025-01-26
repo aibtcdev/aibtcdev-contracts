@@ -1,3 +1,11 @@
+import {
+  BooleanCV,
+  BufferCV,
+  PrincipalCV,
+  TupleCV,
+  UIntCV,
+} from "@stacks/transactions";
+
 export enum ContractType {
   // deployed before dao
   DAO_TOKEN = "aibtc-token",
@@ -105,3 +113,21 @@ type VotableContracts =
 export type VotingConfig = {
   [key in VotableContracts]: VoteSettings;
 };
+
+export interface ActionProposalsV2ProposalData extends TupleCV {
+  action: PrincipalCV;
+  parameters: BufferCV;
+  createdAt: UIntCV;
+  caller: PrincipalCV;
+  creator: PrincipalCV;
+  startBlock: UIntCV;
+  endBlock: UIntCV;
+  votesFor: UIntCV;
+  votesAgainst: UIntCV;
+  liquidTokens: UIntCV;
+  concluded: BooleanCV;
+  metQuorum: BooleanCV;
+  metThreshold: BooleanCV;
+  passed: BooleanCV;
+  executed: BooleanCV;
+}
