@@ -131,3 +131,16 @@ export interface ActionProposalsV2ProposalData extends TupleCV {
   passed: BooleanCV;
   executed: BooleanCV;
 }
+
+export interface ProposalsVotingConfiguration extends TupleCV {
+  self: PrincipalCV;
+  deployedBurnBlock: UIntCV;
+  deployedStacksBlock: UIntCV;
+  delay: UIntCV;
+  period: UIntCV;
+  quorum: UIntCV;
+  threshold: UIntCV;
+  tokenDex: PrincipalCV;
+  tokenPool: PrincipalCV;
+  treasury: PrincipalCV;
+}

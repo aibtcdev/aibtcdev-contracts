@@ -1,4 +1,13 @@
-import { Cl, SomeCV } from "@stacks/transactions";
+import {
+  Cl,
+  cvToValue,
+  ResponseCV,
+  responseOkCV,
+  ResponseOkCV,
+  someCV,
+  SomeCV,
+  UIntCV,
+} from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { ActionProposalsV2ErrCode } from "../../error-codes";
 import {
@@ -225,6 +234,59 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       address1
     );
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INSUFFICIENT_BALANCE));
+  });
+  it("propose-action(): fails if more than one proposal is created in a stacks block", () => {
+    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
+    const actionProposalContractAddress2 = `${deployer}.${ContractActionType.DAO_ACTION_ADD_RESOURCE}`;
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+    // get dao tokens for deployer, increases liquid tokens
+    const daoTokensReceipt = getDaoTokens(
+      tokenContractAddress,
+      tokenDexContractAddress,
+      deployer,
+      1000
+    );
+    expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay for at-block calls
+    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+
+    // create proposal
+    const actionProposalReceipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+
+    // create proposal again in the same block
+    const actionProposalReceipt2 = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [
+        Cl.principal(actionProposalContractAddress2),
+        Cl.bufferFromAscii("test"),
+      ],
+      deployer
+    );
+    expect(actionProposalReceipt2.result).toBeErr(
+      Cl.uint(ErrCode.ERR_ALREADY_PROPOSAL_AT_BLOCK)
+    );
   });
 
   // it("vote-on-proposal()", () => {})
@@ -739,13 +801,433 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_NOT_FOUND));
   });
-  //it("get-voting-power(): fails if unable to find block hash", () => {});
-  //it("get-voting-power(): succeeds and returns token balance at block height", () => {});
-  /*
-    it("get-proposal(): ", () => {});
-    it("get-vote-record(): ", () => {});
-    it("get-total-proposals(): ", () => {});
-    it("get-voting-configuration(): ", () => {});
-    it("get-liquid-supply(): ", () => {});
-    */
+  it("get-voting-power(): succeeds and returns token balance at block height", () => {
+    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const proposalId = 1;
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+    // get dao tokens for deployer, increases liquid tokens
+    const daoTokensReceipt = getDaoTokens(
+      tokenContractAddress,
+      tokenDexContractAddress,
+      deployer,
+      1000
+    );
+    expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
+
+    const votingPower = simnet.callReadOnlyFn(
+      tokenContractAddress,
+      "get-balance",
+      [Cl.principal(deployer)],
+      deployer
+    ).result;
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress the chain for at-block calls
+    simnet.mineEmptyBlocks(10);
+
+    // create proposal
+    const actionProposalReceipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay for at-block calls
+    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+
+    // get voting power
+    const receipt = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-voting-power",
+      [Cl.principal(deployer), Cl.uint(proposalId)],
+      deployer
+    );
+    expect(receipt.result).toStrictEqual(votingPower);
+  });
+  it("get-proposal(): returns none if proposal is not found", () => {
+    const invalidProposalId = 25;
+    const expectedResult = Cl.none();
+    const receipt = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-proposal",
+      [Cl.uint(invalidProposalId)],
+      deployer
+    );
+    expect(receipt.result).toStrictEqual(expectedResult);
+  });
+  it("get-proposal: succeeds and returns stored proposal data", () => {
+    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
+    const actionProposalData = Cl.bufferFromAscii("test");
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const proposalId = 1;
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+    const expectedResult = Cl.some(
+      Cl.tuple({
+        action: Cl.principal(actionProposalContractAddress),
+        caller: Cl.principal(deployer),
+        concluded: Cl.bool(false),
+        createdAt: Cl.uint(14),
+        creator: Cl.principal(deployer),
+        endBlock: Cl.uint(446),
+        executed: Cl.bool(false),
+        liquidTokens: Cl.uint(33809918),
+        metQuorum: Cl.bool(false),
+        metThreshold: Cl.bool(false),
+        parameters: Cl.bufferFromHex("0x74657374"),
+        passed: Cl.bool(false),
+        startBlock: Cl.uint(158),
+        votesAgainst: Cl.uint(0),
+        votesFor: Cl.uint(0),
+      })
+    );
+
+    // get dao tokens for deployer, increases liquid tokens
+    const daoTokensReceipt = getDaoTokens(
+      tokenContractAddress,
+      tokenDexContractAddress,
+      deployer,
+      1000
+    );
+    expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress the chain for at-block calls
+    simnet.mineEmptyBlocks(10);
+
+    // create proposal
+    const actionProposalReceipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), actionProposalData],
+      deployer
+    );
+    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress past voting delay for at-block calls
+    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+
+    // get proposal
+    const proposalInfo = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-proposal",
+      [Cl.uint(proposalId)],
+      deployer
+    ).result;
+
+    expect(proposalInfo).toStrictEqual(expectedResult);
+  });
+  it("get-vote-record(): succeeds and returns 0 if voter is not found", () => {
+    const invalidProposalId = 25;
+    const expectedResult = Cl.uint(0);
+    const receipt = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-vote-record",
+      [Cl.uint(invalidProposalId), Cl.principal(address1)],
+      deployer
+    );
+    expect(receipt.result).toStrictEqual(expectedResult);
+  });
+  it("get-vote-record(): succeeds and returns vote amount for user and proposal", () => {
+    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
+    const actionProposalData = Cl.bufferFromAscii("test");
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const proposalId = 1;
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+    // get dao tokens for deployer, increases liquid tokens
+    const daoTokensReceipt = getDaoTokens(
+      tokenContractAddress,
+      tokenDexContractAddress,
+      deployer,
+      1000
+    );
+    expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
+
+    // get dao tokens for address1, increases liquid tokens
+    const daoTokensReceipt2 = getDaoTokens(
+      tokenContractAddress,
+      tokenDexContractAddress,
+      address1,
+      2000
+    );
+    expect(daoTokensReceipt2.result).toBeOk(Cl.bool(true));
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress the chain for at-block calls
+    simnet.mineEmptyBlocks(10);
+
+    // create proposal
+    const actionProposalReceipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), actionProposalData],
+      deployer
+    );
+    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+
+    // get balance for deployer
+    const deployerBalance = simnet.callReadOnlyFn(
+      tokenContractAddress,
+      "get-balance",
+      [Cl.principal(deployer)],
+      deployer
+    ).result as ResponseOkCV;
+
+    // get balance for address1
+    const address1Balance = simnet.callReadOnlyFn(
+      tokenContractAddress,
+      "get-balance",
+      [Cl.principal(address1)],
+      deployer
+    ).result as ResponseOkCV;
+
+    // progress past voting delay for at-block calls
+    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+
+    // vote on proposal
+    const voteReceipt = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-proposal",
+      [Cl.uint(proposalId), Cl.bool(true)],
+      deployer
+    );
+    expect(voteReceipt.result).toBeOk(Cl.bool(true));
+
+    // vote on proposal for address1
+    const voteReceipt2 = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-proposal",
+      [Cl.uint(proposalId), Cl.bool(true)],
+      address1
+    );
+    expect(voteReceipt2.result).toBeOk(Cl.bool(true));
+
+    // get vote record
+    const voteRecord = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-vote-record",
+      [Cl.uint(proposalId), Cl.principal(deployer)],
+      deployer
+    ).result;
+    expect(voteRecord).toStrictEqual(deployerBalance.value);
+
+    // get vote record for address1
+    const voteRecord2 = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-vote-record",
+      [Cl.uint(proposalId), Cl.principal(address1)],
+      deployer
+    ).result;
+    expect(voteRecord2).toStrictEqual(address1Balance.value);
+  });
+  it("get-total-proposals(): returns 0 if no proposals exist", () => {
+    const expectedResult = Cl.uint(0);
+    const receipt = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-total-proposals",
+      [],
+      deployer
+    );
+    expect(receipt.result).toStrictEqual(expectedResult);
+  });
+  it("get-total-proposals(): returns total number of proposals", () => {
+    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
+    const actionProposalData = Cl.bufferFromAscii("test");
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    let totalProposals = 0;
+
+    // get dao tokens for deployer, increases liquid tokens
+    const daoTokensReceipt = getDaoTokens(
+      tokenContractAddress,
+      tokenDexContractAddress,
+      deployer,
+      1000
+    );
+    expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress the chain for at-block calls
+    simnet.mineEmptyBlocks(10);
+
+    // create proposal
+    const actionProposalReceipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), actionProposalData],
+      deployer
+    );
+    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+    totalProposals++;
+
+    // get total proposals
+    const receipt = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-total-proposals",
+      [],
+      deployer
+    );
+    expect(receipt.result).toStrictEqual(Cl.uint(totalProposals));
+
+    // progress the chain
+    simnet.mineEmptyBlock();
+
+    // create 2nd proposal
+    const actionProposalReceipt2 = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), actionProposalData],
+      deployer
+    );
+    expect(actionProposalReceipt2.result).toBeOk(Cl.bool(true));
+    totalProposals++;
+
+    // get total proposals
+    const receipt2 = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-total-proposals",
+      [],
+      deployer
+    );
+    expect(receipt2.result).toStrictEqual(Cl.uint(totalProposals));
+
+    // create 10 proposals
+    for (let i = 0; i < 10; i++) {
+      simnet.mineEmptyBlock();
+      const actionProposalReceipt = simnet.callPublicFn(
+        contractAddress,
+        "propose-action",
+        [Cl.principal(actionProposalContractAddress), actionProposalData],
+        deployer
+      );
+      expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+      totalProposals++;
+    }
+
+    // get total proposals
+    const receipt3 = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-total-proposals",
+      [],
+      deployer
+    );
+    expect(receipt3.result).toStrictEqual(Cl.uint(totalProposals));
+  });
+  it("get-voting-configuration(): returns the voting configuration in the contract", () => {
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const tokenPoolContractAddress = `${deployer}.${ContractType.DAO_BITFLOW_POOL}`;
+    const treasuryContractAddress = `${deployer}.${ContractType.DAO_TREASURY}`;
+    const blockHeight = simnet.blockHeight;
+    const expectedResult = Cl.tuple({
+      self: Cl.principal(contractAddress),
+      deployedBurnBlock: Cl.uint(blockHeight - 2),
+      deployedStacksBlock: Cl.uint(blockHeight - 2),
+      delay: Cl.uint(votingConfig.votingDelay),
+      period: Cl.uint(votingConfig.votingPeriod),
+      quorum: Cl.uint(votingConfig.votingQuorum),
+      threshold: Cl.uint(votingConfig.votingThreshold),
+      tokenDex: Cl.principal(tokenDexContractAddress),
+      tokenPool: Cl.principal(tokenPoolContractAddress),
+      treasury: Cl.principal(treasuryContractAddress),
+    });
+    const votingConfiguration = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-voting-configuration",
+      [],
+      deployer
+    ).result;
+    expect(votingConfiguration).toStrictEqual(expectedResult);
+  });
+  it("get-liquid-supply(): returns the total liquid supply of the dao token", () => {
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    let liquidSupply = 0;
+    let blockHeight = simnet.blockHeight;
+
+    // progress chain by 1 for at-block call
+    simnet.mineEmptyBlock();
+
+    const receipt = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-liquid-supply",
+      [Cl.uint(blockHeight)],
+      deployer
+    ).result;
+    expect(receipt).toBeOk(Cl.uint(liquidSupply));
+
+    const daoTokensReceipt = getDaoTokens(
+      tokenContractAddress,
+      tokenDexContractAddress,
+      deployer,
+      1000
+    );
+    expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
+
+    // progress chain by 1 for at-block call
+    simnet.mineEmptyBlock();
+
+    const deployerBalanceResult = simnet.callReadOnlyFn(
+      tokenContractAddress,
+      "get-balance",
+      [Cl.principal(deployer)],
+      deployer
+    ).result as ResponseOkCV;
+    liquidSupply += Number(cvToValue(deployerBalanceResult.value) as BigInt);
+
+    // find the correct block height
+    blockHeight = simnet.blockHeight - 1;
+
+    const receipt2 = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-liquid-supply",
+      [Cl.uint(blockHeight)],
+      deployer
+    ).result;
+    expect(receipt2).toBeOk(Cl.uint(liquidSupply));
+  });
 });
