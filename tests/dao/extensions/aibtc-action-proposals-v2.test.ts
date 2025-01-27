@@ -20,6 +20,23 @@ const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
+// helper for contract name definitions
+const getContract = (
+  contractType: ContractType | ContractProposalType | ContractActionType
+): string => `${deployer}.${contractType}`;
+// general contract name definitons
+const actionProposalContractAddress = getContract(
+  ContractActionType.DAO_ACTION_SEND_MESSAGE
+);
+const tokenContractAddress = getContract(ContractType.DAO_TOKEN);
+const tokenDexContractAddress = getContract(ContractType.DAO_TOKEN_DEX);
+const baseDaoContractAddress = getContract(ContractType.DAO_BASE);
+const bootstrapContractAddress = getContract(
+  ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2
+);
+const coreProposalsContractAddress = getContract(
+  ContractType.DAO_CORE_PROPOSALS_V2
+);
 // define testing contract address
 const contractAddress = `${deployer}.${ContractType.DAO_ACTION_PROPOSALS_V2}`;
 // import contract error codes
@@ -45,7 +62,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
 
   it("propose-action() fails if the liquid tokens are 0", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
     const receipt = simnet.callPublicFn(
       contractAddress,
       "propose-action",
@@ -56,13 +72,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("propose-action() fails if the target action extension is disabled", () => {
-    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
     const disableExtensionContractAddress = `${deployer}.test-disable-action-proposals-v2`;
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     // fund voters to pass proposals
     fundVoters(tokenContractAddress, tokenDexContractAddress, [
       deployer,
@@ -100,13 +110,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("propose-action() fails if the action proposal extension itself is disabled", () => {
-    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
     const disableExtensionContractAddress = `${deployer}.test-disable-onchain-messaging-action`;
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     // fund voters to pass proposals
     fundVoters(tokenContractAddress, tokenDexContractAddress, [
       deployer,
@@ -144,13 +148,8 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("propose-action() fails if the action proposal is not a dao extension", () => {
-    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
     const disableExtensionContractAddress = `${deployer}.test-disable-onchain-messaging-action`;
     const actionProposalContractAddress = `${deployer}.test-unknown-action-proposal`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     // fund voters to pass proposals
     fundVoters(tokenContractAddress, tokenDexContractAddress, [
       deployer,
@@ -188,11 +187,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("propose-action() fails if the user does not own the token", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
@@ -222,12 +216,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("propose-action(): fails if more than one proposal is created in a stacks block", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
     const actionProposalContractAddress2 = `${deployer}.${ContractActionType.DAO_ACTION_ADD_RESOURCE}`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
@@ -285,11 +274,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("vote-on-proposal(): fails if the user does not own the token", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     const proposalId = 1;
     const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
@@ -330,11 +314,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("vote-on-proposal(): fails if the vote happens before proposal start block", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     const proposalId = 1;
     const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
@@ -373,11 +352,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("vote-on-proposal(): fails if vote happens after proposal end block", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     const proposalId = 1;
     const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
@@ -420,11 +394,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("vote-on-proposal(): fails if user votes more than once on a proposal", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     const proposalId = 1;
     const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
@@ -477,7 +446,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
 
   it("conclude-proposal(): fails if proposal id is not found", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
     const invalidProposalId = 25;
     const receipt = simnet.callPublicFn(
       contractAddress,
@@ -489,11 +457,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("conclude-proposal(): fails if the proposal is already concluded", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     const proposalId = 1;
     const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
@@ -548,11 +511,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("conclude-proposal(): fails if the proposal is not past the voting window", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     const proposalId = 1;
     const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
@@ -615,12 +573,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("conclude-proposal(): fails if the action does not match the stored action", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
     const actionProposalContractAddress2 = `${deployer}.${ContractActionType.DAO_ACTION_ADD_RESOURCE}`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     const proposalId = 1;
     const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
@@ -648,7 +601,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       deployer
     );
     expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
-
     // progress past voting delay, voting period, execution delay
     simnet.mineEmptyBlocks(
       votingConfig.votingDelay +
@@ -666,13 +618,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("conclude-proposal(): succeeds and does not execute if the action proposal extension is disabled", () => {
-    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
     const disableExtensionContractAddress = `${deployer}.test-disable-onchain-messaging-action`;
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     // fund voters to pass proposals
     fundVoters(tokenContractAddress, tokenDexContractAddress, [
       deployer,
@@ -724,9 +670,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       [Cl.uint(1)],
       deployer
     ).result as SomeCV;
-
     const proposalData = proposalInfo.value as ActionProposalsV2ProposalData;
-
     expect(proposalData.data.executed).toStrictEqual(Cl.bool(false));
   });
 });
@@ -748,11 +692,6 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("get-voting-power(): succeeds and returns token balance at block height", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     const proposalId = 1;
     const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
@@ -763,7 +702,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       1000
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
-
+    // get voting power
     const votingPower = simnet.callReadOnlyFn(
       tokenContractAddress,
       "get-balance",
@@ -816,15 +755,10 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("get-proposal(): succeeds and returns stored proposal data", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
     const actionProposalData = Cl.bufferFromAscii("test");
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     const proposalId = 1;
     const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
-
+    // expected proposal data
     const expectedResult = Cl.some(
       Cl.tuple({
         action: Cl.principal(actionProposalContractAddress),
@@ -878,7 +812,6 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       [Cl.uint(proposalId)],
       deployer
     ).result;
-
     expect(proposalInfo).toStrictEqual(expectedResult);
   });
 
@@ -899,12 +832,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("get-vote-record(): succeeds and returns vote amount for user and proposal", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
     const actionProposalData = Cl.bufferFromAscii("test");
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     const proposalId = 1;
     const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
@@ -1006,12 +934,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("get-total-proposals(): returns total number of proposals", () => {
-    const actionProposalContractAddress = `${deployer}.${ContractActionType.DAO_ACTION_SEND_MESSAGE}`;
     const actionProposalData = Cl.bufferFromAscii("test");
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     let totalProposals = 0;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
@@ -1094,7 +1017,6 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
 
   it("get-voting-configuration(): returns the voting configuration in the contract", () => {
     const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
     const tokenPoolContractAddress = `${deployer}.${ContractType.DAO_BITFLOW_POOL}`;
     const treasuryContractAddress = `${deployer}.${ContractType.DAO_TREASURY}`;
     const blockHeight = simnet.blockHeight;
@@ -1124,13 +1046,11 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
 
   it("get-liquid-supply(): returns the total liquid supply of the dao token", () => {
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
     let liquidSupply = 0;
     let blockHeight = simnet.blockHeight;
     // progress chain by 1 for at-block call
     simnet.mineEmptyBlock();
-
+    // get liquid supply
     const receipt = simnet.callReadOnlyFn(
       contractAddress,
       "get-liquid-supply",
@@ -1138,7 +1058,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       deployer
     ).result;
     expect(receipt).toBeOk(Cl.uint(liquidSupply));
-
+    // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
       tokenDexContractAddress,
@@ -1148,7 +1068,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
     // progress chain by 1 for at-block call
     simnet.mineEmptyBlock();
-
+    // get deployer balance
     const deployerBalanceResult = simnet.callReadOnlyFn(
       tokenContractAddress,
       "get-balance",
@@ -1158,7 +1078,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     liquidSupply += Number(cvToValue(deployerBalanceResult.value) as BigInt);
     // find the correct block height
     blockHeight = simnet.blockHeight - 1;
-
+    // get liquid supply
     const receipt2 = simnet.callReadOnlyFn(
       contractAddress,
       "get-liquid-supply",
