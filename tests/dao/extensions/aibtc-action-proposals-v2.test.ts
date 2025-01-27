@@ -1087,9 +1087,14 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(receipt.result).toStrictEqual(expectedResult);
   });
+
   it("get-last-proposal-created(): succeeds and returns the block height of the last proposal", () => {
     console.log(`epoch at start: ${simnet.currentEpoch}`);
     console.log(`block height at start: ${simnet.blockHeight}`);
+    console.log(
+      `clarity version: ${simnet.getDefaultClarityVersionForCurrentEpoch()}`
+    );
+    console.log(`stacksBlockHeight: ${simnet.stacksBlockHeight}`);
 
     const actionProposalData = Cl.bufferFromAscii("test");
     let lastProposalBlock = 0;
