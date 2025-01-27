@@ -91,8 +91,8 @@
     (
       (actionContract (contract-of action))
       (newId (+ (var-get proposalCount) u1))
-      (liquidTokens (try! (get-liquid-supply block-height)))
       (createdAt block-height)
+      (liquidTokens (try! (get-liquid-supply createdAt)))
       (startBlock (+ burn-block-height VOTING_DELAY))
       (endBlock (+ startBlock VOTING_PERIOD))
       (senderBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
@@ -224,7 +224,7 @@
         metQuorum: metQuorum,
         metThreshold: metThreshold,
         passed: votePassed,
-        executed: (if (and votePassed validAction) true false)
+        executed: (and votePassed validAction)
       }
     })
     ;; update the proposal record
@@ -234,10 +234,10 @@
         metQuorum: metQuorum,
         metThreshold: metThreshold,
         passed: votePassed,
-        executed: (if (and votePassed validAction) true false)
+        executed: (and votePassed validAction)
       })
     )
-    ;; execute the action only if it passed
+    ;; execute the action only if it passed, return false if err
     (ok (if (and votePassed validAction)
       (match (contract-call? action run (get parameters proposalRecord)) ok_ true err_ (begin (print {err:err_}) false))
       false
