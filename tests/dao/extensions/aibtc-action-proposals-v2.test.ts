@@ -1072,4 +1072,123 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     ).result;
     expect(receipt2).toBeOk(Cl.uint(liquidSupply));
   });
+
+  ////////////////////////////////////////
+  // get-last-proposal-created() tests
+  ////////////////////////////////////////
+
+  it("get-last-proposal-created(): succeeds and returns 0 if no proposals have been created", () => {
+    const expectedResult = Cl.uint(0);
+    const receipt = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-last-proposal-created",
+      [],
+      deployer
+    );
+    expect(receipt.result).toStrictEqual(expectedResult);
+  });
+  it("get-last-proposal-created(): succeeds and returns the block height of the last proposal", () => {
+    console.log(`epoch at start: ${simnet.currentEpoch}`);
+    console.log(`block height at start: ${simnet.blockHeight}`);
+
+    const actionProposalData = Cl.bufferFromAscii("test");
+    let lastProposalBlock = 0;
+
+    // get dao tokens for deployer, increases liquid tokens
+    const daoTokensReceipt = getDaoTokens(
+      tokenContractAddress,
+      tokenDexContractAddress,
+      deployer,
+      1000
+    );
+    expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
+
+    console.log(`block height after dao tokens call: ${simnet.blockHeight}`);
+
+    // progress the chain for at-block calls
+    simnet.mineEmptyBlocks(10);
+
+    console.log(
+      `block height after mine empty blocks (10): ${simnet.blockHeight}`
+    );
+
+    // construct the dao
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    console.log(`block height after construct dao: ${simnet.blockHeight}`);
+
+    // create proposal
+    const actionProposalReceipt = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), actionProposalData],
+      deployer
+    );
+    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+    console.log(
+      `block height after create proposal: ${simnet.blockHeight} (we set it here)`
+    );
+    lastProposalBlock = simnet.blockHeight;
+    // get last proposal created
+    const receipt = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-last-proposal-created",
+      [],
+      deployer
+    );
+    console.log(`from get last proposal created: ${cvToValue(receipt.result)}`);
+    // expect(receipt.result).toStrictEqual(Cl.uint(lastProposalBlock));
+    // progress the chain
+    simnet.mineEmptyBlock();
+    console.log(`block height after mine empty block: ${simnet.blockHeight}`);
+    // create 2nd proposal
+    const actionProposalReceipt2 = simnet.callPublicFn(
+      contractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), actionProposalData],
+      deployer
+    );
+    expect(actionProposalReceipt2.result).toBeOk(Cl.bool(true));
+    console.log(
+      `block height after create 2nd proposal: ${simnet.blockHeight} (we set it here)`
+    );
+    lastProposalBlock = simnet.blockHeight;
+    // get last proposal created
+    const receipt2 = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-last-proposal-created",
+      [],
+      deployer
+    );
+    console.log(
+      `from get last proposal created 2: ${cvToValue(receipt2.result)}`
+    );
+    expect(receipt2.result).toStrictEqual(Cl.uint(lastProposalBlock));
+    // create 10 proposals
+    for (let i = 0; i < 10; i++) {
+      // progress the chain
+      simnet.mineEmptyBlock();
+      const actionProposalReceipt = simnet.callPublicFn(
+        contractAddress,
+        "propose-action",
+        [Cl.principal(actionProposalContractAddress), actionProposalData],
+        deployer
+      );
+      expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+      lastProposalBlock = simnet.blockHeight;
+      // get last proposal created
+      const receipt = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-last-proposal-created",
+        [],
+        deployer
+      );
+      expect(receipt.result).toStrictEqual(Cl.uint(lastProposalBlock));
+    }
+  });
 });

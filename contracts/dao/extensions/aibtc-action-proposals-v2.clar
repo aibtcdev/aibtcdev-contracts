@@ -269,6 +269,10 @@
   (var-get proposalCount)
 )
 
+(define-read-only (get-last-proposal-created)
+  (var-get lastProposalCreated)
+)
+
 (define-read-only (get-voting-configuration)
   {
     self: SELF,
