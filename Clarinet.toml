@@ -389,6 +389,11 @@ path = 'contracts/test/disable-action-proposals-v2.clar'
 clarity_version = 2
 epoch = 3.0
 
+[contracts.test-disable-core-proposals-v2]
+path = 'contracts/test/disable-core-proposals-v2.clar'
+clarity_version = 2
+epoch = 3.0
+
 [contracts.test-disable-onchain-messaging-action]
 path = 'contracts/test/disable-onchain-messaging-action.clar'
 clarity_version = 2
