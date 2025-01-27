@@ -37,6 +37,11 @@ const bootstrapContractAddress = getContract(
 const coreProposalsContractAddress = getContract(
   ContractType.DAO_CORE_PROPOSALS_V2
 );
+// general vote settings configurations
+const actionProposalV2VoteSettings =
+  VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+const coreProposalV2VoteSettings =
+  VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
 // define testing contract address
 const contractAddress = `${deployer}.${ContractType.DAO_ACTION_PROPOSALS_V2}`;
 // import contract error codes
@@ -87,16 +92,14 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    const coreProposalVoteSettings =
-      VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
-    simnet.mineEmptyBlocks(coreProposalVoteSettings.votingDelay);
+    simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingDelay);
     // disable the action extension
     const disableReceipt = passCoreProposal(
       coreProposalsContractAddress,
       disableExtensionContractAddress,
       deployer,
       [deployer, address1, address2],
-      coreProposalVoteSettings
+      coreProposalV2VoteSettings
     );
     expect(disableReceipt.result).toBeOk(Cl.bool(true));
     // call propose action
@@ -125,16 +128,14 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    const coreProposalVoteSettings =
-      VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
-    simnet.mineEmptyBlocks(coreProposalVoteSettings.votingDelay);
+    simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingDelay);
     // disable the action extension
     const disableReceipt = passCoreProposal(
       coreProposalsContractAddress,
       disableExtensionContractAddress,
       deployer,
       [deployer, address1, address2],
-      coreProposalVoteSettings
+      coreProposalV2VoteSettings
     );
     expect(disableReceipt.result).toBeOk(Cl.bool(true));
     // call propose action
@@ -164,16 +165,14 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    const coreProposalVoteSettings =
-      VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
-    simnet.mineEmptyBlocks(coreProposalVoteSettings.votingDelay);
+    simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingDelay);
     // disable the action extension
     const disableReceipt = passCoreProposal(
       coreProposalsContractAddress,
       disableExtensionContractAddress,
       deployer,
       [deployer, address1, address2],
-      coreProposalVoteSettings
+      coreProposalV2VoteSettings
     );
     expect(disableReceipt.result).toBeOk(Cl.bool(true));
     // call propose action
@@ -187,7 +186,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("propose-action() fails if the user does not own the token", () => {
-    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -204,7 +202,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
     // call propose action from another wallet
     const receipt = simnet.callPublicFn(
       contractAddress,
@@ -217,7 +215,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
 
   it("propose-action(): fails if more than one proposal is created in a stacks block", () => {
     const actionProposalContractAddress2 = `${deployer}.${ContractActionType.DAO_ACTION_ADD_RESOURCE}`;
-    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -234,7 +231,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
     // create proposal
     const actionProposalReceipt = simnet.callPublicFn(
       contractAddress,
@@ -275,7 +272,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
 
   it("vote-on-proposal(): fails if the user does not own the token", () => {
     const proposalId = 1;
-    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -292,7 +288,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
     // create proposal
     const actionProposalReceipt = simnet.callPublicFn(
       contractAddress,
@@ -302,7 +298,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    simnet.mineEmptyBlocks(votingConfig.votingPeriod);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingPeriod);
     // vote on proposal from another wallet
     const receipt = simnet.callPublicFn(
       contractAddress,
@@ -315,7 +311,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
 
   it("vote-on-proposal(): fails if the vote happens before proposal start block", () => {
     const proposalId = 1;
-    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -332,7 +327,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
     // create proposal
     const actionProposalReceipt = simnet.callPublicFn(
       contractAddress,
@@ -353,7 +348,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
 
   it("vote-on-proposal(): fails if vote happens after proposal end block", () => {
     const proposalId = 1;
-    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -370,7 +364,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
     // create proposal
     const actionProposalReceipt = simnet.callPublicFn(
       contractAddress,
@@ -381,7 +375,8 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay and voting period
     simnet.mineEmptyBlocks(
-      votingConfig.votingDelay + votingConfig.votingPeriod
+      actionProposalV2VoteSettings.votingDelay +
+        actionProposalV2VoteSettings.votingPeriod
     );
     // vote on proposal
     const receipt = simnet.callPublicFn(
@@ -395,7 +390,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
 
   it("vote-on-proposal(): fails if user votes more than once on a proposal", () => {
     const proposalId = 1;
-    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -412,7 +406,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
     // create proposal
     const actionProposalReceipt = simnet.callPublicFn(
       contractAddress,
@@ -422,7 +416,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay
-    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
     // vote on proposal
     const receipt = simnet.callPublicFn(
       contractAddress,
@@ -458,7 +452,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
 
   it("conclude-proposal(): fails if the proposal is already concluded", () => {
     const proposalId = 1;
-    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -475,7 +468,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
     // create proposal
     const actionProposalReceipt = simnet.callPublicFn(
       contractAddress,
@@ -486,9 +479,9 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay, voting period and execution delay
     simnet.mineEmptyBlocks(
-      votingConfig.votingDelay +
-        votingConfig.votingPeriod +
-        votingConfig.votingDelay
+      actionProposalV2VoteSettings.votingDelay +
+        actionProposalV2VoteSettings.votingPeriod +
+        actionProposalV2VoteSettings.votingDelay
     );
     // conclude proposal, false with no votes
     const receipt = simnet.callPublicFn(
@@ -512,7 +505,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
 
   it("conclude-proposal(): fails if the proposal is not past the voting window", () => {
     const proposalId = 1;
-    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -547,7 +539,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_VOTING_ACTIVE));
     // progress to start block of voting period
-    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
     // conclude proposal before voting period
     const receipt2 = simnet.callPublicFn(
       contractAddress,
@@ -559,7 +551,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       Cl.uint(ErrCode.ERR_PROPOSAL_VOTING_ACTIVE)
     );
     // progress past voting period, still in execution delay
-    simnet.mineEmptyBlocks(votingConfig.votingPeriod);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingPeriod);
     // conclude proposal before voting period
     const receipt3 = simnet.callPublicFn(
       contractAddress,
@@ -575,7 +567,6 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   it("conclude-proposal(): fails if the action does not match the stored action", () => {
     const actionProposalContractAddress2 = `${deployer}.${ContractActionType.DAO_ACTION_ADD_RESOURCE}`;
     const proposalId = 1;
-    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -603,9 +594,9 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay, voting period, execution delay
     simnet.mineEmptyBlocks(
-      votingConfig.votingDelay +
-        votingConfig.votingPeriod +
-        votingConfig.votingDelay
+      actionProposalV2VoteSettings.votingDelay +
+        actionProposalV2VoteSettings.votingPeriod +
+        actionProposalV2VoteSettings.votingDelay
     );
     // conclude proposal
     const receipt = simnet.callPublicFn(
@@ -633,9 +624,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    const coreProposalVoteSettings =
-      VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
-    simnet.mineEmptyBlocks(coreProposalVoteSettings.votingDelay);
+    simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingDelay);
     // create proposal
     const actionProposalReceipt = simnet.callPublicFn(
       contractAddress,
@@ -645,14 +634,14 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    simnet.mineEmptyBlocks(coreProposalVoteSettings.votingPeriod);
+    simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingPeriod);
     // disable the action extension
     const disableReceipt = passCoreProposal(
       coreProposalsContractAddress,
       disableExtensionContractAddress,
       deployer,
       [deployer, address1, address2],
-      coreProposalVoteSettings
+      coreProposalV2VoteSettings
     );
     expect(disableReceipt.result).toBeOk(Cl.bool(true));
     // conclude proposal
@@ -693,7 +682,6 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
 
   it("get-voting-power(): succeeds and returns token balance at block height", () => {
     const proposalId = 1;
-    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -727,7 +715,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
     // get voting power
     const receipt = simnet.callReadOnlyFn(
       contractAddress,
@@ -757,7 +745,6 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   it("get-proposal(): succeeds and returns stored proposal data", () => {
     const actionProposalData = Cl.bufferFromAscii("test");
     const proposalId = 1;
-    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // expected proposal data
     const expectedResult = Cl.some(
       Cl.tuple({
@@ -804,7 +791,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
-    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
     // get proposal
     const proposalInfo = simnet.callReadOnlyFn(
       contractAddress,
@@ -834,7 +821,6 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   it("get-vote-record(): succeeds and returns vote amount for user and proposal", () => {
     const actionProposalData = Cl.bufferFromAscii("test");
     const proposalId = 1;
-    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -883,7 +869,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       deployer
     ).result as ResponseOkCV;
     // progress past voting delay for at-block calls
-    simnet.mineEmptyBlocks(votingConfig.votingDelay);
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
     // vote on proposal
     const voteReceipt = simnet.callPublicFn(
       contractAddress,
@@ -1016,7 +1002,6 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
 
   it("get-voting-configuration(): returns the voting configuration in the contract", () => {
-    const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
     const tokenPoolContractAddress = `${deployer}.${ContractType.DAO_BITFLOW_POOL}`;
     const treasuryContractAddress = `${deployer}.${ContractType.DAO_TREASURY}`;
     const blockHeight = simnet.blockHeight;
@@ -1024,10 +1009,10 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       self: Cl.principal(contractAddress),
       deployedBurnBlock: Cl.uint(blockHeight - 2),
       deployedStacksBlock: Cl.uint(blockHeight - 2),
-      delay: Cl.uint(votingConfig.votingDelay),
-      period: Cl.uint(votingConfig.votingPeriod),
-      quorum: Cl.uint(votingConfig.votingQuorum),
-      threshold: Cl.uint(votingConfig.votingThreshold),
+      delay: Cl.uint(actionProposalV2VoteSettings.votingDelay),
+      period: Cl.uint(actionProposalV2VoteSettings.votingPeriod),
+      quorum: Cl.uint(actionProposalV2VoteSettings.votingQuorum),
+      threshold: Cl.uint(actionProposalV2VoteSettings.votingThreshold),
       tokenDex: Cl.principal(tokenDexContractAddress),
       tokenPool: Cl.principal(tokenPoolContractAddress),
       treasury: Cl.principal(treasuryContractAddress),
