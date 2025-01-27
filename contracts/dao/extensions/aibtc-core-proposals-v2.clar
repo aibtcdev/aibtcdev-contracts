@@ -44,6 +44,11 @@
 (define-constant VOTING_TOKEN_POOL .aibtc-bitflow-pool)
 (define-constant VOTING_TREASURY .aibtc-treasury)
 
+;; data vars
+;;
+(define-data-var proposalCount uint u0) ;; total number of proposals
+(define-data-var lastProposalCreated uint u0) ;; block height of last proposal created
+
 ;; data maps
 ;;
 (define-map Proposals
@@ -61,6 +66,7 @@
     metQuorum: bool, ;; did the proposal meet quorum
     metThreshold: bool, ;; did the proposal meet threshold
     passed: bool, ;; did the proposal pass
+    executed: bool, ;; did the proposal execute
   }
 )
 
@@ -82,8 +88,8 @@
   (let
     (
       (proposalContract (contract-of proposal))
-      (liquidTokens (try! (get-liquid-supply block-height)))
       (createdAt block-height)
+      (liquidTokens (try! (get-liquid-supply createdAt)))
       (startBlock (+ burn-block-height VOTING_DELAY))
       (endBlock (+ startBlock VOTING_PERIOD))
       (senderBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
@@ -110,7 +116,7 @@
       }
     })
     ;; create the proposal
-    (ok (asserts! (map-insert Proposals proposalContract {
+    (asserts! (map-insert Proposals proposalContract {
       caller: contract-caller,
       creator: tx-sender,
       createdAt: createdAt,
@@ -123,7 +129,12 @@
       metQuorum: false,
       metThreshold: false,
       passed: false,
-    }) ERR_SAVING_PROPOSAL))
+      executed: false,
+    }) ERR_SAVING_PROPOSAL)
+    ;; set last proposal created block height
+    (var-set lastProposalCreated createdAt)
+    ;; increment the proposal count
+    (ok (var-set proposalCount (+ (var-get proposalCount) u1)))
 ))
 
 (define-public (vote-on-proposal (proposal <proposal-trait>) (vote bool))
@@ -138,6 +149,7 @@
     ;; caller has the required balance
     (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
     ;; proposal was not already executed
+    ;; TODO: is this needed? checked create + conclude
     (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; proposal was not already concluded
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
@@ -204,7 +216,8 @@
         proposal: proposalContract,
         metQuorum: metQuorum,
         metThreshold: metThreshold,
-        passed: votePassed
+        passed: votePassed,
+        executed: (and (not proposalExecuted) votePassed),
       }
     })
     ;; update the proposal record
@@ -213,14 +226,15 @@
         concluded: true,
         metQuorum: metQuorum,
         metThreshold: metThreshold,
-        passed: votePassed
+        passed: votePassed,
+        executed: (and (not proposalExecuted) votePassed),
       })
     )
-    ;; execute the proposal only if it passed
-    (and (not proposalExecuted) votePassed
-      (try! (contract-call? .aibtcdev-base-dao execute proposal tx-sender)))
-    ;; return the result
-    (ok votePassed)
+    ;; execute the proposal only if it passed, return false if err
+    (ok (if (and (not proposalExecuted) votePassed)
+      (match (contract-call? .aibtcdev-base-dao execute proposal tx-sender) ok_ true err_ (begin (print {err:err_}) false))
+      false
+    ))
   )
 )
 
@@ -242,6 +256,14 @@
 
 (define-read-only (get-vote-record (proposal principal) (voter principal))
   (default-to u0 (map-get? VoteRecords {proposal: proposal, voter: voter}))
+)
+
+(define-read-only (get-total-proposals)
+  (var-get proposalCount)
+)
+
+(define-read-only (get-last-proposal-created)
+  (var-get lastProposalCreated)
 )
 
 (define-read-only (get-voting-configuration)
