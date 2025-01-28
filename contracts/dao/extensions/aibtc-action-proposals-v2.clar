@@ -314,7 +314,7 @@
   (let
     (
       (extensionActive (is-ok (as-contract (is-dao-or-extension))))
-      (actionActive (is-eq true (contract-call? .aibtcdev-base-dao is-extension (contract-of action))))
+      (actionActive (contract-call? .aibtcdev-base-dao is-extension (contract-of action)))
     )
     (and extensionActive actionActive)
   )
