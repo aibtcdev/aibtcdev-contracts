@@ -903,7 +903,6 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
   });
 
   it("get-last-proposal-created() succeeds and returns the block height of the last proposal", () => {
-    let lastProposalBlock = 0;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -931,7 +930,16 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       deployer
     );
     expect(coreProposalReceipt.result).toBeOk(Cl.bool(true));
-    lastProposalBlock = simnet.blockHeight;
+    // extract createdAt
+    const coreProposalReceiptEvent = coreProposalReceipt.events.find(
+      (eventRecord) => eventRecord.event === "print_event"
+    );
+    expect(coreProposalReceiptEvent).toBeDefined();
+    const coreProposalReceiptEventData = coreProposalReceiptEvent!.data.value;
+    const coreProposalPrintEvent = cvToValue(coreProposalReceiptEventData!);
+    const createdAt = parseInt(
+      coreProposalPrintEvent.payload.value.createdAt.value
+    );
     // get last proposal created
     const receipt = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
@@ -939,12 +947,13 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       [],
       deployer
     );
-    expect(receipt.result).toBeUint(lastProposalBlock);
+    expect(receipt.result).toBeUint(createdAt);
     // progress the chain
     simnet.mineEmptyBlocks(10);
     // create proposal
-    const coreProposalContractAddress2 =
-      ContractProposalType.DAO_BASE_ENABLE_EXTENSION;
+    const coreProposalContractAddress2 = getContract(
+      ContractProposalType.DAO_BASE_ENABLE_EXTENSION
+    );
     const coreProposalReceipt2 = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
@@ -952,7 +961,16 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       deployer
     );
     expect(coreProposalReceipt2.result).toBeOk(Cl.bool(true));
-    lastProposalBlock = simnet.blockHeight;
+    // extract createdAt
+    const coreProposalReceiptEvent2 = coreProposalReceipt2.events.find(
+      (eventRecord) => eventRecord.event === "print_event"
+    );
+    expect(coreProposalReceiptEvent2).toBeDefined();
+    const coreProposalReceiptEventData2 = coreProposalReceiptEvent2!.data.value;
+    const coreProposalPrintEvent2 = cvToValue(coreProposalReceiptEventData2!);
+    const createdAt2 = parseInt(
+      coreProposalPrintEvent2.payload.value.createdAt.value
+    );
     // get last proposal created
     const receipt2 = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
@@ -960,7 +978,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       [],
       deployer
     );
-    expect(receipt2.result).toBeUint(lastProposalBlock);
+    expect(receipt2.result).toBeUint(createdAt2);
   });
 
   ////////////////////////////////////////
