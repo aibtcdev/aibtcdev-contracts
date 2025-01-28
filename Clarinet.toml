@@ -41,365 +41,365 @@ contract_id = 'ST3VXT52QEQPZ5246A16RFNMR1PRJ96JK6YYX37N8.xyk-pool-trait-v-1-2'
 
 [contracts.aibtcdev-airdrop-1]
 path = 'contracts/aibtcdev-airdrop-1.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtcdev-airdrop-2]
 path = 'contracts/aibtcdev-airdrop-2.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 # dao base contract
 
 [contracts.aibtcdev-base-dao]
 path = 'contracts/dao/aibtcdev-base-dao.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 # dao extensions
 
 [contracts.aibtc-action-proposals]
 path = 'contracts/dao/extensions/aibtc-action-proposals.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-bank-account]
 path = 'contracts/dao/extensions/aibtc-bank-account.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-bitflow-pool]
 path = 'contracts/dao/extensions/aibtc-bitflow-pool.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-core-proposals]
 path = 'contracts/dao/extensions/aibtc-core-proposals.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-onchain-messaging]
 path = 'contracts/dao/extensions/aibtc-onchain-messaging.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-payments-invoices]
 path = 'contracts/dao/extensions/aibtc-payments-invoices.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-token]
 path = 'contracts/dao/extensions/aibtc-token.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-token-dex]
 path = 'contracts/dao/extensions/aibtc-token-dex.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-token-owner]
 path = 'contracts/dao/extensions/aibtc-token-owner.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-treasury]
 path = 'contracts/dao/extensions/aibtc-treasury.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-action-proposals-v2]
 path = 'contracts/dao/extensions/aibtc-action-proposals-v2.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-core-proposals-v2]
 path = 'contracts/dao/extensions/aibtc-core-proposals-v2.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 # dao actions (as extensions)
 
 [contracts.aibtc-action-add-resource]
 path = 'contracts/dao/extensions/actions/aibtc-action-add-resource.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-action-allow-asset]
 path = 'contracts/dao/extensions/actions/aibtc-action-allow-asset.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-action-send-message]
 path = 'contracts/dao/extensions/actions/aibtc-action-send-message.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-action-set-account-holder]
 path = 'contracts/dao/extensions/actions/aibtc-action-set-account-holder.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-action-set-withdrawal-amount]
 path = 'contracts/dao/extensions/actions/aibtc-action-set-withdrawal-amount.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-action-set-withdrawal-period]
 path = 'contracts/dao/extensions/actions/aibtc-action-set-withdrawal-period.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-action-toggle-resource-by-name]
 path = 'contracts/dao/extensions/actions/aibtc-action-toggle-resource-by-name.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 # dao proposals
 
 [contracts.aibtc-bank-account-deposit-stx]
 path = 'contracts/dao/proposals/aibtc-bank-account-deposit-stx.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-bank-account-initialize-new-account]
 path = 'contracts/dao/proposals/aibtc-bank-account-initialize-new-account.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-bank-account-override-last-withdrawal-block]
 path = 'contracts/dao/proposals/aibtc-bank-account-override-last-withdrawal-block.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-bank-account-set-account-holder]
 path = 'contracts/dao/proposals/aibtc-bank-account-set-account-holder.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-bank-account-set-withdrawal-amount]
 path = 'contracts/dao/proposals/aibtc-bank-account-set-withdrawal-amount.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-bank-account-set-withdrawal-period]
 path = 'contracts/dao/proposals/aibtc-bank-account-set-withdrawal-period.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-bank-account-withdraw-stx]
 path = 'contracts/dao/proposals/aibtc-bank-account-withdraw-stx.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-base-add-new-extension]
 path = 'contracts/dao/proposals/aibtc-base-add-new-extension.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-base-bootstrap-initialization]
 path = 'contracts/dao/proposals/aibtc-base-bootstrap-initialization.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-base-bootstrap-initialization-v2]
 path = 'contracts/dao/proposals/aibtc-base-bootstrap-initialization-v2.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-base-disable-extension]
 path = 'contracts/dao/proposals/aibtc-base-disable-extension.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-base-enable-extension]
 path = 'contracts/dao/proposals/aibtc-base-enable-extension.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-base-replace-extension]
 path = 'contracts/dao/proposals/aibtc-base-replace-extension.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-base-replace-extension-proposal-voting]
 path = 'contracts/dao/proposals/aibtc-base-replace-extension-proposal-voting.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-onchain-messaging-send]
 path = 'contracts/dao/proposals/aibtc-onchain-messaging-send.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-payments-invoices-add-resource]
 path = 'contracts/dao/proposals/aibtc-payments-invoices-add-resource.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-payments-invoices-pay-invoice-by-resource-name]
 path = 'contracts/dao/proposals/aibtc-payments-invoices-pay-invoice-by-resource-name.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-payments-invoices-pay-invoice]
 path = 'contracts/dao/proposals/aibtc-payments-invoices-pay-invoice.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-payments-invoices-set-payment-address]
 path = 'contracts/dao/proposals/aibtc-payments-invoices-set-payment-address.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-payments-invoices-toggle-resource-by-name]
 path = 'contracts/dao/proposals/aibtc-payments-invoices-toggle-resource-by-name.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-payments-invoices-toggle-resource]
 path = 'contracts/dao/proposals/aibtc-payments-invoices-toggle-resource.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-token-owner-set-token-uri]
 path = 'contracts/dao/proposals/aibtc-token-owner-set-token-uri.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-token-owner-transfer-ownership]
 path = 'contracts/dao/proposals/aibtc-token-owner-transfer-ownership.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-treasury-allow-asset]
 path = 'contracts/dao/proposals/aibtc-treasury-allow-asset.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-treasury-delegate-stx]
 path = 'contracts/dao/proposals/aibtc-treasury-delegate-stx.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-treasury-deposit-ft]
 path = 'contracts/dao/proposals/aibtc-treasury-deposit-ft.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-treasury-deposit-nft]
 path = 'contracts/dao/proposals/aibtc-treasury-deposit-nft.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-treasury-deposit-stx]
 path = 'contracts/dao/proposals/aibtc-treasury-deposit-stx.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-treasury-freeze-asset]
 path = 'contracts/dao/proposals/aibtc-treasury-freeze-asset.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-treasury-revoke-delegation]
 path = 'contracts/dao/proposals/aibtc-treasury-revoke-delegation.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-treasury-withdraw-ft]
 path = 'contracts/dao/proposals/aibtc-treasury-withdraw-ft.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-treasury-withdraw-nft]
 path = 'contracts/dao/proposals/aibtc-treasury-withdraw-nft.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-treasury-withdraw-stx]
 path = 'contracts/dao/proposals/aibtc-treasury-withdraw-stx.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 # dao traits
 
 [contracts.aibtcdev-dao-traits-v1-1]
 path = 'contracts/dao/traits/aibtcdev-dao-traits-v1-1.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtcdev-dao-traits-v1]
 path = 'contracts/dao/traits/aibtcdev-dao-traits-v1.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtcdev-dao-v1]
 path = 'contracts/dao/traits/aibtcdev-dao-v1.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 # faktory traits
 
 [contracts.faktory-dex-trait-v1-1]
 path = 'contracts/dao/traits/faktory-dex-trait-v1-1.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.faktory-dex-trait-v1]
 path = 'contracts/dao/traits/faktory-dex-trait-v1.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.faktory-trait-v1]
 path = 'contracts/dao/traits/faktory-trait-v1.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 # testing utilities
 
 [contracts.test-treasury]
 path = 'contracts/test/aibtc-treasury.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.external-proxy]
 path = 'contracts/test/proxy.clar'
 deployer = 'wallet_1'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.proxy]
 path = 'contracts/test/proxy.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.test-proxy]
 path = 'contracts/test/proxy.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.test-token]
 path = 'contracts/test/sip010-token.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.test-disable-action-proposals-v2]
 path = 'contracts/test/disable-action-proposals-v2.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.test-disable-core-proposals-v2]
 path = 'contracts/test/disable-core-proposals-v2.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.test-disable-onchain-messaging-action]
 path = 'contracts/test/disable-onchain-messaging-action.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.test-unknown-action-proposal]
 path = 'contracts/test/unknown-action-proposal.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0

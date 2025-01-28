@@ -29,7 +29,7 @@
       notification: "send",
       payload: {
         caller: contract-caller,
-        height: block-height,
+        height: stacks-block-height,
         isFromDao: isFromDao,
         sender: tx-sender,
       }

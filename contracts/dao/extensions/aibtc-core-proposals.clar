@@ -78,7 +78,7 @@
   (let
     (
       (proposalContract (contract-of proposal))
-      (liquidTokens (try! (get-liquid-supply block-height)))
+      (liquidTokens (try! (get-liquid-supply stacks-block-height)))
     )
     ;; at least one voting period passed
     (asserts! (>= burn-block-height (+ DEPLOYED_AT VOTING_PERIOD)) ERR_FIRST_VOTING_PERIOD)
@@ -93,7 +93,7 @@
         proposal: proposalContract,
         creator: tx-sender,
         liquidTokens: liquidTokens,
-        startBlockStx: block-height,
+        startBlockStx: stacks-block-height,
         startBlock: burn-block-height,
         endBlock: (+ burn-block-height VOTING_PERIOD)
       }
@@ -103,7 +103,7 @@
       createdAt: burn-block-height,
       caller: contract-caller,
       creator: tx-sender,
-      startBlockStx: block-height,
+      startBlockStx: stacks-block-height,
       startBlock: burn-block-height,
       endBlock: (+ burn-block-height VOTING_PERIOD),
       votesFor: u0,
@@ -238,7 +238,7 @@
 )
 
 (define-private (get-block-hash (blockHeight uint))
-  (get-block-info? id-header-hash blockHeight)
+  (get-stacks-block-info? id-header-hash blockHeight)
 )
 
 (define-private (get-liquid-supply (blockHeight uint))
