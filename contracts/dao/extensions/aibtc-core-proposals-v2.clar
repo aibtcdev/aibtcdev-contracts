@@ -148,9 +148,6 @@
     )
     ;; caller has the required balance
     (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
-    ;; proposal was not already executed
-    ;; TODO: is this needed? checked create + conclude
-    (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; proposal was not already concluded
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
     ;; proposal vote is still active

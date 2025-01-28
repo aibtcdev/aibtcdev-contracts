@@ -186,7 +186,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_ACTION));
   });
 
-  it("propose-action() fails if the user does not own the token", () => {
+  it("propose-action() fails if the user does not own the dao token", () => {
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -214,7 +214,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INSUFFICIENT_BALANCE));
   });
 
-  it("propose-action(): fails if more than one proposal is created in a stacks block", () => {
+  it("propose-action() fails if more than one proposal is created in a stacks block", () => {
     const actionProposalContractAddress2 = `${deployer}.${ContractActionType.DAO_ACTION_ADD_RESOURCE}`;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
@@ -260,7 +260,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   // vote-on-proposal() tests
   ////////////////////////////////////////
 
-  it("vote-on-proposal(): fails if proposal id is not found", () => {
+  it("vote-on-proposal() fails if proposal id is not found", () => {
     const invalidProposalId = 25;
     const receipt = simnet.callPublicFn(
       actionProposalsV2ContractAddress,
@@ -271,7 +271,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_NOT_FOUND));
   });
 
-  it("vote-on-proposal(): fails if the user does not own the token", () => {
+  it("vote-on-proposal() fails if the user does not own the token", () => {
     const proposalId = 1;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
@@ -310,7 +310,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INSUFFICIENT_BALANCE));
   });
 
-  it("vote-on-proposal(): fails if the vote happens before proposal start block", () => {
+  it("vote-on-proposal() fails if the vote happens before proposal start block", () => {
     const proposalId = 1;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
@@ -347,7 +347,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_VOTE_TOO_SOON));
   });
 
-  it("vote-on-proposal(): fails if vote happens after proposal end block", () => {
+  it("vote-on-proposal() fails if vote happens after proposal end block", () => {
     const proposalId = 1;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
@@ -389,7 +389,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_VOTE_TOO_LATE));
   });
 
-  it("vote-on-proposal(): fails if user votes more than once on a proposal", () => {
+  it("vote-on-proposal() fails if user votes more than once on a proposal", () => {
     const proposalId = 1;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
@@ -440,7 +440,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   // conclude-proposal() tests
   ////////////////////////////////////////
 
-  it("conclude-proposal(): fails if proposal id is not found", () => {
+  it("conclude-proposal() fails if proposal id is not found", () => {
     const invalidProposalId = 25;
     const receipt = simnet.callPublicFn(
       actionProposalsV2ContractAddress,
@@ -451,7 +451,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_NOT_FOUND));
   });
 
-  it("conclude-proposal(): fails if the proposal is already concluded", () => {
+  it("conclude-proposal() fails if the proposal is already concluded", () => {
     const proposalId = 1;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
@@ -504,7 +504,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
   });
 
-  it("conclude-proposal(): fails if the proposal is not past the voting window", () => {
+  it("conclude-proposal() fails if the proposal is not past the voting window", () => {
     const proposalId = 1;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
@@ -565,7 +565,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
   });
 
-  it("conclude-proposal(): fails if the action does not match the stored action", () => {
+  it("conclude-proposal() fails if the action does not match the stored action", () => {
     const actionProposalContractAddress2 = `${deployer}.${ContractActionType.DAO_ACTION_ADD_RESOURCE}`;
     const proposalId = 1;
     // get dao tokens for deployer, increases liquid tokens
@@ -609,7 +609,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_ACTION));
   });
 
-  it("conclude-proposal(): succeeds and does not execute if the action proposal extension is disabled", () => {
+  it("conclude-proposal() succeeds and does not execute if the action proposal extension is disabled", () => {
     const disableExtensionContractAddress = `${deployer}.test-disable-onchain-messaging-action`;
     // fund voters to pass proposals
     fundVoters(tokenContractAddress, tokenDexContractAddress, [
@@ -670,7 +670,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   // get-voting-power() tests
   ////////////////////////////////////////
 
-  it("get-voting-power(): fails if proposal is not found", () => {
+  it("get-voting-power() fails if proposal is not found", () => {
     const invalidProposalId = 25;
     const receipt = simnet.callReadOnlyFn(
       actionProposalsV2ContractAddress,
@@ -681,7 +681,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_PROPOSAL_NOT_FOUND));
   });
 
-  it("get-voting-power(): succeeds and returns token balance at block height", () => {
+  it("get-voting-power() succeeds and returns token balance at block height", () => {
     const proposalId = 1;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
@@ -731,7 +731,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   // get-proposal() tests
   ////////////////////////////////////////
 
-  it("get-proposal(): returns none if proposal is not found", () => {
+  it("get-proposal() returns none if proposal is not found", () => {
     const invalidProposalId = 25;
     const expectedResult = Cl.none();
     const receipt = simnet.callReadOnlyFn(
@@ -743,7 +743,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(receipt.result).toStrictEqual(expectedResult);
   });
 
-  it("get-proposal(): succeeds and returns stored proposal data", () => {
+  it("get-proposal() succeeds and returns stored proposal data", () => {
     const actionProposalData = Cl.bufferFromAscii("test");
     const proposalId = 1;
     // expected proposal data
@@ -807,7 +807,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   // get-vote-record() tests
   ////////////////////////////////////////
 
-  it("get-vote-record(): succeeds and returns 0 if voter is not found", () => {
+  it("get-vote-record() succeeds and returns 0 if voter is not found", () => {
     const invalidProposalId = 25;
     const expectedResult = Cl.uint(0);
     const receipt = simnet.callReadOnlyFn(
@@ -819,7 +819,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(receipt.result).toStrictEqual(expectedResult);
   });
 
-  it("get-vote-record(): succeeds and returns vote amount for user and proposal", () => {
+  it("get-vote-record() succeeds and returns vote amount for user and proposal", () => {
     const actionProposalData = Cl.bufferFromAscii("test");
     const proposalId = 1;
     // get dao tokens for deployer, increases liquid tokens
@@ -909,7 +909,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   // get-total-proposals() tests
   ////////////////////////////////////////
 
-  it("get-total-proposals(): returns 0 if no proposals exist", () => {
+  it("get-total-proposals() returns 0 if no proposals exist", () => {
     const expectedResult = Cl.uint(0);
     const receipt = simnet.callReadOnlyFn(
       actionProposalsV2ContractAddress,
@@ -920,7 +920,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(receipt.result).toStrictEqual(expectedResult);
   });
 
-  it("get-total-proposals(): returns total number of proposals", () => {
+  it("get-total-proposals() returns total number of proposals", () => {
     const actionProposalData = Cl.bufferFromAscii("test");
     let totalProposals = 0;
     // get dao tokens for deployer, increases liquid tokens
@@ -1002,7 +1002,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   // get-last-proposal-created() tests
   ////////////////////////////////////////
 
-  it("get-last-proposal-created(): succeeds and returns 0 if no proposals have been created", () => {
+  it("get-last-proposal-created() succeeds and returns 0 if no proposals have been created", () => {
     const expectedResult = Cl.uint(0);
     const receipt = simnet.callReadOnlyFn(
       actionProposalsV2ContractAddress,
@@ -1013,7 +1013,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(receipt.result).toStrictEqual(expectedResult);
   });
 
-  it("get-last-proposal-created(): succeeds and returns the block height of the last proposal", () => {
+  it("get-last-proposal-created() succeeds and returns the block height of the last proposal", () => {
     console.log(`epoch at start: ${simnet.currentEpoch}`);
     console.log(`block height at start: ${simnet.blockHeight}`);
     console.log(
@@ -1126,7 +1126,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   // get-voting-configuration() tests
   ////////////////////////////////////////
 
-  it("get-voting-configuration(): returns the voting configuration in the contract", () => {
+  it("get-voting-configuration() returns the voting configuration in the contract", () => {
     const tokenPoolContractAddress = `${deployer}.${ContractType.DAO_BITFLOW_POOL}`;
     const treasuryContractAddress = `${deployer}.${ContractType.DAO_TREASURY}`;
     const blockHeight = simnet.blockHeight;
@@ -1155,7 +1155,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   // get-liquid-supply() tests
   ////////////////////////////////////////
 
-  it("get-liquid-supply(): returns the total liquid supply of the dao token", () => {
+  it("get-liquid-supply() returns the total liquid supply of the dao token", () => {
     let liquidSupply = 0;
     let blockHeight = simnet.blockHeight;
     // progress chain by 1 for at-block call

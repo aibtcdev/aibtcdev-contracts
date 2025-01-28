@@ -82,6 +82,7 @@ export function fundVoters(
   tokenDexContractAddress: string,
   voters: string[]
 ) {
+  const amounts: Map<string, number> = new Map();
   for (const voter of voters) {
     const stxAmount = Math.floor(Math.random() * 500000000) + 1000000;
     const getDaoTokensReceipt = getDaoTokens(
@@ -91,9 +92,16 @@ export function fundVoters(
       stxAmount
     );
     expect(getDaoTokensReceipt.result).toBeOk(Cl.bool(true));
+    const getDaoTokensEvent = getDaoTokensReceipt.events.find(
+      (eventRecord) => eventRecord.event === "ft_transfer_event"
+    );
+    expect(getDaoTokensEvent).toBeDefined();
+    const daoTokensAmount = parseInt(getDaoTokensEvent!.data.amount);
+    amounts.set(voter, daoTokensAmount);
   }
   // progress chain for at-block calls
   simnet.mineEmptyBlocks(10);
+  return amounts;
 }
 
 export function constructDao(
@@ -139,6 +147,51 @@ export function passCoreProposal(
       coreProposalsContractAddress,
       "vote-on-proposal",
       [Cl.principal(proposalContractAddress), Cl.bool(true)],
+      voter
+    );
+    expect(voteReceipt.result).toBeOk(Cl.bool(true));
+  }
+  // progress past the voting period + execution delay
+  simnet.mineEmptyBlocks(voteSettings.votingPeriod + voteSettings.votingDelay);
+  // conclude-proposal
+  const concludeProposalReceipt = simnet.callPublicFn(
+    coreProposalsContractAddress,
+    "conclude-proposal",
+    [Cl.principal(proposalContractAddress)],
+    sender
+  );
+  // return final receipt for processing
+  return concludeProposalReceipt;
+}
+
+export function failCoreProposal(
+  coreProposalsContractAddress: string,
+  proposalContractAddress: string,
+  sender: string,
+  voters: string[],
+  voteSettings: VoteSettings
+) {
+  // progress past the first voting period
+  simnet.mineEmptyBlocks(voteSettings.votingPeriod);
+
+  // create-proposal
+  const createProposalReceipt = simnet.callPublicFn(
+    coreProposalsContractAddress,
+    "create-proposal",
+    [Cl.principal(proposalContractAddress)],
+    sender
+  );
+  expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
+
+  // progress past the voting delay
+  simnet.mineEmptyBlocks(voteSettings.votingDelay);
+
+  // vote-on-proposal
+  for (const voter of voters) {
+    const voteReceipt = simnet.callPublicFn(
+      coreProposalsContractAddress,
+      "vote-on-proposal",
+      [Cl.principal(proposalContractAddress), Cl.bool(false)],
       voter
     );
     expect(voteReceipt.result).toBeOk(Cl.bool(true));
