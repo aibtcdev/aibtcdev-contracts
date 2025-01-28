@@ -24,7 +24,10 @@ import {
 export default defineConfig({
   test: {
     environment: "clarinet", // use vitest-environment-clarinet
-    singleThread: true,
+    pool: "forks",
+    poolOptions: {
+      forks: { singleFork: true },
+    },
     setupFiles: [
       vitestSetupFilePath,
       // custom setup files can be added here

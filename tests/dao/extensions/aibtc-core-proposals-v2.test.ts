@@ -903,6 +903,12 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
   });
 
   it("get-last-proposal-created() succeeds and returns the block height of the last proposal", () => {
+    console.log("current epoch", simnet.currentEpoch);
+    console.log(
+      "clarity version",
+      simnet.getDefaultClarityVersionForCurrentEpoch()
+    );
+    console.log("starting block", simnet.blockHeight);
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -911,8 +917,10 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       1000
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
+    console.log("after dao tokens receipt", simnet.blockHeight);
     // progress the chain for at-block calls
     simnet.mineEmptyBlocks(10);
+    console.log("after mine empty blocks", simnet.blockHeight);
     // construct the dao
     const constructReceipt = constructDao(
       deployer,
@@ -920,8 +928,10 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       bootstrapContractAddress
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
+    console.log("after construct dao", simnet.blockHeight);
     // progress the chain past the first voting period
     simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingPeriod);
+    console.log("after mine empty blocks", simnet.blockHeight);
     // create proposal
     const coreProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
@@ -930,6 +940,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       deployer
     );
     expect(coreProposalReceipt.result).toBeOk(Cl.bool(true));
+    console.log("after create proposal", simnet.blockHeight);
     // extract createdAt
     const coreProposalReceiptEvent = coreProposalReceipt.events.find(
       (eventRecord) => eventRecord.event === "print_event"
@@ -940,6 +951,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const createdAt = parseInt(
       coreProposalPrintEvent.payload.value.createdAt.value
     );
+    console.log("compared to createdAt", simnet.blockHeight, createdAt);
     // get last proposal created
     const receipt = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
@@ -950,6 +962,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeUint(createdAt);
     // progress the chain
     simnet.mineEmptyBlocks(10);
+    console.log("after mine empty blocks", simnet.blockHeight);
     // create proposal
     const coreProposalContractAddress2 = getContract(
       ContractProposalType.DAO_BASE_ENABLE_EXTENSION
@@ -961,6 +974,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       deployer
     );
     expect(coreProposalReceipt2.result).toBeOk(Cl.bool(true));
+    console.log("after create proposal 2", simnet.blockHeight);
     // extract createdAt
     const coreProposalReceiptEvent2 = coreProposalReceipt2.events.find(
       (eventRecord) => eventRecord.event === "print_event"
@@ -971,6 +985,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const createdAt2 = parseInt(
       coreProposalPrintEvent2.payload.value.createdAt.value
     );
+    console.log("compared to createdAt2", simnet.blockHeight, createdAt2);
     // get last proposal created
     const receipt2 = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
