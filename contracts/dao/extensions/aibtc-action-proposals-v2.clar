@@ -15,7 +15,7 @@
 ;;
 (define-constant SELF (as-contract tx-sender))
 (define-constant DEPLOYED_BURN_BLOCK burn-block-height)
-(define-constant DEPLOYED_STACKS_BLOCK stacks-block-height)
+(define-constant DEPLOYED_STACKS_BLOCK block-height)
 
 ;; error messages
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u1000))
@@ -91,7 +91,7 @@
     (
       (actionContract (contract-of action))
       (newId (+ (var-get proposalCount) u1))
-      (createdAt stacks-block-height)
+      (createdAt block-height)
       (liquidTokens (try! (get-liquid-supply createdAt)))
       (startBlock (+ burn-block-height VOTING_DELAY))
       (endBlock (+ startBlock VOTING_PERIOD))
@@ -321,5 +321,5 @@
 )
 
 (define-private (get-block-hash (blockHeight uint))
-  (get-stacks-block-info? id-header-hash blockHeight)
+  (get-block-info? id-header-hash blockHeight)
 )

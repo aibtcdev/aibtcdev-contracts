@@ -82,7 +82,7 @@
     (
       (newId (+ (var-get proposalCount) u1))
       (voterBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
-      (liquidTokens (try! (get-liquid-supply stacks-block-height)))
+      (liquidTokens (try! (get-liquid-supply block-height)))
     )
     ;; caller has the required balance
     (asserts! (> voterBalance u0) ERR_INSUFFICIENT_BALANCE)
@@ -95,7 +95,7 @@
         parameters: parameters,
         creator: tx-sender,
         liquidTokens: liquidTokens,
-        startBlockStx: stacks-block-height,
+        startBlockStx: block-height,
         startBlock: burn-block-height,
         endBlock: (+ burn-block-height VOTING_PERIOD)
       }
@@ -107,7 +107,7 @@
       createdAt: burn-block-height,
       caller: contract-caller,
       creator: tx-sender,
-      startBlockStx: stacks-block-height,
+      startBlockStx: block-height,
       startBlock: burn-block-height,
       endBlock: (+ burn-block-height VOTING_PERIOD),
       votesFor: u0,
@@ -248,7 +248,7 @@
 )
 
 (define-private (get-block-hash (blockHeight uint))
-  (get-stacks-block-info? id-header-hash blockHeight)
+  (get-block-info? id-header-hash blockHeight)
 )
 
 (define-private (get-liquid-supply (blockHeight uint))
