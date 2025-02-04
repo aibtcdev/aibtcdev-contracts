@@ -17,7 +17,10 @@
 ;; error codes
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u8000))
 (define-constant ERR_DAO_ALREADY_ACTIVATED (err u8001))
-(define-constant ERR_ALREADY_VOTED (err u8002))
+(define-constant ERR_DAO_NOT_ACTIVATED (err u8002))
+(define-constant ERR_ALREADY_VOTED (err u8003))
+(define-constant ERR_SAVING_CHARTER (err u8004))
+(define-constant ERR_EMPTY_CHARTER (err u8005))
 
 ;; data vars
 ;;
@@ -83,7 +86,29 @@
 )
 
 (define-public (set-dao-charter (charter (string-ascii 4096)) (inscriptionId (optional (buff 33))))
-  (ok true)
+  (begin
+    ;; check if dao is activated
+    (asserts! (var-get daoActivated) ERR_DAO_NOT_ACTIVATED)
+    ;; check if sender is dao or extension
+    (try! (is-dao-or-extension))
+    ;; check length of charter
+    (asserts! (>= (len charter) u1) ERR_EMPTY_CHARTER)
+    ;; insert new charter version
+    (asserts! (map-insert CharterVersions (var-get currentVersion) {
+      burnHeight: burn-block-height,
+      createdAt: block-height,
+      caller: contract-caller,
+      sender: tx-sender,
+      charter: charter,
+      inscriptionId: inscriptionId
+    }) ERR_SAVING_CHARTER)
+    ;; increment charter version
+    (var-set currentVersion (+ (var-get currentVersion) u1))
+    ;; set new charter
+    (var-set daoCharter charter)
+    ;; return success
+    (ok true)
+  )
 )
 
 
