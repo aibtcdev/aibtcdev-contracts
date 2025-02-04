@@ -109,6 +109,19 @@
   (withdraw-stx () (response bool uint))
 ))
 
+;; an extension to manage the dao charter and mission
+;; allows the dao to define its mission and values on-chain
+;; used to guide decision-making and proposals
+(define-trait charter (
+  ;; activate the dao charter
+  ;; @returns (response bool uint)
+  (activate-dao-charter () (response bool uint))
+  ;; set the dao charter
+  ;; @param charter the new charter text
+  ;; @returns (response bool uint)
+  (set-dao-charter ((string-ascii 280)) (response bool uint))
+))
+
 ;; a voting contract for core dao proposals
 ;; has higher voting threshold and quorum than action proposals
 ;; can run any Clarity code in the context of the dao

@@ -264,6 +264,16 @@ plan:
             path: contracts/dao/extensions/aibtc-core-proposals-v2.clar
             clarity-version: 2
         - emulated-contract-publish:
+            contract-name: aibtc-dao-traits-v2
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/traits/aibtc-dao-traits-v2.clar
+            clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: aibtc-dao-charter
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/extensions/aibtc-dao-charter.clar
+            clarity-version: 2
+        - emulated-contract-publish:
             contract-name: aibtc-onchain-messaging-send
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/proposals/aibtc-onchain-messaging-send.clar
@@ -328,6 +338,9 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/proposals/aibtc-token-owner-transfer-ownership.clar
             clarity-version: 2
+      epoch: "3.0"
+    - id: 4
+      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-treasury-allow-asset
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
@@ -338,9 +351,6 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/proposals/aibtc-treasury-delegate-stx.clar
             clarity-version: 2
-      epoch: "3.0"
-    - id: 4
-      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-treasury-deposit-ft
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM

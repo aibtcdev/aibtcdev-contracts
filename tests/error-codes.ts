@@ -113,6 +113,10 @@ export enum TokenOwnerErrCode {
   ERR_UNAUTHORIZED = 7000,
 }
 
+export enum DaoCharterErrCode {
+  ERR_NOT_DAO_OR_EXTENSION = 8000,
+}
+
 export enum TokenFaktoryErrCode {
   ERR_NOT_AUTHORIZED = 401,
   ERR_NOT_OWNER,
