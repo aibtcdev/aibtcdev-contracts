@@ -66,8 +66,6 @@
     )
     ;; check if dao is already activated
     (asserts! (not (var-get daoActivated)) ERR_DAO_ALREADY_ACTIVATED)
-    ;; check if required votes are met
-    (asserts! (>= (var-get activationVotes) REQUIRED_VOTES) ERR_DAO_ALREADY_ACTIVATED)
     ;; add voter to activation votes, must be unique
     (asserts! (map-insert ActivationVotes tx-sender {
       burnHeight: burn-block-height,
@@ -75,6 +73,18 @@
       caller: contract-caller,
       sender: tx-sender
     }) ERR_ALREADY_VOTED)
+    ;; print voter info
+    (print {
+      notification: "activate-dao-charter",
+      payload: {
+        burnHeight: burn-block-height,
+        createdAt: block-height,
+        caller: contract-caller,
+        sender: tx-sender,
+        dao: SELF,
+        totalVotes: newVoteCount
+      }
+    })
     ;; increment activation votes
     (var-set activationVotes newVoteCount)
     ;; return and trigger activation if required votes are met
@@ -102,6 +112,19 @@
       charter: charter,
       inscriptionId: inscriptionId
     }) ERR_SAVING_CHARTER)
+    ;; print charter info
+    (print {
+      notification: "set-dao-charter",
+      payload: {
+        burnHeight: burn-block-height,
+        createdAt: block-height,
+        caller: contract-caller,
+        sender: tx-sender,
+        dao: SELF,
+        charter: charter,
+        inscriptionId: inscriptionId
+      }
+    })
     ;; increment charter version
     (var-set currentVersion (+ (var-get currentVersion) u1))
     ;; set new charter
@@ -169,6 +192,18 @@
         {extension: .aibtc-treasury, enabled: true}
       )
     ))
+    ;; print dao activated
+    (print {
+      notification: "dao-activated",
+      payload: {
+        burnHeight: burn-block-height,
+        createdAt: block-height,
+        caller: contract-caller,
+        sender: tx-sender,
+        dao: SELF,
+        charter: (var-get daoCharter)
+      }
+    })
     ;; return success
     (ok true)
   )
