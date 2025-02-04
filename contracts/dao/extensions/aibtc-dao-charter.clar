@@ -11,15 +11,18 @@
 
 ;; constants
 ;;
+(define-constant SELF (as-contract tx-sender))
 (define-constant REQUIRED_VOTES u100) ;; 100 votes to activate the DAO
 
 ;; error codes
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u8000))
+(define-constant ERR_DAO_ALREADY_ACTIVATED (err u8001))
+(define-constant ERR_ALREADY_VOTED (err u8002))
 
 ;; data vars
 ;;
 (define-data-var daoActivated bool false)
-(define-data-var daoCharter (string-ascii 280) "")
+(define-data-var daoCharter (string-ascii 4096) "<%= it.dao_charter %>")
 (define-data-var currentVersion uint u0)
 (define-data-var activationVotes uint u0)
 
@@ -32,7 +35,8 @@
     createdAt: uint, ;; block height
     caller: principal, ;; contract caller
     sender: principal, ;; tx-sender
-    charter: (string-ascii 280), ;; charter text
+    charter: (string-ascii 4096), ;; charter text
+    inscriptionId: (optional (buff 33))  ;; 32 bytes for txid + 1 byte for index
   }
 )
 
@@ -53,10 +57,32 @@
 )
 
 (define-public (activate-dao-charter)
-  (ok true)
+  (let
+    (
+      (newVoteCount (+ (var-get activationVotes) u1))
+    )
+    ;; check if dao is already activated
+    (asserts! (not (var-get daoActivated)) ERR_DAO_ALREADY_ACTIVATED)
+    ;; check if required votes are met
+    (asserts! (>= (var-get activationVotes) REQUIRED_VOTES) ERR_DAO_ALREADY_ACTIVATED)
+    ;; add voter to activation votes, must be unique
+    (asserts! (map-insert ActivationVotes tx-sender {
+      burnHeight: burn-block-height,
+      createdAt: block-height,
+      caller: contract-caller,
+      sender: tx-sender
+    }) ERR_ALREADY_VOTED)
+    ;; increment activation votes
+    (var-set activationVotes newVoteCount)
+    ;; return and trigger activation if required votes are met
+    (ok (if (>= newVoteCount REQUIRED_VOTES)
+      (try! (activate-dao))
+      true
+    ))
+  )
 )
 
-(define-public (set-dao-charter (charter (string-ascii 280)))
+(define-public (set-dao-charter (charter (string-ascii 4096)) (inscriptionId (optional (buff 33))))
   (ok true)
 )
 
@@ -66,6 +92,7 @@
 
 (define-read-only (is-dao-activated)
   {
+    dao: SELF,
     activated: (var-get daoActivated),
     votes: (var-get activationVotes)
   }
@@ -73,6 +100,13 @@
 
 (define-read-only (get-activation-vote-record (who principal))
   (map-get? ActivationVotes who)
+)
+
+(define-read-only (get-current-dao-charter-version)
+  (if (> (var-get currentVersion) u0)
+    (some (var-get currentVersion))
+    none
+  )
 )
 
 (define-read-only (get-current-dao-charter)
@@ -94,4 +128,23 @@
   ))
 )
 
-;; TODO: function to update dao extension status
+(define-private (activate-dao)
+  (begin
+    ;; set activation status in this contract
+    (var-set daoActivated true)
+    ;; activate disabled extensions in the dao
+    (try! (contract-call? .aibtcdev-base-dao set-extensions
+      (list
+        {extension: .aibtc-action-proposals-v2, enabled: true}
+        {extension: .aibtc-bank-account, enabled: true}
+        {extension: .aibtc-core-proposals-v2, enabled: true}
+        {extension: .aibtc-onchain-messaging, enabled: true}
+        {extension: .aibtc-payments-invoices, enabled: true}
+        {extension: .aibtc-token-owner, enabled: true}
+        {extension: .aibtc-treasury, enabled: true}
+      )
+    ))
+    ;; return success
+    (ok true)
+  )
+)

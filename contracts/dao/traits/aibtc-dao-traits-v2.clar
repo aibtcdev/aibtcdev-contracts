@@ -119,7 +119,7 @@
   ;; set the dao charter
   ;; @param charter the new charter text
   ;; @returns (response bool uint)
-  (set-dao-charter ((string-ascii 280)) (response bool uint))
+  (set-dao-charter ((string-ascii 4096) (optional (buff 33))) (response bool uint))
 ))
 
 ;; a voting contract for core dao proposals
