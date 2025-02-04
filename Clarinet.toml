@@ -324,6 +324,11 @@ epoch = 3.0
 
 # dao traits
 
+[contracts.aibtc-dao-traits-v2]
+path = 'contracts/dao/traits/aibtc-dao-traits-v2.clar'
+clarity_version = 2
+epoch = 3.0
+
 [contracts.aibtcdev-dao-traits-v1-1]
 path = 'contracts/dao/traits/aibtcdev-dao-traits-v1-1.clar'
 clarity_version = 2
