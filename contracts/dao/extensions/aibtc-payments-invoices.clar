@@ -1,4 +1,4 @@
-;; title: aibtcdev-payments
+;; title: aibtc-payments-invoices
 ;; version: 1.0.0
 ;; summary: An extension that provides payment processing for aibtcdev services.
 
