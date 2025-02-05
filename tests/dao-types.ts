@@ -17,6 +17,7 @@ export enum ContractType {
   DAO_ACTION_PROPOSALS = "aibtc-action-proposals",
   DAO_ACTION_PROPOSALS_V2 = "aibtc-action-proposals-v2",
   DAO_BANK_ACCOUNT = "aibtc-bank-account",
+  DAO_CHARTER = "aibtc-dao-charter",
   DAO_CORE_PROPOSALS = "aibtc-core-proposals",
   DAO_CORE_PROPOSALS_V2 = "aibtc-core-proposals-v2",
   DAO_MESSAGING = "aibtc-onchain-messaging",

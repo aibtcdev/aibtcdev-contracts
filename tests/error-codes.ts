@@ -115,6 +115,11 @@ export enum TokenOwnerErrCode {
 
 export enum DaoCharterErrCode {
   ERR_NOT_DAO_OR_EXTENSION = 8000,
+  ERR_DAO_ALREADY_ACTIVATED,
+  ERR_DAO_NOT_ACTIVATED,
+  ERR_ALREADY_VOTED,
+  ERR_SAVING_CHARTER,
+  ERR_EMPTY_CHARTER,
 }
 
 export enum TokenFaktoryErrCode {
