@@ -8,6 +8,11 @@ import {
   VotingConfig,
 } from "./dao-types";
 
+// bigint replacer for json.stringify()
+export function bigIntReplacer(_key: string, value: any) {
+  typeof value === "bigint" ? value.toString() : value;
+}
+
 // voting configuration
 export const VOTING_CONFIG: VotingConfig = {
   [ContractType.DAO_CORE_PROPOSALS]: {
