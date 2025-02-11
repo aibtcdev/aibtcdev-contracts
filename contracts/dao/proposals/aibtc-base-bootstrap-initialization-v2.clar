@@ -6,7 +6,7 @@
 (define-public (execute (sender principal))
   (begin
     ;; set initial dao extensions list
-    (try! (contract-call? .aibtcdev-base-dao set-extensions
+    (try! (contract-call? .aibtc-base-dao set-extensions
       (list
         {extension: .aibtc-dao-charter, enabled: true}
         {extension: .aibtc-action-proposals-v2, enabled: true}
@@ -19,7 +19,7 @@
       )
     ))
     ;; set initial action proposals list
-    (try! (contract-call? .aibtcdev-base-dao set-extensions
+    (try! (contract-call? .aibtc-base-dao set-extensions
       (list
         {extension: .aibtc-action-add-resource, enabled: true}
         {extension: .aibtc-action-allow-asset, enabled: true}

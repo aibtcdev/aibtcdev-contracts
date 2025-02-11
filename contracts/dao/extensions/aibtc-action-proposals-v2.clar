@@ -306,8 +306,8 @@
 ;; private functions
 ;;
 (define-private (is-dao-or-extension)
-  (ok (asserts! (or (is-eq tx-sender .aibtcdev-base-dao)
-    (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
+  (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
+    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )
 
@@ -315,7 +315,7 @@
   (let
     (
       (extensionActive (is-ok (as-contract (is-dao-or-extension))))
-      (actionActive (contract-call? .aibtcdev-base-dao is-extension (contract-of action)))
+      (actionActive (contract-call? .aibtc-base-dao is-extension (contract-of action)))
     )
     (and extensionActive actionActive)
   )

@@ -1,4 +1,4 @@
-;; title: aibtcdev-dao
+;; title: aibtc-dao
 ;; version: 1.0.0
 ;; summary: An ExecutorDAO implementation for aibtcdev
 

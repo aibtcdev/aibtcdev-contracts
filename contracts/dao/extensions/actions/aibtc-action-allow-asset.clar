@@ -17,7 +17,7 @@
 )
 
 (define-private (is-dao-or-extension)
-  (ok (asserts! (or (is-eq tx-sender .aibtcdev-base-dao)
-    (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+  (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
+    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
   ))
 )

@@ -51,8 +51,8 @@ epoch = 3.0
 
 # dao base contract
 
-[contracts.aibtcdev-base-dao]
-path = 'contracts/dao/aibtcdev-base-dao.clar'
+[contracts.aibtc-base-dao]
+path = 'contracts/dao/aibtc-base-dao.clar'
 clarity_version = 2
 epoch = 3.0
 

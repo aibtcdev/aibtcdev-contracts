@@ -102,7 +102,7 @@
     ;; caller has the required balance
     (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
     ;; proposal was not already executed
-    (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
+    (asserts! (is-none (contract-call? .aibtc-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; print proposal creation event
     (print {
       notification: "create-proposal",
@@ -197,7 +197,7 @@
         false))
       ;; proposal passed if quorum and threshold are met
       (votePassed (and hasVotes metQuorum metThreshold))
-      (proposalExecuted (is-some (contract-call? .aibtcdev-base-dao executed-at proposal)))
+      (proposalExecuted (is-some (contract-call? .aibtc-base-dao executed-at proposal)))
     )
     ;; proposal was not already concluded
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
@@ -230,7 +230,7 @@
     )
     ;; execute the proposal only if it passed, return false if err
     (ok (if (and (not proposalExecuted) votePassed)
-      (match (contract-call? .aibtcdev-base-dao execute proposal tx-sender) ok_ true err_ (begin (print {err:err_}) false))
+      (match (contract-call? .aibtc-base-dao execute proposal tx-sender) ok_ true err_ (begin (print {err:err_}) false))
       false
     ))
   )
@@ -296,8 +296,8 @@
 ;; private functions
 ;;
 (define-private (is-dao-or-extension)
-  (ok (asserts! (or (is-eq tx-sender .aibtcdev-base-dao)
-    (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
+  (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
+    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )
 
