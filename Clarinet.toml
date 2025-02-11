@@ -232,6 +232,11 @@ path = 'contracts/dao/proposals/aibtc-base-replace-extension-proposal-voting.cla
 clarity_version = 2
 epoch = 3.0
 
+[contracts.aibtc-dao-charter-set-dao-charter]
+path = 'contracts/dao/proposals/aibtc-dao-charter-set-dao-charter.clar'
+clarity_version = 2
+epoch = 3.0
+
 [contracts.aibtc-onchain-messaging-send]
 path = 'contracts/dao/proposals/aibtc-onchain-messaging-send.clar'
 clarity_version = 2

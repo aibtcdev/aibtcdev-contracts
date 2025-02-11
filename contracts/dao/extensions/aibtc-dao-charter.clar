@@ -2,7 +2,7 @@
 ;; version: 1.0.0
 ;; summary: An extension that manages the DAO charter and records the DAO's mission and values on-chain.
 ;; description: This contract allows the DAO to define its mission and values on-chain, which can be used to guide decision-making and proposals.
-;; The charter is editable by the DAO through proposal with revisions stored on-chain. Community activates the DAO through calling a public function.
+;; The charter is editable by the DAO through proposal with revisions stored on-chain.
 
 ;; traits
 ;;
@@ -15,12 +15,9 @@
 
 ;; error codes
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u8000))
-(define-constant ERR_DAO_ALREADY_ACTIVATED (err u8001))
-(define-constant ERR_DAO_NOT_ACTIVATED (err u8002))
-(define-constant ERR_ALREADY_VOTED (err u8003))
-(define-constant ERR_SAVING_CHARTER (err u8004))
-(define-constant ERR_CHARTER_TOO_SHORT (err u8005))
-(define-constant ERR_CHARTER_TOO_LONG (err u8006))
+(define-constant ERR_SAVING_CHARTER (err u8001))
+(define-constant ERR_CHARTER_TOO_SHORT (err u8002))
+(define-constant ERR_CHARTER_TOO_LONG (err u8003))
 
 ;; data vars
 ;;

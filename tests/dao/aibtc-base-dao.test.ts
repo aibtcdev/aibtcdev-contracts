@@ -7,7 +7,7 @@ const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const deployer = accounts.get("deployer")!;
 
-const contractName = "aibtcdev-base-dao";
+const contractName = "aibtc-base-dao";
 const contractAddress = `${deployer}.${contractName}`;
 
 const ErrCode = BaseDaoErrCode;

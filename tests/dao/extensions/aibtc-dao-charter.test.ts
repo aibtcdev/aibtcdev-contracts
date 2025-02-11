@@ -41,7 +41,6 @@ describe(`public functions: ${ContractType.DAO_CHARTER}`, () => {
   ////////////////////////////////////////
   // callback() tests
   ////////////////////////////////////////
-
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
@@ -52,21 +51,9 @@ describe(`public functions: ${ContractType.DAO_CHARTER}`, () => {
     expect(callback.result).toBeOk(Cl.bool(true));
   });
   ////////////////////////////////////////
-  // activate-dao-charter() tests
-  ////////////////////////////////////////
-  it("vote-to-activate() succeeds and logs a new vote record", () => {
-    const activateDaoCharter = simnet.callPublicFn(
-      charterContractAddress,
-      "vote-to-activate",
-      [],
-      deployer
-    );
-    expect(activateDaoCharter.result).toBeOk(Cl.bool(true));
-  });
-  ////////////////////////////////////////
   // set-dao-charter() tests
   //////////////////////////////////
-  it("set-dao-charter() fails if dao is not activated", () => {
+  it("set-dao-charter() fails if called directly", () => {
     const setDaoCharter = simnet.callPublicFn(
       charterContractAddress,
       "set-dao-charter",
@@ -74,45 +61,16 @@ describe(`public functions: ${ContractType.DAO_CHARTER}`, () => {
       deployer
     );
     expect(setDaoCharter.result).toBeErr(
-      Cl.uint(ErrCode.ERR_DAO_NOT_ACTIVATED)
+      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
     );
   });
 });
 
 describe(`read-only functions: ${ContractType.DAO_CHARTER}`, () => {
   ////////////////////////////////////////
-  // is-dao-activated() tests
-  ////////////////////////////////////////
-  it("is-dao-activated() returns activated: false before activation", () => {
-    const isDaoActivated = simnet.callReadOnlyFn(
-      charterContractAddress,
-      "is-dao-activated",
-      [],
-      deployer
-    );
-    const expectedResult = Cl.tuple({
-      activated: Cl.bool(false),
-      dao: Cl.principal(charterContractAddress),
-      votes: Cl.uint(0),
-    });
-    expect(isDaoActivated.result).toStrictEqual(expectedResult);
-  });
-  ////////////////////////////////////////
-  // get-activation-vote-record() tests
-  ////////////////////////////////////////
-  it("get-activation-vote-record() returns none when user is not found", () => {
-    const getActivationVoteRecord = simnet.callReadOnlyFn(
-      charterContractAddress,
-      "get-activation-vote-record",
-      [Cl.principal(address1)],
-      deployer
-    );
-    expect(getActivationVoteRecord.result).toBeNone();
-  });
-  ////////////////////////////////////////
   // get-current-dao-charter-version() tests
   ////////////////////////////////////////
-  it("get-current-dao-charter-version() returns none before activation", () => {
+  it("get-current-dao-charter-version() returns none before charter is set", () => {
     const getCurrentDaoCharterVersion = simnet.callReadOnlyFn(
       charterContractAddress,
       "get-current-dao-charter-version",
@@ -124,7 +82,7 @@ describe(`read-only functions: ${ContractType.DAO_CHARTER}`, () => {
   ////////////////////////////////////////
   // get-current-dao-charter() tests
   ////////////////////////////////////////
-  it("get-current-dao-charter() returns none before activation", () => {
+  it("get-current-dao-charter() returns none before charter is set", () => {
     const getCurrentDaoCharter = simnet.callReadOnlyFn(
       charterContractAddress,
       "get-current-dao-charter",
@@ -136,7 +94,7 @@ describe(`read-only functions: ${ContractType.DAO_CHARTER}`, () => {
   ////////////////////////////////////////
   // get-dao-charter() tests
   ////////////////////////////////////////
-  it("get-dao-charter() returns none before activation", () => {
+  it("get-dao-charter() returns none before charter is set", () => {
     const getDaoCharter = simnet.callReadOnlyFn(
       charterContractAddress,
       "get-dao-charter",
