@@ -1,19 +1,22 @@
 (impl-trait .aibtcdev-dao-traits-v1.proposal)
 
-(define-constant DAO_MANIFEST "This is where the DAO can put it's mission, purpose, and goals.")
+(define-constant CFG_DAO_MANIFEST "<%= it.dao_manifest %>")
+(define-constant DAO_ACTIVATED (contract-call? .aibtc-dao-charter is-dao-activated))
 
 (define-public (execute (sender principal))
   (begin
-    ;; set initial dao extensions list
+    ;; initialize dao charter as first extension
+    (try! (contract-call? .aibtcdev-base-dao set-extension .aibtc-dao-charter true))
+    ;; TODO: keep here or in dao charter?
     (try! (contract-call? .aibtcdev-base-dao set-extensions
       (list
-        {extension: .aibtc-action-proposals-v2, enabled: false}
-        {extension: .aibtc-bank-account, enabled: false}
-        {extension: .aibtc-core-proposals-v2, enabled: false}
-        {extension: .aibtc-onchain-messaging, enabled: false}
-        {extension: .aibtc-payments-invoices, enabled: false}
-        {extension: .aibtc-token-owner, enabled: false}
-        {extension: .aibtc-treasury, enabled: false}
+        {extension: .aibtc-action-proposals-v2, enabled: DAO_ACTIVATED}
+        {extension: .aibtc-bank-account, enabled: DAO_ACTIVATED}
+        {extension: .aibtc-core-proposals-v2, enabled: DAO_ACTIVATED}
+        {extension: .aibtc-onchain-messaging, enabled: DAO_ACTIVATED}
+        {extension: .aibtc-payments-invoices, enabled: DAO_ACTIVATED}
+        {extension: .aibtc-token-owner, enabled: DAO_ACTIVATED}
+        {extension: .aibtc-treasury, enabled: DAO_ACTIVATED}
       )
     ))
     ;; set initial action proposals list
@@ -29,15 +32,15 @@
       )
     ))
     ;; send DAO manifest as onchain message
-    (try! (contract-call? .aibtc-onchain-messaging send DAO_MANIFEST true))
+    (try! (contract-call? .aibtc-onchain-messaging send CFG_DAO_MANIFEST true))
     ;; allow assets in treasury
     (try! (contract-call? .aibtc-treasury allow-asset .aibtc-token true))
     ;; print manifest
-    (print DAO_MANIFEST)
+    (print CFG_DAO_MANIFEST)
     (ok true)
   )
 )
 
 (define-read-only (get-dao-manifest)
-  DAO_MANIFEST
+  CFG_DAO_MANIFEST
 )

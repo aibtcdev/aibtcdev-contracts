@@ -12,7 +12,23 @@
 ;; constants
 ;;
 (define-constant SELF (as-contract tx-sender))
+(define-constant REQUIRE_VOTES_TO_ACTIVATE false) ;; require vote to activate the DAO
 (define-constant REQUIRED_VOTES u100) ;; 100 votes to activate the DAO
+
+;; template vars
+(define-constant CFG_DAO_CHARTER_TEXT "<%= it.dao_charter %>")
+(define-constant CFG_DAO_CHARTER_INSCRIPTION_ID 0x000000000000000000000000000000000000000000000000000000000000000000) ;; <%= it.dao_charter_inscription_id %> as (buff 33)
+(define-constant CFG_EXTENSION_LIST
+  (list
+    {extension: .aibtc-action-proposals-v2, enabled: true}
+    {extension: .aibtc-bank-account, enabled: true}
+    {extension: .aibtc-core-proposals-v2, enabled: true}
+    {extension: .aibtc-onchain-messaging, enabled: true}
+    {extension: .aibtc-payments-invoices, enabled: true}
+    {extension: .aibtc-token-owner, enabled: true}
+    {extension: .aibtc-treasury, enabled: true}
+  )
+)
 
 ;; error codes
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u8000))
@@ -21,11 +37,12 @@
 (define-constant ERR_ALREADY_VOTED (err u8003))
 (define-constant ERR_SAVING_CHARTER (err u8004))
 (define-constant ERR_CHARTER_TOO_SHORT (err u8005))
+(define-constant ERR_CHARTER_TOO_LONG (err u8006))
 
 ;; data vars
 ;;
 (define-data-var daoActivated bool false)
-(define-data-var daoCharter (string-ascii 4096) "<%= it.dao_charter %>")
+(define-data-var daoCharter (string-ascii 4096) "")
 (define-data-var currentVersion uint u0)
 (define-data-var activationVotes uint u0)
 
@@ -52,6 +69,28 @@
     sender: principal, ;; tx-sender
   }
 )
+
+;; direct execution
+;;
+
+;; TODO: dao has to be in place first, might be easier to refactor this to a private function, and put a public call on the front we can use to initialize. Separate what happens after the vote from the vote and give two ways to execute it depending on if needed or not. Also helps DRY code.
+
+;; check length of charter text
+(asserts! (>= (len CFG_DAO_CHARTER_TEXT) u1) ERR_CHARTER_TOO_SHORT)
+(asserts! (<= (len CFG_DAO_CHARTER_TEXT) u4096) ERR_CHARTER_TOO_LONG)
+;; set initial dao charter based on template vars
+(var-set daoCharter CFG_DAO_CHARTER_TEXT)
+(var-set currentVersion u1)
+(map-insert CharterVersions u1 {
+  burnHeight: burn-block-height,
+  createdAt: block-height,
+  caller: contract-caller,
+  sender: tx-sender,
+  charter: (var-get daoCharter),
+  inscriptionId: (some CFG_DAO_CHARTER_INSCRIPTION_ID)
+})
+;; activate dao on deployment if voting is not required
+(and (not REQUIRE_VOTES_TO_ACTIVATE) (try! (activate-dao)))    
 
 ;; public functions
 ;;
@@ -96,15 +135,19 @@
 )
 
 (define-public (set-dao-charter (charter (string-ascii 4096)) (inscriptionId (optional (buff 33))))
-  (begin
+  (let
+    (
+      (newVersion (+ (var-get currentVersion) u1))
+    )
     ;; check if dao is activated
     (asserts! (var-get daoActivated) ERR_DAO_NOT_ACTIVATED)
     ;; check if sender is dao or extension
     (try! (is-dao-or-extension))
     ;; check length of charter
     (asserts! (>= (len charter) u1) ERR_CHARTER_TOO_SHORT)
+    (asserts! (<= (len charter) u4096) ERR_CHARTER_TOO_LONG)
     ;; insert new charter version
-    (asserts! (map-insert CharterVersions (var-get currentVersion) {
+    (asserts! (map-insert CharterVersions newVersion {
       burnHeight: burn-block-height,
       createdAt: block-height,
       caller: contract-caller,
@@ -122,11 +165,12 @@
         sender: tx-sender,
         dao: SELF,
         charter: charter,
-        inscriptionId: inscriptionId
+        inscriptionId: inscriptionId,
+        version: newVersion
       }
     })
     ;; increment charter version
-    (var-set currentVersion (+ (var-get currentVersion) u1))
+    (var-set currentVersion newVersion)
     ;; set new charter
     (var-set daoCharter charter)
     ;; return success
@@ -185,17 +229,7 @@
     ;; set activation status in this contract
     (var-set daoActivated true)
     ;; activate disabled extensions in the dao
-    (try! (contract-call? .aibtcdev-base-dao set-extensions
-      (list
-        {extension: .aibtc-action-proposals-v2, enabled: true}
-        {extension: .aibtc-bank-account, enabled: true}
-        {extension: .aibtc-core-proposals-v2, enabled: true}
-        {extension: .aibtc-onchain-messaging, enabled: true}
-        {extension: .aibtc-payments-invoices, enabled: true}
-        {extension: .aibtc-token-owner, enabled: true}
-        {extension: .aibtc-treasury, enabled: true}
-      )
-    ))
+    (try! (contract-call? .aibtcdev-base-dao set-extensions CFG_EXTENSION_LIST))
     ;; print dao activated
     (print {
       notification: "dao-activated",
