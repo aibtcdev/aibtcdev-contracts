@@ -32,6 +32,7 @@
 (define-constant ERR_VOTE_TOO_LATE (err u1011))
 (define-constant ERR_ALREADY_VOTED (err u1012))
 (define-constant ERR_INVALID_ACTION (err u1013))
+(define-constant ERR_DAO_NOT_ACTIVATED (err u1014))
 
 ;; voting configuration
 (define-constant VOTING_DELAY u144) ;; 144 Bitcoin blocks, ~1 days
@@ -97,7 +98,10 @@
       (endBlock (+ startBlock VOTING_PERIOD))
       (senderBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
       (validAction (is-action-valid action))
+      (daoActivated (contract-call? .aibtc-dao-charter is-dao-activated))
     )
+    ;; dao must be activated
+    (asserts! daoActivated ERR_DAO_NOT_ACTIVATED)
     ;; liquidTokens is greater than zero
     (asserts! (> liquidTokens u0) ERR_FETCHING_TOKEN_DATA)
     ;; verify this extension and action contract are active in dao

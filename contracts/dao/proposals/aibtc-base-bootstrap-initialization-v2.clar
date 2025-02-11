@@ -7,13 +7,13 @@
     ;; set initial dao extensions list
     (try! (contract-call? .aibtcdev-base-dao set-extensions
       (list
-        {extension: .aibtc-action-proposals-v2, enabled: true}
-        {extension: .aibtc-bank-account, enabled: true}
-        {extension: .aibtc-core-proposals-v2, enabled: true}
-        {extension: .aibtc-onchain-messaging, enabled: true}
-        {extension: .aibtc-payments-invoices, enabled: true}
-        {extension: .aibtc-token-owner, enabled: true}
-        {extension: .aibtc-treasury, enabled: true}
+        {extension: .aibtc-action-proposals-v2, enabled: false}
+        {extension: .aibtc-bank-account, enabled: false}
+        {extension: .aibtc-core-proposals-v2, enabled: false}
+        {extension: .aibtc-onchain-messaging, enabled: false}
+        {extension: .aibtc-payments-invoices, enabled: false}
+        {extension: .aibtc-token-owner, enabled: false}
+        {extension: .aibtc-treasury, enabled: false}
       )
     ))
     ;; set initial action proposals list

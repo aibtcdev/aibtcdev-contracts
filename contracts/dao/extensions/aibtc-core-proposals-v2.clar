@@ -32,6 +32,7 @@
 (define-constant ERR_VOTE_TOO_LATE (err u3011))
 (define-constant ERR_ALREADY_VOTED (err u3012))
 (define-constant ERR_FIRST_VOTING_PERIOD (err u3013))
+(define-constant ERR_DAO_NOT_ACTIVATED (err u3014))
 
 ;; voting configuration
 (define-constant VOTING_DELAY u432) ;; 3 x 144 Bitcoin blocks, ~3 days
@@ -93,7 +94,10 @@
       (startBlock (+ burn-block-height VOTING_DELAY))
       (endBlock (+ startBlock VOTING_PERIOD))
       (senderBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
+      (daoActivated (contract-call? .aibtc-dao-charter is-dao-activated))
     )
+    ;; dao must be activated
+    (asserts! daoActivated ERR_DAO_NOT_ACTIVATED)
     ;; liquidTokens is greater than zero
     (asserts! (> liquidTokens u0) ERR_FETCHING_TOKEN_DATA)
     ;; at least one voting period passed

@@ -139,6 +139,10 @@
 ;;
 
 (define-read-only (is-dao-activated)
+  (var-get daoActivated)
+)
+
+(define-read-only (get-activation-status)
   {
     dao: SELF,
     activated: (var-get daoActivated),
