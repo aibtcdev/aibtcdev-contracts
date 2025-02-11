@@ -1,22 +1,20 @@
 (impl-trait .aibtcdev-dao-traits-v1.proposal)
 
 (define-constant CFG_DAO_MANIFEST "<%= it.dao_manifest %>")
-(define-constant DAO_ACTIVATED (contract-call? .aibtc-dao-charter is-dao-activated))
 
 (define-public (execute (sender principal))
   (begin
-    ;; initialize dao charter as first extension
-    (try! (contract-call? .aibtcdev-base-dao set-extension .aibtc-dao-charter true))
-    ;; TODO: keep here or in dao charter?
+    ;; set initial dao extensions list
     (try! (contract-call? .aibtcdev-base-dao set-extensions
       (list
-        {extension: .aibtc-action-proposals-v2, enabled: DAO_ACTIVATED}
-        {extension: .aibtc-bank-account, enabled: DAO_ACTIVATED}
-        {extension: .aibtc-core-proposals-v2, enabled: DAO_ACTIVATED}
-        {extension: .aibtc-onchain-messaging, enabled: DAO_ACTIVATED}
-        {extension: .aibtc-payments-invoices, enabled: DAO_ACTIVATED}
-        {extension: .aibtc-token-owner, enabled: DAO_ACTIVATED}
-        {extension: .aibtc-treasury, enabled: DAO_ACTIVATED}
+        {extension: .aibtc-dao-charter, enabled: true}
+        {extension: .aibtc-action-proposals-v2, enabled: true}
+        {extension: .aibtc-bank-account, enabled: true}
+        {extension: .aibtc-core-proposals-v2, enabled: true}
+        {extension: .aibtc-onchain-messaging, enabled: true}
+        {extension: .aibtc-payments-invoices, enabled: true}
+        {extension: .aibtc-token-owner, enabled: true}
+        {extension: .aibtc-treasury, enabled: true}
       )
     ))
     ;; set initial action proposals list
@@ -31,6 +29,8 @@
         {extension: .aibtc-action-toggle-resource-by-name, enabled: true}
       )
     ))
+    ;; set DAO manifest in dao-charter extension
+    ;; (try! (contract-call? .aibtc-dao-charter set-charter CFG_DAO_MANIFEST none))
     ;; send DAO manifest as onchain message
     (try! (contract-call? .aibtc-onchain-messaging send CFG_DAO_MANIFEST true))
     ;; allow assets in treasury
