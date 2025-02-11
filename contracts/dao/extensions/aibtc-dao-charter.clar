@@ -13,10 +13,6 @@
 ;;
 (define-constant SELF (as-contract tx-sender))
 
-;; template vars
-(define-constant CFG_DAO_CHARTER_TEXT "<%= it.dao_charter %>")
-(define-constant CFG_DAO_CHARTER_INSCRIPTION_ID 0x000000000000000000000000000000000000000000000000000000000000000000) ;; <%= it.dao_charter_inscription_id %> as (buff 33)
-
 ;; error codes
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u8000))
 (define-constant ERR_DAO_ALREADY_ACTIVATED (err u8001))

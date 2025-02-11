@@ -1,6 +1,7 @@
 (impl-trait .aibtc-dao-traits-v2.proposal)
 
-(define-constant CFG_DAO_MANIFEST "<%= it.dao_manifest %>")
+(define-constant CFG_DAO_MANIFEST_TEXT "<%= it.dao_manifest %>")
+(define-constant CFG_DAO_MANIFEST_INSCRIPTION_ID "<%= it.dao_manifest_inscription_id %>")
 
 (define-public (execute (sender principal))
   (begin
@@ -30,17 +31,14 @@
       )
     ))
     ;; set DAO manifest in dao-charter extension
-    ;; (try! (contract-call? .aibtc-dao-charter set-charter CFG_DAO_MANIFEST none))
+    (try! (contract-call? .aibtc-dao-charter set-dao-charter CFG_DAO_MANIFEST_TEXT none))
     ;; send DAO manifest as onchain message
-    (try! (contract-call? .aibtc-onchain-messaging send CFG_DAO_MANIFEST true))
+    (try! (contract-call? .aibtc-onchain-messaging send CFG_DAO_MANIFEST_TEXT true))
     ;; allow assets in treasury
     (try! (contract-call? .aibtc-treasury allow-asset .aibtc-token true))
     ;; print manifest
-    (print CFG_DAO_MANIFEST)
+    (print CFG_DAO_MANIFEST_TEXT)
     (ok true)
   )
 )
 
-(define-read-only (get-dao-manifest)
-  CFG_DAO_MANIFEST
-)
