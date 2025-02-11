@@ -1,4 +1,4 @@
-(impl-trait .aibtcdev-dao-traits-v1.proposal)
+(impl-trait .aibtc-dao-traits-v2.proposal)
 
 (define-public (execute (sender principal))
   ;; transfers ownership of the token uri to a new address

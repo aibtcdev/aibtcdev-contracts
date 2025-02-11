@@ -1,5 +1,5 @@
-(impl-trait .aibtcdev-dao-traits-v1.extension)
-(impl-trait .aibtcdev-dao-traits-v1.action)
+(impl-trait .aibtc-dao-traits-v2.extension)
+(impl-trait .aibtc-dao-traits-v2.action)
 
 (define-constant ERR_UNAUTHORIZED (err u10001))
 (define-constant ERR_INVALID_PARAMS (err u10002))

@@ -1,4 +1,4 @@
-(impl-trait .aibtcdev-dao-traits-v1.proposal)
+(impl-trait .aibtc-dao-traits-v2.proposal)
 
 (define-public (execute (sender principal))
   ;; sends a verified message from the dao

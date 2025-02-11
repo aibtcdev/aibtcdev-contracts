@@ -1,4 +1,4 @@
-(impl-trait .aibtcdev-dao-traits-v1.proposal)
+(impl-trait .aibtc-dao-traits-v2.proposal)
 
 (define-constant DAO_MANIFEST "This is where the DAO can put it's mission, purpose, and goals.")
 
