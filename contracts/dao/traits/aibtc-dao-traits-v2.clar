@@ -113,9 +113,9 @@
 ;; allows the dao to define its mission and values on-chain
 ;; used to guide decision-making and proposals
 (define-trait charter (
-  ;; activate the dao charter
+  ;; vote to activate the dao charter
   ;; @returns (response bool uint)
-  (activate-dao-charter () (response bool uint))
+  (vote-to-activate () (response bool uint))
   ;; set the dao charter
   ;; @param charter the new charter text
   ;; @returns (response bool uint)

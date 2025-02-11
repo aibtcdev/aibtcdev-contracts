@@ -20,7 +20,7 @@
 (define-constant ERR_DAO_NOT_ACTIVATED (err u8002))
 (define-constant ERR_ALREADY_VOTED (err u8003))
 (define-constant ERR_SAVING_CHARTER (err u8004))
-(define-constant ERR_EMPTY_CHARTER (err u8005))
+(define-constant ERR_CHARTER_TOO_SHORT (err u8005))
 
 ;; data vars
 ;;
@@ -59,7 +59,7 @@
   (ok true)
 )
 
-(define-public (activate-dao-charter)
+(define-public (vote-to-activate)
   (let
     (
       (newVoteCount (+ (var-get activationVotes) u1))
@@ -75,7 +75,7 @@
     }) ERR_ALREADY_VOTED)
     ;; print voter info
     (print {
-      notification: "activate-dao-charter",
+      notification: "vote-to-activate",
       payload: {
         burnHeight: burn-block-height,
         createdAt: block-height,
@@ -102,7 +102,7 @@
     ;; check if sender is dao or extension
     (try! (is-dao-or-extension))
     ;; check length of charter
-    (asserts! (>= (len charter) u1) ERR_EMPTY_CHARTER)
+    (asserts! (>= (len charter) u1) ERR_CHARTER_TOO_SHORT)
     ;; insert new charter version
     (asserts! (map-insert CharterVersions (var-get currentVersion) {
       burnHeight: burn-block-height,
