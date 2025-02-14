@@ -59,7 +59,7 @@ plan:
             emulated-sender: SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE
             path: "./.cache/requirements/SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.clar"
             clarity-version: 1
-      epoch: "2.1"
+      epoch: "2.0"
     - id: 1
       transactions:
         - emulated-contract-publish:
@@ -372,9 +372,9 @@ plan:
             path: contracts/dao/proposals/aibtc-treasury-deposit-stx.clar
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: aibtc-treasury-freeze-asset
+            contract-name: aibtc-treasury-disable-asset
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/dao/proposals/aibtc-treasury-freeze-asset.clar
+            path: contracts/dao/proposals/aibtc-treasury-disable-asset.clar
             clarity-version: 2
         - emulated-contract-publish:
             contract-name: aibtc-treasury-revoke-delegation

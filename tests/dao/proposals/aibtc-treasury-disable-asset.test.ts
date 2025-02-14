@@ -4,7 +4,7 @@ import { TreasuryErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
-const contractName = "aibtc-treasury-freeze-asset";
+const contractName = "aibtc-treasury-disable-asset";
 const contractAddress = `${deployer}.${contractName}`;
 
 const expectedErr = Cl.uint(TreasuryErrCode.ERR_UNAUTHORIZED);
