@@ -2,15 +2,15 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging)
 (define-constant CFG_MESSAGE "Executed Core Proposal: Revoke STX delegation")
-(define-constant CFG_TREASURY_CONTRACT .aibtc-treasury)
+;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
+;; was CFG_TREASURY_CONTRACT .aibtc-treasury
 
 (define-public (execute (sender principal))
   (begin 
     ;; send a message from the dao
-    (try! (contract-call? CFG_MESSAGE_CONTRACT send CFG_MESSAGE true))
+    (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
     ;; revoke STX delegation
-    (contract-call? CFG_TREASURY_CONTRACT revoke-delegate-stx)
+    (contract-call? .aibtc-treasury revoke-delegate-stx)
   )
 )

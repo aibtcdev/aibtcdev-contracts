@@ -2,16 +2,16 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging)
 (define-constant CFG_MESSAGE "Executed Core Proposal: Allow an asset for deposit and withdrawal in the treasury")
-(define-constant CFG_TREASURY_CONTRACT .aibtc-treasury)
 (define-constant CFG_ASSET 'SP3D6PV2ACBPEKYJTCMH7HEN02KP87QSP8KTEH335.abtc)
+;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
+;; was CFG_TREASURY_CONTRACT .aibtc-treasury
 
 (define-public (execute (sender principal))
   (begin 
     ;; send a message from the dao
-    (try! (contract-call? CFG_MESSAGE_CONTRACT send CFG_MESSAGE true))
+    (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
     ;; allow an asset for deposit and withdrawal in the treasury
-    (contract-call? CFG_TREASURY_CONTRACT allow-asset CFG_ASSET true)
+    (contract-call? .aibtc-treasury allow-asset CFG_ASSET true)
   )
 )
