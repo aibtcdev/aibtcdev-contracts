@@ -48,6 +48,9 @@ genesis:
 plan:
   batches:
     - id: 0
+      transactions: []
+      epoch: "2.0"
+    - id: 1
       transactions:
         - emulated-contract-publish:
             contract-name: nft-trait
@@ -59,8 +62,14 @@ plan:
             emulated-sender: SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE
             path: "./.cache/requirements/SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.clar"
             clarity-version: 1
-      epoch: "2.0"
-    - id: 1
+      epoch: "2.1"
+    - id: 2
+      transactions: []
+      epoch: "2.1"
+    - id: 3
+      transactions: []
+      epoch: "2.1"
+    - id: 4
       transactions:
         - emulated-contract-publish:
             contract-name: sip-010-trait-ft-standard
@@ -83,7 +92,13 @@ plan:
             path: "./.cache/requirements/ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.xyk-core-v-1-2.clar"
             clarity-version: 2
       epoch: "2.5"
-    - id: 2
+    - id: 5
+      transactions: []
+      epoch: "2.5"
+    - id: 6
+      transactions: []
+      epoch: "2.5"
+    - id: 7
       transactions:
         - emulated-contract-publish:
             contract-name: faktory-trait-v1
@@ -211,7 +226,7 @@ plan:
             path: contracts/dao/proposals/aibtc-bank-account-set-withdrawal-period.clar
             clarity-version: 2
       epoch: "3.0"
-    - id: 3
+    - id: 8
       transactions:
         - emulated-contract-publish:
             contract-name: aibtc-bank-account-withdraw-stx
@@ -339,7 +354,7 @@ plan:
             path: contracts/dao/proposals/aibtc-token-owner-transfer-ownership.clar
             clarity-version: 2
       epoch: "3.0"
-    - id: 4
+    - id: 9
       transactions:
         - emulated-contract-publish:
             contract-name: aibtc-treasury-allow-asset
@@ -461,4 +476,16 @@ plan:
             emulated-sender: ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5
             path: contracts/test/proxy.clar
             clarity-version: 2
+      epoch: "3.0"
+    - id: 10
+      transactions: []
+      epoch: "3.0"
+    - id: 11
+      transactions: []
+      epoch: "3.0"
+    - id: 12
+      transactions: []
+      epoch: "3.0"
+    - id: 13
+      transactions: []
       epoch: "3.0"

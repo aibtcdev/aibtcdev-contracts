@@ -11,7 +11,7 @@ const contractAddress = `${deployer}.${contractName}`;
 const expectedErr = Cl.uint(4);
 
 describe(`core proposal: ${contractName}`, () => {
-  it("execute() fails if called directly", () => {
+  it("execute() fails if called directly with no funds", () => {
     const receipt = simnet.callPublicFn(
       contractAddress,
       "execute",
