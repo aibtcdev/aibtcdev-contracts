@@ -1,14 +1,13 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
+import { OnchainMessagingErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 const contractName = "aibtc-bank-account-deposit-stx";
 const contractAddress = `${deployer}.${contractName}`;
 
-// normally would succeed (anyone can call)
-// fails because contract has no funds to deposit
-const expectedErr = Cl.uint(4);
+const expectedErr = Cl.uint(OnchainMessagingErrCode.ERR_UNAUTHORIZED);
 
 describe(`core proposal: ${contractName}`, () => {
   it("execute() fails if called directly with no funds", () => {

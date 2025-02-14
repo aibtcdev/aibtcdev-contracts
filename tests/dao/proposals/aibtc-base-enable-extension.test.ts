@@ -1,14 +1,13 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
-import { CoreProposalErrCode } from "../../error-codes";
+import { OnchainMessagingErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 const contractName = "aibtc-base-enable-extension";
 const contractAddress = `${deployer}.${contractName}`;
 
-// custom error because proposal is not found / setup yet
-const expectedErr = Cl.uint(CoreProposalErrCode.ERR_PROPOSAL_NOT_FOUND);
+const expectedErr = Cl.uint(OnchainMessagingErrCode.ERR_UNAUTHORIZED);
 
 describe(`core proposal: ${contractName}`, () => {
   it("execute() fails if called directly", () => {
