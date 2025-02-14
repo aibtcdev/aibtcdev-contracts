@@ -2,10 +2,10 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging)
 (define-constant CFG_MESSAGE "Executed Core Proposal: Disabled extension in DAO")
-(define-constant CFG_BASE_DAO .aibtc-base-dao)
-(define-constant CFG_EXTENSION .aibtc-bank-account)
+;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
+;; was CFG_BASE_DAO .aibtc-base-dao
+;; was CFG_EXTENSION .aibtc-bank-account
 
 ;; errors
 (define-constant ERR_EXTENSION_NOT_FOUND (err u3003))
@@ -13,11 +13,11 @@
 (define-public (execute (sender principal))
   (begin
     ;; send a message from the dao
-    (try! (contract-call? CFG_MESSAGE_CONTRACT send CFG_MESSAGE true))
+    (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
     ;; check that extension exists, avoids write if not
-    (asserts! (contract-call? CFG_BASE_DAO is-extension CFG_EXTENSION) ERR_EXTENSION_NOT_FOUND)
+    (asserts! (contract-call? .aibtc-base-dao is-extension .aibtc-bank-account) ERR_EXTENSION_NOT_FOUND)
     ;; update extension status
-    (try! (contract-call? CFG_BASE_DAO set-extension CFG_EXTENSION false))
+    (try! (contract-call? .aibtc-base-dao set-extension .aibtc-bank-account false))
     (ok true)
   )
 )
