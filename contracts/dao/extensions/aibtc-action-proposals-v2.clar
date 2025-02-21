@@ -92,7 +92,7 @@
     (
       (actionContract (contract-of action))
       (newId (+ (var-get proposalCount) u1))
-      (createdAt stacks-block-height)
+      (createdAt (- stacks-block-height u1))
       (liquidTokens (try! (get-liquid-supply createdAt)))
       (startBlock (+ burn-block-height VOTING_DELAY))
       (endBlock (+ startBlock VOTING_PERIOD))
