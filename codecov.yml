@@ -1,19 +1,31 @@
 coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+
   status:
     project:
       default:
-        # basic
-        target: auto
-        threshold: 0%
+        target: 95%
+        threshold: 5%
         base: auto
-        # advanced
-        branches: null
-        if_no_uploads: error
-        if_not_found: success
         if_ci_failed: error
-        only_pulls: false
-        flags: null
-        paths: null
+        informational: false
+        only_pulls: true
+    patch:
+      default:
+        target: 90%
+        threshold: 5%
+        base: auto
+        if_ci_failed: error
+        only_pulls: true
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
 
 ignore:
   - "contracts/test/**/*"  # Ignore everything in contracts/test directory
