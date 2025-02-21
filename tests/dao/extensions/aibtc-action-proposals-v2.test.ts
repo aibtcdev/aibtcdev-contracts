@@ -1,4 +1,10 @@
-import { Cl, cvToValue, ResponseOkCV, SomeCV } from "@stacks/transactions";
+import {
+  Cl,
+  ClarityType,
+  cvToValue,
+  ResponseOkCV,
+  SomeCV,
+} from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { ActionProposalsV2ErrCode } from "../../error-codes";
 import {
@@ -1021,8 +1027,77 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("get-last-proposal-created() succeeds and returns the block height of the last proposal", () => {
+    console.log(
+      "test: get-last-proposal-created() succeeds and returns the block height of the last proposal"
+    );
     const actionProposalData = Cl.bufferFromAscii("test");
+    // variables to track block heights throughout the test
+    const blockHeights: {
+      blockHeights: number[];
+      burnBlockHeights: number[];
+      stacksBlockHeights: number[];
+    } = {
+      blockHeights: [],
+      burnBlockHeights: [],
+      stacksBlockHeights: [],
+    };
+    // helper function for block height output
+    const logBlockHeights = () => {
+      // log current block heights
+      const blockHeight = simnet.blockHeight;
+      const burnBlockHeight = simnet.burnBlockHeight;
+      const stacksBlockHeight = simnet.stacksBlockHeight;
+      // update block heights object
+      blockHeights.blockHeights.push(blockHeight);
+      blockHeights.burnBlockHeights.push(burnBlockHeight);
+      blockHeights.stacksBlockHeights.push(stacksBlockHeight);
+      // log output
+      console.log({
+        blockHeight,
+        burnBlockHeight,
+        stacksBlockHeight,
+      });
+    };
+    // helper function for calling read-only function
+    // get-block-hash with a block height, result: some/none
+    const getBlockHash = (blockHeight: number) => {
+      const receipt = simnet.callReadOnlyFn(
+        actionProposalsV2ContractAddress,
+        "get-block-hash",
+        [Cl.uint(blockHeight)],
+        deployer
+      );
+      const result = cvToValue(receipt.result);
+      console.log(
+        `block hash at ${blockHeight}: ${result ? result.value : "none"}`
+      );
+    };
+    // helper function for calling read-only function
+    // get-liquid-supply with a block height, result: ok/err
+    const getLiquidSupply = (blockHeight: number) => {
+      const receipt = simnet.callReadOnlyFn(
+        actionProposalsV2ContractAddress,
+        "get-liquid-supply",
+        [Cl.uint(blockHeight)],
+        deployer
+      );
+      if (receipt.result.type === ClarityType.ResponseOk) {
+        console.log(
+          `liquid supply at ${blockHeight}:  ${cvToValue(receipt.result).value}`
+        );
+      } else if (receipt.result.type === ClarityType.ResponseErr) {
+        console.log(
+          `liquid supply at ${blockHeight}: error u${
+            cvToValue(receipt.result).value
+          }`
+        );
+      }
+    };
+    // log starting info
+    console.log("\n-- starting the test:");
+    logBlockHeights();
     // get dao tokens for deployer, increases liquid tokens
+    console.log("\n-- getting dao tokens...");
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
       tokenDexContractAddress,
@@ -1030,15 +1105,81 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       1000
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
+    console.log("after fetching dao tokens:");
+    console.log(`tx result: ${cvToValue(daoTokensReceipt.result, true).value}`);
+    logBlockHeights();
     // progress the chain for at-block calls
-    simnet.mineEmptyBlocks(10);
+    // pushing this higher to make sure past blocks exist
+    const blocks = 1000;
+    console.log(`\n-- progressing ${blocks} blocks`);
+    const progressOutput = simnet.mineEmptyBlocks(blocks);
+    console.log(
+      `returned from simnet.mineEmptyBlocks(blocks): ${progressOutput}`
+    );
+    console.log("after progressing blocks:");
+    logBlockHeights();
     // construct the dao
+    console.log("\n-- constructing the dao...");
     const constructReceipt = constructDao(
       deployer,
       baseDaoContractAddress,
       bootstrapContractAddress
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
+    console.log("after dao is constructed:");
+    logBlockHeights();
+    console.log(`\n-- progressing ${blocks} blocks`);
+    const progressOutput2 = simnet.mineEmptyBlocks(blocks);
+    console.log(
+      `returned from simnet.mineEmptyBlocks(blocks): ${progressOutput2}`
+    );
+    console.log("after progressing blocks:");
+    logBlockHeights();
+    // verify get-block-hash at past block heights
+    console.log("\n-- verifying get-block-hash at past block heights");
+    for (let i = 0; i < blockHeights.blockHeights.length; i++) {
+      const blockHeight = blockHeights.blockHeights[i];
+      const burnBlockHeight = blockHeights.burnBlockHeights[i];
+      const stacksBlockHeight = blockHeights.stacksBlockHeights[i];
+      console.log(
+        `\nblock heights: ${JSON.stringify({
+          blockHeight,
+          burnBlockHeight,
+          stacksBlockHeight,
+        })}`
+      );
+      // log block hash and supply
+      getBlockHash(blockHeight);
+      getLiquidSupply(blockHeight);
+      getBlockHash(burnBlockHeight);
+      getLiquidSupply(burnBlockHeight);
+      getBlockHash(stacksBlockHeight);
+      getLiquidSupply(stacksBlockHeight);
+    }
+    // for the last values in each array, test minus 1
+    const lastBlockHeight =
+      blockHeights.blockHeights[blockHeights.blockHeights.length - 1] - 1;
+    const lastBurnBlockHeight =
+      blockHeights.burnBlockHeights[blockHeights.burnBlockHeights.length - 1] -
+      1;
+    const lastStacksBlockHeight =
+      blockHeights.stacksBlockHeights[
+        blockHeights.stacksBlockHeights.length - 1
+      ] - 1;
+    console.log(
+      `\none block before current: ${JSON.stringify({
+        lastBlockHeight,
+        lastBurnBlockHeight,
+        lastStacksBlockHeight,
+      })}`
+    );
+    getBlockHash(lastBlockHeight);
+    getLiquidSupply(lastBlockHeight);
+    getBlockHash(lastBurnBlockHeight);
+    getLiquidSupply(lastBurnBlockHeight);
+    getBlockHash(lastStacksBlockHeight);
+    getLiquidSupply(lastStacksBlockHeight);
+
     // create proposal
     const actionProposalReceipt = simnet.callPublicFn(
       actionProposalsV2ContractAddress,
