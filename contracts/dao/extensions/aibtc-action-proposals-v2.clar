@@ -35,7 +35,9 @@
 (define-constant ERR_DAO_NOT_ACTIVATED (err u1014))
 
 ;; voting configuration
+;; for template: (if is-in-mainnet u144 u2)
 (define-constant VOTING_DELAY u144) ;; 144 Bitcoin blocks, ~1 days
+;; for template: (if is-in-mainnet u288 u7)
 (define-constant VOTING_PERIOD u288) ;; 2 x 144 Bitcoin blocks, ~2 days
 (define-constant VOTING_QUORUM u15) ;; 15% of liquid supply must participate
 (define-constant VOTING_THRESHOLD u66) ;; 66% of votes must be in favor
