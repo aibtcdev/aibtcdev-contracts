@@ -698,6 +698,13 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       [Cl.principal(deployer)],
       deployer
     ).result;
+    console.log(
+      `get balance / expected voting power: ${JSON.stringify(
+        votingPower,
+        null,
+        2
+      )}`
+    );
     // construct DAO
     const constructReceipt = constructDao(
       deployer,
@@ -706,7 +713,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress the chain for at-block calls
-    simnet.mineEmptyBlocks(10);
+    console.log(`block height: ${simnet.mineEmptyBlocks(100)}`);
     // create proposal
     const actionProposalReceipt = simnet.callPublicFn(
       actionProposalsV2ContractAddress,

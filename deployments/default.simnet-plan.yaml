@@ -64,6 +64,36 @@ plan:
             clarity-version: 1
       epoch: "2.1"
     - id: 2
+      transactions: []
+      epoch: "2.1"
+    - id: 3
+      transactions: []
+      epoch: "2.1"
+    - id: 4
+      transactions: []
+      epoch: "2.1"
+    - id: 5
+      transactions: []
+      epoch: "2.1"
+    - id: 6
+      transactions: []
+      epoch: "2.1"
+    - id: 7
+      transactions: []
+      epoch: "2.1"
+    - id: 8
+      transactions: []
+      epoch: "2.1"
+    - id: 9
+      transactions: []
+      epoch: "2.1"
+    - id: 10
+      transactions: []
+      epoch: "2.1"
+    - id: 11
+      transactions: []
+      epoch: "2.1"
+    - id: 12
       transactions:
         - emulated-contract-publish:
             contract-name: sip-010-trait-ft-standard
@@ -86,7 +116,37 @@ plan:
             path: "./.cache/requirements/ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.xyk-core-v-1-2.clar"
             clarity-version: 2
       epoch: "2.5"
-    - id: 3
+    - id: 13
+      transactions: []
+      epoch: "2.5"
+    - id: 14
+      transactions: []
+      epoch: "2.5"
+    - id: 15
+      transactions: []
+      epoch: "2.5"
+    - id: 16
+      transactions: []
+      epoch: "2.5"
+    - id: 17
+      transactions: []
+      epoch: "2.5"
+    - id: 18
+      transactions: []
+      epoch: "2.5"
+    - id: 19
+      transactions: []
+      epoch: "2.5"
+    - id: 20
+      transactions: []
+      epoch: "2.5"
+    - id: 21
+      transactions: []
+      epoch: "2.5"
+    - id: 22
+      transactions: []
+      epoch: "2.5"
+    - id: 23
       transactions:
         - emulated-contract-publish:
             contract-name: faktory-trait-v1
@@ -214,7 +274,7 @@ plan:
             path: contracts/dao/proposals/aibtc-bank-account-set-withdrawal-period.clar
             clarity-version: 2
       epoch: "3.0"
-    - id: 4
+    - id: 24
       transactions:
         - emulated-contract-publish:
             contract-name: aibtc-bank-account-withdraw-stx
@@ -342,7 +402,7 @@ plan:
             path: contracts/dao/proposals/aibtc-token-owner-transfer-ownership.clar
             clarity-version: 2
       epoch: "3.0"
-    - id: 5
+    - id: 25
       transactions:
         - emulated-contract-publish:
             contract-name: aibtc-treasury-allow-asset
@@ -464,4 +524,88 @@ plan:
             emulated-sender: ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5
             path: contracts/test/proxy.clar
             clarity-version: 2
+      epoch: "3.0"
+    - id: 26
+      transactions: []
+      epoch: "3.0"
+    - id: 27
+      transactions: []
+      epoch: "3.0"
+    - id: 28
+      transactions: []
+      epoch: "3.0"
+    - id: 29
+      transactions: []
+      epoch: "3.0"
+    - id: 30
+      transactions: []
+      epoch: "3.0"
+    - id: 31
+      transactions: []
+      epoch: "3.0"
+    - id: 32
+      transactions: []
+      epoch: "3.0"
+    - id: 33
+      transactions: []
+      epoch: "3.0"
+    - id: 34
+      transactions: []
+      epoch: "3.0"
+    - id: 35
+      transactions: []
+      epoch: "3.0"
+    - id: 36
+      transactions: []
+      epoch: "3.0"
+    - id: 37
+      transactions: []
+      epoch: "3.0"
+    - id: 38
+      transactions: []
+      epoch: "3.0"
+    - id: 39
+      transactions: []
+      epoch: "3.0"
+    - id: 40
+      transactions: []
+      epoch: "3.0"
+    - id: 41
+      transactions: []
+      epoch: "3.0"
+    - id: 42
+      transactions: []
+      epoch: "3.0"
+    - id: 43
+      transactions: []
+      epoch: "3.0"
+    - id: 44
+      transactions: []
+      epoch: "3.0"
+    - id: 45
+      transactions: []
+      epoch: "3.0"
+    - id: 46
+      transactions: []
+      epoch: "3.0"
+    - id: 47
+      transactions: []
+      epoch: "3.0"
+    - id: 48
+      transactions: []
+      epoch: "3.0"
+    - id: 49
+      transactions: []
+      epoch: "3.0"
+    - id: 50
+      transactions: []
+      epoch: "3.0"
+    - id: 51
+      transactions: []
+      epoch: "3.0"
+    - id: 52
+      transactions: []
+      epoch: "3.0"
+    - id: 53
+      transactions: []
       epoch: "3.0"

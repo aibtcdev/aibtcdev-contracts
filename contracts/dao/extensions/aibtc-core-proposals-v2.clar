@@ -89,7 +89,7 @@
   (let
     (
       (proposalContract (contract-of proposal))
-      (createdAt stacks-block-height)
+      (createdAt (- stacks-block-height u1))
       (liquidTokens (try! (get-liquid-supply createdAt)))
       (startBlock (+ burn-block-height VOTING_DELAY))
       (endBlock (+ startBlock VOTING_PERIOD))
