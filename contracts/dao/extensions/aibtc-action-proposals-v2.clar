@@ -224,10 +224,13 @@
         caller: contract-caller,
         concludedBy: tx-sender,
         proposalId: proposalId,
+        votesFor: votesFor,
+        votesAgainst: votesAgainst,
+        liquidTokens: liquidTokens,
         metQuorum: metQuorum,
         metThreshold: metThreshold,
         passed: votePassed,
-        executed: (and votePassed validAction)
+        executed: (and votePassed validAction),
       }
     })
     ;; update the proposal record
