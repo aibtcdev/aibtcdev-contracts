@@ -4,8 +4,8 @@
 
 ;; traits
 ;;
-(impl-trait .aibtcdev-dao-traits-v1.extension)
-(impl-trait .aibtcdev-dao-traits-v1.bank-account)
+(impl-trait .aibtc-dao-traits-v2.extension)
+(impl-trait .aibtc-dao-traits-v2.bank-account)
 
 ;; constants
 ;;
@@ -142,8 +142,8 @@
 ;;
 
 (define-private (is-dao-or-extension)
-  (ok (asserts! (or (is-eq tx-sender .aibtcdev-base-dao)
-    (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+  (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
+    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
   ))
 )
 

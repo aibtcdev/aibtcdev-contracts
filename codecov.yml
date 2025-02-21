@@ -1,0 +1,35 @@
+codecov:
+  require_ci_to_pass: true
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+  status:
+
+  status:
+    project:
+      default:
+        target: 50% # 95% goal
+        threshold: 10% # 5% goal
+        base: auto
+        if_ci_failed: error
+        informational: false
+        only_pulls: true
+    patch:
+      default:
+        target: 90%
+        threshold: 10% # 5% goal
+        base: auto
+        if_ci_failed: error
+        only_pulls: true
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+ignore:
+  - "contracts/test/**/*"  # Ignore everything in contracts/test directory

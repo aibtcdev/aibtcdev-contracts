@@ -1,13 +1,13 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
-import { TreasuryErrCode } from "../../error-codes";
+import { OnchainMessagingErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 const contractName = "aibtc-treasury-withdraw-ft";
 const contractAddress = `${deployer}.${contractName}`;
 
-const expectedErr = Cl.uint(TreasuryErrCode.ERR_UNAUTHORIZED);
+const expectedErr = Cl.uint(OnchainMessagingErrCode.ERR_UNAUTHORIZED);
 
 describe(`core proposal: ${contractName}`, () => {
   it("execute() fails if called directly", () => {

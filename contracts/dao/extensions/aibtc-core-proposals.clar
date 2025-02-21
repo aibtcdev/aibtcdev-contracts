@@ -85,7 +85,7 @@
     ;; caller has the required balance
     (asserts! (> (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA) u0) ERR_INSUFFICIENT_BALANCE)
     ;; proposal was not already executed
-    (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
+    (asserts! (is-none (contract-call? .aibtc-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; print proposal creation event
     (print {
       notification: "create-proposal",
@@ -126,7 +126,7 @@
     ;; caller has the required balance
     (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
     ;; proposal was not already executed
-    (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
+    (asserts! (is-none (contract-call? .aibtc-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; proposal is still active
     (asserts! (>= burn-block-height (get startBlock proposalRecord)) ERR_VOTE_TOO_SOON)
     (asserts! (< burn-block-height (get endBlock proposalRecord)) ERR_VOTE_TOO_LATE)
@@ -164,7 +164,7 @@
       (votePassed (<= VOTING_QUORUM (/ (* (get votesFor proposalRecord) u100) (get liquidTokens proposalRecord))))
     )
     ;; proposal was not already executed
-    (asserts! (is-none (contract-call? .aibtcdev-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
+    (asserts! (is-none (contract-call? .aibtc-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; proposal past end block height
     (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_STILL_ACTIVE)
     ;; proposal not already concluded
@@ -185,7 +185,7 @@
       })
     )
     ;; execute the proposal only if it passed
-    (and votePassed (try! (contract-call? .aibtcdev-base-dao execute proposal tx-sender)))
+    (and votePassed (try! (contract-call? .aibtc-base-dao execute proposal tx-sender)))
     ;; return the result
     (ok votePassed)
   )
@@ -232,8 +232,8 @@
 ;; 
 
 (define-private (is-dao-or-extension)
-  (ok (asserts! (or (is-eq tx-sender .aibtcdev-base-dao)
-    (contract-call? .aibtcdev-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
+  (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
+    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )
 

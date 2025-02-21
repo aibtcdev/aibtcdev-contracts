@@ -51,9 +51,9 @@ epoch = 3.0
 
 # dao base contract
 
-[contracts.aibtcdev-base-dao]
-path = 'contracts/dao/aibtcdev-base-dao.clar'
-clarity_version = 2
+[contracts.aibtc-base-dao]
+path = 'contracts/dao/aibtc-base-dao.clar'
+clarity_version = 3
 epoch = 3.0
 
 # dao extensions
@@ -73,6 +73,11 @@ path = 'contracts/dao/extensions/aibtc-bitflow-pool.clar'
 clarity_version = 2
 epoch = 3.0
 
+[contracts.aibtc-dao-charter]
+path = 'contracts/dao/extensions/aibtc-dao-charter.clar'
+clarity_version = 2
+epoch = 3.0
+
 [contracts.aibtc-core-proposals]
 path = 'contracts/dao/extensions/aibtc-core-proposals.clar'
 clarity_version = 2
@@ -80,7 +85,7 @@ epoch = 3.0
 
 [contracts.aibtc-onchain-messaging]
 path = 'contracts/dao/extensions/aibtc-onchain-messaging.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-payments-invoices]
@@ -106,6 +111,16 @@ epoch = 3.0
 [contracts.aibtc-treasury]
 path = 'contracts/dao/extensions/aibtc-treasury.clar'
 clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-action-proposals-v2]
+path = 'contracts/dao/extensions/aibtc-action-proposals-v2.clar'
+clarity_version = 3
+epoch = 3.0
+
+[contracts.aibtc-core-proposals-v2]
+path = 'contracts/dao/extensions/aibtc-core-proposals-v2.clar'
+clarity_version = 3
 epoch = 3.0
 
 # dao actions (as extensions)
@@ -192,6 +207,11 @@ path = 'contracts/dao/proposals/aibtc-base-bootstrap-initialization.clar'
 clarity_version = 2
 epoch = 3.0
 
+[contracts.aibtc-base-bootstrap-initialization-v2]
+path = 'contracts/dao/proposals/aibtc-base-bootstrap-initialization-v2.clar'
+clarity_version = 2
+epoch = 3.0
+
 [contracts.aibtc-base-disable-extension]
 path = 'contracts/dao/proposals/aibtc-base-disable-extension.clar'
 clarity_version = 2
@@ -204,6 +224,16 @@ epoch = 3.0
 
 [contracts.aibtc-base-replace-extension]
 path = 'contracts/dao/proposals/aibtc-base-replace-extension.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-base-replace-extension-proposal-voting]
+path = 'contracts/dao/proposals/aibtc-base-replace-extension-proposal-voting.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-dao-charter-set-dao-charter]
+path = 'contracts/dao/proposals/aibtc-dao-charter-set-dao-charter.clar'
 clarity_version = 2
 epoch = 3.0
 
@@ -277,8 +307,8 @@ path = 'contracts/dao/proposals/aibtc-treasury-deposit-stx.clar'
 clarity_version = 2
 epoch = 3.0
 
-[contracts.aibtc-treasury-freeze-asset]
-path = 'contracts/dao/proposals/aibtc-treasury-freeze-asset.clar'
+[contracts.aibtc-treasury-disable-asset]
+path = 'contracts/dao/proposals/aibtc-treasury-disable-asset.clar'
 clarity_version = 2
 epoch = 3.0
 
@@ -303,6 +333,16 @@ clarity_version = 2
 epoch = 3.0
 
 # dao traits
+
+[contracts.aibtc-dao-traits-v2]
+path = 'contracts/dao/traits/aibtc-dao-traits-v2.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-dao-v2]
+path = 'contracts/dao/traits/aibtc-dao-v2.clar'
+clarity_version = 2
+epoch = 3.0
 
 [contracts.aibtcdev-dao-traits-v1-1]
 path = 'contracts/dao/traits/aibtcdev-dao-traits-v1-1.clar'
@@ -361,5 +401,25 @@ epoch = 3.0
 
 [contracts.test-token]
 path = 'contracts/test/sip010-token.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.test-disable-action-proposals-v2]
+path = 'contracts/test/disable-action-proposals-v2.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.test-disable-core-proposals-v2]
+path = 'contracts/test/disable-core-proposals-v2.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.test-disable-onchain-messaging-action]
+path = 'contracts/test/disable-onchain-messaging-action.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.test-unknown-action-proposal]
+path = 'contracts/test/unknown-action-proposal.clar'
 clarity_version = 2
 epoch = 3.0

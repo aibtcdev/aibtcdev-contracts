@@ -3,8 +3,8 @@
 # Exit on any error
 set -e
 
-echo "🔍 Checking test coverage for Clarity contracts..."
-echo "================================================"
+echo "🔍 Checking test file coverage for Clarity contracts..."
+echo "======================================================="
 
 # Initialize counters
 total_contracts=0
@@ -40,18 +40,18 @@ if [ ${#contracts[@]} -eq 0 ]; then
 fi
 
 # Process each contract
-echo -e "\nChecking test coverage..."
-echo "=========================="
+echo -e "\nChecking test file coverage..."
+echo "==================================="
 for contract in "${contracts[@]}"; do
     let "total_contracts=total_contracts+1"
     test_file=$(get_test_path "$contract")
     
     if [ ! -f "$test_file" ]; then
         echo "❌ Missing test file for: $contract"
-        echo "   Expected test at: $test_file"
+        echo "   Expected test file at: $test_file"
         let "untested_contracts=untested_contracts+1"
     else
-        echo "✅ Found test for: $contract"
+        echo "✅ Found test file for: $contract"
     fi
 done
 
@@ -60,14 +60,14 @@ echo ""
 echo "📊 Summary"
 echo "=========="
 echo "Total contracts found: $total_contracts"
-echo "Contracts with tests: $(($total_contracts - $untested_contracts))"
-echo "Contracts without tests: $untested_contracts"
+echo "Contracts with test files: $(($total_contracts - $untested_contracts))"
+echo "Contracts without test files: $untested_contracts"
 echo ""
 
 if [ $untested_contracts -eq 0 ]; then
     echo "✅ All contracts have corresponding test files"
     exit 0
 else
-    echo "❌ Action needed: $untested_contracts contract(s) are missing tests"
+    echo "❌ Action needed: $untested_contracts contract(s) are missing test files"
     exit 1
 fi

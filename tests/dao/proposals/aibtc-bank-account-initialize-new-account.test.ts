@@ -1,13 +1,13 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
-import { BankAccountErrCode } from "../../error-codes";
+import { OnchainMessagingErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 const contractName = "aibtc-bank-account-initialize-new-account";
 const contractAddress = `${deployer}.${contractName}`;
 
-const expectedErr = Cl.uint(BankAccountErrCode.ERR_UNAUTHORIZED);
+const expectedErr = Cl.uint(OnchainMessagingErrCode.ERR_UNAUTHORIZED);
 
 describe(`core proposal: ${contractName}`, () => {
   //console.log(`core proposal: ${contractName}`);

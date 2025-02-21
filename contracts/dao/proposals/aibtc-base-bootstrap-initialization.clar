@@ -1,11 +1,11 @@
-(impl-trait .aibtcdev-dao-traits-v1.proposal)
+(impl-trait .aibtc-dao-traits-v2.proposal)
 
 (define-constant DAO_MANIFEST "This is where the DAO can put it's mission, purpose, and goals.")
 
 (define-public (execute (sender principal))
   (begin  
     ;; set initial dao extensions list
-    (try! (contract-call? .aibtcdev-base-dao set-extensions
+    (try! (contract-call? .aibtc-base-dao set-extensions
       (list
         {extension: .aibtc-action-proposals, enabled: true}
         {extension: .aibtc-bank-account, enabled: true}
@@ -17,7 +17,7 @@
       )
     ))
     ;; set initial action proposals list
-    (try! (contract-call? .aibtcdev-base-dao set-extensions
+    (try! (contract-call? .aibtc-base-dao set-extensions
       (list
         {extension: .aibtc-action-add-resource, enabled: true}
         {extension: .aibtc-action-allow-asset, enabled: true}

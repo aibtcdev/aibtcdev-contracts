@@ -1,13 +1,13 @@
-;; title: aibtcdev-dao
+;; title: aibtc-dao
 ;; version: 1.0.0
 ;; summary: An ExecutorDAO implementation for aibtcdev
 
 ;; traits
 ;;
 
-(impl-trait .aibtcdev-dao-v1.aibtcdev-base-dao)
-(use-trait proposal-trait .aibtcdev-dao-traits-v1.proposal)
-(use-trait extension-trait .aibtcdev-dao-traits-v1.extension)
+(impl-trait .aibtc-dao-v2.aibtc-base-dao)
+(use-trait proposal-trait .aibtc-dao-traits-v2.proposal)
+(use-trait extension-trait .aibtc-dao-traits-v2.extension)
 
 ;; constants
 ;;
@@ -48,7 +48,7 @@
 (define-public (execute (proposal <proposal-trait>) (sender principal))
   (begin
     (try! (is-self-or-extension))
-    (asserts! (map-insert ExecutedProposals (contract-of proposal) block-height) ERR_ALREADY_EXECUTED)
+    (asserts! (map-insert ExecutedProposals (contract-of proposal) stacks-block-height) ERR_ALREADY_EXECUTED)
     (print {
       notification: "execute",
       payload: {
