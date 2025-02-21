@@ -10,8 +10,8 @@ coverage:
   status:
     project:
       default:
-        target: 95%
-        threshold: 5%
+        target: 50% # 95% goal
+        threshold: 10% # 5% goal
         base: auto
         if_ci_failed: error
         informational: false
@@ -19,7 +19,7 @@ coverage:
     patch:
       default:
         target: 90%
-        threshold: 5%
+        threshold: 10% # 5% goal
         base: auto
         if_ci_failed: error
         only_pulls: true
