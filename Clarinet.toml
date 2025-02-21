@@ -53,7 +53,7 @@ epoch = 3.0
 
 [contracts.aibtc-base-dao]
 path = 'contracts/dao/aibtc-base-dao.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 # dao extensions
@@ -85,7 +85,7 @@ epoch = 3.0
 
 [contracts.aibtc-onchain-messaging]
 path = 'contracts/dao/extensions/aibtc-onchain-messaging.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-payments-invoices]
@@ -115,12 +115,12 @@ epoch = 3.0
 
 [contracts.aibtc-action-proposals-v2]
 path = 'contracts/dao/extensions/aibtc-action-proposals-v2.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-core-proposals-v2]
 path = 'contracts/dao/extensions/aibtc-core-proposals-v2.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 # dao actions (as extensions)
