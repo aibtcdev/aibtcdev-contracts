@@ -57,7 +57,7 @@
     ;; insert new charter version
     (asserts! (map-insert CharterVersions newVersion {
       burnHeight: burn-block-height,
-      createdAt: block-height,
+      createdAt: stacks-block-height,
       caller: contract-caller,
       sender: tx-sender,
       charter: charter,
@@ -68,7 +68,7 @@
       notification: "set-dao-charter",
       payload: {
         burnHeight: burn-block-height,
-        createdAt: block-height,
+        createdAt: stacks-block-height,
         caller: contract-caller,
         sender: tx-sender,
         dao: SELF,
