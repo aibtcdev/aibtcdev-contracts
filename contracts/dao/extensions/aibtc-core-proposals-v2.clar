@@ -190,13 +190,13 @@
       (liquidTokens (get liquidTokens proposalRecord))
       (hasVotes (> (+ votesFor votesAgainst) u0))
       ;; quorum: check if enough total votes vs liquid supply
-      (metQuorum (if hasVotes
+      (metQuorum (and hasVotes
         (>= (/ (* (+ votesFor votesAgainst) u100) liquidTokens) VOTING_QUORUM)
-        false))
+      ))
       ;; threshold: check if enough yes votes vs total votes
-      (metThreshold (if hasVotes
+      (metThreshold (and hasVotes
         (>= (/ (* votesFor u100) (+ votesFor votesAgainst)) VOTING_THRESHOLD)
-        false))
+      ))
       ;; proposal passed if quorum and threshold are met
       (votePassed (and hasVotes metQuorum metThreshold))
       (proposalExecuted (is-some (contract-call? .aibtc-base-dao executed-at proposal)))
