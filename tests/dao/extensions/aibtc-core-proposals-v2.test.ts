@@ -1,4 +1,4 @@
-import { Cl, cvToValue, ResponseOkCV, UIntCV } from "@stacks/transactions";
+import { Cl, cvToValue, ResponseOkCV, SomeCV, UIntCV } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { CoreProposalV2ErrCode } from "../../error-codes";
 import {
@@ -560,6 +560,71 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       coreProposalV2VoteSettings
     );
     expect(passProposalReceipt.result).toBeOk(Cl.bool(false));
+  });
+
+  it("conclude-proposal() succeeds but does not execute if proposal is too old (expired)", () => {
+    // fund voters to pass the proposal
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+    // progress chain past the first voting period
+    simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingPeriod);
+    // create core proposal
+    const createProposalReceipt = simnet.callPublicFn(
+      coreProposalsV2ContractAddress,
+      "create-proposal",
+      [Cl.principal(coreProposalContactAddress)],
+      deployer
+    );
+    expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
+    // progress chain past the voting delay
+    simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingDelay);
+    // vote on proposal
+    const voteReceipt = simnet.callPublicFn(
+      coreProposalsV2ContractAddress,
+      "vote-on-proposal",
+      [Cl.principal(coreProposalContactAddress), Cl.bool(true)],
+      deployer
+    );
+    expect(voteReceipt.result).toBeOk(Cl.bool(true));
+    // progress chain past the voting period and execution delay
+    simnet.mineEmptyBlocks(
+      coreProposalV2VoteSettings.votingPeriod + 
+      coreProposalV2VoteSettings.votingDelay
+    );
+    // progress chain past the expiration period (voting period + voting delay)
+    simnet.mineEmptyBlocks(
+      coreProposalV2VoteSettings.votingPeriod + 
+      coreProposalV2VoteSettings.votingDelay + 1
+    );
+    // conclude proposal
+    const receipt = simnet.callPublicFn(
+      coreProposalsV2ContractAddress,
+      "conclude-proposal",
+      [Cl.principal(coreProposalContactAddress)],
+      deployer
+    );
+    expect(receipt.result).toBeOk(Cl.bool(false));
+    
+    // verify proposal was concluded but not executed
+    const proposalInfo = simnet.callReadOnlyFn(
+      coreProposalsV2ContractAddress,
+      "get-proposal",
+      [Cl.principal(coreProposalContactAddress)],
+      deployer
+    ).result as SomeCV;
+    const proposalData = proposalInfo.value;
+    expect(proposalData.data.concluded).toStrictEqual(Cl.bool(true));
+    expect(proposalData.data.executed).toStrictEqual(Cl.bool(false));
   });
 });
 

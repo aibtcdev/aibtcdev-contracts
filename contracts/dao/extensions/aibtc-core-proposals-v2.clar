@@ -35,9 +35,9 @@
 (define-constant ERR_DAO_NOT_ACTIVATED (err u3014))
 
 ;; voting configuration
-;; for template: (if is-in-mainnet u432 u2)
+;; for template: (if is-in-mainnet u432 u1)
 (define-constant VOTING_DELAY u432) ;; 3 x 144 Bitcoin blocks, ~3 days
-;; for template: (if is-in-mainnet u432 u7)
+;; for template: (if is-in-mainnet u432 u3)
 (define-constant VOTING_PERIOD u432) ;; 3 x 144 Bitcoin blocks, ~3 days
 (define-constant VOTING_QUORUM u25) ;; 25% of liquid supply must participate
 (define-constant VOTING_THRESHOLD u90) ;; 90% of votes must be in favor
@@ -190,16 +190,17 @@
       (liquidTokens (get liquidTokens proposalRecord))
       (hasVotes (> (+ votesFor votesAgainst) u0))
       ;; quorum: check if enough total votes vs liquid supply
-      (metQuorum (if hasVotes
+      (metQuorum (and hasVotes
         (>= (/ (* (+ votesFor votesAgainst) u100) liquidTokens) VOTING_QUORUM)
-        false))
+      ))
       ;; threshold: check if enough yes votes vs total votes
-      (metThreshold (if hasVotes
+      (metThreshold (and hasVotes
         (>= (/ (* votesFor u100) (+ votesFor votesAgainst)) VOTING_THRESHOLD)
-        false))
+      ))
       ;; proposal passed if quorum and threshold are met
       (votePassed (and hasVotes metQuorum metThreshold))
-      (proposalExecuted (is-some (contract-call? .aibtc-base-dao executed-at proposal)))
+      (notExecuted (is-none (contract-call? .aibtc-base-dao executed-at proposal)))
+      (notExpired (< burn-block-height (+ (get endBlock proposalRecord) VOTING_PERIOD VOTING_DELAY)))
     )
     ;; proposal was not already concluded
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
@@ -220,7 +221,7 @@
         metQuorum: metQuorum,
         metThreshold: metThreshold,
         passed: votePassed,
-        executed: (and (not proposalExecuted) votePassed),
+        executed: (and notExecuted notExpired votePassed),
       }
     })
     ;; update the proposal record
@@ -230,11 +231,11 @@
         metQuorum: metQuorum,
         metThreshold: metThreshold,
         passed: votePassed,
-        executed: (and (not proposalExecuted) votePassed),
+        executed: (and notExecuted notExpired votePassed),
       })
     )
     ;; execute the proposal only if it passed, return false if err
-    (ok (if (and (not proposalExecuted) votePassed)
+    (ok (if (and notExecuted notExpired votePassed)
       (match (contract-call? .aibtc-base-dao execute proposal tx-sender) ok_ true err_ (begin (print {err:err_}) false))
       false
     ))
