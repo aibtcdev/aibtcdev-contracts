@@ -199,7 +199,8 @@
       ))
       ;; proposal passed if quorum and threshold are met
       (votePassed (and hasVotes metQuorum metThreshold))
-      (proposalExecuted (is-some (contract-call? .aibtc-base-dao executed-at proposal)))
+      (notExecuted (is-none (contract-call? .aibtc-base-dao executed-at proposal)))
+      (notExpired (< burn-block-height (+ (get endBlock proposalRecord) VOTING_PERIOD VOTING_DELAY)))
     )
     ;; proposal was not already concluded
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
@@ -220,7 +221,7 @@
         metQuorum: metQuorum,
         metThreshold: metThreshold,
         passed: votePassed,
-        executed: (and (not proposalExecuted) votePassed),
+        executed: (and notExecuted notExpired votePassed),
       }
     })
     ;; update the proposal record
@@ -230,11 +231,11 @@
         metQuorum: metQuorum,
         metThreshold: metThreshold,
         passed: votePassed,
-        executed: (and (not proposalExecuted) votePassed),
+        executed: (and notExecuted notExpired votePassed),
       })
     )
     ;; execute the proposal only if it passed, return false if err
-    (ok (if (and (not proposalExecuted) votePassed)
+    (ok (if (and notExecuted notExpired votePassed)
       (match (contract-call? .aibtc-base-dao execute proposal tx-sender) ok_ true err_ (begin (print {err:err_}) false))
       false
     ))

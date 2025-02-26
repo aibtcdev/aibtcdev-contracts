@@ -207,7 +207,9 @@
       ))
       ;; proposal passed if quorum and threshold are met
       (votePassed (and hasVotes metQuorum metThreshold))
+      ;; check info for running action
       (validAction (is-action-valid action))
+      (notExpired (< burn-block-height (+ (get endBlock proposalRecord) VOTING_PERIOD VOTING_DELAY)))
     )
     ;; proposal not already concluded
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
@@ -230,7 +232,7 @@
         metQuorum: metQuorum,
         metThreshold: metThreshold,
         passed: votePassed,
-        executed: (and votePassed validAction),
+        executed: (and votePassed validAction notExpired),
       }
     })
     ;; update the proposal record
@@ -240,11 +242,11 @@
         metQuorum: metQuorum,
         metThreshold: metThreshold,
         passed: votePassed,
-        executed: (and votePassed validAction)
+        executed: (and votePassed validAction notExpired)
       })
     )
     ;; execute the action only if it passed, return false if err
-    (ok (if (and votePassed validAction)
+    (ok (if (and votePassed validAction notExpired)
       (match (contract-call? action run (get parameters proposalRecord)) ok_ true err_ (begin (print {err:err_}) false))
       false
     ))
