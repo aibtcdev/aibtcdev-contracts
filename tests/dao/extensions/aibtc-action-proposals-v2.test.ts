@@ -710,6 +710,72 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     const proposalData = proposalInfo.value as ActionProposalsV2ProposalData;
     expect(proposalData.data.executed).toStrictEqual(Cl.bool(false));
   });
+
+  it("conclude-proposal() succeeds but does not execute if proposal is too old (expired)", () => {
+    const proposalId = 1;
+    // fund voters to pass proposals
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+    // progress the chain for at-block calls
+    simnet.mineEmptyBlocks(10);
+    // create proposal
+    const actionProposalReceipt = simnet.callPublicFn(
+      actionProposalsV2ContractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), Cl.bufferFromAscii("test")],
+      deployer
+    );
+    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+    // progress past voting delay
+    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
+    // vote on proposal
+    const voteReceipt = simnet.callPublicFn(
+      actionProposalsV2ContractAddress,
+      "vote-on-proposal",
+      [Cl.uint(proposalId), Cl.bool(true)],
+      deployer
+    );
+    expect(voteReceipt.result).toBeOk(Cl.bool(true));
+    // progress past voting period and execution delay
+    simnet.mineEmptyBlocks(
+      actionProposalV2VoteSettings.votingPeriod + 
+      actionProposalV2VoteSettings.votingDelay
+    );
+    // progress past expiration period (voting period + voting delay)
+    simnet.mineEmptyBlocks(
+      actionProposalV2VoteSettings.votingPeriod + 
+      actionProposalV2VoteSettings.votingDelay + 1
+    );
+    // conclude proposal
+    const receipt = simnet.callPublicFn(
+      actionProposalsV2ContractAddress,
+      "conclude-proposal",
+      [Cl.uint(proposalId), Cl.principal(actionProposalContractAddress)],
+      deployer
+    );
+    expect(receipt.result).toBeOk(Cl.bool(false));
+    
+    // verify proposal was concluded but not executed
+    const proposalInfo = simnet.callReadOnlyFn(
+      actionProposalsV2ContractAddress,
+      "get-proposal",
+      [Cl.uint(proposalId)],
+      deployer
+    ).result as SomeCV;
+    const proposalData = proposalInfo.value as ActionProposalsV2ProposalData;
+    expect(proposalData.data.concluded).toStrictEqual(Cl.bool(true));
+    expect(proposalData.data.executed).toStrictEqual(Cl.bool(false));
+  });
 });
 
 describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
