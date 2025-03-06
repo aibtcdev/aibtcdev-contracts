@@ -1,4 +1,10 @@
-import { Cl, cvToValue, ResponseOkCV, SomeCV, UIntCV } from "@stacks/transactions";
+import {
+  Cl,
+  cvToValue,
+  ResponseOkCV,
+  SomeCV,
+  UIntCV,
+} from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { CoreProposalV2ErrCode } from "../../error-codes";
 import {
@@ -50,7 +56,11 @@ const getProposalStartBlock = (burnBlockHeight: number): number => {
 
 // helper for getting end block for proposals
 const getProposalEndBlock = (startBlock: number): number => {
-  return startBlock + coreProposalV2VoteSettings.votingPeriod;
+  return (
+    startBlock +
+    coreProposalV2VoteSettings.votingPeriod +
+    coreProposalV2VoteSettings.votingDelay
+  );
 };
 
 // helper putting those two together
@@ -598,13 +608,14 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     expect(voteReceipt.result).toBeOk(Cl.bool(true));
     // progress chain past the voting period and execution delay
     simnet.mineEmptyBlocks(
-      coreProposalV2VoteSettings.votingPeriod + 
-      coreProposalV2VoteSettings.votingDelay
+      coreProposalV2VoteSettings.votingPeriod +
+        coreProposalV2VoteSettings.votingDelay
     );
     // progress chain past the expiration period (voting period + voting delay)
     simnet.mineEmptyBlocks(
-      coreProposalV2VoteSettings.votingPeriod + 
-      coreProposalV2VoteSettings.votingDelay + 1
+      coreProposalV2VoteSettings.votingPeriod +
+        coreProposalV2VoteSettings.votingDelay +
+        1
     );
     // conclude proposal
     const receipt = simnet.callPublicFn(
@@ -614,7 +625,7 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       deployer
     );
     expect(receipt.result).toBeOk(Cl.bool(false));
-    
+
     // verify proposal was concluded but not executed
     const proposalInfo = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,

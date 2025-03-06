@@ -64,7 +64,11 @@ const getProposalStartBlock = (burnBlockHeight: number): number => {
 
 // helper for getting end block for proposals
 const getProposalEndBlock = (startBlock: number): number => {
-  return startBlock + actionProposalV2VoteSettings.votingPeriod;
+  return (
+    startBlock +
+    actionProposalV2VoteSettings.votingPeriod +
+    actionProposalV2VoteSettings.votingDelay
+  );
 };
 
 // helper putting those two together
@@ -748,13 +752,14 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(voteReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting period and execution delay
     simnet.mineEmptyBlocks(
-      actionProposalV2VoteSettings.votingPeriod + 
-      actionProposalV2VoteSettings.votingDelay
+      actionProposalV2VoteSettings.votingPeriod +
+        actionProposalV2VoteSettings.votingDelay
     );
     // progress past expiration period (voting period + voting delay)
     simnet.mineEmptyBlocks(
-      actionProposalV2VoteSettings.votingPeriod + 
-      actionProposalV2VoteSettings.votingDelay + 1
+      actionProposalV2VoteSettings.votingPeriod +
+        actionProposalV2VoteSettings.votingDelay +
+        1
     );
     // conclude proposal
     const receipt = simnet.callPublicFn(
@@ -764,7 +769,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       deployer
     );
     expect(receipt.result).toBeOk(Cl.bool(false));
-    
+
     // verify proposal was concluded but not executed
     const proposalInfo = simnet.callReadOnlyFn(
       actionProposalsV2ContractAddress,

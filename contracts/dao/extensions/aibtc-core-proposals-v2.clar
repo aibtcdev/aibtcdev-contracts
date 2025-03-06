@@ -94,7 +94,7 @@
       (createdAt (- stacks-block-height u1))
       (liquidTokens (try! (get-liquid-supply createdAt)))
       (startBlock (+ burn-block-height VOTING_DELAY))
-      (endBlock (+ startBlock VOTING_PERIOD))
+      (endBlock (+ startBlock VOTING_PERIOD VOTING_DELAY))
       (senderBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
     )
     ;; liquidTokens is greater than zero
@@ -155,7 +155,7 @@
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
     ;; proposal vote is still active
     (asserts! (>= burn-block-height (get startBlock proposalRecord)) ERR_VOTE_TOO_SOON)
-    (asserts! (< burn-block-height (get endBlock proposalRecord)) ERR_VOTE_TOO_LATE)
+    (asserts! (< burn-block-height (- (get endBlock proposalRecord) VOTING_DELAY)) ERR_VOTE_TOO_LATE)
     ;; vote not already cast
     (asserts! (is-none (map-get? VoteRecords {proposal: proposalContract, voter: tx-sender})) ERR_ALREADY_VOTED)
     ;; print vote event
@@ -200,14 +200,14 @@
       ;; proposal passed if quorum and threshold are met
       (votePassed (and hasVotes metQuorum metThreshold))
       (notExecuted (is-none (contract-call? .aibtc-base-dao executed-at proposal)))
-      (notExpired (< burn-block-height (+ (get endBlock proposalRecord) VOTING_PERIOD VOTING_DELAY)))
+      (notExpired (< burn-block-height (+ (get endBlock proposalRecord) VOTING_PERIOD)))
     )
     ;; proposal was not already concluded
     (asserts! (not (get concluded proposalRecord)) ERR_PROPOSAL_ALREADY_CONCLUDED)
     ;; proposal is past voting period
-    (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_VOTING_ACTIVE)
+    (asserts! (>= burn-block-height (- (get endBlock proposalRecord) VOTING_DELAY)) ERR_PROPOSAL_VOTING_ACTIVE)
     ;; proposal is past execution delay
-    (asserts! (>= burn-block-height (+ (get endBlock proposalRecord) VOTING_DELAY)) ERR_PROPOSAL_EXECUTION_DELAY)
+    (asserts! (>= burn-block-height (get endBlock proposalRecord)) ERR_PROPOSAL_EXECUTION_DELAY)
     ;; print conclusion event
     (print {
       notification: "conclude-proposal",
