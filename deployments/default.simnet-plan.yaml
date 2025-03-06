@@ -232,7 +232,7 @@ plan:
             contract-name: aibtc-dao-charter
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/extensions/aibtc-dao-charter.clar
-            clarity-version: 2
+            clarity-version: 3
         - emulated-contract-publish:
             contract-name: aibtc-base-bootstrap-initialization-v2
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM

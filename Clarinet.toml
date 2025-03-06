@@ -75,7 +75,7 @@ epoch = 3.0
 
 [contracts.aibtc-dao-charter]
 path = 'contracts/dao/extensions/aibtc-dao-charter.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-core-proposals]
