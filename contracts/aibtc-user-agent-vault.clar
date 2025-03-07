@@ -4,7 +4,7 @@
 
 ;; traits
 (impl-trait .aibtc-dao-traits-v2.user-agent-vault-trait)
-(use-trait ft-trait .sip010-token-trait.sip010-trait)
+(use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 (use-trait action-trait .aibtc-dao-traits-v2.action-trait)
 (use-trait proposal-trait .aibtc-dao-traits-v2.proposal-trait)
 (use-trait action-proposals-trait .aibtc-dao-traits-v2.action-proposals-trait)
