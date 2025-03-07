@@ -423,3 +423,9 @@ epoch = 3.0
 path = 'contracts/test/unknown-action-proposal.clar'
 clarity_version = 2
 epoch = 3.0
+
+# user agent vault
+[contracts.aibtc-user-agent-vault]
+path = 'contracts/aibtc-user-agent-vault.clar'
+clarity_version = 3
+epoch = 3.0

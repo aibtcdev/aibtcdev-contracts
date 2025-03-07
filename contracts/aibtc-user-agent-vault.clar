@@ -8,12 +8,12 @@
 (use-trait proposal-trait .aibtc-dao-traits-v2.proposal)
 
 ;; constants
-(define-constant USER tx-sender) ;; Set during deployment
-(define-constant AGENT <agent-principal>) ;; Set during deployment
+(define-constant USER 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM) ;; Default user for testing
+(define-constant AGENT 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG) ;; Default agent for testing
 (define-constant VAULT (as-contract tx-sender))
 
 ;; Pre-approved tokens
-(define-constant SBTC_TOKEN <sbtc-token-principal>) ;; Set during deployment
+(define-constant SBTC_TOKEN 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.test-token) ;; Placeholder for sBTC
 (define-constant DAO_TOKEN .aibtc-token) ;; DAO token
 
 ;; Error codes
