@@ -219,11 +219,7 @@
 ;; read only functions
 
 (define-read-only (is-approved-asset (asset principal))
-  (or 
-    (is-eq asset SBTC_TOKEN)
-    (is-eq asset DAO_TOKEN)
-    (default-to false (map-get? ApprovedAssets asset))
-  )
+  (default-to false (map-get? ApprovedAssets asset))
 )
 
 (define-read-only (get-balance-stx)
