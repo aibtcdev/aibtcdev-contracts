@@ -37,6 +37,7 @@
       payload: {
         amount: amount,
         sender: tx-sender,
+        caller: contract-caller,
         recipient: VAULT
       }
     })
@@ -53,6 +54,7 @@
         amount: amount,
         assetContract: (contract-of ft),
         sender: tx-sender,
+        caller: contract-caller,
         recipient: VAULT
       }
     })
@@ -68,6 +70,7 @@
       payload: {
         amount: amount,
         sender: VAULT,
+        caller: contract-caller,
         recipient: USER
       }
     })
@@ -85,6 +88,7 @@
         amount: amount,
         assetContract: (contract-of ft),
         sender: VAULT,
+        caller: contract-caller,
         recipient: USER
       }
     })
@@ -99,7 +103,9 @@
       notification: "approve-asset",
       payload: {
         asset: asset,
-        approved: true
+        approved: true,
+        sender: tx-sender,
+        caller: contract-caller
       }
     })
     (ok (map-set ApprovedAssets asset true))
@@ -113,7 +119,9 @@
       notification: "revoke-asset",
       payload: {
         asset: asset,
-        approved: false
+        approved: false,
+        sender: tx-sender,
+        caller: contract-caller
       }
     })
     (ok (map-set ApprovedAssets asset false))
@@ -131,7 +139,8 @@
         action-proposals: (contract-of action-proposals),
         action: (contract-of action),
         parameters: parameters,
-        caller: tx-sender
+        sender: tx-sender,
+        caller: contract-caller
       }
     })
     (as-contract (contract-call? action-proposals propose-action action parameters))
@@ -146,7 +155,8 @@
       payload: {
         core-proposals: (contract-of core-proposals),
         proposal: (contract-of proposal),
-        caller: tx-sender
+        sender: tx-sender,
+        caller: contract-caller
       }
     })
     (as-contract (contract-call? core-proposals create-proposal proposal))
@@ -162,7 +172,8 @@
         action-proposals: (contract-of action-proposals),
         proposalId: proposalId,
         vote: vote,
-        caller: tx-sender
+        sender: tx-sender,
+        caller: contract-caller
       }
     })
     (as-contract (contract-call? action-proposals vote-on-proposal proposalId vote))
@@ -178,7 +189,8 @@
         core-proposals: (contract-of core-proposals),
         proposal: (contract-of proposal),
         vote: vote,
-        caller: tx-sender
+        sender: tx-sender,
+        caller: contract-caller
       }
     })
     (as-contract (contract-call? core-proposals vote-on-proposal proposal vote))
@@ -194,7 +206,8 @@
         action-proposals: (contract-of action-proposals),
         proposalId: proposalId,
         action: (contract-of action),
-        caller: tx-sender
+        sender: tx-sender,
+        caller: contract-caller
       }
     })
     (as-contract (contract-call? action-proposals conclude-proposal proposalId action))
@@ -209,7 +222,8 @@
       payload: {
         core-proposals: (contract-of core-proposals),
         proposal: (contract-of proposal),
-        caller: tx-sender
+        sender: tx-sender,
+        caller: contract-caller
       }
     })
     (as-contract (contract-call? core-proposals conclude-proposal proposal))
