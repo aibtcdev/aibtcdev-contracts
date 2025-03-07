@@ -15,7 +15,7 @@
 (define-constant VAULT (as-contract tx-sender))
 
 ;; Pre-approved tokens
-(define-constant SBTC_TOKEN 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.test-token) ;; Placeholder for sBTC
+(define-constant SBTC_TOKEN 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token) ;; sBTC token
 (define-constant DAO_TOKEN .aibtc-token) ;; DAO token
 
 ;; Error codes
