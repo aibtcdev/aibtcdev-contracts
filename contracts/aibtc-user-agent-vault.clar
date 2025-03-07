@@ -230,10 +230,6 @@
   (stx-get-balance VAULT)
 )
 
-(define-read-only (get-balance-ft (ft <ft-trait>))
-  (contract-call? ft get-balance VAULT)
-)
-
 ;; private functions
 
 (define-private (is-authorized)
