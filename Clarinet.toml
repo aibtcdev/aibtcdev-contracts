@@ -426,7 +426,7 @@ epoch = 3.0
 
 # user agent traits and vault
 [contracts.aibtc-user-agent-traits]
-path = 'contracts/aibtc-user-agent-traits.clar'
+path = 'contracts/dao/traits/aibtc-user-agent-traits.clar'
 clarity_version = 3
 epoch = 3.0
 
