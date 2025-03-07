@@ -424,7 +424,12 @@ path = 'contracts/test/unknown-action-proposal.clar'
 clarity_version = 2
 epoch = 3.0
 
-# user agent vault
+# user agent traits and vault
+[contracts.aibtc-user-agent-traits]
+path = 'contracts/aibtc-user-agent-traits.clar'
+clarity_version = 3
+epoch = 3.0
+
 [contracts.aibtc-user-agent-vault]
 path = 'contracts/aibtc-user-agent-vault.clar'
 clarity_version = 3
