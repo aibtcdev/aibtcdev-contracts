@@ -6,6 +6,8 @@
 (use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 (use-trait action-trait .aibtc-dao-traits-v2.action)
 (use-trait proposal-trait .aibtc-dao-traits-v2.proposal)
+(use-trait action-proposals-trait .aibtc-dao-traits-v2.action-proposals)
+(use-trait core-proposals-trait .aibtc-dao-traits-v2.core-proposals)
 
 ;; constants
 (define-constant USER 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM) ;; Default user for testing
@@ -120,91 +122,97 @@
 
 ;; DAO Interaction Functions
 
-(define-public (proxy-propose-action (action <action-trait>) (parameters (buff 2048)))
+(define-public (proxy-propose-action (action-proposals <action-proposals-trait>) (action <action-trait>) (parameters (buff 2048)))
   (begin
     (try! (is-authorized))
     (print {
       notification: "proxy-propose-action",
       payload: {
+        action-proposals: (contract-of action-proposals),
         action: (contract-of action),
         parameters: parameters,
         caller: tx-sender
       }
     })
-    (as-contract (contract-call? .aibtc-action-proposals-v2 propose-action action parameters))
+    (as-contract (contract-call? action-proposals propose-action action parameters))
   )
 )
 
-(define-public (proxy-create-proposal (proposal <proposal-trait>))
+(define-public (proxy-create-proposal (core-proposals <core-proposals-trait>) (proposal <proposal-trait>))
   (begin
     (try! (is-authorized))
     (print {
       notification: "proxy-create-proposal",
       payload: {
+        core-proposals: (contract-of core-proposals),
         proposal: (contract-of proposal),
         caller: tx-sender
       }
     })
-    (as-contract (contract-call? .aibtc-core-proposals-v2 create-proposal proposal))
+    (as-contract (contract-call? core-proposals create-proposal proposal))
   )
 )
 
-(define-public (vote-on-action-proposal (proposalId uint) (vote bool))
+(define-public (vote-on-action-proposal (action-proposals <action-proposals-trait>) (proposalId uint) (vote bool))
   (begin
     (try! (is-authorized))
     (print {
       notification: "vote-on-action-proposal",
       payload: {
+        action-proposals: (contract-of action-proposals),
         proposalId: proposalId,
         vote: vote,
         caller: tx-sender
       }
     })
-    (as-contract (contract-call? .aibtc-action-proposals-v2 vote-on-proposal proposalId vote))
+    (as-contract (contract-call? action-proposals vote-on-proposal proposalId vote))
   )
 )
 
-(define-public (vote-on-core-proposal (proposal <proposal-trait>) (vote bool))
+(define-public (vote-on-core-proposal (core-proposals <core-proposals-trait>) (proposal <proposal-trait>) (vote bool))
   (begin
     (try! (is-authorized))
     (print {
       notification: "vote-on-core-proposal",
       payload: {
+        core-proposals: (contract-of core-proposals),
         proposal: (contract-of proposal),
         vote: vote,
         caller: tx-sender
       }
     })
-    (as-contract (contract-call? .aibtc-core-proposals-v2 vote-on-proposal proposal vote))
+    (as-contract (contract-call? core-proposals vote-on-proposal proposal vote))
   )
 )
 
-(define-public (conclude-action-proposal (proposalId uint) (action <action-trait>))
+(define-public (conclude-action-proposal (action-proposals <action-proposals-trait>) (proposalId uint) (action <action-trait>))
   (begin
     (try! (is-authorized))
     (print {
       notification: "conclude-action-proposal",
       payload: {
+        action-proposals: (contract-of action-proposals),
         proposalId: proposalId,
         action: (contract-of action),
         caller: tx-sender
       }
     })
-    (as-contract (contract-call? .aibtc-action-proposals-v2 conclude-proposal proposalId action))
+    (as-contract (contract-call? action-proposals conclude-proposal proposalId action))
   )
 )
 
-(define-public (conclude-core-proposal (proposal <proposal-trait>))
+(define-public (conclude-core-proposal (core-proposals <core-proposals-trait>) (proposal <proposal-trait>))
   (begin
     (try! (is-authorized))
     (print {
       notification: "conclude-core-proposal",
       payload: {
+        core-proposals: (contract-of core-proposals),
         proposal: (contract-of proposal),
         caller: tx-sender
       }
     })
-    (as-contract (contract-call? .aibtc-core-proposals-v2 conclude-proposal proposal))
+    (as-contract (contract-call? core-proposals conclude-proposal proposal))
   )
 )
 
