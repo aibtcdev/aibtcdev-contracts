@@ -58,7 +58,7 @@ beforeAll(() => {
   expect(constructReceipt.result).toBeOk(Cl.bool(true));
 
   // Progress past voting delay for at-block calls
-  simnet.mineEmptyBlocks(VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2].votingDelay);
+  simnet.mineEmptyBlocks(VOTING_CONFIG["aibtc-core-proposals-v2"].votingDelay);
   
   // Get sBTC for the test accounts
   simnet.callPublicFn(sbtcTokenAddress, "faucet", [], user);
