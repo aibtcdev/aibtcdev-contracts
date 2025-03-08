@@ -87,6 +87,16 @@ describe(`contract: ${contractName}`, () => {
   });
 
   describe("deposit-ft()", () => {
+    beforeEach(() => {
+      // Get sBTC from faucet first
+      simnet.callPublicFn(
+        sbtcTokenAddress,
+        "faucet",
+        [],
+        user
+      );
+    });
+    
     it("fails if asset is not approved", () => {
       // Arrange
       const amount = 1000;
@@ -234,6 +244,14 @@ describe(`contract: ${contractName}`, () => {
 
   describe("withdraw-ft()", () => {
     beforeEach(() => {
+      // Get sBTC from faucet first
+      simnet.callPublicFn(
+        sbtcTokenAddress,
+        "faucet",
+        [],
+        user
+      );
+      
       // Deposit tokens to the vault
       simnet.callPublicFn(
         contractAddress,
