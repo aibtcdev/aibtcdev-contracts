@@ -5,8 +5,8 @@ import { UserAgentVaultErrCode } from "./error-codes";
 // Define constants and accounts
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
-const user = accounts.get("wallet_1")!;
-const agent = accounts.get("wallet_2")!;
+const user = "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM";
+const agent = "ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG";
 const otherUser = accounts.get("wallet_3")!;
 
 // Contract references
