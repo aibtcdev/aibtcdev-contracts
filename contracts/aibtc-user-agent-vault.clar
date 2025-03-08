@@ -3,12 +3,12 @@
 ;; summary: A vault contract between a user and an agent for managing assets and DAO interactions
 
 ;; traits
-(impl-trait .aibtc-dao-traits-v2.user-agent-vault-trait)
+(impl-trait .aibtc-user-agent-traits.user-agent-vault)
 (use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
-(use-trait action-trait .aibtc-dao-traits-v2.action-trait)
-(use-trait proposal-trait .aibtc-dao-traits-v2.proposal-trait)
-(use-trait action-proposals-trait .aibtc-dao-traits-v2.action-proposals-trait)
-(use-trait core-proposals-trait .aibtc-dao-traits-v2.core-proposals-trait)
+(use-trait action-trait .aibtc-dao-traits-v2.action)
+(use-trait proposal-trait .aibtc-dao-traits-v2.proposal)
+(use-trait action-proposals-trait .aibtc-dao-traits-v2.action-proposals)
+(use-trait core-proposals-trait .aibtc-dao-traits-v2.core-proposals)
 
 ;; constants
 (define-constant USER 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM) ;; Default user for testing
