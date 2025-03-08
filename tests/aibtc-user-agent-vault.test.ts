@@ -1,6 +1,6 @@
 import { Cl, cvToValue } from "@stacks/transactions";
 import { describe, expect, it, beforeEach } from "vitest";
-import { UserAgentVaultErrCode } from "../error-codes";
+import { UserAgentVaultErrCode } from "./error-codes";
 
 // Define constants and accounts
 const accounts = simnet.getAccounts();
