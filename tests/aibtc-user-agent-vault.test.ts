@@ -12,7 +12,8 @@ const otherUser = accounts.get("wallet_3")!;
 // Contract references
 const contractName = "aibtc-user-agent-vault";
 const contractAddress = `${deployer}.${contractName}`;
-const sbtcTokenAddress = `${deployer}.sbtc-token`;
+const sbtcDeployer = "STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2";
+const sbtcTokenAddress = `${sbtcDeployer}.sbtc-token`;
 const daoTokenAddress = `${deployer}.aibtc-token`;
 
 // Error codes
@@ -20,12 +21,10 @@ const ErrCode = UserAgentVaultErrCode;
 
 // Helper function to check notification events
 const getNotification = (receipt: any) => {
-  const printEvent = receipt.events.find(
-    (e: any) => e.event === "print_event"
-  );
+  const printEvent = receipt.events.find((e: any) => e.event === "print_event");
   if (!printEvent) return null;
-  
-  return cvToValue(printEvent.data.value);
+
+  return cvToValue(printEvent.data.value, true);
 };
 
 describe(`contract: ${contractName}`, () => {
@@ -41,7 +40,7 @@ describe(`contract: ${contractName}`, () => {
         user
       );
       const initialBalance = Number(cvToValue(initialBalanceResponse.result));
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -49,7 +48,7 @@ describe(`contract: ${contractName}`, () => {
         [Cl.uint(amount)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
       const newBalanceResponse = simnet.callReadOnlyFn(
@@ -61,11 +60,11 @@ describe(`contract: ${contractName}`, () => {
       const newBalance = Number(cvToValue(newBalanceResponse.result));
       expect(newBalance).toBe(initialBalance + amount);
     });
-    
+
     it("emits the correct notification event", () => {
       // Arrange
-      const amount = 2000000; // 2 STX
-      
+      const amount = "2000000"; // 2 STX
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -73,16 +72,17 @@ describe(`contract: ${contractName}`, () => {
         [Cl.uint(amount)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      
+
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
-      expect(notification.notification).toBe("deposit-stx");
-      expect(notification.payload.amount).toBe(amount);
-      expect(notification.payload.sender).toBe(user);
-      expect(notification.payload.recipient).toBe(contractAddress);
+      expect(notification.notification.value).toBe("deposit-stx");
+      expect(notification.payload.value.amount.value).toBe(amount);
+      expect(notification.payload.value.sender.value).toBe(user);
+      expect(notification.payload.value.caller.value).toBe(user);
+      expect(notification.payload.value.recipient.value).toBe(contractAddress);
     });
   });
 
@@ -90,58 +90,60 @@ describe(`contract: ${contractName}`, () => {
     it("fails if asset is not approved", () => {
       // Arrange
       const amount = 1000;
-      const unapprovedToken = `${deployer}.unapproved-token`;
-      
+      const unapprovedToken = `${deployer}.test-token`;
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
         "deposit-ft",
-        [Cl.contractPrincipal(deployer, "unapproved-token"), Cl.uint(amount)],
+        [Cl.contractPrincipal(deployer, "test-token"), Cl.uint(amount)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNKNOWN_ASSET));
     });
-    
+
     it("succeeds and transfers FT to vault", () => {
       // Arrange
       const amount = 1000;
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
         "deposit-ft",
-        [Cl.contractPrincipal(deployer, "sbtc-token"), Cl.uint(amount)],
+        [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
     });
-    
+
     it("emits the correct notification event", () => {
       // Arrange
       const amount = 2000;
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
         "deposit-ft",
-        [Cl.contractPrincipal(deployer, "sbtc-token"), Cl.uint(amount)],
+        [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      
+
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification).toBe("deposit-ft");
-      expect(notification.payload.amount).toBe(amount);
-      expect(notification.payload.assetContract).toBe(`${deployer}.sbtc-token`);
-      expect(notification.payload.sender).toBe(user);
-      expect(notification.payload.recipient).toBe(contractAddress);
+      expect(notification.payload.value.amount.value).toBe(amount);
+      expect(notification.payload.value.assetContract.value).toBe(
+        `${deployer}.sbtc-token`
+      );
+      expect(notification.payload.value.sender.value).toBe(user);
+      expect(notification.payload.value.recipient.value).toBe(contractAddress);
     });
   });
 
@@ -155,11 +157,11 @@ describe(`contract: ${contractName}`, () => {
         user
       );
     });
-    
+
     it("fails if caller is not the user", () => {
       // Arrange
       const amount = 1000000; // 1 STX
-      
+
       // Act - call from agent instead of user
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -167,11 +169,11 @@ describe(`contract: ${contractName}`, () => {
         [Cl.uint(amount)],
         agent
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
-    
+
     it("succeeds and transfers STX to the user", () => {
       // Arrange
       const amount = 1000000; // 1 STX
@@ -182,8 +184,10 @@ describe(`contract: ${contractName}`, () => {
         [],
         user
       );
-      const initialVaultBalance = Number(cvToValue(initialVaultBalanceResponse.result));
-      
+      const initialVaultBalance = Number(
+        cvToValue(initialVaultBalanceResponse.result)
+      );
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -191,7 +195,7 @@ describe(`contract: ${contractName}`, () => {
         [Cl.uint(amount)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
       const newVaultBalanceResponse = simnet.callReadOnlyFn(
@@ -203,11 +207,11 @@ describe(`contract: ${contractName}`, () => {
       const newVaultBalance = Number(cvToValue(newVaultBalanceResponse.result));
       expect(newVaultBalance).toBe(initialVaultBalance - amount);
     });
-    
+
     it("emits the correct notification event", () => {
       // Arrange
       const amount = 2000000; // 2 STX
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -215,10 +219,10 @@ describe(`contract: ${contractName}`, () => {
         [Cl.uint(amount)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      
+
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification).toBe("withdraw-stx");
@@ -234,32 +238,32 @@ describe(`contract: ${contractName}`, () => {
       simnet.callPublicFn(
         contractAddress,
         "deposit-ft",
-        [Cl.contractPrincipal(deployer, "sbtc-token"), Cl.uint(10000)],
+        [Cl.principal(sbtcTokenAddress), Cl.uint(10000)],
         user
       );
     });
-    
+
     it("fails if caller is not the user", () => {
       // Arrange
       const amount = 1000;
-      
+
       // Act - call from agent instead of user
       const receipt = simnet.callPublicFn(
         contractAddress,
         "withdraw-ft",
-        [Cl.contractPrincipal(deployer, "sbtc-token"), Cl.uint(amount)],
+        [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
         agent
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
-    
+
     it("fails if asset is not approved", () => {
       // Arrange
       const amount = 1000;
       const unapprovedToken = `${deployer}.unapproved-token`;
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -267,42 +271,42 @@ describe(`contract: ${contractName}`, () => {
         [Cl.contractPrincipal(deployer, "unapproved-token"), Cl.uint(amount)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNKNOWN_ASSET));
     });
-    
+
     it("succeeds and transfers FT to the user", () => {
       // Arrange
       const amount = 1000;
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
         "withdraw-ft",
-        [Cl.contractPrincipal(deployer, "sbtc-token"), Cl.uint(amount)],
+        [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
     });
-    
+
     it("emits the correct notification event", () => {
       // Arrange
       const amount = 2000;
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
         "withdraw-ft",
-        [Cl.contractPrincipal(deployer, "sbtc-token"), Cl.uint(amount)],
+        [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      
+
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification).toBe("withdraw-ft");
@@ -317,7 +321,7 @@ describe(`contract: ${contractName}`, () => {
     it("fails if caller is not the user", () => {
       // Arrange
       const newAsset = `${deployer}.new-token`;
-      
+
       // Act - call from agent instead of user
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -325,15 +329,15 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(newAsset)],
         agent
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
-    
+
     it("succeeds and sets new approved asset", () => {
       // Arrange
       const newAsset = `${deployer}.new-token`;
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -341,10 +345,10 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(newAsset)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      
+
       // Verify the asset is now approved
       const isApproved = simnet.callReadOnlyFn(
         contractAddress,
@@ -352,14 +356,14 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(newAsset)],
         user
       );
-      
+
       expect(isApproved.result).toBe(Cl.bool(true));
     });
-    
+
     it("emits the correct notification event", () => {
       // Arrange
       const newAsset = `${deployer}.another-token`;
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -367,10 +371,10 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(newAsset)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      
+
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification).toBe("approve-asset");
@@ -390,11 +394,11 @@ describe(`contract: ${contractName}`, () => {
         user
       );
     });
-    
+
     it("fails if caller is not the user", () => {
       // Arrange
       const asset = `${deployer}.test-token`;
-      
+
       // Act - call from agent instead of user
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -402,15 +406,15 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(asset)],
         agent
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
-    
+
     it("succeeds and removes approved asset", () => {
       // Arrange
       const asset = `${deployer}.test-token`;
-      
+
       // Verify the asset is currently approved
       let isApproved = simnet.callReadOnlyFn(
         contractAddress,
@@ -419,7 +423,7 @@ describe(`contract: ${contractName}`, () => {
         user
       );
       expect(isApproved.result).toBe(Cl.bool(true));
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -427,10 +431,10 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(asset)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      
+
       // Verify the asset is now revoked
       isApproved = simnet.callReadOnlyFn(
         contractAddress,
@@ -440,11 +444,11 @@ describe(`contract: ${contractName}`, () => {
       );
       expect(isApproved.result).toBe(Cl.bool(false));
     });
-    
+
     it("emits the correct notification event", () => {
       // Arrange
       const asset = `${deployer}.test-token`;
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -452,10 +456,10 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(asset)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      
+
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification).toBe("revoke-asset");
@@ -470,7 +474,7 @@ describe(`contract: ${contractName}`, () => {
     const actionProposalsAddress = `${deployer}.aibtc-action-proposals-v2`;
     const actionAddress = `${deployer}.aibtc-action-send-message`;
     const parameters = Cl.bufferFromAscii("test message");
-    
+
     it("fails if caller is not authorized (user or agent)", () => {
       // Act - call from unauthorized user
       const receipt = simnet.callPublicFn(
@@ -479,15 +483,15 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
           Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
-          parameters
+          parameters,
         ],
         otherUser
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
-    
+
     it("succeeds when called by the user", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -496,15 +500,15 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
           Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
-          parameters
+          parameters,
         ],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
     });
-    
+
     it("succeeds when called by the agent", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -513,15 +517,15 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
           Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
-          parameters
+          parameters,
         ],
         agent
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
     });
-    
+
     it("emits the correct notification event", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -530,18 +534,20 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
           Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
-          parameters
+          parameters,
         ],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      
+
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification).toBe("proxy-propose-action");
-      expect(notification.payload["action-proposals"]).toBe(actionProposalsAddress);
+      expect(notification.payload["action-proposals"]).toBe(
+        actionProposalsAddress
+      );
       expect(notification.payload.action).toBe(actionAddress);
       expect(notification.payload.sender).toBe(user);
     });
@@ -550,7 +556,7 @@ describe(`contract: ${contractName}`, () => {
   describe("proxy-create-proposal()", () => {
     const coreProposalsAddress = `${deployer}.aibtc-core-proposals-v2`;
     const proposalAddress = `${deployer}.aibtc-base-enable-extension`;
-    
+
     it("fails if caller is not authorized (user or agent)", () => {
       // Act - call from unauthorized user
       const receipt = simnet.callPublicFn(
@@ -558,15 +564,15 @@ describe(`contract: ${contractName}`, () => {
         "proxy-create-proposal",
         [
           Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension")
+          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
         ],
         otherUser
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
-    
+
     it("succeeds when called by the user", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -574,15 +580,15 @@ describe(`contract: ${contractName}`, () => {
         "proxy-create-proposal",
         [
           Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension")
+          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
         ],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.uint(1));
     });
-    
+
     it("succeeds when called by the agent", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -590,15 +596,15 @@ describe(`contract: ${contractName}`, () => {
         "proxy-create-proposal",
         [
           Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension")
+          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
         ],
         agent
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.uint(1));
     });
-    
+
     it("emits the correct notification event", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -606,14 +612,14 @@ describe(`contract: ${contractName}`, () => {
         "proxy-create-proposal",
         [
           Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension")
+          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
         ],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.uint(1));
-      
+
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification).toBe("proxy-create-proposal");
@@ -627,7 +633,7 @@ describe(`contract: ${contractName}`, () => {
     const actionProposalsAddress = `${deployer}.aibtc-action-proposals-v2`;
     const proposalId = 1;
     const vote = true;
-    
+
     it("fails if caller is not authorized (user or agent)", () => {
       // Act - call from unauthorized user
       const receipt = simnet.callPublicFn(
@@ -636,15 +642,15 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
           Cl.uint(proposalId),
-          Cl.bool(vote)
+          Cl.bool(vote),
         ],
         otherUser
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
-    
+
     it("succeeds when called by the user", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -653,15 +659,15 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
           Cl.uint(proposalId),
-          Cl.bool(vote)
+          Cl.bool(vote),
         ],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
     });
-    
+
     it("succeeds when called by the agent", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -670,15 +676,15 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
           Cl.uint(proposalId),
-          Cl.bool(vote)
+          Cl.bool(vote),
         ],
         agent
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
     });
-    
+
     it("emits the correct notification event", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -687,18 +693,20 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
           Cl.uint(proposalId),
-          Cl.bool(vote)
+          Cl.bool(vote),
         ],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      
+
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification).toBe("vote-on-action-proposal");
-      expect(notification.payload["action-proposals"]).toBe(actionProposalsAddress);
+      expect(notification.payload["action-proposals"]).toBe(
+        actionProposalsAddress
+      );
       expect(notification.payload.proposalId).toBe(proposalId);
       expect(notification.payload.vote).toBe(vote);
       expect(notification.payload.sender).toBe(user);
@@ -709,7 +717,7 @@ describe(`contract: ${contractName}`, () => {
     const coreProposalsAddress = `${deployer}.aibtc-core-proposals-v2`;
     const proposalAddress = `${deployer}.aibtc-base-enable-extension`;
     const vote = true;
-    
+
     it("fails if caller is not authorized (user or agent)", () => {
       // Act - call from unauthorized user
       const receipt = simnet.callPublicFn(
@@ -718,15 +726,15 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
           Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-          Cl.bool(vote)
+          Cl.bool(vote),
         ],
         otherUser
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
-    
+
     it("succeeds when called by the user", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -735,15 +743,15 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
           Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-          Cl.bool(vote)
+          Cl.bool(vote),
         ],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
     });
-    
+
     it("succeeds when called by the agent", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -752,15 +760,15 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
           Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-          Cl.bool(vote)
+          Cl.bool(vote),
         ],
         agent
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
     });
-    
+
     it("emits the correct notification event", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -769,14 +777,14 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
           Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-          Cl.bool(vote)
+          Cl.bool(vote),
         ],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      
+
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification).toBe("vote-on-core-proposal");
@@ -791,7 +799,7 @@ describe(`contract: ${contractName}`, () => {
     const actionProposalsAddress = `${deployer}.aibtc-action-proposals-v2`;
     const actionAddress = `${deployer}.aibtc-action-send-message`;
     const proposalId = 1;
-    
+
     it("fails if caller is not authorized (user or agent)", () => {
       // Act - call from unauthorized user
       const receipt = simnet.callPublicFn(
@@ -800,15 +808,15 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
           Cl.uint(proposalId),
-          Cl.contractPrincipal(deployer, "aibtc-action-send-message")
+          Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
         ],
         otherUser
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
-    
+
     it("succeeds when called by the user", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -817,15 +825,15 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
           Cl.uint(proposalId),
-          Cl.contractPrincipal(deployer, "aibtc-action-send-message")
+          Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
         ],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
     });
-    
+
     it("succeeds when called by the agent", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -834,15 +842,15 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
           Cl.uint(proposalId),
-          Cl.contractPrincipal(deployer, "aibtc-action-send-message")
+          Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
         ],
         agent
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
     });
-    
+
     it("emits the correct notification event", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -851,18 +859,20 @@ describe(`contract: ${contractName}`, () => {
         [
           Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
           Cl.uint(proposalId),
-          Cl.contractPrincipal(deployer, "aibtc-action-send-message")
+          Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
         ],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      
+
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification).toBe("conclude-action-proposal");
-      expect(notification.payload["action-proposals"]).toBe(actionProposalsAddress);
+      expect(notification.payload["action-proposals"]).toBe(
+        actionProposalsAddress
+      );
       expect(notification.payload.proposalId).toBe(proposalId);
       expect(notification.payload.action).toBe(actionAddress);
       expect(notification.payload.sender).toBe(user);
@@ -872,7 +882,7 @@ describe(`contract: ${contractName}`, () => {
   describe("conclude-core-proposal()", () => {
     const coreProposalsAddress = `${deployer}.aibtc-core-proposals-v2`;
     const proposalAddress = `${deployer}.aibtc-base-enable-extension`;
-    
+
     it("fails if caller is not authorized (user or agent)", () => {
       // Act - call from unauthorized user
       const receipt = simnet.callPublicFn(
@@ -880,15 +890,15 @@ describe(`contract: ${contractName}`, () => {
         "conclude-core-proposal",
         [
           Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension")
+          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
         ],
         otherUser
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
-    
+
     it("succeeds when called by the user", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -896,15 +906,15 @@ describe(`contract: ${contractName}`, () => {
         "conclude-core-proposal",
         [
           Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension")
+          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
         ],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
     });
-    
+
     it("succeeds when called by the agent", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -912,15 +922,15 @@ describe(`contract: ${contractName}`, () => {
         "conclude-core-proposal",
         [
           Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension")
+          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
         ],
         agent
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
     });
-    
+
     it("emits the correct notification event", () => {
       // Act
       const receipt = simnet.callPublicFn(
@@ -928,14 +938,14 @@ describe(`contract: ${contractName}`, () => {
         "conclude-core-proposal",
         [
           Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension")
+          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
         ],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      
+
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification).toBe("conclude-core-proposal");
@@ -955,10 +965,10 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(sbtcTokenAddress)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBe(Cl.bool(true));
-      
+
       // Act - check DAO token (pre-approved in contract)
       const receipt2 = simnet.callReadOnlyFn(
         contractAddress,
@@ -966,11 +976,11 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(daoTokenAddress)],
         user
       );
-      
+
       // Assert
       expect(receipt2.result).toBe(Cl.bool(true));
     });
-    
+
     it("returns true for user-approved assets", () => {
       // Arrange - approve a new asset
       const newAsset = `${deployer}.new-token`;
@@ -980,7 +990,7 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(newAsset)],
         user
       );
-      
+
       // Act
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
@@ -988,11 +998,11 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(newAsset)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBe(Cl.bool(true));
     });
-    
+
     it("returns false for non-approved assets", () => {
       // Act
       const receipt = simnet.callReadOnlyFn(
@@ -1001,7 +1011,7 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(`${deployer}.random-token`)],
         user
       );
-      
+
       // Assert
       expect(receipt.result).toBe(Cl.bool(false));
     });
@@ -1011,7 +1021,7 @@ describe(`contract: ${contractName}`, () => {
     it("returns the correct STX balance of the vault", () => {
       // Arrange - deposit some STX to the vault
       const depositAmount = 5000000; // 5 STX
-      
+
       // Get initial balance
       const initialBalanceResponse = simnet.callReadOnlyFn(
         contractAddress,
@@ -1020,7 +1030,7 @@ describe(`contract: ${contractName}`, () => {
         user
       );
       const initialBalance = Number(cvToValue(initialBalanceResponse.result));
-      
+
       // Deposit STX
       simnet.callPublicFn(
         contractAddress,
@@ -1028,10 +1038,10 @@ describe(`contract: ${contractName}`, () => {
         [Cl.uint(depositAmount)],
         user
       );
-      
+
       // Expected balance after deposit
       const expectedBalance = initialBalance + depositAmount;
-      
+
       // Act
       const receipt = simnet.callReadOnlyFn(
         contractAddress,
@@ -1039,7 +1049,7 @@ describe(`contract: ${contractName}`, () => {
         [],
         user
       );
-      
+
       // Assert
       expect(Number(cvToValue(receipt.result))).toBe(expectedBalance);
     });
