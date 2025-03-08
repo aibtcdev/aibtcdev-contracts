@@ -46,7 +46,7 @@ beforeAll(() => {
     deployer,
     user,
     agent,
-    otherUser
+    otherUser,
   ]);
 
   // Construct DAO
@@ -59,7 +59,7 @@ beforeAll(() => {
 
   // Progress past voting delay for at-block calls
   simnet.mineEmptyBlocks(VOTING_CONFIG["aibtc-core-proposals-v2"].votingDelay);
-  
+
   // Get sBTC for the test accounts
   simnet.callPublicFn(sbtcTokenAddress, "faucet", [], user);
   simnet.callPublicFn(sbtcTokenAddress, "faucet", [], agent);
@@ -554,7 +554,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -575,7 +575,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -596,7 +596,7 @@ describe(`contract: ${contractName}`, () => {
     it("emits the correct notification event", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -653,7 +653,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -673,7 +673,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -693,7 +693,7 @@ describe(`contract: ${contractName}`, () => {
     it("emits the correct notification event", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -748,7 +748,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -769,7 +769,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -790,7 +790,7 @@ describe(`contract: ${contractName}`, () => {
     it("emits the correct notification event", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -849,7 +849,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -870,7 +870,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -891,7 +891,7 @@ describe(`contract: ${contractName}`, () => {
     it("emits the correct notification event", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -948,7 +948,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -969,7 +969,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -990,7 +990,7 @@ describe(`contract: ${contractName}`, () => {
     it("emits the correct notification event", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -1047,7 +1047,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -1067,7 +1067,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -1087,7 +1087,7 @@ describe(`contract: ${contractName}`, () => {
     it("emits the correct notification event", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
