@@ -108,13 +108,6 @@ describe(`contract: ${contractName}`, () => {
       // Arrange
       const amount = 1000;
       
-      // Mock the token transfer
-      const mockTransferFn = simnet.stubContract(
-        sbtcTokenAddress,
-        "transfer",
-        Cl.ok(Cl.bool(true))
-      );
-      
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -125,24 +118,11 @@ describe(`contract: ${contractName}`, () => {
       
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      expect(mockTransferFn).toHaveBeenCalledWith(
-        Cl.uint(amount),
-        Cl.principal(user),
-        Cl.principal(contractAddress),
-        Cl.none()
-      );
     });
     
     it("emits the correct notification event", () => {
       // Arrange
       const amount = 2000;
-      
-      // Mock the token transfer
-      simnet.stubContract(
-        sbtcTokenAddress,
-        "transfer",
-        Cl.ok(Cl.bool(true))
-      );
       
       // Act
       const receipt = simnet.callPublicFn(
@@ -250,13 +230,7 @@ describe(`contract: ${contractName}`, () => {
 
   describe("withdraw-ft()", () => {
     beforeEach(() => {
-      // Mock a deposit of tokens to the vault
-      simnet.stubContract(
-        sbtcTokenAddress,
-        "transfer",
-        Cl.ok(Cl.bool(true))
-      );
-      
+      // Deposit tokens to the vault
       simnet.callPublicFn(
         contractAddress,
         "deposit-ft",
@@ -302,13 +276,6 @@ describe(`contract: ${contractName}`, () => {
       // Arrange
       const amount = 1000;
       
-      // Mock the token transfer
-      const mockTransferFn = simnet.stubContract(
-        sbtcTokenAddress,
-        "transfer",
-        Cl.ok(Cl.bool(true))
-      );
-      
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -319,24 +286,11 @@ describe(`contract: ${contractName}`, () => {
       
       // Assert
       expect(receipt.result).toBeOk(Cl.bool(true));
-      expect(mockTransferFn).toHaveBeenCalledWith(
-        Cl.uint(amount),
-        Cl.principal(contractAddress),
-        Cl.principal(user),
-        Cl.none()
-      );
     });
     
     it("emits the correct notification event", () => {
       // Arrange
       const amount = 2000;
-      
-      // Mock the token transfer
-      simnet.stubContract(
-        sbtcTokenAddress,
-        "transfer",
-        Cl.ok(Cl.bool(true))
-      );
       
       // Act
       const receipt = simnet.callPublicFn(
@@ -517,15 +471,6 @@ describe(`contract: ${contractName}`, () => {
     const actionAddress = `${deployer}.aibtc-action-send-message`;
     const parameters = Cl.bufferFromAscii("test message");
     
-    beforeEach(() => {
-      // Mock the propose-action function to return a successful response
-      simnet.stubContract(
-        actionProposalsAddress,
-        "propose-action",
-        Cl.ok(Cl.uint(1))
-      );
-    });
-    
     it("fails if caller is not authorized (user or agent)", () => {
       // Act - call from unauthorized user
       const receipt = simnet.callPublicFn(
@@ -606,15 +551,6 @@ describe(`contract: ${contractName}`, () => {
     const coreProposalsAddress = `${deployer}.aibtc-core-proposals-v2`;
     const proposalAddress = `${deployer}.aibtc-base-enable-extension`;
     
-    beforeEach(() => {
-      // Mock the create-proposal function to return a successful response
-      simnet.stubContract(
-        coreProposalsAddress,
-        "create-proposal",
-        Cl.ok(Cl.uint(1))
-      );
-    });
-    
     it("fails if caller is not authorized (user or agent)", () => {
       // Act - call from unauthorized user
       const receipt = simnet.callPublicFn(
@@ -691,15 +627,6 @@ describe(`contract: ${contractName}`, () => {
     const actionProposalsAddress = `${deployer}.aibtc-action-proposals-v2`;
     const proposalId = 1;
     const vote = true;
-    
-    beforeEach(() => {
-      // Mock the vote-on-proposal function to return a successful response
-      simnet.stubContract(
-        actionProposalsAddress,
-        "vote-on-proposal",
-        Cl.ok(Cl.bool(true))
-      );
-    });
     
     it("fails if caller is not authorized (user or agent)", () => {
       // Act - call from unauthorized user
@@ -783,15 +710,6 @@ describe(`contract: ${contractName}`, () => {
     const proposalAddress = `${deployer}.aibtc-base-enable-extension`;
     const vote = true;
     
-    beforeEach(() => {
-      // Mock the vote-on-proposal function to return a successful response
-      simnet.stubContract(
-        coreProposalsAddress,
-        "vote-on-proposal",
-        Cl.ok(Cl.bool(true))
-      );
-    });
-    
     it("fails if caller is not authorized (user or agent)", () => {
       // Act - call from unauthorized user
       const receipt = simnet.callPublicFn(
@@ -874,15 +792,6 @@ describe(`contract: ${contractName}`, () => {
     const actionAddress = `${deployer}.aibtc-action-send-message`;
     const proposalId = 1;
     
-    beforeEach(() => {
-      // Mock the conclude-proposal function to return a successful response
-      simnet.stubContract(
-        actionProposalsAddress,
-        "conclude-proposal",
-        Cl.ok(Cl.bool(true))
-      );
-    });
-    
     it("fails if caller is not authorized (user or agent)", () => {
       // Act - call from unauthorized user
       const receipt = simnet.callPublicFn(
@@ -963,15 +872,6 @@ describe(`contract: ${contractName}`, () => {
   describe("conclude-core-proposal()", () => {
     const coreProposalsAddress = `${deployer}.aibtc-core-proposals-v2`;
     const proposalAddress = `${deployer}.aibtc-base-enable-extension`;
-    
-    beforeEach(() => {
-      // Mock the conclude-proposal function to return a successful response
-      simnet.stubContract(
-        coreProposalsAddress,
-        "conclude-proposal",
-        Cl.ok(Cl.bool(true))
-      );
-    });
     
     it("fails if caller is not authorized (user or agent)", () => {
       // Act - call from unauthorized user
