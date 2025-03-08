@@ -147,12 +147,11 @@ describe(`contract: ${contractName}`, () => {
 
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
-      expect(notification.notification).toBe("deposit-ft");
-      expect(notification.payload.value.amount.value).toBe(amount);
-      expect(notification.payload.value.assetContract.value).toBe(
-        `${deployer}.sbtc-token`
-      );
+      expect(notification.notification.value).toBe("deposit-ft");
+      expect(notification.payload.value.amount.value).toBe(amount.toString());
+      expect(notification.payload.value.assetContract.value).toBe(sbtcTokenAddress);
       expect(notification.payload.value.sender.value).toBe(user);
+      expect(notification.payload.value.caller.value).toBe(user);
       expect(notification.payload.value.recipient.value).toBe(contractAddress);
     });
   });
@@ -235,10 +234,11 @@ describe(`contract: ${contractName}`, () => {
 
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
-      expect(notification.notification).toBe("withdraw-stx");
-      expect(notification.payload.amount).toBe(amount);
-      expect(notification.payload.sender).toBe(contractAddress);
-      expect(notification.payload.recipient).toBe(user);
+      expect(notification.notification.value).toBe("withdraw-stx");
+      expect(notification.payload.value.amount.value).toBe(amount.toString());
+      expect(notification.payload.value.sender.value).toBe(contractAddress);
+      expect(notification.payload.value.caller.value).toBe(user);
+      expect(notification.payload.value.recipient.value).toBe(user);
     });
   });
 
@@ -327,11 +327,12 @@ describe(`contract: ${contractName}`, () => {
 
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
-      expect(notification.notification).toBe("withdraw-ft");
-      expect(notification.payload.amount).toBe(amount);
-      expect(notification.payload.assetContract).toBe(`${deployer}.sbtc-token`);
-      expect(notification.payload.sender).toBe(contractAddress);
-      expect(notification.payload.recipient).toBe(user);
+      expect(notification.notification.value).toBe("withdraw-ft");
+      expect(notification.payload.value.amount.value).toBe(amount.toString());
+      expect(notification.payload.value.assetContract.value).toBe(sbtcTokenAddress);
+      expect(notification.payload.value.sender.value).toBe(contractAddress);
+      expect(notification.payload.value.caller.value).toBe(user);
+      expect(notification.payload.value.recipient.value).toBe(user);
     });
   });
 
@@ -395,10 +396,11 @@ describe(`contract: ${contractName}`, () => {
 
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
-      expect(notification.notification).toBe("approve-asset");
-      expect(notification.payload.asset).toBe(newAsset);
-      expect(notification.payload.approved).toBe(true);
-      expect(notification.payload.sender).toBe(user);
+      expect(notification.notification.value).toBe("approve-asset");
+      expect(notification.payload.value.asset.value).toBe(newAsset);
+      expect(notification.payload.value.approved.value).toBe(true);
+      expect(notification.payload.value.sender.value).toBe(user);
+      expect(notification.payload.value.caller.value).toBe(user);
     });
   });
 
@@ -480,10 +482,11 @@ describe(`contract: ${contractName}`, () => {
 
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
-      expect(notification.notification).toBe("revoke-asset");
-      expect(notification.payload.asset).toBe(asset);
-      expect(notification.payload.approved).toBe(false);
-      expect(notification.payload.sender).toBe(user);
+      expect(notification.notification.value).toBe("revoke-asset");
+      expect(notification.payload.value.asset.value).toBe(asset);
+      expect(notification.payload.value.approved.value).toBe(false);
+      expect(notification.payload.value.sender.value).toBe(user);
+      expect(notification.payload.value.caller.value).toBe(user);
     });
   });
 
@@ -562,12 +565,12 @@ describe(`contract: ${contractName}`, () => {
 
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
-      expect(notification.notification).toBe("proxy-propose-action");
-      expect(notification.payload["action-proposals"]).toBe(
-        actionProposalsAddress
-      );
-      expect(notification.payload.action).toBe(actionAddress);
-      expect(notification.payload.sender).toBe(user);
+      expect(notification.notification.value).toBe("proxy-propose-action");
+      expect(notification.payload.value["action-proposals"].value).toBe(actionProposalsAddress);
+      expect(notification.payload.value.action.value).toBe(actionAddress);
+      expect(notification.payload.value.parameters.value).toBe(parameters.buffer.toString('hex'));
+      expect(notification.payload.value.sender.value).toBe(user);
+      expect(notification.payload.value.caller.value).toBe(user);
     });
   });
 
@@ -640,10 +643,11 @@ describe(`contract: ${contractName}`, () => {
 
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
-      expect(notification.notification).toBe("proxy-create-proposal");
-      expect(notification.payload["core-proposals"]).toBe(coreProposalsAddress);
-      expect(notification.payload.proposal).toBe(proposalAddress);
-      expect(notification.payload.sender).toBe(user);
+      expect(notification.notification.value).toBe("proxy-create-proposal");
+      expect(notification.payload.value["core-proposals"].value).toBe(coreProposalsAddress);
+      expect(notification.payload.value.proposal.value).toBe(proposalAddress);
+      expect(notification.payload.value.sender.value).toBe(user);
+      expect(notification.payload.value.caller.value).toBe(user);
     });
   });
 
@@ -721,13 +725,12 @@ describe(`contract: ${contractName}`, () => {
 
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
-      expect(notification.notification).toBe("vote-on-action-proposal");
-      expect(notification.payload["action-proposals"]).toBe(
-        actionProposalsAddress
-      );
-      expect(notification.payload.proposalId).toBe(proposalId);
-      expect(notification.payload.vote).toBe(vote);
-      expect(notification.payload.sender).toBe(user);
+      expect(notification.notification.value).toBe("vote-on-action-proposal");
+      expect(notification.payload.value["action-proposals"].value).toBe(actionProposalsAddress);
+      expect(notification.payload.value.proposalId.value).toBe(proposalId.toString());
+      expect(notification.payload.value.vote.value).toBe(vote);
+      expect(notification.payload.value.sender.value).toBe(user);
+      expect(notification.payload.value.caller.value).toBe(user);
     });
   });
 
@@ -805,11 +808,12 @@ describe(`contract: ${contractName}`, () => {
 
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
-      expect(notification.notification).toBe("vote-on-core-proposal");
-      expect(notification.payload["core-proposals"]).toBe(coreProposalsAddress);
-      expect(notification.payload.proposal).toBe(proposalAddress);
-      expect(notification.payload.vote).toBe(vote);
-      expect(notification.payload.sender).toBe(user);
+      expect(notification.notification.value).toBe("vote-on-core-proposal");
+      expect(notification.payload.value["core-proposals"].value).toBe(coreProposalsAddress);
+      expect(notification.payload.value.proposal.value).toBe(proposalAddress);
+      expect(notification.payload.value.vote.value).toBe(vote);
+      expect(notification.payload.value.sender.value).toBe(user);
+      expect(notification.payload.value.caller.value).toBe(user);
     });
   });
 
@@ -887,13 +891,12 @@ describe(`contract: ${contractName}`, () => {
 
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
-      expect(notification.notification).toBe("conclude-action-proposal");
-      expect(notification.payload["action-proposals"]).toBe(
-        actionProposalsAddress
-      );
-      expect(notification.payload.proposalId).toBe(proposalId);
-      expect(notification.payload.action).toBe(actionAddress);
-      expect(notification.payload.sender).toBe(user);
+      expect(notification.notification.value).toBe("conclude-action-proposal");
+      expect(notification.payload.value["action-proposals"].value).toBe(actionProposalsAddress);
+      expect(notification.payload.value.proposalId.value).toBe(proposalId.toString());
+      expect(notification.payload.value.action.value).toBe(actionAddress);
+      expect(notification.payload.value.sender.value).toBe(user);
+      expect(notification.payload.value.caller.value).toBe(user);
     });
   });
 
@@ -966,10 +969,11 @@ describe(`contract: ${contractName}`, () => {
 
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
-      expect(notification.notification).toBe("conclude-core-proposal");
-      expect(notification.payload["core-proposals"]).toBe(coreProposalsAddress);
-      expect(notification.payload.proposal).toBe(proposalAddress);
-      expect(notification.payload.sender).toBe(user);
+      expect(notification.notification.value).toBe("conclude-core-proposal");
+      expect(notification.payload.value["core-proposals"].value).toBe(coreProposalsAddress);
+      expect(notification.payload.value.proposal.value).toBe(proposalAddress);
+      expect(notification.payload.value.sender.value).toBe(user);
+      expect(notification.payload.value.caller.value).toBe(user);
     });
   });
 
