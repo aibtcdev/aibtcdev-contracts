@@ -475,3 +475,11 @@ plan:
             path: contracts/test/proxy.clar
             clarity-version: 2
       epoch: "3.0"
+    - id: 6
+      transactions:
+        - emulated-contract-publish:
+            contract-name: sbtc-token
+            emulated-sender: STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2
+            path: "./.cache/requirements/STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token.clar"
+            clarity-version: 3
+      epoch: "3.1"
