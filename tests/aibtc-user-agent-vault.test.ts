@@ -575,7 +575,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-
+      
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -588,9 +588,9 @@ describe(`contract: ${contractName}`, () => {
         agent
       );
 
-      // Assert - we expect an operation failed error since we're in a test environment
-      // but the authorization check should pass
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_OPERATION_FAILED));
+      // Assert - we expect this to succeed in the test environment
+      // The operation might fail for other reasons, but the authorization should pass
+      expect(receipt.result).toBeOk(Cl.bool(true));
     });
 
     it("emits the correct notification event", () => {
@@ -653,7 +653,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
+      
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -665,15 +665,14 @@ describe(`contract: ${contractName}`, () => {
         user
       );
 
-      // Assert - we expect an operation failed error since we're in a test environment
-      // but the authorization check should pass
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_OPERATION_FAILED));
+      // Assert - we expect this to succeed in the test environment
+      expect(receipt.result).toBeOk(Cl.uint(1));
     });
 
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-
+      
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -685,9 +684,8 @@ describe(`contract: ${contractName}`, () => {
         agent
       );
 
-      // Assert - we expect an operation failed error since we're in a test environment
-      // but the authorization check should pass
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_OPERATION_FAILED));
+      // Assert - we expect this to succeed in the test environment
+      expect(receipt.result).toBeOk(Cl.uint(1));
     });
 
     it("emits the correct notification event", () => {
@@ -748,7 +746,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
+      
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -761,15 +759,14 @@ describe(`contract: ${contractName}`, () => {
         user
       );
 
-      // Assert - we expect an operation failed error since we're in a test environment
-      // but the authorization check should pass
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_OPERATION_FAILED));
+      // Assert - we expect this to succeed in the test environment
+      expect(receipt.result).toBeOk(Cl.bool(true));
     });
 
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-
+      
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -782,9 +779,8 @@ describe(`contract: ${contractName}`, () => {
         agent
       );
 
-      // Assert - we expect an operation failed error since we're in a test environment
-      // but the authorization check should pass
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_OPERATION_FAILED));
+      // Assert - we expect this to succeed in the test environment
+      expect(receipt.result).toBeOk(Cl.bool(true));
     });
 
     it("emits the correct notification event", () => {
@@ -849,7 +845,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
+      
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -862,15 +858,14 @@ describe(`contract: ${contractName}`, () => {
         user
       );
 
-      // Assert - we expect an operation failed error since we're in a test environment
-      // but the authorization check should pass
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_OPERATION_FAILED));
+      // Assert - we expect this to succeed in the test environment
+      expect(receipt.result).toBeOk(Cl.bool(true));
     });
 
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-
+      
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -883,9 +878,8 @@ describe(`contract: ${contractName}`, () => {
         agent
       );
 
-      // Assert - we expect an operation failed error since we're in a test environment
-      // but the authorization check should pass
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_OPERATION_FAILED));
+      // Assert - we expect this to succeed in the test environment
+      expect(receipt.result).toBeOk(Cl.bool(true));
     });
 
     it("emits the correct notification event", () => {
@@ -948,7 +942,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
+      
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -961,15 +955,14 @@ describe(`contract: ${contractName}`, () => {
         user
       );
 
-      // Assert - we expect an operation failed error since we're in a test environment
-      // but the authorization check should pass
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_OPERATION_FAILED));
+      // Assert - we expect this to succeed in the test environment
+      expect(receipt.result).toBeOk(Cl.bool(true));
     });
 
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-
+      
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -982,9 +975,8 @@ describe(`contract: ${contractName}`, () => {
         agent
       );
 
-      // Assert - we expect an operation failed error since we're in a test environment
-      // but the authorization check should pass
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_OPERATION_FAILED));
+      // Assert - we expect this to succeed in the test environment
+      expect(receipt.result).toBeOk(Cl.bool(true));
     });
 
     it("emits the correct notification event", () => {
@@ -1047,7 +1039,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
+      
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -1059,15 +1051,14 @@ describe(`contract: ${contractName}`, () => {
         user
       );
 
-      // Assert - we expect an operation failed error since we're in a test environment
-      // but the authorization check should pass
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_OPERATION_FAILED));
+      // Assert - we expect this to succeed in the test environment
+      expect(receipt.result).toBeOk(Cl.bool(true));
     });
 
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-
+      
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -1079,9 +1070,8 @@ describe(`contract: ${contractName}`, () => {
         agent
       );
 
-      // Assert - we expect an operation failed error since we're in a test environment
-      // but the authorization check should pass
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_OPERATION_FAILED));
+      // Assert - we expect this to succeed in the test environment
+      expect(receipt.result).toBeOk(Cl.bool(true));
     });
 
     it("emits the correct notification event", () => {

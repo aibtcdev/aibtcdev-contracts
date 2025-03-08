@@ -244,11 +244,17 @@
 ;; private functions
 
 (define-private (is-authorized)
-  (or (is-eq contract-caller USER) (is-eq contract-caller AGENT))
+  (if (or (is-eq contract-caller USER) (is-eq contract-caller AGENT))
+    true
+    false
+  )
 )
 
 (define-private (is-user)
-  (is-eq contract-caller USER)
+  (if (is-eq contract-caller USER)
+    true
+    false
+  )
 )
 
 ;; initialize approved assets
