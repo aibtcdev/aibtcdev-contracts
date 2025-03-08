@@ -11,8 +11,8 @@
 (use-trait core-proposals-trait .aibtc-dao-traits-v2.core-proposals)
 
 ;; constants
-(define-constant USER 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM) ;; Default user for testing
-(define-constant AGENT 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG) ;; Default agent for testing
+(define-constant USER 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM) ;; user (vault owner)
+(define-constant AGENT 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG) ;; agent (proposal voter)
 (define-constant VAULT (as-contract tx-sender))
 
 ;; Pre-approved tokens
@@ -65,7 +65,7 @@
 
 (define-public (withdraw-stx (amount uint))
   (begin
-    (try! (is-user))
+    (asserts! (is-user) ERR_UNAUTHORIZED)
     (print {
       notification: "withdraw-stx",
       payload: {
@@ -81,7 +81,7 @@
 
 (define-public (withdraw-ft (ft <ft-trait>) (amount uint))
   (begin
-    (try! (is-user))
+    (asserts! (is-user) ERR_UNAUTHORIZED)
     (asserts! (is-approved-asset (contract-of ft)) ERR_UNKNOWN_ASSET)
     (print {
       notification: "withdraw-ft",
@@ -99,7 +99,7 @@
 
 (define-public (approve-asset (asset principal))
   (begin
-    (try! (is-user))
+    (asserts! (is-user) ERR_UNAUTHORIZED)
     (print {
       notification: "approve-asset",
       payload: {
@@ -115,7 +115,7 @@
 
 (define-public (revoke-asset (asset principal))
   (begin
-    (try! (is-user))
+    (asserts! (is-user) ERR_UNAUTHORIZED)
     (print {
       notification: "revoke-asset",
       payload: {
@@ -133,7 +133,7 @@
 
 (define-public (proxy-propose-action (action-proposals <action-proposals-trait>) (action <action-trait>) (parameters (buff 2048)))
   (begin
-    (try! (is-authorized))
+    (asserts! (is-authorized) ERR_UNAUTHORIZED)
     (print {
       notification: "proxy-propose-action",
       payload: {
@@ -150,7 +150,7 @@
 
 (define-public (proxy-create-proposal (core-proposals <core-proposals-trait>) (proposal <proposal-trait>))
   (begin
-    (try! (is-authorized))
+    (asserts! (is-authorized) ERR_UNAUTHORIZED)
     (print {
       notification: "proxy-create-proposal",
       payload: {
@@ -166,7 +166,7 @@
 
 (define-public (vote-on-action-proposal (action-proposals <action-proposals-trait>) (proposalId uint) (vote bool))
   (begin
-    (try! (is-authorized))
+    (asserts! (is-authorized) ERR_UNAUTHORIZED)
     (print {
       notification: "vote-on-action-proposal",
       payload: {
@@ -183,7 +183,7 @@
 
 (define-public (vote-on-core-proposal (core-proposals <core-proposals-trait>) (proposal <proposal-trait>) (vote bool))
   (begin
-    (try! (is-authorized))
+    (asserts! (is-authorized) ERR_UNAUTHORIZED)
     (print {
       notification: "vote-on-core-proposal",
       payload: {
@@ -200,7 +200,7 @@
 
 (define-public (conclude-action-proposal (action-proposals <action-proposals-trait>) (proposalId uint) (action <action-trait>))
   (begin
-    (try! (is-authorized))
+    (asserts! (is-authorized) ERR_UNAUTHORIZED)
     (print {
       notification: "conclude-action-proposal",
       payload: {
@@ -217,7 +217,7 @@
 
 (define-public (conclude-core-proposal (core-proposals <core-proposals-trait>) (proposal <proposal-trait>))
   (begin
-    (try! (is-authorized))
+    (asserts! (is-authorized) ERR_UNAUTHORIZED)
     (print {
       notification: "conclude-core-proposal",
       payload: {
@@ -244,17 +244,11 @@
 ;; private functions
 
 (define-private (is-authorized)
-  (if (or (is-eq tx-sender USER) (is-eq tx-sender AGENT))
-    (ok true)
-    ERR_UNAUTHORIZED
-  )
+  (or (is-eq contract-caller USER) (is-eq contract-caller AGENT))
 )
 
 (define-private (is-user)
-  (if (is-eq tx-sender USER)
-    (ok true)
-    ERR_UNAUTHORIZED
-  )
+  (is-eq contract-caller USER)
 )
 
 ;; initialize approved assets

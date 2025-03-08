@@ -89,14 +89,9 @@ describe(`contract: ${contractName}`, () => {
   describe("deposit-ft()", () => {
     beforeEach(() => {
       // Get sBTC from faucet first
-      simnet.callPublicFn(
-        sbtcTokenAddress,
-        "faucet",
-        [],
-        user
-      );
+      simnet.callPublicFn(sbtcTokenAddress, "faucet", [], user);
     });
-    
+
     it("fails if asset is not approved", () => {
       // Arrange
       const amount = 1000;
@@ -106,7 +101,7 @@ describe(`contract: ${contractName}`, () => {
       const receipt = simnet.callPublicFn(
         contractAddress,
         "deposit-ft",
-        [Cl.contractPrincipal(deployer, "test-token"), Cl.uint(amount)],
+        [Cl.principal(unapprovedToken), Cl.uint(amount)],
         user
       );
 
@@ -149,7 +144,9 @@ describe(`contract: ${contractName}`, () => {
       expect(notification).not.toBeNull();
       expect(notification.notification.value).toBe("deposit-ft");
       expect(notification.payload.value.amount.value).toBe(amount.toString());
-      expect(notification.payload.value.assetContract.value).toBe(sbtcTokenAddress);
+      expect(notification.payload.value.assetContract.value).toBe(
+        sbtcTokenAddress
+      );
       expect(notification.payload.value.sender.value).toBe(user);
       expect(notification.payload.value.caller.value).toBe(user);
       expect(notification.payload.value.recipient.value).toBe(contractAddress);
@@ -245,13 +242,8 @@ describe(`contract: ${contractName}`, () => {
   describe("withdraw-ft()", () => {
     beforeEach(() => {
       // Get sBTC from faucet first
-      simnet.callPublicFn(
-        sbtcTokenAddress,
-        "faucet",
-        [],
-        user
-      );
-      
+      simnet.callPublicFn(sbtcTokenAddress, "faucet", [], user);
+
       // Deposit tokens to the vault
       simnet.callPublicFn(
         contractAddress,
@@ -280,13 +272,13 @@ describe(`contract: ${contractName}`, () => {
     it("fails if asset is not approved", () => {
       // Arrange
       const amount = 1000;
-      const unapprovedToken = `${deployer}.unapproved-token`;
+      const unapprovedToken = `${deployer}.test-token`;
 
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
         "withdraw-ft",
-        [Cl.contractPrincipal(deployer, "unapproved-token"), Cl.uint(amount)],
+        [Cl.principal(unapprovedToken), Cl.uint(amount)],
         user
       );
 
@@ -329,7 +321,9 @@ describe(`contract: ${contractName}`, () => {
       expect(notification).not.toBeNull();
       expect(notification.notification.value).toBe("withdraw-ft");
       expect(notification.payload.value.amount.value).toBe(amount.toString());
-      expect(notification.payload.value.assetContract.value).toBe(sbtcTokenAddress);
+      expect(notification.payload.value.assetContract.value).toBe(
+        sbtcTokenAddress
+      );
       expect(notification.payload.value.sender.value).toBe(contractAddress);
       expect(notification.payload.value.caller.value).toBe(user);
       expect(notification.payload.value.recipient.value).toBe(user);
@@ -376,7 +370,7 @@ describe(`contract: ${contractName}`, () => {
         user
       );
 
-      expect(isApproved.result).toBe(Cl.bool(true));
+      expect(isApproved.result).toStrictEqual(Cl.bool(true));
     });
 
     it("emits the correct notification event", () => {
@@ -442,7 +436,7 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(asset)],
         user
       );
-      expect(isApproved.result).toBe(Cl.bool(true));
+      expect(isApproved.result).toStrictEqual(Cl.bool(true));
 
       // Act
       const receipt = simnet.callPublicFn(
@@ -462,7 +456,7 @@ describe(`contract: ${contractName}`, () => {
         [Cl.principal(asset)],
         user
       );
-      expect(isApproved.result).toBe(Cl.bool(false));
+      expect(isApproved.result).toStrictEqual(Cl.bool(false));
     });
 
     it("emits the correct notification event", () => {
@@ -566,9 +560,13 @@ describe(`contract: ${contractName}`, () => {
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification.value).toBe("proxy-propose-action");
-      expect(notification.payload.value["action-proposals"].value).toBe(actionProposalsAddress);
+      expect(notification.payload.value["action-proposals"].value).toBe(
+        actionProposalsAddress
+      );
       expect(notification.payload.value.action.value).toBe(actionAddress);
-      expect(notification.payload.value.parameters.value).toBe(parameters.buffer.toString('hex'));
+      expect(notification.payload.value.parameters.value).toBe(
+        parameters.buffer.toString("hex")
+      );
       expect(notification.payload.value.sender.value).toBe(user);
       expect(notification.payload.value.caller.value).toBe(user);
     });
@@ -644,7 +642,9 @@ describe(`contract: ${contractName}`, () => {
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification.value).toBe("proxy-create-proposal");
-      expect(notification.payload.value["core-proposals"].value).toBe(coreProposalsAddress);
+      expect(notification.payload.value["core-proposals"].value).toBe(
+        coreProposalsAddress
+      );
       expect(notification.payload.value.proposal.value).toBe(proposalAddress);
       expect(notification.payload.value.sender.value).toBe(user);
       expect(notification.payload.value.caller.value).toBe(user);
@@ -726,8 +726,12 @@ describe(`contract: ${contractName}`, () => {
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification.value).toBe("vote-on-action-proposal");
-      expect(notification.payload.value["action-proposals"].value).toBe(actionProposalsAddress);
-      expect(notification.payload.value.proposalId.value).toBe(proposalId.toString());
+      expect(notification.payload.value["action-proposals"].value).toBe(
+        actionProposalsAddress
+      );
+      expect(notification.payload.value.proposalId.value).toBe(
+        proposalId.toString()
+      );
       expect(notification.payload.value.vote.value).toBe(vote);
       expect(notification.payload.value.sender.value).toBe(user);
       expect(notification.payload.value.caller.value).toBe(user);
@@ -809,7 +813,9 @@ describe(`contract: ${contractName}`, () => {
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification.value).toBe("vote-on-core-proposal");
-      expect(notification.payload.value["core-proposals"].value).toBe(coreProposalsAddress);
+      expect(notification.payload.value["core-proposals"].value).toBe(
+        coreProposalsAddress
+      );
       expect(notification.payload.value.proposal.value).toBe(proposalAddress);
       expect(notification.payload.value.vote.value).toBe(vote);
       expect(notification.payload.value.sender.value).toBe(user);
@@ -892,8 +898,12 @@ describe(`contract: ${contractName}`, () => {
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification.value).toBe("conclude-action-proposal");
-      expect(notification.payload.value["action-proposals"].value).toBe(actionProposalsAddress);
-      expect(notification.payload.value.proposalId.value).toBe(proposalId.toString());
+      expect(notification.payload.value["action-proposals"].value).toBe(
+        actionProposalsAddress
+      );
+      expect(notification.payload.value.proposalId.value).toBe(
+        proposalId.toString()
+      );
       expect(notification.payload.value.action.value).toBe(actionAddress);
       expect(notification.payload.value.sender.value).toBe(user);
       expect(notification.payload.value.caller.value).toBe(user);
@@ -970,7 +980,9 @@ describe(`contract: ${contractName}`, () => {
       const notification = getNotification(receipt);
       expect(notification).not.toBeNull();
       expect(notification.notification.value).toBe("conclude-core-proposal");
-      expect(notification.payload.value["core-proposals"].value).toBe(coreProposalsAddress);
+      expect(notification.payload.value["core-proposals"].value).toBe(
+        coreProposalsAddress
+      );
       expect(notification.payload.value.proposal.value).toBe(proposalAddress);
       expect(notification.payload.value.sender.value).toBe(user);
       expect(notification.payload.value.caller.value).toBe(user);
@@ -989,7 +1001,7 @@ describe(`contract: ${contractName}`, () => {
       );
 
       // Assert
-      expect(receipt.result).toBe(Cl.bool(true));
+      expect(receipt.result).toStrictEqual(Cl.bool(true));
 
       // Act - check DAO token (pre-approved in contract)
       const receipt2 = simnet.callReadOnlyFn(
@@ -1000,7 +1012,7 @@ describe(`contract: ${contractName}`, () => {
       );
 
       // Assert
-      expect(receipt2.result).toBe(Cl.bool(true));
+      expect(receipt2.result).toStrictEqual(Cl.bool(true));
     });
 
     it("returns true for user-approved assets", () => {
@@ -1022,7 +1034,7 @@ describe(`contract: ${contractName}`, () => {
       );
 
       // Assert
-      expect(receipt.result).toBe(Cl.bool(true));
+      expect(receipt.result).toStrictEqual(Cl.bool(true));
     });
 
     it("returns false for non-approved assets", () => {
@@ -1035,7 +1047,7 @@ describe(`contract: ${contractName}`, () => {
       );
 
       // Assert
-      expect(receipt.result).toBe(Cl.bool(false));
+      expect(receipt.result).toStrictEqual(Cl.bool(false));
     });
   });
 
