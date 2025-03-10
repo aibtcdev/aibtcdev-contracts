@@ -139,7 +139,7 @@
     (print {
       notification: "proxy-propose-action",
       payload: {
-        action-proposals: (contract-of action-proposals),
+        proposalContract: (contract-of action-proposals),
         action: (contract-of action),
         parameters: parameters,
         sender: tx-sender,
@@ -156,7 +156,7 @@
     (print {
       notification: "proxy-create-proposal",
       payload: {
-        core-proposals: (contract-of core-proposals),
+        proposalContract: (contract-of core-proposals),
         proposal: (contract-of proposal),
         sender: tx-sender,
         caller: contract-caller
@@ -172,7 +172,7 @@
     (print {
       notification: "vote-on-action-proposal",
       payload: {
-        action-proposals: (contract-of action-proposals),
+        actionProposals: (contract-of action-proposals),
         proposalId: proposalId,
         vote: vote,
         sender: tx-sender,
@@ -189,7 +189,7 @@
     (print {
       notification: "vote-on-core-proposal",
       payload: {
-        core-proposals: (contract-of core-proposals),
+        coreProposals: (contract-of core-proposals),
         proposal: (contract-of proposal),
         vote: vote,
         sender: tx-sender,
@@ -206,7 +206,7 @@
     (print {
       notification: "conclude-action-proposal",
       payload: {
-        action-proposals: (contract-of action-proposals),
+        actionProposals: (contract-of action-proposals),
         proposalId: proposalId,
         action: (contract-of action),
         sender: tx-sender,
@@ -223,7 +223,7 @@
     (print {
       notification: "conclude-core-proposal",
       payload: {
-        core-proposals: (contract-of core-proposals),
+        coreProposals: (contract-of core-proposals),
         proposal: (contract-of proposal),
         sender: tx-sender,
         caller: contract-caller

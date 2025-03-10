@@ -27,12 +27,50 @@ const tokenDexContractAddress = `${deployer}.aibtc-token-dex`;
 const baseDaoContractAddress = `${deployer}.aibtc-base-dao`;
 const bootstrapContractAddress = `${deployer}.aibtc-base-bootstrap-initialization-v2`;
 const actionProposalsV2ContractAddress = `${deployer}.aibtc-action-proposals-v2`;
+const sendMessageActionContractAddress = `${deployer}.aibtc-action-send-message`;
 const coreProposalsV2ContractAddress = `${deployer}.aibtc-core-proposals-v2`;
+const baseEnableExtensionContractAddress = `${deployer}.aibtc-base-enable-extension`;
+
+// Voting config
+const actionProposalVotingConfig = VOTING_CONFIG["aibtc-action-proposals-v2"];
+const coreProposalVotingConfig = VOTING_CONFIG["aibtc-core-proposals-v2"];
 
 // Error codes
 const ErrCode = UserAgentVaultErrCode;
 
-// simnet.callPublicFn(sbtcTokenAddress, "faucet", [], user);
+function setupVault(sender: string) {
+  // construct the dao
+  const constructReceipt = constructDao(
+    sender,
+    baseDaoContractAddress,
+    bootstrapContractAddress
+  );
+  expect(constructReceipt.result).toBeOk(Cl.bool(true));
+  // get sbtc from the faucet
+  const faucetReceipt = simnet.callPublicFn(
+    sbtcTokenAddress,
+    "faucet",
+    [],
+    sender
+  );
+  expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+  // get dao tokens from the dex
+  const dexReceipt = getDaoTokens(
+    daoTokenAddress,
+    tokenDexContractAddress,
+    sender,
+    1000
+  );
+  expect(dexReceipt.result).toBeOk(Cl.bool(true));
+  // deposit ft so we can propose
+  const depositReceipt = simnet.callPublicFn(
+    contractAddress,
+    "deposit-ft",
+    [Cl.principal(daoTokenAddress), Cl.uint(1000)],
+    sender
+  );
+  expect(depositReceipt.result).toBeOk(Cl.bool(true));
+}
 
 describe(`public functions: ${contractName}`, () => {
   ////////////////////////////////////////
@@ -528,12 +566,149 @@ describe(`public functions: ${contractName}`, () => {
   ////////////////////////////////////////
   // proxy-propose-action() tests
   ////////////////////////////////////////
+  it("proxy-propose-action() fails if caller is not authorized (user or agent)", () => {
+    // arrange
+    const message = "hello world";
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "proxy-propose-action",
+      [
+        Cl.principal(actionProposalsV2ContractAddress),
+        Cl.principal(sendMessageActionContractAddress),
+        Cl.bufferFromAscii(message),
+      ],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  it("proxy-propose-action() succeeds and creates a new action proposal", () => {
+    // arrange
+    const message = "hello world";
+    // construct dao / setup vault with dao tokens
+    setupVault(deployer);
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "proxy-propose-action",
+      [
+        Cl.principal(actionProposalsV2ContractAddress),
+        Cl.principal(sendMessageActionContractAddress),
+        Cl.bufferFromAscii(message),
+      ],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+  it("proxy-propose-action() emits the correct notification event", () => {
+    // arrange
+    const message = "hello world";
+    const encodedMessage = `0x${Buffer.from(message).toString("hex")}`;
+    const expectedEvent = {
+      notification: "proxy-propose-action",
+      payload: {
+        proposalContract: actionProposalsV2ContractAddress,
+        action: sendMessageActionContractAddress,
+        parameters: encodedMessage,
+        sender: deployer,
+        caller: deployer,
+      },
+    };
+    // construct dao / setup vault with dao tokens
+    setupVault(deployer);
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "proxy-propose-action",
+      [
+        Cl.principal(actionProposalsV2ContractAddress),
+        Cl.principal(sendMessageActionContractAddress),
+        Cl.bufferFromAscii(message),
+      ],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
   ////////////////////////////////////////
   // proxy-create-proposal() tests
   ////////////////////////////////////////
+  it("proxy-create-proposal() fails if caller is not authorized (user or agent)", () => {
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "proxy-create-proposal",
+      [
+        Cl.principal(coreProposalsV2ContractAddress),
+        Cl.principal(baseEnableExtensionContractAddress),
+      ],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  it("proxy-create-proposal() succeeds and creates a new core proposal", () => {
+    // arrange
+    // construct dao / setup vault with dao tokens
+    setupVault(deployer);
+    // progress the chain past the first voting period
+    simnet.mineEmptyBlocks(coreProposalVotingConfig.votingPeriod);
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "proxy-create-proposal",
+      [
+        Cl.principal(coreProposalsV2ContractAddress),
+        Cl.principal(baseEnableExtensionContractAddress),
+      ],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+  it("proxy-create-proposal() emits the correct notification event", () => {
+    // arrange
+    // construct dao / setup vault with dao tokens
+    setupVault(deployer);
+    // progress the chain past the first voting period
+    simnet.mineEmptyBlocks(coreProposalVotingConfig.votingPeriod);
+    // format expected event like print event
+    const expectedEvent = {
+      notification: "proxy-create-proposal",
+      payload: {
+        proposalContract: coreProposalsV2ContractAddress,
+        proposal: baseEnableExtensionContractAddress,
+        sender: deployer,
+        caller: deployer,
+      },
+    };
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "proxy-create-proposal",
+      [
+        Cl.principal(coreProposalsV2ContractAddress),
+        Cl.principal(baseEnableExtensionContractAddress),
+      ],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
   ////////////////////////////////////////
   // vote-on-action-proposal() tests
   ////////////////////////////////////////
+
   ////////////////////////////////////////
   // vote-on-core-proposal() tests
   ////////////////////////////////////////
@@ -664,599 +839,3 @@ describe(`read-only functions: ${contractName}`, () => {
     expect(printEvent).toStrictEqual(expectedConfig);
   });
 });
-/*
-
-  // DAO Interaction Tests
-  describe("proxy-propose-action()", () => {
-    const actionProposalsAddress = `${deployer}.aibtc-action-proposals-v2`;
-    const actionAddress = `${deployer}.aibtc-action-send-message`;
-    const parameters = Cl.bufferFromAscii("test message");
-
-    beforeEach(() => {
-      // Mock the propose-action function to return a successful response
-      simnet.mineEmptyBlocks(10); // Ensure we're at a new block
-    });
-
-    it("fails if caller is not authorized (user or agent)", () => {
-      // Act - call from unauthorized user
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "proxy-propose-action",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
-          parameters,
-        ],
-        otherUser
-      );
-
-      // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
-    });
-
-    it("succeeds when called by the user", () => {
-      // Setup: Get DAO tokens for the user
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
-      // check proposal status in the dao
-      const proposalStatus = simnet.callReadOnlyFn(
-        baseDaoContractAddress,
-        "is-extension",
-        [Cl.principal(actionProposalsV2ContractAddress)],
-        deployer
-      );
-      const actionStatus = simnet.callReadOnlyFn(
-        baseDaoContractAddress,
-        "is-extension",
-        [Cl.principal(actionAddress)],
-        deployer
-      );
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "proxy-propose-action",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
-          parameters,
-        ],
-        user
-      );
-
-      // Assert - we expect this to succeed in the test environment
-      expect(receipt.result).toBeOk(Cl.bool(true));
-    });
-
-    it("succeeds when called by the agent", () => {
-      // Setup: Get DAO tokens for the agent
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "proxy-propose-action",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
-          parameters,
-        ],
-        agent
-      );
-
-      // Assert - we expect this to succeed in the test environment
-      // The operation might fail for other reasons, but the authorization should pass
-      expect(receipt.result).toBeOk(Cl.bool(true));
-    });
-
-    it("emits the correct notification event", () => {
-      // Setup: Get DAO tokens for the user
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "proxy-propose-action",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
-          parameters,
-        ],
-        user
-      );
-
-      // Assert - we don't check the result here, just the notification
-      const notification = getNotification(receipt);
-      expect(notification).not.toBeNull();
-      expect(notification.notification.value).toBe("proxy-propose-action");
-      expect(notification.payload.value["action-proposals"].value).toBe(
-        actionProposalsAddress
-      );
-      expect(notification.payload.value.action.value).toBe(actionAddress);
-      expect(notification.payload.value.parameters.value).toBe(
-        parameters.buffer.toString("hex")
-      );
-      expect(notification.payload.value.sender.value).toBe(user);
-      expect(notification.payload.value.caller.value).toBe(user);
-    });
-  });
-
-  describe("proxy-create-proposal()", () => {
-    const coreProposalsAddress = `${deployer}.aibtc-core-proposals-v2`;
-    const proposalAddress = `${deployer}.aibtc-base-enable-extension`;
-
-    beforeEach(() => {
-      // Mine empty blocks to ensure we're at a new block
-      simnet.mineEmptyBlocks(10);
-    });
-
-    it("fails if caller is not authorized (user or agent)", () => {
-      // Act - call from unauthorized user
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "proxy-create-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-        ],
-        otherUser
-      );
-
-      // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
-    });
-
-    it("succeeds when called by the user", () => {
-      // Setup: Get DAO tokens for the user
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "proxy-create-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-        ],
-        user
-      );
-
-      // Assert - we expect this to succeed in the test environment
-      expect(receipt.result).toBeOk(Cl.uint(1));
-    });
-
-    it("succeeds when called by the agent", () => {
-      // Setup: Get DAO tokens for the agent
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "proxy-create-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-        ],
-        agent
-      );
-
-      // Assert - we expect this to succeed in the test environment
-      expect(receipt.result).toBeOk(Cl.uint(1));
-    });
-
-    it("emits the correct notification event", () => {
-      // Setup: Get DAO tokens for the user
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "proxy-create-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-        ],
-        user
-      );
-
-      // Assert - we don't check the result here, just the notification
-      const notification = getNotification(receipt);
-      expect(notification).not.toBeNull();
-      expect(notification.notification.value).toBe("proxy-create-proposal");
-      expect(notification.payload.value["core-proposals"].value).toBe(
-        coreProposalsAddress
-      );
-      expect(notification.payload.value.proposal.value).toBe(proposalAddress);
-      expect(notification.payload.value.sender.value).toBe(user);
-      expect(notification.payload.value.caller.value).toBe(user);
-    });
-  });
-
-  describe("vote-on-action-proposal()", () => {
-    const actionProposalsAddress = `${deployer}.aibtc-action-proposals-v2`;
-    const proposalId = 1;
-    const vote = true;
-
-    beforeEach(() => {
-      // Mine empty blocks to ensure we're at a new block
-      simnet.mineEmptyBlocks(10);
-    });
-
-    it("fails if caller is not authorized (user or agent)", () => {
-      // Act - call from unauthorized user
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "vote-on-action-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
-          Cl.uint(proposalId),
-          Cl.bool(vote),
-        ],
-        otherUser
-      );
-
-      // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
-    });
-
-    it("succeeds when called by the user", () => {
-      // Setup: Get DAO tokens for the user
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "vote-on-action-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
-          Cl.uint(proposalId),
-          Cl.bool(vote),
-        ],
-        user
-      );
-
-      // Assert - we expect this to succeed in the test environment
-      expect(receipt.result).toBeOk(Cl.bool(true));
-    });
-
-    it("succeeds when called by the agent", () => {
-      // Setup: Get DAO tokens for the agent
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "vote-on-action-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
-          Cl.uint(proposalId),
-          Cl.bool(vote),
-        ],
-        agent
-      );
-
-      // Assert - we expect this to succeed in the test environment
-      expect(receipt.result).toBeOk(Cl.bool(true));
-    });
-
-    it("emits the correct notification event", () => {
-      // Setup: Get DAO tokens for the user
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "vote-on-action-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
-          Cl.uint(proposalId),
-          Cl.bool(vote),
-        ],
-        user
-      );
-
-      // Assert - we don't check the result here, just the notification
-      const notification = getNotification(receipt);
-      expect(notification).not.toBeNull();
-      expect(notification.notification.value).toBe("vote-on-action-proposal");
-      expect(notification.payload.value["action-proposals"].value).toBe(
-        actionProposalsAddress
-      );
-      expect(notification.payload.value.proposalId.value).toBe(
-        proposalId.toString()
-      );
-      expect(notification.payload.value.vote.value).toBe(vote);
-      expect(notification.payload.value.sender.value).toBe(user);
-      expect(notification.payload.value.caller.value).toBe(user);
-    });
-  });
-
-  describe("vote-on-core-proposal()", () => {
-    const coreProposalsAddress = `${deployer}.aibtc-core-proposals-v2`;
-    const proposalAddress = `${deployer}.aibtc-base-enable-extension`;
-    const vote = true;
-
-    beforeEach(() => {
-      // Mine empty blocks to ensure we're at a new block
-      simnet.mineEmptyBlocks(10);
-    });
-
-    it("fails if caller is not authorized (user or agent)", () => {
-      // Act - call from unauthorized user
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "vote-on-core-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-          Cl.bool(vote),
-        ],
-        otherUser
-      );
-
-      // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
-    });
-
-    it("succeeds when called by the user", () => {
-      // Setup: Get DAO tokens for the user
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "vote-on-core-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-          Cl.bool(vote),
-        ],
-        user
-      );
-
-      // Assert - we expect this to succeed in the test environment
-      expect(receipt.result).toBeOk(Cl.bool(true));
-    });
-
-    it("succeeds when called by the agent", () => {
-      // Setup: Get DAO tokens for the agent
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "vote-on-core-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-          Cl.bool(vote),
-        ],
-        agent
-      );
-
-      // Assert - we expect this to succeed in the test environment
-      expect(receipt.result).toBeOk(Cl.bool(true));
-    });
-
-    it("emits the correct notification event", () => {
-      // Setup: Get DAO tokens for the user
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "vote-on-core-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-          Cl.bool(vote),
-        ],
-        user
-      );
-
-      // Assert - we don't check the result here, just the notification
-      const notification = getNotification(receipt);
-      expect(notification).not.toBeNull();
-      expect(notification.notification.value).toBe("vote-on-core-proposal");
-      expect(notification.payload.value["core-proposals"].value).toBe(
-        coreProposalsAddress
-      );
-      expect(notification.payload.value.proposal.value).toBe(proposalAddress);
-      expect(notification.payload.value.vote.value).toBe(vote);
-      expect(notification.payload.value.sender.value).toBe(user);
-      expect(notification.payload.value.caller.value).toBe(user);
-    });
-  });
-
-  describe("conclude-action-proposal()", () => {
-    const actionProposalsAddress = `${deployer}.aibtc-action-proposals-v2`;
-    const actionAddress = `${deployer}.aibtc-action-send-message`;
-    const proposalId = 1;
-
-    beforeEach(() => {
-      // Mine empty blocks to ensure we're at a new block
-      simnet.mineEmptyBlocks(10);
-    });
-
-    it("fails if caller is not authorized (user or agent)", () => {
-      // Act - call from unauthorized user
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "conclude-action-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
-          Cl.uint(proposalId),
-          Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
-        ],
-        otherUser
-      );
-
-      // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
-    });
-
-    it("succeeds when called by the user", () => {
-      // Setup: Get DAO tokens for the user
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "conclude-action-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
-          Cl.uint(proposalId),
-          Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
-        ],
-        user
-      );
-
-      // Assert - we expect this to succeed in the test environment
-      expect(receipt.result).toBeOk(Cl.bool(true));
-    });
-
-    it("succeeds when called by the agent", () => {
-      // Setup: Get DAO tokens for the agent
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "conclude-action-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
-          Cl.uint(proposalId),
-          Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
-        ],
-        agent
-      );
-
-      // Assert - we expect this to succeed in the test environment
-      expect(receipt.result).toBeOk(Cl.bool(true));
-    });
-
-    it("emits the correct notification event", () => {
-      // Setup: Get DAO tokens for the user
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "conclude-action-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-action-proposals-v2"),
-          Cl.uint(proposalId),
-          Cl.contractPrincipal(deployer, "aibtc-action-send-message"),
-        ],
-        user
-      );
-
-      // Assert - we don't check the result here, just the notification
-      const notification = getNotification(receipt);
-      expect(notification).not.toBeNull();
-      expect(notification.notification.value).toBe("conclude-action-proposal");
-      expect(notification.payload.value["action-proposals"].value).toBe(
-        actionProposalsAddress
-      );
-      expect(notification.payload.value.proposalId.value).toBe(
-        proposalId.toString()
-      );
-      expect(notification.payload.value.action.value).toBe(actionAddress);
-      expect(notification.payload.value.sender.value).toBe(user);
-      expect(notification.payload.value.caller.value).toBe(user);
-    });
-  });
-
-  describe("conclude-core-proposal()", () => {
-    const coreProposalsAddress = `${deployer}.aibtc-core-proposals-v2`;
-    const proposalAddress = `${deployer}.aibtc-base-enable-extension`;
-
-    beforeEach(() => {
-      // Mine empty blocks to ensure we're at a new block
-      simnet.mineEmptyBlocks(10);
-    });
-
-    it("fails if caller is not authorized (user or agent)", () => {
-      // Act - call from unauthorized user
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "conclude-core-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-        ],
-        otherUser
-      );
-
-      // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
-    });
-
-    it("succeeds when called by the user", () => {
-      // Setup: Get DAO tokens for the user
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "conclude-core-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-        ],
-        user
-      );
-
-      // Assert - we expect this to succeed in the test environment
-      expect(receipt.result).toBeOk(Cl.bool(true));
-    });
-
-    it("succeeds when called by the agent", () => {
-      // Setup: Get DAO tokens for the agent
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "conclude-core-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-        ],
-        agent
-      );
-
-      // Assert - we expect this to succeed in the test environment
-      expect(receipt.result).toBeOk(Cl.bool(true));
-    });
-
-    it("emits the correct notification event", () => {
-      // Setup: Get DAO tokens for the user
-      getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "conclude-core-proposal",
-        [
-          Cl.contractPrincipal(deployer, "aibtc-core-proposals-v2"),
-          Cl.contractPrincipal(deployer, "aibtc-base-enable-extension"),
-        ],
-        user
-      );
-
-      // Assert - we don't check the result here, just the notification
-      const notification = getNotification(receipt);
-      expect(notification).not.toBeNull();
-      expect(notification.notification.value).toBe("conclude-core-proposal");
-      expect(notification.payload.value["core-proposals"].value).toBe(
-        coreProposalsAddress
-      );
-      expect(notification.payload.value.proposal.value).toBe(proposalAddress);
-      expect(notification.payload.value.sender.value).toBe(user);
-      expect(notification.payload.value.caller.value).toBe(user);
-    });
-  });
-
-});
-*/
