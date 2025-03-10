@@ -172,7 +172,7 @@
     (print {
       notification: "vote-on-action-proposal",
       payload: {
-        actionProposals: (contract-of action-proposals),
+        proposalContract: (contract-of action-proposals),
         proposalId: proposalId,
         vote: vote,
         sender: tx-sender,
@@ -189,7 +189,7 @@
     (print {
       notification: "vote-on-core-proposal",
       payload: {
-        coreProposals: (contract-of core-proposals),
+        proposalContract: (contract-of core-proposals),
         proposal: (contract-of proposal),
         vote: vote,
         sender: tx-sender,
@@ -206,7 +206,7 @@
     (print {
       notification: "conclude-action-proposal",
       payload: {
-        actionProposals: (contract-of action-proposals),
+        proposalContract: (contract-of action-proposals),
         proposalId: proposalId,
         action: (contract-of action),
         sender: tx-sender,
@@ -223,7 +223,7 @@
     (print {
       notification: "conclude-core-proposal",
       payload: {
-        coreProposals: (contract-of core-proposals),
+        proposalContract: (contract-of core-proposals),
         proposal: (contract-of proposal),
         sender: tx-sender,
         caller: contract-caller

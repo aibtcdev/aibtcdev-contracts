@@ -708,16 +708,327 @@ describe(`public functions: ${contractName}`, () => {
   ////////////////////////////////////////
   // vote-on-action-proposal() tests
   ////////////////////////////////////////
-
+  it("vote-on-action-proposal() fails if caller is not authorized (user or agent)", () => {
+    // arrange
+    const proposalId = 1;
+    const vote = true;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-action-proposal",
+      [
+        Cl.principal(actionProposalsV2ContractAddress),
+        Cl.uint(proposalId),
+        Cl.bool(vote),
+      ],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  it("vote-on-action-proposal() succeeds and votes on an action proposal", () => {
+    // arrange
+    const message = "hello world";
+    const proposalId = 1;
+    const vote = true;
+    // construct dao / setup vault with dao tokens
+    setupVault(deployer);
+    // create a new action proposal
+    const proposeReceipt = simnet.callPublicFn(
+      contractAddress,
+      "proxy-propose-action",
+      [
+        Cl.principal(actionProposalsV2ContractAddress),
+        Cl.principal(sendMessageActionContractAddress),
+        Cl.bufferFromAscii(message),
+      ],
+      deployer
+    );
+    expect(proposeReceipt.result).toBeOk(Cl.bool(true));
+    // progress the chain past the voting delay
+    simnet.mineEmptyBlocks(actionProposalVotingConfig.votingDelay);
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-action-proposal",
+      [
+        Cl.principal(actionProposalsV2ContractAddress),
+        Cl.uint(proposalId),
+        Cl.bool(vote),
+      ],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+  it("vote-on-action-proposal() emits the correct notification event", () => {
+    // arrange
+    const message = "hello world";
+    const proposalId = 1;
+    const vote = true;
+    // construct dao / setup vault with dao tokens
+    setupVault(deployer);
+    // create a new action proposal
+    const proposeReceipt = simnet.callPublicFn(
+      contractAddress,
+      "proxy-propose-action",
+      [
+        Cl.principal(actionProposalsV2ContractAddress),
+        Cl.principal(sendMessageActionContractAddress),
+        Cl.bufferFromAscii(message),
+      ],
+      deployer
+    );
+    expect(proposeReceipt.result).toBeOk(Cl.bool(true));
+    // progress the chain past the voting delay
+    simnet.mineEmptyBlocks(actionProposalVotingConfig.votingDelay);
+    // format expected event like print event
+    const expectedEvent = {
+      notification: "vote-on-action-proposal",
+      payload: {
+        proposalContract: actionProposalsV2ContractAddress,
+        proposalId: proposalId.toString(),
+        vote: vote,
+        sender: deployer,
+        caller: deployer,
+      },
+    };
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-action-proposal",
+      [
+        Cl.principal(actionProposalsV2ContractAddress),
+        Cl.uint(proposalId),
+        Cl.bool(vote),
+      ],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
   ////////////////////////////////////////
   // vote-on-core-proposal() tests
   ////////////////////////////////////////
+  it("vote-on-core-proposal() fails if caller is not authorized (user or agent)", () => {
+    // arrange
+    const vote = true;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-core-proposal",
+      [
+        Cl.principal(coreProposalsV2ContractAddress),
+        Cl.principal(baseEnableExtensionContractAddress),
+        Cl.bool(vote),
+      ],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  it("vote-on-core-proposal() succeeds and votes on a core proposal", () => {
+    // arrange
+    const vote = true;
+    // construct dao / setup vault with dao tokens
+    setupVault(deployer);
+    // progress the chain past the first voting period
+    simnet.mineEmptyBlocks(coreProposalVotingConfig.votingPeriod);
+    // create a new core proposal
+    const createReceipt = simnet.callPublicFn(
+      contractAddress,
+      "proxy-create-proposal",
+      [
+        Cl.principal(coreProposalsV2ContractAddress),
+        Cl.principal(baseEnableExtensionContractAddress),
+      ],
+      deployer
+    );
+    expect(createReceipt.result).toBeOk(Cl.bool(true));
+    // progress the chain past the voting delay
+    simnet.mineEmptyBlocks(coreProposalVotingConfig.votingDelay);
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-core-proposal",
+      [
+        Cl.principal(coreProposalsV2ContractAddress),
+        Cl.principal(baseEnableExtensionContractAddress),
+        Cl.bool(vote),
+      ],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+  it("vote-on-core-proposal() emits the correct notification event", () => {
+    // arrange
+    const vote = true;
+    // construct dao / setup vault with dao tokens
+    setupVault(deployer);
+    // progress the chain past the first voting period
+    simnet.mineEmptyBlocks(coreProposalVotingConfig.votingPeriod);
+    // create a new core proposal
+    const createReceipt = simnet.callPublicFn(
+      contractAddress,
+      "proxy-create-proposal",
+      [
+        Cl.principal(coreProposalsV2ContractAddress),
+        Cl.principal(baseEnableExtensionContractAddress),
+      ],
+      deployer
+    );
+    expect(createReceipt.result).toBeOk(Cl.bool(true));
+    // progress the chain past the voting delay
+    simnet.mineEmptyBlocks(coreProposalVotingConfig.votingDelay);
+    // format expected event like print event
+    const expectedEvent = {
+      notification: "vote-on-core-proposal",
+      payload: {
+        proposalContract: coreProposalsV2ContractAddress,
+        proposal: baseEnableExtensionContractAddress,
+        vote: vote,
+        sender: deployer,
+        caller: deployer,
+      },
+    };
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "vote-on-core-proposal",
+      [
+        Cl.principal(coreProposalsV2ContractAddress),
+        Cl.principal(baseEnableExtensionContractAddress),
+        Cl.bool(vote),
+      ],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
   ////////////////////////////////////////
   // conclude-action-proposal() tests
   ////////////////////////////////////////
+  it("conclude-action-proposal() fails if caller is not authorized (user or agent)", () => {
+    // arrange
+    const proposalId = 1;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "conclude-action-proposal",
+      [
+        Cl.principal(actionProposalsV2ContractAddress),
+        Cl.uint(proposalId),
+        Cl.principal(sendMessageActionContractAddress),
+      ],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  it("conclude-action-proposal() succeeds and concludes an action proposal", () => {
+    // arrange
+    const message = "hello world";
+    const proposalId = 1;
+    // construct dao / setup vault with dao tokens
+    setupVault(deployer);
+    fundVoters(daoTokenAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+    // create a new action proposal
+    const proposeReceipt = simnet.callPublicFn(
+      contractAddress,
+      "proxy-propose-action",
+      [
+        Cl.principal(actionProposalsV2ContractAddress),
+        Cl.principal(sendMessageActionContractAddress),
+        Cl.bufferFromAscii(message),
+      ],
+      deployer
+    );
+    expect(proposeReceipt.result).toBeOk(Cl.bool(true));
+    // progress the chain past the voting delay
+    simnet.mineEmptyBlocks(actionProposalVotingConfig.votingDelay);
+    // vote on the proposal
+    const voteReceipts = [
+      // cast two regular votes to pass proposal
+      simnet.callPublicFn(
+        actionProposalsV2ContractAddress,
+        "vote-on-proposal",
+        [Cl.uint(proposalId), Cl.bool(true)],
+        address2
+      ),
+      simnet.callPublicFn(
+        actionProposalsV2ContractAddress,
+        "vote-on-proposal",
+        [Cl.uint(proposalId), Cl.bool(true)],
+        address1
+      ),
+      // cast vote through our user/agent vault
+      simnet.callPublicFn(
+        contractAddress,
+        "vote-on-action-proposal",
+        [
+          Cl.principal(actionProposalsV2ContractAddress),
+          Cl.uint(proposalId),
+          Cl.bool(true),
+        ],
+        deployer
+      ),
+    ];
+    for (const voteReceipt of voteReceipts) {
+      expect(voteReceipt.result).toBeOk(Cl.bool(true));
+    }
+    // progress the chain past the voting period and execution delay
+    simnet.mineEmptyBlocks(actionProposalVotingConfig.votingPeriod);
+    simnet.mineEmptyBlocks(actionProposalVotingConfig.votingDelay);
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "conclude-action-proposal",
+      [
+        Cl.principal(actionProposalsV2ContractAddress),
+        Cl.uint(proposalId),
+        Cl.principal(sendMessageActionContractAddress),
+      ],
+      deployer
+    );
+    console.log("conclude receipt");
+    console.log(JSON.stringify(receipt, null, 2));
+    // assert
+
+    for (const event of receipt.events) {
+      console.log(convertSIP019PrintEvent(event));
+    }
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
   ////////////////////////////////////////
   // conclude-core-proposal() tests
   ////////////////////////////////////////
+  it("conclude-core-proposal() fails if caller is not authorized (user or agent)", () => {
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "conclude-core-proposal",
+      [
+        Cl.principal(coreProposalsV2ContractAddress),
+        Cl.principal(baseEnableExtensionContractAddress),
+      ],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
 });
 describe(`read-only functions: ${contractName}`, () => {
   ////////////////////////////////////////
