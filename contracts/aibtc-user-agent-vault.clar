@@ -11,9 +11,11 @@
 (use-trait core-proposals-trait .aibtc-dao-traits-v2.core-proposals)
 
 ;; constants
+(define-constant DEPLOYED_BURN_BLOCK burn-block-height)
+(define-constant DEPLOYED_STACKS_BLOCK stacks-block-height)
+(define-constant VAULT (as-contract tx-sender))
 (define-constant USER 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM) ;; user (vault owner)
 (define-constant AGENT 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG) ;; agent (proposal voter)
-(define-constant VAULT (as-contract tx-sender))
 
 ;; Pre-approved tokens
 (define-constant SBTC_TOKEN 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token) ;; sBTC token
@@ -241,22 +243,32 @@
   (stx-get-balance VAULT)
 )
 
+(define-read-only (get-configuration)
+  {
+    agent: AGENT,
+    user: USER,
+    vault: VAULT,
+    daoToken: DAO_TOKEN,
+    sbtcToken: SBTC_TOKEN,
+  }
+)
+
 ;; private functions
 
 (define-private (is-authorized)
-  (if (or (is-eq contract-caller USER) (is-eq contract-caller AGENT))
-    true
-    false
-  )
+  (or (is-eq contract-caller USER) (is-eq contract-caller AGENT))
 )
 
 (define-private (is-user)
-  (if (is-eq contract-caller USER)
-    true
-    false
-  )
+  (is-eq contract-caller USER)
 )
 
 ;; initialize approved assets
 (map-set ApprovedAssets SBTC_TOKEN true)
 (map-set ApprovedAssets DAO_TOKEN true)
+
+;; print creation event
+(print {
+  notification: "vault-created",
+  payload: (get-configuration)
+})

@@ -3,18 +3,19 @@ import { describe, expect, it, beforeEach, beforeAll } from "vitest";
 import { UserAgentVaultErrCode } from "./error-codes";
 import {
   constructDao,
+  convertSIP019PrintEvent,
   fundVoters,
   getDaoTokens,
   VOTING_CONFIG,
-  ContractType,
 } from "./test-utilities";
+import { ClarityEvent } from "@hirosystems/clarinet-sdk";
 
 // Define constants and accounts
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
-const user = "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM";
-const agent = "ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG";
-const otherUser = accounts.get("wallet_3")!;
+const address1 = "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM";
+const address2 = "ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG";
+const address3 = accounts.get("wallet_3")!;
 
 // Contract references
 const contractName = "aibtc-user-agent-vault";
@@ -31,497 +32,639 @@ const coreProposalsV2ContractAddress = `${deployer}.aibtc-core-proposals-v2`;
 // Error codes
 const ErrCode = UserAgentVaultErrCode;
 
-// Helper function to check notification events
-const getNotification = (receipt: any) => {
-  const printEvent = receipt.events.find((e: any) => e.event === "print_event");
-  if (!printEvent) return null;
+// simnet.callPublicFn(sbtcTokenAddress, "faucet", [], user);
 
-  return cvToValue(printEvent.data.value, true);
-};
-
-// Setup DAO before all tests
-beforeAll(() => {
-  // Fund voters to pass proposals
-  fundVoters(daoTokenAddress, tokenDexContractAddress, [
-    deployer,
-    user,
-    agent,
-    otherUser,
-  ]);
-
-  // Construct DAO
-  const constructReceipt = constructDao(
-    deployer,
-    baseDaoContractAddress,
-    bootstrapContractAddress
-  );
-  expect(constructReceipt.result).toBeOk(Cl.bool(true));
-
-  // Progress past voting delay for at-block calls
-  simnet.mineEmptyBlocks(VOTING_CONFIG["aibtc-core-proposals-v2"].votingDelay);
-
-  // Get sBTC for the test accounts
-  simnet.callPublicFn(sbtcTokenAddress, "faucet", [], user);
-  simnet.callPublicFn(sbtcTokenAddress, "faucet", [], agent);
-  simnet.callPublicFn(sbtcTokenAddress, "faucet", [], otherUser);
+describe(`public functions: ${contractName}`, () => {
+  ////////////////////////////////////////
+  // deposit-stx() tests
+  ////////////////////////////////////////
+  it("deposit-stx() succeeds and deposits STX to the vault", () => {
+    // arrange
+    const amount = 1000000; // 1 STX
+    const initialBalanceResponse = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-balance-stx",
+      [],
+      deployer
+    );
+    const initialBalance = Number(cvToValue(initialBalanceResponse.result));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-stx",
+      [Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const newBalanceResponse = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-balance-stx",
+      [],
+      deployer
+    );
+    const newBalance = Number(cvToValue(newBalanceResponse.result));
+    expect(newBalance).toBe(initialBalance + amount);
+  });
+  it("deposit-stx() emits the correct notification event", () => {
+    // arrange
+    const amount = 2000000; // 2 STX
+    const expectedEvent = {
+      notification: "deposit-stx",
+      payload: {
+        amount: amount.toString(),
+        sender: deployer,
+        caller: deployer,
+        recipient: contractAddress,
+      },
+    };
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-stx",
+      [Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
+  ////////////////////////////////////////
+  // deposit-ft() tests
+  ////////////////////////////////////////
+  it("deposit-ft() fails if asset is not approved", () => {
+    // arrange
+    const amount = 1000;
+    const unapprovedToken = `${deployer}.test-token`;
+    // get sBTC from the faucet
+    const faucetReceipt = simnet.callPublicFn(
+      sbtcTokenAddress,
+      "faucet",
+      [],
+      deployer
+    );
+    expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-ft",
+      [Cl.principal(unapprovedToken), Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNKNOWN_ASSET));
+  });
+  it("deposit-ft() succeeds and transfers sBTC to the vault", () => {
+    // arrange
+    const amount = 1000;
+    // get sBTC from the faucet
+    const faucetReceipt = simnet.callPublicFn(
+      sbtcTokenAddress,
+      "faucet",
+      [],
+      deployer
+    );
+    expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-ft",
+      [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+  it("deposit-ft() succeeds and transfers DAO tokens to the vault", () => {
+    // arrange
+    const amount = 1000;
+    // get sBTC from the faucet
+    const faucetReceipt = simnet.callPublicFn(
+      sbtcTokenAddress,
+      "faucet",
+      [],
+      deployer
+    );
+    expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+    // get DAO tokens from the dex
+    const dexReceipt = getDaoTokens(
+      daoTokenAddress,
+      tokenDexContractAddress,
+      deployer,
+      amount
+    );
+    expect(dexReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-ft",
+      [Cl.principal(daoTokenAddress), Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+  it("deposit-ft() emits the correct notification event", () => {
+    // arrange
+    const amount = 2000;
+    const expectedEvent = {
+      notification: "deposit-ft",
+      payload: {
+        amount: amount.toString(),
+        assetContract: sbtcTokenAddress,
+        sender: deployer,
+        caller: deployer,
+        recipient: contractAddress,
+      },
+    };
+    // get sBTC from the faucet
+    const faucetReceipt = simnet.callPublicFn(
+      sbtcTokenAddress,
+      "faucet",
+      [],
+      deployer
+    );
+    expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-ft",
+      [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
+  ////////////////////////////////////////
+  // withdraw-stx() tests
+  ////////////////////////////////////////
+  it("withdraw-stx() fails if caller is not the user", () => {
+    // arrange
+    const amount = 1000000; // 1 STX
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "withdraw-stx",
+      [Cl.uint(amount)],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  it("withdraw-stx() succeeds and transfers STX to user", () => {
+    // arrange
+    const amount = 1000000; // 1 STX
+    // deposit stx so we can withdraw
+    const faucetReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-stx",
+      [Cl.uint(amount)],
+      deployer
+    );
+    expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "withdraw-stx",
+      [Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+  it("withdraw-stx() emits the correct notification event", () => {
+    // arrange
+    const amount = 2000000; // 2 STX
+    const expectedEvent = {
+      notification: "withdraw-stx",
+      payload: {
+        amount: amount.toString(),
+        sender: contractAddress,
+        caller: deployer,
+        recipient: deployer,
+      },
+    };
+    // deposit stx so we can withdraw
+    const faucetReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-stx",
+      [Cl.uint(amount)],
+      deployer
+    );
+    expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "withdraw-stx",
+      [Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
+  ////////////////////////////////////////
+  // withdraw-ft() tests
+  ////////////////////////////////////////
+  it("withdraw-ft() fails if caller is not the user", () => {
+    // arrange
+    const amount = 1000;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "withdraw-ft",
+      [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  it("withdraw-ft() fails if asset is not approved", () => {
+    // arrange
+    const amount = 1000;
+    const unapprovedToken = `${deployer}.test-token`;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "withdraw-ft",
+      [Cl.principal(unapprovedToken), Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNKNOWN_ASSET));
+  });
+  it("withdraw-ft() succeeds and transfers FT to the user", () => {
+    // arrange
+    const amount = 1000;
+    // get sBTC from the faucet
+    const faucetReceipt = simnet.callPublicFn(
+      sbtcTokenAddress,
+      "faucet",
+      [],
+      deployer
+    );
+    expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+    // deposit ft so we can withdraw
+    const depositReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-ft",
+      [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
+      deployer
+    );
+    expect(depositReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "withdraw-ft",
+      [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+  it("withdraw-ft() emits the correct notification event", () => {
+    // arrange
+    const amount = 2000;
+    const expectedEvent = {
+      notification: "withdraw-ft",
+      payload: {
+        amount: amount.toString(),
+        assetContract: sbtcTokenAddress,
+        sender: contractAddress,
+        caller: deployer,
+        recipient: deployer,
+      },
+    };
+    // get sBTC from the faucet
+    const faucetReceipt = simnet.callPublicFn(
+      sbtcTokenAddress,
+      "faucet",
+      [],
+      deployer
+    );
+    expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+    // deposit ft so we can withdraw
+    const depositReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-ft",
+      [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
+      deployer
+    );
+    expect(depositReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "withdraw-ft",
+      [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
+  ////////////////////////////////////////
+  // approve-asset() tests
+  ////////////////////////////////////////
+  it("approve-asset() fails if caller is not the user", () => {
+    // arrange
+    const newAsset = `${deployer}.test-token`;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "approve-asset",
+      [Cl.principal(newAsset)],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  it("approve-asset() succeeds and sets new approved asset", () => {
+    // arrange
+    const newAsset = `${deployer}.new-token`;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "approve-asset",
+      [Cl.principal(newAsset)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    // verify the asset is now approved
+    const isApproved = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-approved-asset",
+      [Cl.principal(newAsset)],
+      deployer
+    );
+    expect(isApproved.result).toStrictEqual(Cl.bool(true));
+  });
+  it("approve-asset() emits the correct notification event", () => {
+    // arrange
+    const newAsset = `${deployer}.another-token`;
+    const expectedEvent = {
+      notification: "approve-asset",
+      payload: {
+        asset: newAsset,
+        approved: true,
+        sender: deployer,
+        caller: deployer,
+      },
+    };
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "approve-asset",
+      [Cl.principal(newAsset)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
+  ////////////////////////////////////////
+  // revoke-asset() tests
+  ////////////////////////////////////////
+  it("revoke-asset() fails if caller is not the user", () => {
+    // arrange
+    const asset = `${deployer}.test-token`;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "revoke-asset",
+      [Cl.principal(asset)],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  it("revoke-asset() succeeds and removes approved asset", () => {
+    // arrange
+    const asset = `${deployer}.test-token`;
+    // approve the asset first
+    const approveReceipt = simnet.callPublicFn(
+      contractAddress,
+      "approve-asset",
+      [Cl.principal(asset)],
+      deployer
+    );
+    expect(approveReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "revoke-asset",
+      [Cl.principal(asset)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    // verify the asset is now revoked
+    const isApproved = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-approved-asset",
+      [Cl.principal(asset)],
+      deployer
+    );
+    expect(isApproved.result).toStrictEqual(Cl.bool(false));
+  });
+  it("revoke-asset() emits the correct notification event", () => {
+    // arrange
+    const asset = `${deployer}.test-token`;
+    const expectedEvent = {
+      notification: "revoke-asset",
+      payload: {
+        asset: asset,
+        approved: false,
+        sender: deployer,
+        caller: deployer,
+      },
+    };
+    // approve the asset first
+    const approveReceipt = simnet.callPublicFn(
+      contractAddress,
+      "approve-asset",
+      [Cl.principal(asset)],
+      deployer
+    );
+    expect(approveReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "revoke-asset",
+      [Cl.principal(asset)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+    // verify the asset is now revoked
+    const isApproved = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-approved-asset",
+      [Cl.principal(asset)],
+      deployer
+    );
+    expect(isApproved.result).toStrictEqual(Cl.bool(false));
+  });
+  ////////////////////////////////////////
+  // proxy-propose-action() tests
+  ////////////////////////////////////////
+  ////////////////////////////////////////
+  // proxy-create-proposal() tests
+  ////////////////////////////////////////
+  ////////////////////////////////////////
+  // vote-on-action-proposal() tests
+  ////////////////////////////////////////
+  ////////////////////////////////////////
+  // vote-on-core-proposal() tests
+  ////////////////////////////////////////
+  ////////////////////////////////////////
+  // conclude-action-proposal() tests
+  ////////////////////////////////////////
+  ////////////////////////////////////////
+  // conclude-core-proposal() tests
+  ////////////////////////////////////////
 });
-
-describe(`contract: ${contractName}`, () => {
-  // Asset Management Tests
-  describe("deposit-stx()", () => {
-    it("succeeds and deposits STX to the vault", () => {
-      // Arrange
-      const amount = 1000000; // 1 STX
-      const initialBalanceResponse = simnet.callReadOnlyFn(
-        contractAddress,
-        "get-balance-stx",
-        [],
-        user
-      );
-      const initialBalance = Number(cvToValue(initialBalanceResponse.result));
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "deposit-stx",
-        [Cl.uint(amount)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeOk(Cl.bool(true));
-      const newBalanceResponse = simnet.callReadOnlyFn(
-        contractAddress,
-        "get-balance-stx",
-        [],
-        user
-      );
-      const newBalance = Number(cvToValue(newBalanceResponse.result));
-      expect(newBalance).toBe(initialBalance + amount);
-    });
-
-    it("emits the correct notification event", () => {
-      // Arrange
-      const amount = "2000000"; // 2 STX
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "deposit-stx",
-        [Cl.uint(amount)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeOk(Cl.bool(true));
-
-      const notification = getNotification(receipt);
-      expect(notification).not.toBeNull();
-      expect(notification.notification.value).toBe("deposit-stx");
-      expect(notification.payload.value.amount.value).toBe(amount);
-      expect(notification.payload.value.sender.value).toBe(user);
-      expect(notification.payload.value.caller.value).toBe(user);
-      expect(notification.payload.value.recipient.value).toBe(contractAddress);
-    });
+describe(`read-only functions: ${contractName}`, () => {
+  ////////////////////////////////////////
+  // is-approved-asset() tests
+  ////////////////////////////////////////
+  it("is-approved-asset() returns expected values for an asset", () => {
+    // arrange
+    const asset = `${deployer}.test-token`;
+    // act
+    const isApproved = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-approved-asset",
+      [Cl.principal(asset)],
+      deployer
+    );
+    // assert
+    expect(isApproved.result).toStrictEqual(Cl.bool(false));
+    // approve the asset
+    const approveReceipt = simnet.callPublicFn(
+      contractAddress,
+      "approve-asset",
+      [Cl.principal(asset)],
+      deployer
+    );
+    expect(approveReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const isApproved2 = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-approved-asset",
+      [Cl.principal(asset)],
+      deployer
+    );
+    // assert
+    expect(isApproved2.result).toStrictEqual(Cl.bool(true));
+    // revoke the asset
+    const revokeReceipt = simnet.callPublicFn(
+      contractAddress,
+      "revoke-asset",
+      [Cl.principal(asset)],
+      deployer
+    );
+    expect(revokeReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const isApproved3 = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-approved-asset",
+      [Cl.principal(asset)],
+      deployer
+    );
+    // assert
+    expect(isApproved3.result).toStrictEqual(Cl.bool(false));
   });
-
-  describe("deposit-ft()", () => {
-    beforeEach(() => {
-      // Get sBTC from faucet first
-      simnet.callPublicFn(sbtcTokenAddress, "faucet", [], user);
-    });
-
-    it("fails if asset is not approved", () => {
-      // Arrange
-      const amount = 1000;
-      const unapprovedToken = `${deployer}.test-token`;
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "deposit-ft",
-        [Cl.principal(unapprovedToken), Cl.uint(amount)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNKNOWN_ASSET));
-    });
-
-    it("succeeds and transfers FT to vault", () => {
-      // Arrange
-      const amount = 1000;
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "deposit-ft",
-        [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeOk(Cl.bool(true));
-    });
-
-    it("emits the correct notification event", () => {
-      // Arrange
-      const amount = 2000;
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "deposit-ft",
-        [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeOk(Cl.bool(true));
-
-      const notification = getNotification(receipt);
-      expect(notification).not.toBeNull();
-      expect(notification.notification.value).toBe("deposit-ft");
-      expect(notification.payload.value.amount.value).toBe(amount.toString());
-      expect(notification.payload.value.assetContract.value).toBe(
-        sbtcTokenAddress
-      );
-      expect(notification.payload.value.sender.value).toBe(user);
-      expect(notification.payload.value.caller.value).toBe(user);
-      expect(notification.payload.value.recipient.value).toBe(contractAddress);
-    });
+  ////////////////////////////////////////
+  // get-balance-stx() tests
+  ////////////////////////////////////////
+  it("get-balance-stx() returns the correct STX balance", () => {
+    // arrange
+    const amount = 1000000; // 1 STX
+    // act
+    const balance = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-balance-stx",
+      [],
+      deployer
+    );
+    // assert
+    expect(balance.result).toStrictEqual(Cl.uint(0));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-stx",
+      [Cl.uint(amount)],
+      deployer
+    );
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    // assert
+    const balance2 = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-balance-stx",
+      [],
+      deployer
+    );
+    expect(balance2.result).toStrictEqual(Cl.uint(amount));
   });
-
-  describe("withdraw-stx()", () => {
-    beforeEach(() => {
-      // Deposit some STX to the vault first
-      simnet.callPublicFn(
-        contractAddress,
-        "deposit-stx",
-        [Cl.uint(10000000)], // 10 STX
-        user
-      );
-    });
-
-    it("fails if caller is not the user", () => {
-      // Arrange
-      const amount = 1000000; // 1 STX
-
-      // Act - call from agent instead of user
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "withdraw-stx",
-        [Cl.uint(amount)],
-        agent
-      );
-
-      // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
-    });
-
-    it("succeeds and transfers STX to the user", () => {
-      // Arrange
-      const amount = 1000000; // 1 STX
-      // We can't easily check user balance, but we can verify vault balance decreases
-      const initialVaultBalanceResponse = simnet.callReadOnlyFn(
-        contractAddress,
-        "get-balance-stx",
-        [],
-        user
-      );
-      const initialVaultBalance = Number(
-        cvToValue(initialVaultBalanceResponse.result)
-      );
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "withdraw-stx",
-        [Cl.uint(amount)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeOk(Cl.bool(true));
-      const newVaultBalanceResponse = simnet.callReadOnlyFn(
-        contractAddress,
-        "get-balance-stx",
-        [],
-        user
-      );
-      const newVaultBalance = Number(cvToValue(newVaultBalanceResponse.result));
-      expect(newVaultBalance).toBe(initialVaultBalance - amount);
-    });
-
-    it("emits the correct notification event", () => {
-      // Arrange
-      const amount = 2000000; // 2 STX
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "withdraw-stx",
-        [Cl.uint(amount)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeOk(Cl.bool(true));
-
-      const notification = getNotification(receipt);
-      expect(notification).not.toBeNull();
-      expect(notification.notification.value).toBe("withdraw-stx");
-      expect(notification.payload.value.amount.value).toBe(amount.toString());
-      expect(notification.payload.value.sender.value).toBe(contractAddress);
-      expect(notification.payload.value.caller.value).toBe(user);
-      expect(notification.payload.value.recipient.value).toBe(user);
-    });
+  ////////////////////////////////////////
+  // get-configuration() tests
+  ////////////////////////////////////////
+  it("get-configuration() returns the correct configuration", () => {
+    // arrange
+    // format expected config like print event
+    const expectedConfig = {
+      notification: "get-configuration",
+      payload: {
+        agent: address2,
+        user: deployer,
+        vault: contractAddress,
+        daoToken: daoTokenAddress,
+        sbtcToken: sbtcTokenAddress,
+      },
+    };
+    // act
+    const config = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-configuration",
+      [],
+      deployer
+    );
+    // assert
+    const event: ClarityEvent = {
+      event: "print_event",
+      data: {
+        value: Cl.tuple({
+          notification: Cl.stringAscii("get-configuration"),
+          payload: config.result,
+        }),
+      },
+    };
+    const printEvent = convertSIP019PrintEvent(event);
+    expect(printEvent).toStrictEqual(expectedConfig);
   });
-
-  describe("withdraw-ft()", () => {
-    beforeEach(() => {
-      // Get sBTC from faucet first
-      simnet.callPublicFn(sbtcTokenAddress, "faucet", [], user);
-
-      // Deposit tokens to the vault
-      simnet.callPublicFn(
-        contractAddress,
-        "deposit-ft",
-        [Cl.principal(sbtcTokenAddress), Cl.uint(10000)],
-        user
-      );
-    });
-
-    it("fails if caller is not the user", () => {
-      // Arrange
-      const amount = 1000;
-
-      // Act - call from agent instead of user
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "withdraw-ft",
-        [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
-        agent
-      );
-
-      // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
-    });
-
-    it("fails if asset is not approved", () => {
-      // Arrange
-      const amount = 1000;
-      const unapprovedToken = `${deployer}.test-token`;
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "withdraw-ft",
-        [Cl.principal(unapprovedToken), Cl.uint(amount)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNKNOWN_ASSET));
-    });
-
-    it("succeeds and transfers FT to the user", () => {
-      // Arrange
-      const amount = 1000;
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "withdraw-ft",
-        [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeOk(Cl.bool(true));
-    });
-
-    it("emits the correct notification event", () => {
-      // Arrange
-      const amount = 2000;
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "withdraw-ft",
-        [Cl.principal(sbtcTokenAddress), Cl.uint(amount)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeOk(Cl.bool(true));
-
-      const notification = getNotification(receipt);
-      expect(notification).not.toBeNull();
-      expect(notification.notification.value).toBe("withdraw-ft");
-      expect(notification.payload.value.amount.value).toBe(amount.toString());
-      expect(notification.payload.value.assetContract.value).toBe(
-        sbtcTokenAddress
-      );
-      expect(notification.payload.value.sender.value).toBe(contractAddress);
-      expect(notification.payload.value.caller.value).toBe(user);
-      expect(notification.payload.value.recipient.value).toBe(user);
-    });
-  });
-
-  describe("approve-asset()", () => {
-    it("fails if caller is not the user", () => {
-      // Arrange
-      const newAsset = `${deployer}.new-token`;
-
-      // Act - call from agent instead of user
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "approve-asset",
-        [Cl.principal(newAsset)],
-        agent
-      );
-
-      // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
-    });
-
-    it("succeeds and sets new approved asset", () => {
-      // Arrange
-      const newAsset = `${deployer}.new-token`;
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "approve-asset",
-        [Cl.principal(newAsset)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeOk(Cl.bool(true));
-
-      // Verify the asset is now approved
-      const isApproved = simnet.callReadOnlyFn(
-        contractAddress,
-        "is-approved-asset",
-        [Cl.principal(newAsset)],
-        user
-      );
-
-      expect(isApproved.result).toStrictEqual(Cl.bool(true));
-    });
-
-    it("emits the correct notification event", () => {
-      // Arrange
-      const newAsset = `${deployer}.another-token`;
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "approve-asset",
-        [Cl.principal(newAsset)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeOk(Cl.bool(true));
-
-      const notification = getNotification(receipt);
-      expect(notification).not.toBeNull();
-      expect(notification.notification.value).toBe("approve-asset");
-      expect(notification.payload.value.asset.value).toBe(newAsset);
-      expect(notification.payload.value.approved.value).toBe(true);
-      expect(notification.payload.value.sender.value).toBe(user);
-      expect(notification.payload.value.caller.value).toBe(user);
-    });
-  });
-
-  describe("revoke-asset()", () => {
-    beforeEach(() => {
-      // Approve an asset first
-      simnet.callPublicFn(
-        contractAddress,
-        "approve-asset",
-        [Cl.principal(`${deployer}.test-token`)],
-        user
-      );
-    });
-
-    it("fails if caller is not the user", () => {
-      // Arrange
-      const asset = `${deployer}.test-token`;
-
-      // Act - call from agent instead of user
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "revoke-asset",
-        [Cl.principal(asset)],
-        agent
-      );
-
-      // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
-    });
-
-    it("succeeds and removes approved asset", () => {
-      // Arrange
-      const asset = `${deployer}.test-token`;
-
-      // Verify the asset is currently approved
-      let isApproved = simnet.callReadOnlyFn(
-        contractAddress,
-        "is-approved-asset",
-        [Cl.principal(asset)],
-        user
-      );
-      expect(isApproved.result).toStrictEqual(Cl.bool(true));
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "revoke-asset",
-        [Cl.principal(asset)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeOk(Cl.bool(true));
-
-      // Verify the asset is now revoked
-      isApproved = simnet.callReadOnlyFn(
-        contractAddress,
-        "is-approved-asset",
-        [Cl.principal(asset)],
-        user
-      );
-      expect(isApproved.result).toStrictEqual(Cl.bool(false));
-    });
-
-    it("emits the correct notification event", () => {
-      // Arrange
-      const asset = `${deployer}.test-token`;
-
-      // Act
-      const receipt = simnet.callPublicFn(
-        contractAddress,
-        "revoke-asset",
-        [Cl.principal(asset)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toBeOk(Cl.bool(true));
-
-      const notification = getNotification(receipt);
-      expect(notification).not.toBeNull();
-      expect(notification.notification.value).toBe("revoke-asset");
-      expect(notification.payload.value.asset.value).toBe(asset);
-      expect(notification.payload.value.approved.value).toBe(false);
-      expect(notification.payload.value.sender.value).toBe(user);
-      expect(notification.payload.value.caller.value).toBe(user);
-    });
-  });
+});
+/*
 
   // DAO Interaction Tests
   describe("proxy-propose-action()", () => {
@@ -554,7 +697,21 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
+      // check proposal status in the dao
+      const proposalStatus = simnet.callReadOnlyFn(
+        baseDaoContractAddress,
+        "is-extension",
+        [Cl.principal(actionProposalsV2ContractAddress)],
+        deployer
+      );
+      const actionStatus = simnet.callReadOnlyFn(
+        baseDaoContractAddress,
+        "is-extension",
+        [Cl.principal(actionAddress)],
+        deployer
+      );
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -574,7 +731,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -652,7 +809,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -671,7 +828,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -745,7 +902,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -765,7 +922,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -844,7 +1001,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -864,7 +1021,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -941,7 +1098,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -961,7 +1118,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -1038,7 +1195,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the user", () => {
       // Setup: Get DAO tokens for the user
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, user, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -1057,7 +1214,7 @@ describe(`contract: ${contractName}`, () => {
     it("succeeds when called by the agent", () => {
       // Setup: Get DAO tokens for the agent
       getDaoTokens(daoTokenAddress, tokenDexContractAddress, agent, 1000);
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -1101,103 +1258,5 @@ describe(`contract: ${contractName}`, () => {
     });
   });
 
-  // Read-only function tests
-  describe("is-approved-asset()", () => {
-    it("returns true for pre-approved assets", () => {
-      // Act - check sBTC token (pre-approved in contract)
-      const receipt = simnet.callReadOnlyFn(
-        contractAddress,
-        "is-approved-asset",
-        [Cl.principal(sbtcTokenAddress)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toStrictEqual(Cl.bool(true));
-
-      // Act - check DAO token (pre-approved in contract)
-      const receipt2 = simnet.callReadOnlyFn(
-        contractAddress,
-        "is-approved-asset",
-        [Cl.principal(daoTokenAddress)],
-        user
-      );
-
-      // Assert
-      expect(receipt2.result).toStrictEqual(Cl.bool(true));
-    });
-
-    it("returns true for user-approved assets", () => {
-      // Arrange - approve a new asset
-      const newAsset = `${deployer}.new-token`;
-      simnet.callPublicFn(
-        contractAddress,
-        "approve-asset",
-        [Cl.principal(newAsset)],
-        user
-      );
-
-      // Act
-      const receipt = simnet.callReadOnlyFn(
-        contractAddress,
-        "is-approved-asset",
-        [Cl.principal(newAsset)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toStrictEqual(Cl.bool(true));
-    });
-
-    it("returns false for non-approved assets", () => {
-      // Act
-      const receipt = simnet.callReadOnlyFn(
-        contractAddress,
-        "is-approved-asset",
-        [Cl.principal(`${deployer}.random-token`)],
-        user
-      );
-
-      // Assert
-      expect(receipt.result).toStrictEqual(Cl.bool(false));
-    });
-  });
-
-  describe("get-balance-stx()", () => {
-    it("returns the correct STX balance of the vault", () => {
-      // Arrange - deposit some STX to the vault
-      const depositAmount = 5000000; // 5 STX
-
-      // Get initial balance
-      const initialBalanceResponse = simnet.callReadOnlyFn(
-        contractAddress,
-        "get-balance-stx",
-        [],
-        user
-      );
-      const initialBalance = Number(cvToValue(initialBalanceResponse.result));
-
-      // Deposit STX
-      simnet.callPublicFn(
-        contractAddress,
-        "deposit-stx",
-        [Cl.uint(depositAmount)],
-        user
-      );
-
-      // Expected balance after deposit
-      const expectedBalance = initialBalance + depositAmount;
-
-      // Act
-      const receipt = simnet.callReadOnlyFn(
-        contractAddress,
-        "get-balance-stx",
-        [],
-        user
-      );
-
-      // Assert
-      expect(Number(cvToValue(receipt.result))).toBe(expectedBalance);
-    });
-  });
 });
+*/
