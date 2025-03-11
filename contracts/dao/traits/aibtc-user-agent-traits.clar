@@ -1,6 +1,6 @@
 ;; title: aibtc-user-agent-traits
 ;; version: 1.0.0
-;; summary: A collection of traits for user agent vaults
+;; summary: A collection of traits for user agent smart wallets
 
 ;; IMPORTS
 (use-trait sip010-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
@@ -9,29 +9,29 @@
 (use-trait dao-action-proposals-trait .aibtc-dao-traits-v2.action-proposals)
 (use-trait dao-core-proposals-trait .aibtc-dao-traits-v2.core-proposals)
 
-;; USER AGENT VAULT TRAIT
+;; USER AGENT SMART WALLET TRAIT
 
-;; A vault contract that manages assets and DAO interactions between a user and an agent
-(define-trait user-agent-vault (
+;; A smart wallet contract that manages assets and DAO interactions between a user and an agent
+(define-trait user-agent-smart-wallet (
   ;; Asset Management Functions
   
-  ;; deposit STX to the vault
+  ;; deposit STX to the smart wallet
   ;; @param amount amount of microSTX to deposit
   ;; @returns (response bool uint)
   (deposit-stx (uint) (response bool uint))
   
-  ;; deposit FT to the vault
+  ;; deposit FT to the smart wallet
   ;; @param ft the fungible token contract
   ;; @param amount amount of tokens to deposit
   ;; @returns (response bool uint)
   (deposit-ft (<sip010-trait> uint) (response bool uint))
   
-  ;; withdraw STX from the vault (user only)
+  ;; withdraw STX from the smart wallet (user only)
   ;; @param amount amount of microSTX to withdraw
   ;; @returns (response bool uint)
   (withdraw-stx (uint) (response bool uint))
   
-  ;; withdraw FT from the vault (user only)
+  ;; withdraw FT from the smart wallet (user only)
   ;; @param ft the fungible token contract
   ;; @param amount amount of tokens to withdraw
   ;; @returns (response bool uint)

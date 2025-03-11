@@ -402,9 +402,9 @@ plan:
             path: contracts/dao/traits/aibtc-user-agent-traits.clar
             clarity-version: 3
         - emulated-contract-publish:
-            contract-name: aibtc-user-agent-vault
+            contract-name: aibtc-user-agent-smart-wallet
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/aibtc-user-agent-vault.clar
+            path: contracts/aibtc-user-agent-smart-wallet.clar
             clarity-version: 3
         - emulated-contract-publish:
             contract-name: aibtcdev-airdrop-2

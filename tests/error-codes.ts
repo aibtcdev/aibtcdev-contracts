@@ -135,7 +135,7 @@ export enum TokenFaktoryDexErrCode {
   ERR_TOKEN_NOT_AUTH = 401,
 }
 
-export enum UserAgentVaultErrCode {
+export enum UserAgentSmartWalletErrCode {
   ERR_UNAUTHORIZED = 1000,
   ERR_UNKNOWN_ASSET = 1001,
   ERR_OPERATION_FAILED = 1002,
