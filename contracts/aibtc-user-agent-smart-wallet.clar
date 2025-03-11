@@ -1,9 +1,9 @@
-;; title: aibtc-user-agent-vault
+;; title: aibtc-user-agent-smart-wallet
 ;; version: 1.0.0
-;; summary: A vault contract between a user and an agent for managing assets and DAO interactions
+;; summary: A smart wallet contract between a user and an agent for managing assets and DAO interactions
 
 ;; traits
-(impl-trait .aibtc-user-agent-traits.user-agent-vault)
+(impl-trait .aibtc-user-agent-traits.user-agent-smart-wallet)
 (use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 (use-trait action-trait .aibtc-dao-traits-v2.action)
 (use-trait proposal-trait .aibtc-dao-traits-v2.proposal)
@@ -13,8 +13,8 @@
 ;; constants
 (define-constant DEPLOYED_BURN_BLOCK burn-block-height)
 (define-constant DEPLOYED_STACKS_BLOCK stacks-block-height)
-(define-constant VAULT (as-contract tx-sender))
-(define-constant USER 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM) ;; user (vault owner)
+(define-constant SELF (as-contract tx-sender))
+(define-constant USER 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM) ;; user (smart wallet owner)
 (define-constant AGENT 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG) ;; agent (proposal voter)
 
 ;; Pre-approved tokens
@@ -41,10 +41,10 @@
         amount: amount,
         sender: tx-sender,
         caller: contract-caller,
-        recipient: VAULT
+        recipient: SELF
       }
     })
-    (stx-transfer? amount tx-sender VAULT)
+    (stx-transfer? amount tx-sender SELF)
   )
 )
 
@@ -58,10 +58,10 @@
         assetContract: (contract-of ft),
         sender: tx-sender,
         caller: contract-caller,
-        recipient: VAULT
+        recipient: SELF
       }
     })
-    (contract-call? ft transfer amount tx-sender VAULT none)
+    (contract-call? ft transfer amount tx-sender SELF none)
   )
 )
 
@@ -72,12 +72,12 @@
       notification: "withdraw-stx",
       payload: {
         amount: amount,
-        sender: VAULT,
+        sender: SELF,
         caller: contract-caller,
         recipient: USER
       }
     })
-    (as-contract (stx-transfer? amount VAULT USER))
+    (as-contract (stx-transfer? amount SELF USER))
   )
 )
 
@@ -90,12 +90,12 @@
       payload: {
         amount: amount,
         assetContract: (contract-of ft),
-        sender: VAULT,
+        sender: SELF,
         caller: contract-caller,
         recipient: USER
       }
     })
-    (as-contract (contract-call? ft transfer amount VAULT USER none))
+    (as-contract (contract-call? ft transfer amount SELF USER none))
   )
 )
 
@@ -240,14 +240,14 @@
 )
 
 (define-read-only (get-balance-stx)
-  (stx-get-balance VAULT)
+  (stx-get-balance SELF)
 )
 
 (define-read-only (get-configuration)
   {
     agent: AGENT,
     user: USER,
-    vault: VAULT,
+    smartWallet: SELF,
     daoToken: DAO_TOKEN,
     sbtcToken: SBTC_TOKEN,
   }
@@ -269,6 +269,6 @@
 
 ;; print creation event
 (print {
-  notification: "vault-created",
+  notification: "smart-wallet-created",
   payload: (get-configuration)
 })
