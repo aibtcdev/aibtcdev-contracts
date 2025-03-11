@@ -115,12 +115,12 @@ export function getDaoTokens(
   tokenContractAddress: string,
   tokenDexContractAddress: string,
   address: string,
-  stxAmount: number
+  satsAmount: number
 ) {
   const getDaoTokensReceipt = simnet.callPublicFn(
     tokenDexContractAddress,
     "buy",
-    [Cl.principal(tokenContractAddress), Cl.uint(stxAmount)],
+    [Cl.principal(tokenContractAddress), Cl.uint(satsAmount)],
     address
   );
 

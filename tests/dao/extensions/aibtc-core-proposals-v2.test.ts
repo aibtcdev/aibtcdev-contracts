@@ -1099,9 +1099,9 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const stacksBlockHeight = simnet.stacksBlockHeight;
     const expectedResult = Cl.tuple({
       self: Cl.principal(coreProposalsV2ContractAddress),
-      deployedBurnBlock: Cl.uint(burnBlockHeight),
-      // not sure why this works, but matching stacksBlockHeight is way off
-      deployedStacksBlock: Cl.uint(burnBlockHeight + 1),
+      // not sure why this works
+      deployedBurnBlock: Cl.uint(burnBlockHeight - 1),
+      deployedStacksBlock: Cl.uint(burnBlockHeight),
       delay: Cl.uint(coreProposalV2VoteSettings.votingDelay),
       period: Cl.uint(coreProposalV2VoteSettings.votingPeriod),
       quorum: Cl.uint(coreProposalV2VoteSettings.votingQuorum),

@@ -397,6 +397,16 @@ plan:
             path: contracts/dao/proposals/aibtc-treasury-withdraw-stx.clar
             clarity-version: 2
         - emulated-contract-publish:
+            contract-name: aibtc-user-agent-traits
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/traits/aibtc-user-agent-traits.clar
+            clarity-version: 3
+        - emulated-contract-publish:
+            contract-name: aibtc-user-agent-vault
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/aibtc-user-agent-vault.clar
+            clarity-version: 3
+        - emulated-contract-publish:
             contract-name: aibtcdev-airdrop-2
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/aibtcdev-airdrop-2.clar
@@ -456,9 +466,20 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/test/unknown-action-proposal.clar
             clarity-version: 2
+      epoch: "3.0"
+    - id: 5
+      transactions:
         - emulated-contract-publish:
             contract-name: external-proxy
             emulated-sender: ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5
             path: contracts/test/proxy.clar
             clarity-version: 2
       epoch: "3.0"
+    - id: 6
+      transactions:
+        - emulated-contract-publish:
+            contract-name: sbtc-token
+            emulated-sender: STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2
+            path: "./.cache/requirements/STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token.clar"
+            clarity-version: 3
+      epoch: "3.1"

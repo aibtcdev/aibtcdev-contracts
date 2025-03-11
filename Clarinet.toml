@@ -37,6 +37,9 @@ contract_id = 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.token-stx-v-1-2'
 [[project.requirements]]
 contract_id = 'ST3VXT52QEQPZ5246A16RFNMR1PRJ96JK6YYX37N8.xyk-pool-trait-v-1-2'
 
+[[project.requirements]]
+contract_id = 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token'
+
 # airdrop nft contracts
 
 [contracts.aibtcdev-airdrop-1]
@@ -422,4 +425,15 @@ epoch = 3.0
 [contracts.test-unknown-action-proposal]
 path = 'contracts/test/unknown-action-proposal.clar'
 clarity_version = 2
+epoch = 3.0
+
+# user agent traits and vault
+[contracts.aibtc-user-agent-traits]
+path = 'contracts/dao/traits/aibtc-user-agent-traits.clar'
+clarity_version = 3
+epoch = 3.0
+
+[contracts.aibtc-user-agent-vault]
+path = 'contracts/aibtc-user-agent-vault.clar'
+clarity_version = 3
 epoch = 3.0
