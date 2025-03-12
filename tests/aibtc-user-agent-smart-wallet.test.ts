@@ -1275,6 +1275,7 @@ describe(`read-only functions: ${contractName}`, () => {
         user: deployer,
         smartWallet: contractAddress,
         daoToken: daoTokenAddress,
+        daoTokenDex: tokenDexContractAddress,
         sbtcToken: sbtcTokenAddress,
       },
     };
