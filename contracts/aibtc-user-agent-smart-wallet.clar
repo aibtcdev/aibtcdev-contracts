@@ -21,9 +21,10 @@
 (define-constant USER 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM) ;; user (smart wallet owner)
 (define-constant AGENT 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG) ;; agent (proposal voter)
 
-;; Pre-approved tokens
+;; Pre-approved contracts
 (define-constant SBTC_TOKEN 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token) ;; sBTC token
 (define-constant DAO_TOKEN .aibtc-token) ;; DAO token
+(define-constant DAO_TOKEN_DEX .aibtc-token-dex) ;; DAO token DEX
 
 ;; Error codes
 (define-constant ERR_UNAUTHORIZED (err u1000))
@@ -328,6 +329,7 @@
     user: USER,
     smartWallet: SELF,
     daoToken: DAO_TOKEN,
+    daoTokenDex: DAO_TOKEN_DEX,
     sbtcToken: SBTC_TOKEN,
   }
 )
@@ -342,9 +344,10 @@
   (is-eq contract-caller USER)
 )
 
-;; initialize approved assets
+;; initialize approved contracts
 (map-set ApprovedAssets SBTC_TOKEN true)
 (map-set ApprovedAssets DAO_TOKEN true)
+(map-set ApprovedDexes DAO_TOKEN_DEX true)
 
 ;; print creation event
 (print {
