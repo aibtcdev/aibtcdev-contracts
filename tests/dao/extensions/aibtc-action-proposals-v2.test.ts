@@ -2,8 +2,6 @@ import {
   Cl,
   ClarityType,
   cvToValue,
-  makeContractCall,
-  makeUnsignedContractCall,
   ResponseOkCV,
   SomeCV,
 } from "@stacks/transactions";
@@ -1396,6 +1394,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
 
   it("get-voting-configuration() returns the voting configuration in the contract", () => {
+    const proposalBond = 1000n;
     const tokenPoolContractAddress = `${deployer}.${ContractType.DAO_BITFLOW_POOL}`;
     const treasuryContractAddress = `${deployer}.${ContractType.DAO_TREASURY}`;
     const burnBlockHeight = simnet.burnBlockHeight - 1; // no clue why this works
@@ -1405,6 +1404,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       deployedBurnBlock: Cl.uint(burnBlockHeight),
       // not sure why this works, but matching stacksBlockHeight is way off
       deployedStacksBlock: Cl.uint(burnBlockHeight),
+      proposalBond: Cl.uint(proposalBond),
       delay: Cl.uint(actionProposalV2VoteSettings.votingDelay),
       period: Cl.uint(actionProposalV2VoteSettings.votingPeriod),
       quorum: Cl.uint(actionProposalV2VoteSettings.votingQuorum),
