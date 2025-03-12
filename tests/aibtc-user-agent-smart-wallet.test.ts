@@ -38,7 +38,7 @@ const coreProposalVotingConfig = VOTING_CONFIG["aibtc-core-proposals-v2"];
 // Error codes
 const ErrCode = {
   ...UserAgentSmartWalletErrCode,
-  ERR_BUY_SELL_NOT_ALLOWED: 1003
+  ERR_BUY_SELL_NOT_ALLOWED: 1003,
 };
 
 function setupSmartWallet(sender: string) {
@@ -1181,7 +1181,6 @@ describe(`public functions: ${contractName}`, () => {
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
-});
   ////////////////////////////////////////
   // approve-dex() tests
   ////////////////////////////////////////
@@ -1578,7 +1577,7 @@ describe(`public functions: ${contractName}`, () => {
     const amount = 100;
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
-    
+
     // First buy some tokens to sell
     const depositReceipt = simnet.callPublicFn(
       contractAddress,
@@ -1587,7 +1586,7 @@ describe(`public functions: ${contractName}`, () => {
       deployer
     );
     expect(depositReceipt.result).toBeOk(Cl.bool(true));
-    
+
     const buyReceipt = simnet.callPublicFn(
       contractAddress,
       "buy-asset",
@@ -1595,7 +1594,7 @@ describe(`public functions: ${contractName}`, () => {
       deployer
     );
     expect(buyReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
@@ -1603,7 +1602,7 @@ describe(`public functions: ${contractName}`, () => {
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       deployer
     );
-    
+
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
@@ -1612,7 +1611,7 @@ describe(`public functions: ${contractName}`, () => {
     const amount = 100;
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
-    
+
     // First buy some tokens to sell
     const depositReceipt = simnet.callPublicFn(
       contractAddress,
@@ -1621,7 +1620,7 @@ describe(`public functions: ${contractName}`, () => {
       deployer
     );
     expect(depositReceipt.result).toBeOk(Cl.bool(true));
-    
+
     const buyReceipt = simnet.callPublicFn(
       contractAddress,
       "buy-asset",
@@ -1629,7 +1628,7 @@ describe(`public functions: ${contractName}`, () => {
       deployer
     );
     expect(buyReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // enable agent to buy/sell
     const permissionReceipt = simnet.callPublicFn(
       contractAddress,
@@ -1638,7 +1637,7 @@ describe(`public functions: ${contractName}`, () => {
       deployer
     );
     expect(permissionReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
@@ -1646,7 +1645,7 @@ describe(`public functions: ${contractName}`, () => {
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       address2 // agent address
     );
-    
+
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
@@ -1665,7 +1664,7 @@ describe(`public functions: ${contractName}`, () => {
         caller: deployer,
       },
     };
-    
+
     // First buy some tokens to sell
     const depositReceipt = simnet.callPublicFn(
       contractAddress,
@@ -1674,7 +1673,7 @@ describe(`public functions: ${contractName}`, () => {
       deployer
     );
     expect(depositReceipt.result).toBeOk(Cl.bool(true));
-    
+
     const buyReceipt = simnet.callPublicFn(
       contractAddress,
       "buy-asset",
@@ -1682,7 +1681,7 @@ describe(`public functions: ${contractName}`, () => {
       deployer
     );
     expect(buyReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
@@ -1690,7 +1689,7 @@ describe(`public functions: ${contractName}`, () => {
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       deployer
     );
-    
+
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
     const event = receipt.events[0];
@@ -1698,6 +1697,7 @@ describe(`public functions: ${contractName}`, () => {
     const printEvent = convertSIP019PrintEvent(receipt.events[0]);
     expect(printEvent).toStrictEqual(expectedEvent);
   });
+});
 
 describe(`read-only functions: ${contractName}`, () => {
   ////////////////////////////////////////
@@ -1750,7 +1750,7 @@ describe(`read-only functions: ${contractName}`, () => {
     // assert
     expect(isApproved3.result).toStrictEqual(Cl.bool(false));
   });
-  
+
   ////////////////////////////////////////
   // is-approved-asset() tests
   ////////////////////////////////////////
