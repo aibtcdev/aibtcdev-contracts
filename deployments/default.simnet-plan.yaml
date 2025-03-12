@@ -432,6 +432,11 @@ plan:
             path: contracts/test/proxy.clar
             clarity-version: 2
         - emulated-contract-publish:
+            contract-name: test-dex-1
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/extensions/aibtc-token-dex.clar
+            clarity-version: 2
+        - emulated-contract-publish:
             contract-name: test-disable-action-proposals-v2
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/test/disable-action-proposals-v2.clar
@@ -461,14 +466,14 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/test/aibtc-treasury.clar
             clarity-version: 2
+      epoch: "3.0"
+    - id: 5
+      transactions:
         - emulated-contract-publish:
             contract-name: test-unknown-action-proposal
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/test/unknown-action-proposal.clar
             clarity-version: 2
-      epoch: "3.0"
-    - id: 5
-      transactions:
         - emulated-contract-publish:
             contract-name: external-proxy
             emulated-sender: ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5
