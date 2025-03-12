@@ -30,10 +30,15 @@
 (define-constant ERR_UNAUTHORIZED (err u1000))
 (define-constant ERR_UNKNOWN_ASSET (err u1001))
 (define-constant ERR_OPERATION_FAILED (err u1002))
+(define-constant ERR_BUY_SELL_NOT_ALLOWED (err u1003))
 
 ;; data maps
 (define-map ApprovedAssets principal bool)
 (define-map ApprovedDexes principal bool)
+
+;; data vars
+
+(define-data-var agentCanBuySell bool false)
 
 ;; public functions
 
@@ -243,13 +248,13 @@
 
 (define-public (buy-asset (faktory-dex <dao-faktory-dex>) (asset <faktory-token>) (amount uint))
   (begin
-    (asserts! (is-authorized) ERR_UNAUTHORIZED)
+    (asserts! (buy-sell-allowed) ERR_BUY_SELL_NOT_ALLOWED)
     (asserts! (is-approved-dex (contract-of faktory-dex)) ERR_UNKNOWN_ASSET)
     (print {
       notification: "buy-asset",
       payload: {
         dexContract: (contract-of faktory-dex),
-        asset: asset,
+        asset: (contract-of asset),
         amount: amount,
         sender: tx-sender,
         caller: contract-caller
@@ -261,13 +266,13 @@
 
 (define-public (sell-asset (faktory-dex <dao-faktory-dex>) (asset <faktory-token>) (amount uint))
   (begin
-    (asserts! (is-authorized) ERR_UNAUTHORIZED)
+    (asserts! (buy-sell-allowed) ERR_BUY_SELL_NOT_ALLOWED)
     (asserts! (is-approved-dex (contract-of faktory-dex)) ERR_UNKNOWN_ASSET)
     (print {
       notification: "sell-asset",
       payload: {
         dexContract: (contract-of faktory-dex),
-        asset: asset,
+        asset: (contract-of asset),
         amount: amount,
         sender: tx-sender,
         caller: contract-caller
@@ -309,6 +314,21 @@
   )
 )
 
+(define-public (set-agent-can-buy-sell (canBuySell bool))
+  (begin
+    (asserts! (is-user) ERR_UNAUTHORIZED)
+    (print {
+      notification: "set-agent-can-buy-sell",
+      payload: {
+        canBuySell: canBuySell,
+        sender: tx-sender,
+        caller: contract-caller
+      }
+    })
+    (ok (var-set agentCanBuySell canBuySell))
+  )
+)
+
 ;; read only functions
 
 (define-read-only (is-approved-asset (asset principal))
@@ -342,6 +362,14 @@
 
 (define-private (is-user)
   (is-eq contract-caller USER)
+)
+
+(define-private (is-agent)
+  (is-eq contract-caller AGENT)
+)
+
+(define-private (buy-sell-allowed)
+  (or (is-user) (and (is-agent) (var-get agentCanBuySell)))
 )
 
 ;; initialize approved contracts
