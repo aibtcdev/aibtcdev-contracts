@@ -66,7 +66,7 @@ function setupSmartWallet(sender: string) {
   const depositReceipt = simnet.callPublicFn(
     contractAddress,
     "deposit-ft",
-    [Cl.principal(daoTokenAddress), Cl.uint(1000)],
+    [Cl.principal(daoTokenAddress), Cl.uint(10000)],
     sender
   );
   expect(depositReceipt.result).toBeOk(Cl.bool(true));

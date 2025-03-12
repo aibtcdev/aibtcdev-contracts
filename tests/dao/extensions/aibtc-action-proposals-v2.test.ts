@@ -2,8 +2,6 @@ import {
   Cl,
   ClarityType,
   cvToValue,
-  makeContractCall,
-  makeUnsignedContractCall,
   ResponseOkCV,
   SomeCV,
 } from "@stacks/transactions";
@@ -91,6 +89,65 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       deployer
     );
     expect(callback.result).toBeOk(Cl.bool(true));
+  });
+
+  ////////////////////////////////////////
+  // set-proposal-bond() tests
+  ////////////////////////////////////////
+
+  it("set-proposal-bond() fails if called directly", () => {
+    // arrange
+    const newBondAmount = 100;
+    // act
+    const receipt = simnet.callPublicFn(
+      actionProposalsV2ContractAddress,
+      "set-proposal-bond",
+      [Cl.uint(newBondAmount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
+  });
+
+  it("set-proposal-bond() succeeds if called by a DAO proposal", () => {
+    // arrange
+
+    // setup contract names
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_ACTION_PROPOSALS_SET_PROPOSAL_BOND}`;
+    // select voting config
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
+
+    // fund accounts for creating and voting on proposals
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // act
+    // conclude proposal
+    const concludeProposalReceipt = passCoreProposal(
+      coreProposalsContractAddress,
+      proposalContractAddress,
+      deployer,
+      [deployer, address1, address2],
+      votingConfig
+    );
+    // assert
+    expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
   });
 
   ////////////////////////////////////////
@@ -869,6 +926,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("get-proposal() succeeds and returns stored proposal data", () => {
+    const proposalBond = 1000;
     const actionProposalData = Cl.bufferFromAscii("test");
     const proposalId = 1;
     // get dao tokens for deployer, increases liquid tokens
@@ -917,6 +975,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
         concluded: Cl.bool(false),
         createdAt: Cl.uint(createdAtStacksBlock),
         creator: Cl.principal(deployer),
+        bond: Cl.uint(proposalBond),
         endBlock: Cl.uint(endBlock),
         executed: Cl.bool(false),
         liquidTokens: Cl.uint(33809918),
@@ -951,6 +1010,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   it("get-vote-record() succeeds and returns vote amount for user and proposal", () => {
     const actionProposalData = Cl.bufferFromAscii("test");
     const proposalId = 1;
+    const proposalBond = 1000;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -976,14 +1036,6 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress the chain for at-block calls
     simnet.mineEmptyBlocks(10);
-    // create proposal
-    const actionProposalReceipt = simnet.callPublicFn(
-      actionProposalsV2ContractAddress,
-      "propose-action",
-      [Cl.principal(actionProposalContractAddress), actionProposalData],
-      deployer
-    );
-    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
     // get balance for deployer
     const deployerBalance = simnet.callReadOnlyFn(
       tokenContractAddress,
@@ -998,6 +1050,14 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       [Cl.principal(address1)],
       deployer
     ).result as ResponseOkCV;
+    // create proposal
+    const actionProposalReceipt = simnet.callPublicFn(
+      actionProposalsV2ContractAddress,
+      "propose-action",
+      [Cl.principal(actionProposalContractAddress), actionProposalData],
+      deployer
+    );
+    expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
     simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
     // vote on proposal
@@ -1396,6 +1456,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
 
   it("get-voting-configuration() returns the voting configuration in the contract", () => {
+    const proposalBond = 1000n;
     const tokenPoolContractAddress = `${deployer}.${ContractType.DAO_BITFLOW_POOL}`;
     const treasuryContractAddress = `${deployer}.${ContractType.DAO_TREASURY}`;
     const burnBlockHeight = simnet.burnBlockHeight - 1; // no clue why this works
@@ -1405,6 +1466,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       deployedBurnBlock: Cl.uint(burnBlockHeight),
       // not sure why this works, but matching stacksBlockHeight is way off
       deployedStacksBlock: Cl.uint(burnBlockHeight),
+      proposalBond: Cl.uint(proposalBond),
       delay: Cl.uint(actionProposalV2VoteSettings.votingDelay),
       period: Cl.uint(actionProposalV2VoteSettings.votingPeriod),
       quorum: Cl.uint(actionProposalV2VoteSettings.votingQuorum),
@@ -1467,5 +1529,22 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       deployer
     ).result;
     expect(receipt2).toBeOk(Cl.uint(liquidSupply));
+  });
+
+  ////////////////////////////////////////
+  // get-proposal-bond() tests
+  ////////////////////////////////////////
+  it("get-proposal-bond() returns the proposal bond set in the contract", () => {
+    // arrange
+    const proposalBond = 1000;
+    // act
+    const receipt = simnet.callReadOnlyFn(
+      actionProposalsV2ContractAddress,
+      "get-proposal-bond",
+      [],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toStrictEqual(Cl.uint(proposalBond));
   });
 });

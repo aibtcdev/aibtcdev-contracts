@@ -39,6 +39,7 @@ export enum ContractActionType {
 
 export enum ContractProposalType {
   // dao proposal templates
+  DAO_ACTION_PROPOSALS_SET_PROPOSAL_BOND = "aibtc-action-proposals-set-proposal-bond",
   DAO_BANK_ACCOUNT_DEPOSIT_STX = "aibtc-bank-account-deposit-stx",
   DAO_BANK_ACCOUNT_INITIALIZE_NEW_ACCOUNT = "aibtc-bank-account-initialize-new-account",
   DAO_BANK_ACCOUNT_OVERRIDE_LAST_WITHDRAWAL = "aibtc-bank-account-override-last-withdrawal",
@@ -53,6 +54,7 @@ export enum ContractProposalType {
   DAO_BASE_ENABLE_EXTENSION = "aibtc-base-enable-extension",
   DAO_BASE_REPLACE_EXTENSION = "aibtc-base-replace-extension",
   DAO_BASE_REPLACE_EXTENSION_PROPOSAL_VOTING = "aibtc-base-replace-extension-proposal-voting",
+  DAO_CORE_PROPOSALS_SET_PROPOSAL_BOND = "aibtc-core-proposals-set-proposal-bond",
   DAO_ONCHAIN_MESSAGING_SEND = "aibtc-onchain-messaging-send",
   DAO_PAYMENTS_INVOICES_ADD_RESOURCE = "aibtc-payments-invoices-add-resource",
   DAO_PAYMENTS_INVOICES_PAY_INVOICE_BY_RESOURCE_NAME = "aibtc-payments-invoices-pay-invoice-by-resource-name",
