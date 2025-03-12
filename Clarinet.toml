@@ -428,8 +428,8 @@ clarity_version = 2
 epoch = 3.0
 
 # user agent traits and smart wallet
-[contracts.aibtc-user-agent-traits]
-path = 'contracts/dao/traits/aibtc-user-agent-traits.clar'
+[contracts.aibtc-smart-wallet-traits]
+path = 'contracts/aibtc-smart-wallet-traits.clar'
 clarity_version = 3
 epoch = 3.0
 

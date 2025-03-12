@@ -3,7 +3,9 @@
 ;; summary: A smart wallet contract between a user and an agent for managing assets and DAO interactions
 
 ;; traits
-(impl-trait .aibtc-user-agent-traits.aibtc-smart-wallet)
+(impl-trait .aibtc-smart-wallet-traits.aibtc-smart-wallet)
+(impl-trait .aibtc-smart-wallet-traits.aibtc-proposals-v2)
+(impl-trait .aibtc-smart-wallet-traits.faktory-buy-sell)
 (use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 (use-trait action-trait .aibtc-dao-traits-v2.action)
 (use-trait proposal-trait .aibtc-dao-traits-v2.proposal)
