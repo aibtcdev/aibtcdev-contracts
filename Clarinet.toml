@@ -360,22 +360,22 @@ epoch = 3.0
 # faktory contracts
 
 [contracts.aibtc-token]
-path = 'contracts/dao/extensions/aibtc-token.clar'
+path = 'contracts/dao/token/aibtc-token.clar'
 clarity_version = 2
 epoch = 3.0
 
 [contracts.aibtc-token-dex]
-path = 'contracts/dao/extensions/aibtc-token-dex.clar'
+path = 'contracts/dao/token/aibtc-token-dex.clar'
 clarity_version = 2
 epoch = 3.0
 
 [contracts.aibtc-bitflow-pool]
-path = 'contracts/dao/extensions/aibtc-bitflow-pool.clar'
+path = 'contracts/dao/token/aibtc-bitflow-pool.clar'
 clarity_version = 2
 epoch = 3.0
 
 [contracts.aibtc-pre-dex]
-path = 'contracts/aibtc-pre-dex.clar'
+path = 'contracts/dao/token/aibtc-pre-dex.clar'
 clarity_version = 2
 epoch = 2.5
 
