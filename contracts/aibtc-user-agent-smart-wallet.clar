@@ -253,7 +253,7 @@
         caller: contract-caller
       }
     })
-    (as-contract (contract-call? faktory-dex buy-exact-tokens amount asset))
+    (as-contract (contract-call? faktory-dex buy asset amount))
   )
 )
 
@@ -271,7 +271,7 @@
         caller: contract-caller
       }
     })
-    (as-contract (contract-call? faktory-dex sell-exact-tokens amount asset))
+    (as-contract (contract-call? faktory-dex sell asset amount))
   )
 )
 
