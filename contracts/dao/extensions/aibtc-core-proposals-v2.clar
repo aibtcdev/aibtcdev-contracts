@@ -62,6 +62,7 @@
     createdAt: uint, ;; stacks block height for at-block calls
     caller: principal, ;; contract caller
     creator: principal, ;; proposal creator (tx-sender)
+    bond: uint, ;; proposal bond amount
     startBlock: uint, ;; burn block height
     endBlock: uint, ;; burn block height
     votesFor: uint, ;; total votes for
@@ -137,6 +138,7 @@
         proposal: proposalContract,
         caller: contract-caller,
         creator: tx-sender,
+        bond: bondAmount,
         createdAt: createdAt,
         startBlock: startBlock,
         endBlock: endBlock,
@@ -148,6 +150,7 @@
       caller: contract-caller,
       creator: tx-sender,
       createdAt: createdAt,
+      bond: bondAmount,
       startBlock: startBlock,
       endBlock: endBlock,
       liquidTokens: liquidTokens,
@@ -239,6 +242,7 @@
       payload: {
         caller: contract-caller,
         concludedBy: tx-sender,
+        bond: (get bond proposalRecord),
         proposal: proposalContract,
         votesFor: votesFor,
         votesAgainst: votesAgainst,
@@ -261,8 +265,8 @@
     )
     ;; transfer the bond based on the outcome
     (if votePassed
-      (try! (as-contract (contract-call? .aibtc-token transfer (var-get proposalBond) SELF (get creator proposalRecord) none)))
-      (try! (as-contract (contract-call? .aibtc-token transfer (var-get proposalBond) SELF VOTING_TREASURY none)))
+      (try! (as-contract (contract-call? .aibtc-token transfer (get bond proposalRecord) SELF (get creator proposalRecord) none)))
+      (try! (as-contract (contract-call? .aibtc-token transfer (get bond proposalRecord) SELF VOTING_TREASURY none)))
     )
     ;; execute the proposal only if it passed, return false if err
     (ok (if (and notExecuted notExpired votePassed)
