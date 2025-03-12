@@ -272,8 +272,8 @@
     )
     ;; transfer the bond based on the outcome
     (if votePassed
-      (try! (contract-call? .aibtc-token transfer (var-get proposalBond) SELF (get creator proposalRecord) none))
-      (try! (contract-call? .aibtc-token transfer (var-get proposalBond) SELF VOTING_TREASURY none))
+      (try! (as-contract (contract-call? .aibtc-token transfer (var-get proposalBond) SELF (get creator proposalRecord) none)))
+      (try! (as-contract (contract-call? .aibtc-token transfer (var-get proposalBond) SELF VOTING_TREASURY none)))
     )
     ;; execute the action only if it passed, return false if err
     (ok (if (and votePassed validAction notExpired)
