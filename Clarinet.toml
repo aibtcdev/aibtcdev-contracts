@@ -165,6 +165,11 @@ epoch = 3.0
 
 # dao proposals
 
+[contracts.aibtc-action-proposals-set-proposal-bond]
+path = 'contracts/dao/proposals/aibtc-action-proposals-set-proposal-bond.clar'
+clarity_version = 2
+epoch = 3.0
+
 [contracts.aibtc-bank-account-deposit-stx]
 path = 'contracts/dao/proposals/aibtc-bank-account-deposit-stx.clar'
 clarity_version = 2
@@ -232,6 +237,11 @@ epoch = 3.0
 
 [contracts.aibtc-base-replace-extension-proposal-voting]
 path = 'contracts/dao/proposals/aibtc-base-replace-extension-proposal-voting.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-core-proposals-set-proposal-bond]
+path = 'contracts/dao/proposals/aibtc-core-proposals-set-proposal-bond.clar'
 clarity_version = 2
 epoch = 3.0
 
