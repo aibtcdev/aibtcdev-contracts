@@ -92,6 +92,24 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   ////////////////////////////////////////
+  // set-proposal-bond() tests
+  ////////////////////////////////////////
+
+  it("set-proposal-bond() fails if called directly", () => {
+    // arrange
+    const newBondAmount = 100;
+    // act
+    const receipt = simnet.callPublicFn(
+      actionProposalsV2ContractAddress,
+      "set-proposal-bond",
+      [Cl.uint(newBondAmount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
+  });
+
+  ////////////////////////////////////////
   // propose-action() tests
   ////////////////////////////////////////
 
@@ -1470,5 +1488,22 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       deployer
     ).result;
     expect(receipt2).toBeOk(Cl.uint(liquidSupply));
+  });
+
+  ////////////////////////////////////////
+  // get-proposal-bond() tests
+  ////////////////////////////////////////
+  it("get-proposal-bond() returns the proposal bond set in the contract", () => {
+    // arrange
+    const proposalBond = 1000;
+    // act
+    const receipt = simnet.callReadOnlyFn(
+      actionProposalsV2ContractAddress,
+      "get-proposal-bond",
+      [],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toStrictEqual(Cl.uint(proposalBond));
   });
 });
