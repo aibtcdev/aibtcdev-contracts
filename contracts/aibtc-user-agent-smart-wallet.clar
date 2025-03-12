@@ -11,6 +11,7 @@
 (use-trait proposal-trait .aibtc-dao-traits-v2.proposal)
 (use-trait action-proposals-trait .aibtc-dao-traits-v2.action-proposals)
 (use-trait core-proposals-trait .aibtc-dao-traits-v2.core-proposals)
+(use-trait dao-faktory-dex .aibtc-dao-traits-v2.faktory-dex)
 
 ;; constants
 (define-constant DEPLOYED_BURN_BLOCK burn-block-height)
@@ -30,6 +31,7 @@
 
 ;; data maps
 (define-map ApprovedAssets principal bool)
+(define-map ApprovedDexes principal bool)
 
 ;; public functions
 
@@ -235,10 +237,114 @@
   )
 )
 
+;; Faktory DEX Trading Functions
+
+(define-public (buy-asset (faktory-dex <dao-faktory-dex>) (asset principal) (amount uint))
+  (begin
+    (asserts! (is-authorized) ERR_UNAUTHORIZED)
+    (asserts! (is-approved-dex (contract-of faktory-dex)) ERR_UNKNOWN_ASSET)
+    (print {
+      notification: "buy-asset",
+      payload: {
+        dexContract: (contract-of faktory-dex),
+        asset: asset,
+        amount: amount,
+        sender: tx-sender,
+        caller: contract-caller
+      }
+    })
+    (match (as-contract (contract-call? faktory-dex buy-exact-tokens amount asset))
+      success (ok success)
+      error (begin
+        (print {
+          notification: "buy-asset-failed",
+          payload: {
+            dexContract: (contract-of faktory-dex),
+            asset: asset,
+            amount: amount,
+            error: error
+          }
+        })
+        ERR_OPERATION_FAILED
+      ))
+    )
+  )
+)
+
+(define-public (sell-asset (faktory-dex <dao-faktory-dex>) (asset principal) (amount uint))
+  (begin
+    (asserts! (is-authorized) ERR_UNAUTHORIZED)
+    (asserts! (is-approved-dex (contract-of faktory-dex)) ERR_UNKNOWN_ASSET)
+    (print {
+      notification: "sell-asset",
+      payload: {
+        dexContract: (contract-of faktory-dex),
+        asset: asset,
+        amount: amount,
+        sender: tx-sender,
+        caller: contract-caller
+      }
+    })
+    (match (as-contract (contract-call? faktory-dex sell-exact-tokens amount asset))
+      success (ok success)
+      error (begin
+        (print {
+          notification: "sell-asset-failed",
+          payload: {
+            dexContract: (contract-of faktory-dex),
+            asset: asset,
+            amount: amount,
+            error: error
+          }
+        })
+        ERR_OPERATION_FAILED
+      ))
+    )
+  )
+)
+
+(define-public (approve-dex (faktory-dex <dao-faktory-dex>) (asset principal))
+  (begin
+    (asserts! (is-user) ERR_UNAUTHORIZED)
+    (print {
+      notification: "approve-dex",
+      payload: {
+        dexContract: (contract-of faktory-dex),
+        asset: asset,
+        approved: true,
+        sender: tx-sender,
+        caller: contract-caller
+      }
+    })
+    (ok (map-set ApprovedDexes (contract-of faktory-dex) true))
+  )
+)
+
+(define-public (revoke-dex (faktory-dex <dao-faktory-dex>) (asset principal))
+  (begin
+    (asserts! (is-user) ERR_UNAUTHORIZED)
+    (print {
+      notification: "revoke-dex",
+      payload: {
+        dexContract: (contract-of faktory-dex),
+        asset: asset,
+        approved: false,
+        sender: tx-sender,
+        caller: contract-caller
+      }
+    })
+    (ok (map-set ApprovedDexes (contract-of faktory-dex) false))
+  )
+)
+
 ;; read only functions
 
 (define-read-only (is-approved-asset (asset principal))
   (default-to false (map-get? ApprovedAssets asset))
+)
+
+(define-read-only (is-approved-dex (dex principal))
+  (default-to false (map-get? ApprovedDexes dex))
 )
 
 (define-read-only (get-balance-stx)
