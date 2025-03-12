@@ -1156,8 +1156,8 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const expectedResult = Cl.tuple({
       self: Cl.principal(coreProposalsV2ContractAddress),
       // not sure why this works
-      deployedBurnBlock: Cl.uint(burnBlockHeight - 1),
-      deployedStacksBlock: Cl.uint(burnBlockHeight),
+      deployedBurnBlock: Cl.uint(burnBlockHeight),
+      deployedStacksBlock: Cl.uint(burnBlockHeight + 1),
       proposalBond: Cl.uint(proposalBond),
       delay: Cl.uint(coreProposalV2VoteSettings.votingDelay),
       period: Cl.uint(coreProposalV2VoteSettings.votingPeriod),
