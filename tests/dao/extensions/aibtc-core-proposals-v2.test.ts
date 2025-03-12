@@ -716,6 +716,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
   });
 
   it("get-proposal() succeeds and returns stored proposal data", () => {
+    const proposalBond = 1000;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -774,6 +775,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
         createdAt: Cl.uint(createdAtStacksBlock), // createdAt
         caller: Cl.principal(deployer),
         creator: Cl.principal(deployer),
+        bond: Cl.uint(proposalBond),
         startBlock: Cl.uint(startBlock), // createdAt + coreProposalV2VoteSettings.votingDelay
         endBlock: Cl.uint(endBlock), // createdAt + coreProposalV2VoteSettings.votingDelay + coreProposalV2VoteSettings.votingPeriod
         votesFor: Cl.uint(0),
