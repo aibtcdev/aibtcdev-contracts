@@ -16,34 +16,36 @@
   (define-constant FEE-RECEIVER 'ST3S2565C4DP2MGR3CMANMGYDCDA314Q25AQGR26R) ;; 'SMHAVPYZ8BVD0BHBBQGY5AQVVGNQY4TNHAKGPYP)
   (define-constant G-RECEIVER 'ST3CZY55VJE5P5DJAP5E58X123BZKMYDCNEZMRTV2) ;;'SM3NY5HXXRNCHS1B65R78CYAC1TQ6DEMN3C0DN74S)
 
-  (define-constant CANT-BE-EVIL 'ST000000000000000000002AMW42H) ;;'SP000000000000000000002Q6VF78)
+  (define-constant FAKTORY 'STTWD9SPRQVD3P733V89SV0P8RZRZNQADG034F0A)
+  (define-constant ORIGINATOR 'STTWD9SPRQVD3P733V89SV0P8RZRZNQADG034F0A)
   (define-constant DEX-TOKEN .aibtc-token) ;; SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22
   
   ;; token constants
-  (define-constant TARGET_STX u2000000000) ;; <%= it.stx_target_amount %>
-  (define-constant FAK_STX u400000000) ;; <%= it.virtual_stx_value %> 1/5 of STX_TARGET_AMOUNT
-  (define-constant GRAD-FEE u40000000) ;; <%= it.complete_fee % > 2% of STX_TARGET_AMOUNT
+  (define-constant TARGET_STX u5000000) ;; <%= it.stx_target_amount %>
+  (define-constant FAK_STX u1000000) ;; <%= it.virtual_stx_value %> 1/5 of STX_TARGET_AMOUNT
+  (define-constant GRAD-FEE u100000) ;; <%= it.complete_fee % > 2% of STX_TARGET_AMOUNT
   
   ;; data vars
   (define-data-var open bool false)
   (define-data-var fak-ustx uint u0)
   (define-data-var ft-balance uint u0) ;; <%= it.token_max_supply %> match with the token's supply (use decimals)
   (define-data-var stx-balance uint u0)
-  (define-data-var burn-rate uint u25)
+  (define-data-var premium uint u25)
    
-  (define-public (buy (ft <faktory-token>) (ustx uint))
+  (define-public (buy (ft <faktory-token>) (ubtc uint))
     (begin
       (asserts! (is-eq DEX-TOKEN (contract-of ft)) ERR-TOKEN-NOT-AUTH)
       (asserts! (var-get open) ERR-MARKET-CLOSED)
-      (asserts! (> ustx u0) ERR-STX-NON-POSITIVE)
+      (asserts! (> ubtc u0) ERR-STX-NON-POSITIVE)
       (let
         (
-          (in-info (unwrap! (get-in ustx) ERR-FETCHING-BUY-INFO))
+          (in-info (unwrap! (get-in ubtc) ERR-FETCHING-BUY-INFO))
           (total-stx (get total-stx in-info))
           (total-stk (get total-stk in-info))
           (total-ft (get ft-balance in-info))
           (k (get k in-info))
           (fee (get fee in-info))
+          (pre-fee (/ (* fee u40) u100))
           (stx-in (get stx-in in-info))
           (new-stk (get new-stk in-info))
           (new-ft (get new-ft in-info))
@@ -51,24 +53,30 @@
           (new-stx (get new-stx in-info))
           (ft-receiver tx-sender)
         )
-        (try! (stx-transfer? fee tx-sender FEE-RECEIVER))
-        (try! (stx-transfer? stx-in tx-sender (as-contract tx-sender)))
+        (try! (contract-call? .sbtc-token transfer (- fee pre-fee) tx-sender FEE-RECEIVER none))
+        (try! (contract-call? .sbtc-token transfer pre-fee tx-sender .name-pre-faktory none)) 
+        (try! (as-contract (contract-call? .aibtc-pre-dex create-fees-receipt pre-fee)))        
+        (try! (contract-call? .sbtc-token transfer stx-in tx-sender (as-contract tx-sender) none))
         (try! (as-contract (contract-call? ft transfer tokens-out tx-sender ft-receiver none)))
         (if (>= new-stx TARGET_STX)
-          (let ((burn-amount (/ (* new-ft (var-get burn-rate)) u100))
-                (amm-amount (- new-ft burn-amount))
+          (let ((premium-amount (/ (* new-ft (var-get premium)) u100))
+                (amm-amount (- new-ft premium-amount))
+                (agent-amount (/ (* premium-amount u60) u100))
+                (originator-amount (- premium-amount agent-amount))
                 (amm-ustx (- new-stx GRAD-FEE))
                 (xyk-pool-uri (default-to u"https://bitflow.finance" (try! (contract-call? ft get-token-uri))))
                 (xyk-burn-amount (- (sqrti (* amm-ustx amm-amount)) u1)))
-            (try! (as-contract (contract-call? ft transfer burn-amount tx-sender CANT-BE-EVIL none)))
+            (try! (as-contract (contract-call? ft transfer agent-amount tx-sender FAKTORY none)))
+            (try! (as-contract (contract-call? ft transfer originator-amount tx-sender ORIGINATOR none)))
             ;; Call XYK Core v-1-2 pool by Bitflow
             ;; <%= it.bitflow_core_contract %> <%= it.pool_contract %> <%= it.bitflow_stx_token_address %> <%= it.bitflow_fee_address %>
-            (try! (as-contract (contract-call? 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.xyk-core-v-1-2 create-pool .aibtc-bitflow-pool 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.token-stx-v-1-2 ft amm-ustx amm-amount xyk-burn-amount u10 u40 u10 u40 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1 xyk-pool-uri true)))
-            (try! (as-contract (stx-transfer? GRAD-FEE tx-sender G-RECEIVER)))
+            (try! (as-contract (contract-call? 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.xyk-core-v-1-2 create-pool .aibtc-bitflow-pool 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token ft amm-ustx amm-amount xyk-burn-amount u10 u40 u10 u40 'ST27Q7Z7P5MTJN2B3M9Q406XPCDB1VFZJ3KWX3CES xyk-pool-uri true))) ;; here 'ST27Q7Z7P5MTJN2B3M9Q406XPCDB1VFZJ3KWX3CES replaced of ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1
+            (try! (as-contract (contract-call? .sbtc-token transfer GRAD-FEE tx-sender G-RECEIVER none)))
             (var-set open false)
             (var-set stx-balance u0)
             (var-set ft-balance u0)
-            (print {type: "buy", ft: (contract-of ft), tokens-out: tokens-out, ustx: ustx, burn-amount: burn-amount, amm-amount: amm-amount,
+            (try! (as-contract (contract-call? .name-pre-faktory toggle-bonded))) 
+            (print {type: "buy", ft: (contract-of ft), tokens-out: tokens-out, ustx: ubtc, premium-amount: premium-amount, amm-amount: amm-amount,
                     amm-ustx: amm-ustx,
                     stx-balance: u0, ft-balance: u0,
                     fee: fee, grad-fee: GRAD-FEE, maker: tx-sender,
@@ -77,19 +85,19 @@
           (begin
             (var-set stx-balance new-stx)
             (var-set ft-balance new-ft)
-            (print {type: "buy", ft: (contract-of ft), tokens-out: tokens-out, ustx: ustx, maker: tx-sender,
+            (print {type: "buy", ft: (contract-of ft), tokens-out: tokens-out, ustx: ubtc, maker: tx-sender,
                     stx-balance: new-stx, ft-balance: new-ft,
                     fee: fee,
                     open: true})
             (ok true))))))
   
-  (define-read-only (get-in (ustx uint))
+  (define-read-only (get-in (ubtc uint))
     (let ((total-stx (var-get stx-balance))
           (total-stk (+ total-stx (var-get fak-ustx)))
           (total-ft (var-get ft-balance))
           (k (* total-ft total-stk))
-          (fee (/ (* ustx u2) u100))
-          (stx-in (- ustx fee))
+          (fee (/ (* ubtc u2) u100))
+          (stx-in (- ubtc fee))
           (new-stk (+ total-stk stx-in))
           (new-ft (/ k new-stk))
           (tokens-out (- total-ft new-ft))
@@ -97,12 +105,12 @@
           (stx-to-grad (/ (* raw-to-grad u103) u100)))
       (ok {
         total-stx: total-stx,
-        total-stk: total-stk, ;; new
+        total-stk: total-stk, 
         ft-balance: total-ft,
-        k: k, ;; new
+        k: k, 
         fee: fee,
         stx-in: stx-in,
-        new-stk: new-stk, ;; new
+        new-stk: new-stk, 
         new-ft: new-ft,
         tokens-out: tokens-out,
         new-stx: (+ total-stx stx-in),
@@ -125,14 +133,17 @@
           (new-stk (get new-stk out-info))
           (stx-out (get stx-out out-info))
           (fee (get fee out-info))
+          (pre-fee (/ (* fee u40) u100))
           (stx-to-receiver (get stx-to-receiver out-info))
           (new-stx (get new-stx out-info))
           (stx-receiver tx-sender)
         )
         (asserts! (>= total-stx stx-out) ERR-STX-BALANCE-TOO-LOW)
         (try! (contract-call? ft transfer amount tx-sender (as-contract tx-sender) none))
-        (try! (as-contract (stx-transfer? stx-to-receiver tx-sender stx-receiver)))
-        (try! (as-contract (stx-transfer? fee tx-sender FEE-RECEIVER)))
+          (try! (as-contract (contract-call? .sbtc-token transfer stx-to-receiver tx-sender stx-receiver none)))
+          (try! (as-contract (contract-call? .sbtc-token transfer (- fee pre-fee) tx-sender FEE-RECEIVER none))) 
+          (try! (contract-call? .sbtc-token transfer pre-fee tx-sender .name-pre-faktory none))
+          (try! (as-contract (contract-call? .name-pre-faktory create-fees-receipt pre-fee)))   
         (var-set stx-balance new-stx)
         (var-set ft-balance new-ft)
         (print {type: "sell", ft: (contract-of ft), amount: amount, stx-to-receiver: stx-to-receiver, maker: tx-sender,
@@ -153,11 +164,11 @@
           (stx-to-receiver (- stx-out fee)))
       (ok {
         total-stx: total-stx,
-        total-stk: total-stk, ;; new
+        total-stk: total-stk, 
         ft-balance: total-ft,
-        k: k, ;; new
+        k: k, 
         new-ft: new-ft,
-        new-stk: new-stk, ;; new
+        new-stk: new-stk, 
         stx-out: stx-out,
         fee: fee,
         stx-to-receiver: stx-to-receiver,
@@ -167,16 +178,21 @@
   
   (define-read-only (get-open)
     (ok (var-get open)))
-  
+
+  (define-public (open-market) 
+    (let ((is-prelaunch-allowing (unwrap-panic (contract-call? .aibtc-pre-dex is-market-open))))
+        (asserts! is-prelaunch-allowing ERR-MARKET-CLOSED)
+        (var-set stx-balance DEX-AMOUNT)
+        (var-set open true)
+        (ok true))
+  )
+
   ;; boot dex
     (begin
       (var-set fak-ustx FAK_STX)
-      (var-set ft-balance u13800000000000)
-      (var-set stx-balance u0)
-      (var-set open true)
-      (try! (stx-transfer? u500000 tx-sender 'ST3S2565C4DP2MGR3CMANMGYDCDA314Q25AQGR26R)) ;;'SMH8FRN30ERW1SX26NJTJCKTDR3H27NRJ6W75WQE))
+      (var-set ft-balance u16000000000000000)
         (print { 
-            type: "faktory-dex-trait-v1", 
+            type: "faktory-dex-trait-v1-1", 
             dexContract: (as-contract tx-sender),
             ammReceiver: 'ST295MNE41DC74QYCPRS8N37YYMC06N6Q3VQDZ6G1.xyk-core-v-1-2, ;; 'SM1793C4R5PZ4NS4VQ4WMP7SKKYVH8JZEWSZ9HCCR.xyk-core-v-1-2
             poolName: .aibtc-bitflow-pool ;; 'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.xyk-pool-stx-NAME-v1-1

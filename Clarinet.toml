@@ -1,5 +1,5 @@
 [project]
-name = 'aibtcdev-smart-contracts'
+name = 'aibtc-smart-contracts'
 description = ''
 authors = []
 telemetry = true
@@ -71,11 +71,6 @@ path = 'contracts/dao/extensions/aibtc-bank-account.clar'
 clarity_version = 2
 epoch = 3.0
 
-[contracts.aibtc-bitflow-pool]
-path = 'contracts/dao/extensions/aibtc-bitflow-pool.clar'
-clarity_version = 2
-epoch = 3.0
-
 [contracts.aibtc-dao-charter]
 path = 'contracts/dao/extensions/aibtc-dao-charter.clar'
 clarity_version = 3
@@ -93,16 +88,6 @@ epoch = 3.0
 
 [contracts.aibtc-payments-invoices]
 path = 'contracts/dao/extensions/aibtc-payments-invoices.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.aibtc-token]
-path = 'contracts/dao/extensions/aibtc-token.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.aibtc-token-dex]
-path = 'contracts/dao/extensions/aibtc-token-dex.clar'
 clarity_version = 2
 epoch = 3.0
 
@@ -371,6 +356,28 @@ epoch = 3.0
 path = 'contracts/dao/traits/aibtcdev-dao-v1.clar'
 clarity_version = 2
 epoch = 3.0
+
+# faktory contracts
+
+[contracts.aibtc-token]
+path = 'contracts/dao/extensions/aibtc-token.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-token-dex]
+path = 'contracts/dao/extensions/aibtc-token-dex.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-bitflow-pool]
+path = 'contracts/dao/extensions/aibtc-bitflow-pool.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-pre-dex]
+path = 'contracts/aibtc-pre-dex.clar'
+clarity_version = 2
+epoch = 2.5
 
 # faktory traits
 
