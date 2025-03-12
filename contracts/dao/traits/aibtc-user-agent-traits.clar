@@ -12,7 +12,7 @@
 ;; USER AGENT SMART WALLET TRAIT
 
 ;; A smart wallet contract that manages assets and DAO interactions between a user and an agent
-(define-trait user-agent-smart-wallet (
+(define-trait aibtc-smart-wallet (
   ;; Asset Management Functions
   
   ;; deposit STX to the smart wallet
