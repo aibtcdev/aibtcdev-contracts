@@ -118,13 +118,16 @@
       (startBlock (+ burn-block-height VOTING_DELAY))
       (endBlock (+ startBlock VOTING_PERIOD VOTING_DELAY))
       (senderBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
+      (bondAmount (var-get proposalBond))
     )
     ;; liquidTokens is greater than zero
     (asserts! (> liquidTokens u0) ERR_FETCHING_TOKEN_DATA)
     ;; at least one voting period passed
     (asserts! (>= burn-block-height (+ DEPLOYED_BURN_BLOCK VOTING_PERIOD)) ERR_FIRST_VOTING_PERIOD)
     ;; caller has the required balance
-    (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
+    (asserts! (> senderBalance bondAmount) ERR_INSUFFICIENT_BALANCE)
+    ;; transfer the proposal bond to this contract
+    (try! (contract-call? .aibtc-token transfer bondAmount tx-sender SELF none))
     ;; proposal was not already executed
     (asserts! (is-none (contract-call? .aibtc-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; print proposal creation event
@@ -255,6 +258,11 @@
         passed: votePassed,
         executed: (and notExecuted notExpired votePassed),
       })
+    )
+    ;; transfer the bond based on the outcome
+    (if votePassed
+      (try! (contract-call? .aibtc-token transfer (var-get proposalBond) SELF (get creator proposalRecord) none))
+      (try! (contract-call? .aibtc-token transfer (var-get proposalBond) SELF VOTING_TREASURY none))
     )
     ;; execute the proposal only if it passed, return false if err
     (ok (if (and notExecuted notExpired votePassed)

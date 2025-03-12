@@ -122,6 +122,7 @@
       (endBlock (+ startBlock VOTING_PERIOD VOTING_DELAY))
       (senderBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
       (validAction (is-action-valid action))
+      (bondAmount (var-get proposalBond))
     )
     ;; liquidTokens is greater than zero
     (asserts! (> liquidTokens u0) ERR_FETCHING_TOKEN_DATA)
@@ -130,7 +131,9 @@
     ;; at least one stx block has passed since last proposal
     (asserts! (> createdAt (var-get lastProposalCreated)) ERR_ALREADY_PROPOSAL_AT_BLOCK)
     ;; caller has the required balance
-    (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
+    (asserts! (> senderBalance bondAmount) ERR_INSUFFICIENT_BALANCE)
+    ;; transfer the proposal bond to this contract
+    (try! (contract-call? .aibtc-token transfer bondAmount tx-sender SELF none))
     ;; print proposal creation event
     (print {
       notification: "propose-action",
@@ -266,6 +269,11 @@
         passed: votePassed,
         executed: (and votePassed validAction notExpired)
       })
+    )
+    ;; transfer the bond based on the outcome
+    (if votePassed
+      (try! (contract-call? .aibtc-token transfer (var-get proposalBond) SELF (get creator proposalRecord) none))
+      (try! (contract-call? .aibtc-token transfer (var-get proposalBond) SELF VOTING_TREASURY none))
     )
     ;; execute the action only if it passed, return false if err
     (ok (if (and votePassed validAction notExpired)
