@@ -253,21 +253,7 @@
         caller: contract-caller
       }
     })
-    (match (as-contract (contract-call? faktory-dex buy-exact-tokens amount asset))
-      success (ok success)
-      error (begin
-        (print {
-          notification: "buy-asset-failed",
-          payload: {
-            dexContract: (contract-of faktory-dex),
-            asset: asset,
-            amount: amount,
-            error: error
-          }
-        })
-        ERR_OPERATION_FAILED
-      ))
-    )
+    (as-contract (contract-call? faktory-dex buy-exact-tokens amount asset))
   )
 )
 
@@ -285,21 +271,7 @@
         caller: contract-caller
       }
     })
-    (match (as-contract (contract-call? faktory-dex sell-exact-tokens amount asset))
-      success (ok success)
-      error (begin
-        (print {
-          notification: "sell-asset-failed",
-          payload: {
-            dexContract: (contract-of faktory-dex),
-            asset: asset,
-            amount: amount,
-            error: error
-          }
-        })
-        ERR_OPERATION_FAILED
-      ))
-    )
+    (as-contract (contract-call? faktory-dex sell-exact-tokens amount asset))
   )
 )
 
