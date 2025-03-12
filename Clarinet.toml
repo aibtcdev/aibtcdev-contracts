@@ -5,17 +5,6 @@ authors = []
 telemetry = true
 cache_dir = './.cache'
 
-[repl.analysis]
-passes = []
-
-[repl.analysis.check_checker]
-strict = false
-trusted_sender = false
-trusted_caller = false
-callee_filter = false
-
-# external contracts loaded by clarinet
-
 [[project.requirements]]
 contract_id = 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait'
 
@@ -39,95 +28,6 @@ contract_id = 'ST3VXT52QEQPZ5246A16RFNMR1PRJ96JK6YYX37N8.xyk-pool-trait-v-1-2'
 
 [[project.requirements]]
 contract_id = 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token'
-
-# airdrop nft contracts
-
-[contracts.aibtcdev-airdrop-1]
-path = 'contracts/aibtcdev-airdrop-1.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.aibtcdev-airdrop-2]
-path = 'contracts/aibtcdev-airdrop-2.clar'
-clarity_version = 2
-epoch = 3.0
-
-# dao base contract
-
-[contracts.aibtc-base-dao]
-path = 'contracts/dao/aibtc-base-dao.clar'
-clarity_version = 3
-epoch = 3.0
-
-# dao extensions
-
-[contracts.aibtc-action-proposals]
-path = 'contracts/dao/extensions/aibtc-action-proposals.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.aibtc-bank-account]
-path = 'contracts/dao/extensions/aibtc-bank-account.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.aibtc-bitflow-pool]
-path = 'contracts/dao/extensions/aibtc-bitflow-pool.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.aibtc-dao-charter]
-path = 'contracts/dao/extensions/aibtc-dao-charter.clar'
-clarity_version = 3
-epoch = 3.0
-
-[contracts.aibtc-core-proposals]
-path = 'contracts/dao/extensions/aibtc-core-proposals.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.aibtc-onchain-messaging]
-path = 'contracts/dao/extensions/aibtc-onchain-messaging.clar'
-clarity_version = 3
-epoch = 3.0
-
-[contracts.aibtc-payments-invoices]
-path = 'contracts/dao/extensions/aibtc-payments-invoices.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.aibtc-token]
-path = 'contracts/dao/extensions/aibtc-token.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.aibtc-token-dex]
-path = 'contracts/dao/extensions/aibtc-token-dex.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.aibtc-token-owner]
-path = 'contracts/dao/extensions/aibtc-token-owner.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.aibtc-treasury]
-path = 'contracts/dao/extensions/aibtc-treasury.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.aibtc-action-proposals-v2]
-path = 'contracts/dao/extensions/aibtc-action-proposals-v2.clar'
-clarity_version = 3
-epoch = 3.0
-
-[contracts.aibtc-core-proposals-v2]
-path = 'contracts/dao/extensions/aibtc-core-proposals-v2.clar'
-clarity_version = 3
-epoch = 3.0
-
-# dao actions (as extensions)
-
 [contracts.aibtc-action-add-resource]
 path = 'contracts/dao/extensions/actions/aibtc-action-add-resource.clar'
 clarity_version = 2
@@ -136,6 +36,16 @@ epoch = 3.0
 [contracts.aibtc-action-allow-asset]
 path = 'contracts/dao/extensions/actions/aibtc-action-allow-asset.clar'
 clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-action-proposals]
+path = 'contracts/dao/extensions/aibtc-action-proposals.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-action-proposals-v2]
+path = 'contracts/dao/extensions/aibtc-action-proposals-v2.clar'
+clarity_version = 3
 epoch = 3.0
 
 [contracts.aibtc-action-send-message]
@@ -163,7 +73,10 @@ path = 'contracts/dao/extensions/actions/aibtc-action-toggle-resource-by-name.cl
 clarity_version = 2
 epoch = 3.0
 
-# dao proposals
+[contracts.aibtc-bank-account]
+path = 'contracts/dao/extensions/aibtc-bank-account.clar'
+clarity_version = 2
+epoch = 3.0
 
 [contracts.aibtc-bank-account-deposit-stx]
 path = 'contracts/dao/proposals/aibtc-bank-account-deposit-stx.clar'
@@ -215,6 +128,11 @@ path = 'contracts/dao/proposals/aibtc-base-bootstrap-initialization-v2.clar'
 clarity_version = 2
 epoch = 3.0
 
+[contracts.aibtc-base-dao]
+path = 'contracts/dao/aibtc-base-dao.clar'
+clarity_version = 3
+epoch = 3.0
+
 [contracts.aibtc-base-disable-extension]
 path = 'contracts/dao/proposals/aibtc-base-disable-extension.clar'
 clarity_version = 2
@@ -235,13 +153,53 @@ path = 'contracts/dao/proposals/aibtc-base-replace-extension-proposal-voting.cla
 clarity_version = 2
 epoch = 3.0
 
+[contracts.aibtc-bitflow-pool]
+path = 'contracts/dao/extensions/aibtc-bitflow-pool.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-core-proposals]
+path = 'contracts/dao/extensions/aibtc-core-proposals.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-core-proposals-v2]
+path = 'contracts/dao/extensions/aibtc-core-proposals-v2.clar'
+clarity_version = 3
+epoch = 3.0
+
+[contracts.aibtc-dao-charter]
+path = 'contracts/dao/extensions/aibtc-dao-charter.clar'
+clarity_version = 3
+epoch = 3.0
+
 [contracts.aibtc-dao-charter-set-dao-charter]
 path = 'contracts/dao/proposals/aibtc-dao-charter-set-dao-charter.clar'
 clarity_version = 2
 epoch = 3.0
 
+[contracts.aibtc-dao-traits-v2]
+path = 'contracts/dao/traits/aibtc-dao-traits-v2.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-dao-v2]
+path = 'contracts/dao/traits/aibtc-dao-v2.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-onchain-messaging]
+path = 'contracts/dao/extensions/aibtc-onchain-messaging.clar'
+clarity_version = 3
+epoch = 3.0
+
 [contracts.aibtc-onchain-messaging-send]
 path = 'contracts/dao/proposals/aibtc-onchain-messaging-send.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-payments-invoices]
+path = 'contracts/dao/extensions/aibtc-payments-invoices.clar'
 clarity_version = 2
 epoch = 3.0
 
@@ -250,13 +208,13 @@ path = 'contracts/dao/proposals/aibtc-payments-invoices-add-resource.clar'
 clarity_version = 2
 epoch = 3.0
 
-[contracts.aibtc-payments-invoices-pay-invoice-by-resource-name]
-path = 'contracts/dao/proposals/aibtc-payments-invoices-pay-invoice-by-resource-name.clar'
+[contracts.aibtc-payments-invoices-pay-invoice]
+path = 'contracts/dao/proposals/aibtc-payments-invoices-pay-invoice.clar'
 clarity_version = 2
 epoch = 3.0
 
-[contracts.aibtc-payments-invoices-pay-invoice]
-path = 'contracts/dao/proposals/aibtc-payments-invoices-pay-invoice.clar'
+[contracts.aibtc-payments-invoices-pay-invoice-by-resource-name]
+path = 'contracts/dao/proposals/aibtc-payments-invoices-pay-invoice-by-resource-name.clar'
 clarity_version = 2
 epoch = 3.0
 
@@ -265,13 +223,33 @@ path = 'contracts/dao/proposals/aibtc-payments-invoices-set-payment-address.clar
 clarity_version = 2
 epoch = 3.0
 
+[contracts.aibtc-payments-invoices-toggle-resource]
+path = 'contracts/dao/proposals/aibtc-payments-invoices-toggle-resource.clar'
+clarity_version = 2
+epoch = 3.0
+
 [contracts.aibtc-payments-invoices-toggle-resource-by-name]
 path = 'contracts/dao/proposals/aibtc-payments-invoices-toggle-resource-by-name.clar'
 clarity_version = 2
 epoch = 3.0
 
-[contracts.aibtc-payments-invoices-toggle-resource]
-path = 'contracts/dao/proposals/aibtc-payments-invoices-toggle-resource.clar'
+[contracts.aibtc-pre-dex]
+path = 'contracts/aibtc-pre-dex.clar'
+clarity_version = 2
+epoch = 2.5
+
+[contracts.aibtc-token]
+path = 'contracts/dao/extensions/aibtc-token.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-token-dex]
+path = 'contracts/dao/extensions/aibtc-token-dex.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-token-owner]
+path = 'contracts/dao/extensions/aibtc-token-owner.clar'
 clarity_version = 2
 epoch = 3.0
 
@@ -282,6 +260,11 @@ epoch = 3.0
 
 [contracts.aibtc-token-owner-transfer-ownership]
 path = 'contracts/dao/proposals/aibtc-token-owner-transfer-ownership.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.aibtc-treasury]
+path = 'contracts/dao/extensions/aibtc-treasury.clar'
 clarity_version = 2
 epoch = 3.0
 
@@ -335,20 +318,23 @@ path = 'contracts/dao/proposals/aibtc-treasury-withdraw-stx.clar'
 clarity_version = 2
 epoch = 3.0
 
-# dao traits
+[contracts.aibtc-user-agent-smart-wallet]
+path = 'contracts/aibtc-user-agent-smart-wallet.clar'
+clarity_version = 3
+epoch = 3.0
 
-[contracts.aibtc-dao-traits-v2]
-path = 'contracts/dao/traits/aibtc-dao-traits-v2.clar'
+[contracts.aibtc-user-agent-traits]
+path = 'contracts/dao/traits/aibtc-user-agent-traits.clar'
+clarity_version = 3
+epoch = 3.0
+
+[contracts.aibtcdev-airdrop-1]
+path = 'contracts/aibtcdev-airdrop-1.clar'
 clarity_version = 2
 epoch = 3.0
 
-[contracts.aibtc-dao-v2]
-path = 'contracts/dao/traits/aibtc-dao-v2.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.aibtcdev-dao-traits-v1-1]
-path = 'contracts/dao/traits/aibtcdev-dao-traits-v1-1.clar'
+[contracts.aibtcdev-airdrop-2]
+path = 'contracts/aibtcdev-airdrop-2.clar'
 clarity_version = 2
 epoch = 3.0
 
@@ -357,32 +343,13 @@ path = 'contracts/dao/traits/aibtcdev-dao-traits-v1.clar'
 clarity_version = 2
 epoch = 3.0
 
+[contracts.aibtcdev-dao-traits-v1-1]
+path = 'contracts/dao/traits/aibtcdev-dao-traits-v1-1.clar'
+clarity_version = 2
+epoch = 3.0
+
 [contracts.aibtcdev-dao-v1]
 path = 'contracts/dao/traits/aibtcdev-dao-v1.clar'
-clarity_version = 2
-epoch = 3.0
-
-# faktory traits
-
-[contracts.faktory-dex-trait-v1-1]
-path = 'contracts/dao/traits/faktory-dex-trait-v1-1.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.faktory-dex-trait-v1]
-path = 'contracts/dao/traits/faktory-dex-trait-v1.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.faktory-trait-v1]
-path = 'contracts/dao/traits/faktory-trait-v1.clar'
-clarity_version = 2
-epoch = 3.0
-
-# testing utilities
-
-[contracts.test-treasury]
-path = 'contracts/test/aibtc-treasury.clar'
 clarity_version = 2
 epoch = 3.0
 
@@ -392,18 +359,23 @@ deployer = 'wallet_1'
 clarity_version = 2
 epoch = 3.0
 
+[contracts.faktory-dex-trait-v1]
+path = 'contracts/dao/traits/faktory-dex-trait-v1.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.faktory-dex-trait-v1-1]
+path = 'contracts/dao/traits/faktory-dex-trait-v1-1.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.faktory-trait-v1]
+path = 'contracts/dao/traits/faktory-trait-v1.clar'
+clarity_version = 2
+epoch = 3.0
+
 [contracts.proxy]
 path = 'contracts/test/proxy.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.test-proxy]
-path = 'contracts/test/proxy.clar'
-clarity_version = 2
-epoch = 3.0
-
-[contracts.test-token]
-path = 'contracts/test/sip010-token.clar'
 clarity_version = 2
 epoch = 3.0
 
@@ -422,18 +394,30 @@ path = 'contracts/test/disable-onchain-messaging-action.clar'
 clarity_version = 2
 epoch = 3.0
 
+[contracts.test-proxy]
+path = 'contracts/test/proxy.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.test-token]
+path = 'contracts/test/sip010-token.clar'
+clarity_version = 2
+epoch = 3.0
+
+[contracts.test-treasury]
+path = 'contracts/test/aibtc-treasury.clar'
+clarity_version = 2
+epoch = 3.0
+
 [contracts.test-unknown-action-proposal]
 path = 'contracts/test/unknown-action-proposal.clar'
 clarity_version = 2
 epoch = 3.0
+[repl.analysis]
+passes = []
 
-# user agent traits and smart wallet
-[contracts.aibtc-user-agent-traits]
-path = 'contracts/dao/traits/aibtc-user-agent-traits.clar'
-clarity_version = 3
-epoch = 3.0
-
-[contracts.aibtc-user-agent-smart-wallet]
-path = 'contracts/aibtc-user-agent-smart-wallet.clar'
-clarity_version = 3
-epoch = 3.0
+[repl.analysis.check_checker]
+strict = false
+trusted_sender = false
+trusted_caller = false
+callee_filter = false
