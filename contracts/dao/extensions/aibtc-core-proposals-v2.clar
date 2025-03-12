@@ -33,6 +33,7 @@
 (define-constant ERR_ALREADY_VOTED (err u3012))
 (define-constant ERR_FIRST_VOTING_PERIOD (err u3013))
 (define-constant ERR_DAO_NOT_ACTIVATED (err u3014))
+(define-constant ERR_INVALID_BOND_AMOUNT (err u3015))
 
 ;; voting configuration
 ;; for template: (if is-in-mainnet u432 u1)
@@ -51,6 +52,7 @@
 ;;
 (define-data-var proposalCount uint u0) ;; total number of proposals
 (define-data-var lastProposalCreated uint u0) ;; block height of last proposal created
+(define-data-var proposalBond uint u1000) ;; proposal bond amount, starts at 1000 DAO tokens
 
 ;; data maps
 ;;
@@ -60,6 +62,7 @@
     createdAt: uint, ;; stacks block height for at-block calls
     caller: principal, ;; contract caller
     creator: principal, ;; proposal creator (tx-sender)
+    bond: uint, ;; proposal bond amount
     startBlock: uint, ;; burn block height
     endBlock: uint, ;; burn block height
     votesFor: uint, ;; total votes for
@@ -87,6 +90,26 @@
   (ok true)
 )
 
+(define-public (set-proposal-bond (amount uint))
+  (begin
+    ;; check if sender is dao or extension
+    (try! (is-dao-or-extension))
+    ;; check if amount is greater than zero
+    (asserts! (> amount u0) ERR_INVALID_BOND_AMOUNT)
+    ;; print set proposal bond event
+    (print {
+      notification: "set-proposal-bond",
+      payload: {
+        amount: amount,
+        caller: contract-caller,
+        sender: tx-sender
+      }
+    })
+    ;; set the proposal bond amount
+    (ok (var-set proposalBond amount))
+  )
+)
+
 (define-public (create-proposal (proposal <proposal-trait>))
   (let
     (
@@ -96,13 +119,16 @@
       (startBlock (+ burn-block-height VOTING_DELAY))
       (endBlock (+ startBlock VOTING_PERIOD VOTING_DELAY))
       (senderBalance (unwrap! (contract-call? .aibtc-token get-balance tx-sender) ERR_FETCHING_TOKEN_DATA))
+      (bondAmount (var-get proposalBond))
     )
     ;; liquidTokens is greater than zero
     (asserts! (> liquidTokens u0) ERR_FETCHING_TOKEN_DATA)
     ;; at least one voting period passed
     (asserts! (>= burn-block-height (+ DEPLOYED_BURN_BLOCK VOTING_PERIOD)) ERR_FIRST_VOTING_PERIOD)
     ;; caller has the required balance
-    (asserts! (> senderBalance u0) ERR_INSUFFICIENT_BALANCE)
+    (asserts! (> senderBalance bondAmount) ERR_INSUFFICIENT_BALANCE)
+    ;; transfer the proposal bond to this contract
+    (try! (contract-call? .aibtc-token transfer bondAmount tx-sender SELF none))
     ;; proposal was not already executed
     (asserts! (is-none (contract-call? .aibtc-base-dao executed-at proposal)) ERR_PROPOSAL_ALREADY_EXECUTED)
     ;; print proposal creation event
@@ -112,6 +138,7 @@
         proposal: proposalContract,
         caller: contract-caller,
         creator: tx-sender,
+        bond: bondAmount,
         createdAt: createdAt,
         startBlock: startBlock,
         endBlock: endBlock,
@@ -123,6 +150,7 @@
       caller: contract-caller,
       creator: tx-sender,
       createdAt: createdAt,
+      bond: bondAmount,
       startBlock: startBlock,
       endBlock: endBlock,
       liquidTokens: liquidTokens,
@@ -214,6 +242,7 @@
       payload: {
         caller: contract-caller,
         concludedBy: tx-sender,
+        bond: (get bond proposalRecord),
         proposal: proposalContract,
         votesFor: votesFor,
         votesAgainst: votesAgainst,
@@ -233,6 +262,11 @@
         passed: votePassed,
         executed: (and notExecuted notExpired votePassed),
       })
+    )
+    ;; transfer the bond based on the outcome
+    (if votePassed
+      (try! (as-contract (contract-call? .aibtc-token transfer (get bond proposalRecord) SELF (get creator proposalRecord) none)))
+      (try! (as-contract (contract-call? .aibtc-token transfer (get bond proposalRecord) SELF VOTING_TREASURY none)))
     )
     ;; execute the proposal only if it passed, return false if err
     (ok (if (and notExecuted notExpired votePassed)
@@ -258,6 +292,10 @@
   (map-get? Proposals proposal)
 )
 
+(define-read-only (get-proposal-bond)
+  (var-get proposalBond)
+)
+
 (define-read-only (get-vote-record (proposal principal) (voter principal))
   (default-to u0 (map-get? VoteRecords {proposal: proposal, voter: voter}))
 )
@@ -281,7 +319,8 @@
     threshold: VOTING_THRESHOLD,
     tokenDex: VOTING_TOKEN_DEX,
     tokenPool: VOTING_TOKEN_POOL,
-    treasury: VOTING_TREASURY
+    treasury: VOTING_TREASURY,
+    proposalBond: (var-get proposalBond),
   }
 )
 

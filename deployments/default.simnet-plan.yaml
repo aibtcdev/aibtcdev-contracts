@@ -151,6 +151,11 @@ plan:
             path: contracts/dao/extensions/aibtc-onchain-messaging.clar
             clarity-version: 3
         - emulated-contract-publish:
+            contract-name: aibtc-action-proposals-set-proposal-bond
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/proposals/aibtc-action-proposals-set-proposal-bond.clar
+            clarity-version: 2
+        - emulated-contract-publish:
             contract-name: aibtc-action-send-message
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/extensions/actions/aibtc-action-send-message.clar
@@ -205,14 +210,14 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/proposals/aibtc-bank-account-set-withdrawal-amount.clar
             clarity-version: 2
+      epoch: "3.0"
+    - id: 3
+      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-bank-account-set-withdrawal-period
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/proposals/aibtc-bank-account-set-withdrawal-period.clar
             clarity-version: 2
-      epoch: "3.0"
-    - id: 3
-      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-bank-account-withdraw-stx
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
@@ -274,6 +279,11 @@ plan:
             path: contracts/dao/extensions/aibtc-core-proposals-v2.clar
             clarity-version: 3
         - emulated-contract-publish:
+            contract-name: aibtc-core-proposals-set-proposal-bond
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/proposals/aibtc-core-proposals-set-proposal-bond.clar
+            clarity-version: 2
+        - emulated-contract-publish:
             contract-name: aibtc-dao-charter-set-dao-charter
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/proposals/aibtc-dao-charter-set-dao-charter.clar
@@ -328,6 +338,9 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/extensions/aibtc-token-owner.clar
             clarity-version: 2
+      epoch: "3.0"
+    - id: 4
+      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-token-owner-set-token-uri
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
@@ -338,9 +351,6 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/proposals/aibtc-token-owner-transfer-ownership.clar
             clarity-version: 2
-      epoch: "3.0"
-    - id: 4
-      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-treasury-allow-asset
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
@@ -456,6 +466,9 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/test/sip010-token.clar
             clarity-version: 2
+      epoch: "3.0"
+    - id: 5
+      transactions:
         - emulated-contract-publish:
             contract-name: test-treasury
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
@@ -466,9 +479,6 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/test/unknown-action-proposal.clar
             clarity-version: 2
-      epoch: "3.0"
-    - id: 5
-      transactions:
         - emulated-contract-publish:
             contract-name: external-proxy
             emulated-sender: ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5
