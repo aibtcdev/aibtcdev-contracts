@@ -12,6 +12,7 @@
 (use-trait action-proposals-trait .aibtc-dao-traits-v2.action-proposals)
 (use-trait core-proposals-trait .aibtc-dao-traits-v2.core-proposals)
 (use-trait dao-faktory-dex .aibtc-dao-traits-v2.faktory-dex)
+(use-trait faktory-token .faktory-trait-v1.sip-010-trait)
 
 ;; constants
 (define-constant DEPLOYED_BURN_BLOCK burn-block-height)
@@ -239,7 +240,7 @@
 
 ;; Faktory DEX Trading Functions
 
-(define-public (buy-asset (faktory-dex <dao-faktory-dex>) (asset principal) (amount uint))
+(define-public (buy-asset (faktory-dex <dao-faktory-dex>) (asset <faktory-token>) (amount uint))
   (begin
     (asserts! (is-authorized) ERR_UNAUTHORIZED)
     (asserts! (is-approved-dex (contract-of faktory-dex)) ERR_UNKNOWN_ASSET)
@@ -257,7 +258,7 @@
   )
 )
 
-(define-public (sell-asset (faktory-dex <dao-faktory-dex>) (asset principal) (amount uint))
+(define-public (sell-asset (faktory-dex <dao-faktory-dex>) (asset <faktory-token>) (amount uint))
   (begin
     (asserts! (is-authorized) ERR_UNAUTHORIZED)
     (asserts! (is-approved-dex (contract-of faktory-dex)) ERR_UNKNOWN_ASSET)
@@ -275,14 +276,13 @@
   )
 )
 
-(define-public (approve-dex (faktory-dex <dao-faktory-dex>) (asset principal))
+(define-public (approve-dex (faktory-dex <dao-faktory-dex>))
   (begin
     (asserts! (is-user) ERR_UNAUTHORIZED)
     (print {
       notification: "approve-dex",
       payload: {
         dexContract: (contract-of faktory-dex),
-        asset: asset,
         approved: true,
         sender: tx-sender,
         caller: contract-caller
@@ -292,14 +292,13 @@
   )
 )
 
-(define-public (revoke-dex (faktory-dex <dao-faktory-dex>) (asset principal))
+(define-public (revoke-dex (faktory-dex <dao-faktory-dex>))
   (begin
     (asserts! (is-user) ERR_UNAUTHORIZED)
     (print {
       notification: "revoke-dex",
       payload: {
         dexContract: (contract-of faktory-dex),
-        asset: asset,
         approved: false,
         sender: tx-sender,
         caller: contract-caller

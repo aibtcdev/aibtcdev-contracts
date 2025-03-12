@@ -9,6 +9,7 @@
 (use-trait dao-action-proposals-trait .aibtc-dao-traits-v2.action-proposals)
 (use-trait dao-core-proposals-trait .aibtc-dao-traits-v2.core-proposals)
 (use-trait dao-faktory-dex .aibtc-dao-traits-v2.faktory-dex)
+(use-trait faktory-token .faktory-trait-v1.sip-010-trait)
 
 ;; SMART WALLET TRAITS
 
@@ -84,21 +85,19 @@
   ;; @param asset the asset contract principal
   ;; @param amount amount of tokens to buy
   ;; @returns (response bool uint)
-  (buy-asset (<dao-faktory-dex> principal uint) (response bool uint))
+  (buy-asset (<dao-faktory-dex> <faktory-token> uint) (response bool uint))
   ;; sell an asset to a faktory dex
   ;; @param faktory-dex the faktory dex contract
   ;; @param asset the asset contract principal
   ;; @param amount amount of tokens to sell
   ;; @returns (response bool uint)
-  (sell-asset (<dao-faktory-dex> principal uint) (response bool uint))
+  (sell-asset (<dao-faktory-dex> <faktory-token> uint) (response bool uint))
   ;; approve a dex for trading an asset
   ;; @param faktory-dex the faktory dex contract
-  ;; @param asset the asset contract principal
   ;; @returns (response bool uint)
-  (approve-dex (<dao-faktory-dex> principal) (response bool uint))
+  (approve-dex (<dao-faktory-dex>) (response bool uint))
   ;; revoke approval for a dex
   ;; @param faktory-dex the faktory dex contract
-  ;; @param asset the asset contract principal
   ;; @returns (response bool uint)
-  (revoke-dex (<dao-faktory-dex> principal) (response bool uint))
+  (revoke-dex (<dao-faktory-dex>) (response bool uint))
 ))
