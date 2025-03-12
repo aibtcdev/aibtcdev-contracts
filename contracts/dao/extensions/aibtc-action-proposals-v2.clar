@@ -33,6 +33,7 @@
 (define-constant ERR_ALREADY_VOTED (err u1012))
 (define-constant ERR_INVALID_ACTION (err u1013))
 (define-constant ERR_DAO_NOT_ACTIVATED (err u1014))
+(define-constant ERR_INVALID_BOND_AMOUNT (err u1015))
 
 ;; voting configuration
 ;; for template: (if is-in-mainnet u144 u1)
@@ -51,6 +52,7 @@
 ;;
 (define-data-var proposalCount uint u0) ;; total number of proposals
 (define-data-var lastProposalCreated uint u0) ;; block height of last proposal created
+(define-data-var proposalBond uint u1000) ;; proposal bond amount, starts at 1000 DAO tokens
 
 ;; data maps
 ;;
@@ -87,6 +89,26 @@
 ;;
 (define-public (callback (sender principal) (memo (buff 34)))
   (ok true)
+)
+
+(define-public (set-proposal-bond (amount uint))
+  (begin
+    ;; check if sender is dao or extension
+    (try! (is-dao-or-extension))
+    ;; check if amount is greater than zero
+    (asserts! (> amount u0) ERR_INVALID_BOND_AMOUNT)
+    ;; print set proposal bond event
+    (print {
+      notification: "set-proposal-bond",
+      payload: {
+        amount: amount,
+        caller: contract-caller,
+        sender: tx-sender
+      }
+    })
+    ;; set the proposal bond amount
+    (ok (var-set proposalBond amount))
+  )
 )
 
 (define-public (propose-action (action <action-trait>) (parameters (buff 2048)))
@@ -269,6 +291,10 @@
   (map-get? Proposals proposalId)
 )
 
+(define-read-only (get-proposal-bond)
+  (var-get proposalBond)
+)
+
 (define-read-only (get-vote-record (proposalId uint) (voter principal))
   (default-to u0 (map-get? VoteRecords {proposalId: proposalId, voter: voter}))
 )
@@ -292,7 +318,8 @@
     threshold: VOTING_THRESHOLD,
     tokenDex: VOTING_TOKEN_DEX,
     tokenPool: VOTING_TOKEN_POOL,
-    treasury: VOTING_TREASURY
+    treasury: VOTING_TREASURY,
+    proposalBond: (var-get proposalBond),
   }
 )
 
