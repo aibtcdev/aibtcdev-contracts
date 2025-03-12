@@ -36,7 +36,10 @@ const actionProposalVotingConfig = VOTING_CONFIG["aibtc-action-proposals-v2"];
 const coreProposalVotingConfig = VOTING_CONFIG["aibtc-core-proposals-v2"];
 
 // Error codes
-const ErrCode = UserAgentSmartWalletErrCode;
+const ErrCode = {
+  ...UserAgentSmartWalletErrCode,
+  ERR_BUY_SELL_NOT_ALLOWED: 1003
+};
 
 function setupSmartWallet(sender: string) {
   // construct the dao
@@ -1179,7 +1182,575 @@ describe(`public functions: ${contractName}`, () => {
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
 });
+  ////////////////////////////////////////
+  // approve-dex() tests
+  ////////////////////////////////////////
+  it("approve-dex() fails if caller is not the user", () => {
+    // arrange
+    const dex = `${deployer}.test-dex`;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "approve-dex",
+      [Cl.principal(dex)],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  it("approve-dex() succeeds and sets new approved dex", () => {
+    // arrange
+    const dex = `${deployer}.new-dex`;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "approve-dex",
+      [Cl.principal(dex)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    // verify the dex is now approved
+    const isApproved = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-approved-dex",
+      [Cl.principal(dex)],
+      deployer
+    );
+    expect(isApproved.result).toStrictEqual(Cl.bool(true));
+  });
+  it("approve-dex() emits the correct notification event", () => {
+    // arrange
+    const dex = `${deployer}.another-dex`;
+    const expectedEvent = {
+      notification: "approve-dex",
+      payload: {
+        dexContract: dex,
+        approved: true,
+        sender: deployer,
+        caller: deployer,
+      },
+    };
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "approve-dex",
+      [Cl.principal(dex)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
+  ////////////////////////////////////////
+  // revoke-dex() tests
+  ////////////////////////////////////////
+  it("revoke-dex() fails if caller is not the user", () => {
+    // arrange
+    const dex = `${deployer}.test-dex`;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "revoke-dex",
+      [Cl.principal(dex)],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  it("revoke-dex() succeeds and removes approved dex", () => {
+    // arrange
+    const dex = `${deployer}.test-dex`;
+    // approve the dex first
+    const approveReceipt = simnet.callPublicFn(
+      contractAddress,
+      "approve-dex",
+      [Cl.principal(dex)],
+      deployer
+    );
+    expect(approveReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "revoke-dex",
+      [Cl.principal(dex)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    // verify the dex is now revoked
+    const isApproved = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-approved-dex",
+      [Cl.principal(dex)],
+      deployer
+    );
+    expect(isApproved.result).toStrictEqual(Cl.bool(false));
+  });
+  it("revoke-dex() emits the correct notification event", () => {
+    // arrange
+    const dex = `${deployer}.test-dex`;
+    const expectedEvent = {
+      notification: "revoke-dex",
+      payload: {
+        dexContract: dex,
+        approved: false,
+        sender: deployer,
+        caller: deployer,
+      },
+    };
+    // approve the dex first
+    const approveReceipt = simnet.callPublicFn(
+      contractAddress,
+      "approve-dex",
+      [Cl.principal(dex)],
+      deployer
+    );
+    expect(approveReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "revoke-dex",
+      [Cl.principal(dex)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
+  ////////////////////////////////////////
+  // set-agent-can-buy-sell() tests
+  ////////////////////////////////////////
+  it("set-agent-can-buy-sell() fails if caller is not the user", () => {
+    // arrange
+    const canBuySell = true;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "set-agent-can-buy-sell",
+      [Cl.bool(canBuySell)],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  it("set-agent-can-buy-sell() succeeds and sets agent permission", () => {
+    // arrange
+    const canBuySell = true;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "set-agent-can-buy-sell",
+      [Cl.bool(canBuySell)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+  it("set-agent-can-buy-sell() emits the correct notification event", () => {
+    // arrange
+    const canBuySell = true;
+    const expectedEvent = {
+      notification: "set-agent-can-buy-sell",
+      payload: {
+        canBuySell: canBuySell,
+        sender: deployer,
+        caller: deployer,
+      },
+    };
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "set-agent-can-buy-sell",
+      [Cl.bool(canBuySell)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
+  ////////////////////////////////////////
+  // buy-asset() tests
+  ////////////////////////////////////////
+  it("buy-asset() fails if caller is not authorized", () => {
+    // arrange
+    const amount = 1000;
+    const dex = tokenDexContractAddress;
+    const asset = daoTokenAddress;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "buy-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_BUY_SELL_NOT_ALLOWED));
+  });
+  it("buy-asset() fails if agent can't buy/sell", () => {
+    // arrange
+    const amount = 1000;
+    const dex = tokenDexContractAddress;
+    const asset = daoTokenAddress;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "buy-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
+      address2 // agent address
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_BUY_SELL_NOT_ALLOWED));
+  });
+  it("buy-asset() fails if dex is not approved", () => {
+    // arrange
+    const amount = 1000;
+    const dex = `${deployer}.unapproved-dex`;
+    const asset = daoTokenAddress;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "buy-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNKNOWN_ASSET));
+  });
+  it("buy-asset() succeeds when called by user", () => {
+    // arrange
+    const amount = 1000;
+    const dex = tokenDexContractAddress;
+    const asset = daoTokenAddress;
+    // deposit STX to the smart wallet for buying
+    const depositReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-stx",
+      [Cl.uint(100000000)], // 100 STX
+      deployer
+    );
+    expect(depositReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "buy-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+  it("buy-asset() succeeds when called by agent with permission", () => {
+    // arrange
+    const amount = 1000;
+    const dex = tokenDexContractAddress;
+    const asset = daoTokenAddress;
+    // deposit STX to the smart wallet for buying
+    const depositReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-stx",
+      [Cl.uint(100000000)], // 100 STX
+      deployer
+    );
+    expect(depositReceipt.result).toBeOk(Cl.bool(true));
+    // enable agent to buy/sell
+    const permissionReceipt = simnet.callPublicFn(
+      contractAddress,
+      "set-agent-can-buy-sell",
+      [Cl.bool(true)],
+      deployer
+    );
+    expect(permissionReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "buy-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
+      address2 // agent address
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+  it("buy-asset() emits the correct notification event", () => {
+    // arrange
+    const amount = 1000;
+    const dex = tokenDexContractAddress;
+    const asset = daoTokenAddress;
+    const expectedEvent = {
+      notification: "buy-asset",
+      payload: {
+        dexContract: dex,
+        asset: asset,
+        amount: amount.toString(),
+        sender: deployer,
+        caller: deployer,
+      },
+    };
+    // deposit STX to the smart wallet for buying
+    const depositReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-stx",
+      [Cl.uint(100000000)], // 100 STX
+      deployer
+    );
+    expect(depositReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "buy-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
+  ////////////////////////////////////////
+  // sell-asset() tests
+  ////////////////////////////////////////
+  it("sell-asset() fails if caller is not authorized", () => {
+    // arrange
+    const amount = 1000;
+    const dex = tokenDexContractAddress;
+    const asset = daoTokenAddress;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "sell-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
+      address3
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_BUY_SELL_NOT_ALLOWED));
+  });
+  it("sell-asset() fails if agent can't buy/sell", () => {
+    // arrange
+    const amount = 1000;
+    const dex = tokenDexContractAddress;
+    const asset = daoTokenAddress;
+    // disable agent buy/sell
+    const permissionReceipt = simnet.callPublicFn(
+      contractAddress,
+      "set-agent-can-buy-sell",
+      [Cl.bool(false)],
+      deployer
+    );
+    expect(permissionReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "sell-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
+      address2 // agent address
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_BUY_SELL_NOT_ALLOWED));
+  });
+  it("sell-asset() fails if dex is not approved", () => {
+    // arrange
+    const amount = 1000;
+    const dex = `${deployer}.unapproved-dex`;
+    const asset = daoTokenAddress;
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "sell-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNKNOWN_ASSET));
+  });
+  it("sell-asset() succeeds when called by user", () => {
+    // arrange
+    const amount = 100;
+    const dex = tokenDexContractAddress;
+    const asset = daoTokenAddress;
+    
+    // First buy some tokens to sell
+    const depositReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-stx",
+      [Cl.uint(100000000)], // 100 STX
+      deployer
+    );
+    expect(depositReceipt.result).toBeOk(Cl.bool(true));
+    
+    const buyReceipt = simnet.callPublicFn(
+      contractAddress,
+      "buy-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(1000)],
+      deployer
+    );
+    expect(buyReceipt.result).toBeOk(Cl.bool(true));
+    
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "sell-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
+      deployer
+    );
+    
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+  it("sell-asset() succeeds when called by agent with permission", () => {
+    // arrange
+    const amount = 100;
+    const dex = tokenDexContractAddress;
+    const asset = daoTokenAddress;
+    
+    // First buy some tokens to sell
+    const depositReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-stx",
+      [Cl.uint(100000000)], // 100 STX
+      deployer
+    );
+    expect(depositReceipt.result).toBeOk(Cl.bool(true));
+    
+    const buyReceipt = simnet.callPublicFn(
+      contractAddress,
+      "buy-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(1000)],
+      deployer
+    );
+    expect(buyReceipt.result).toBeOk(Cl.bool(true));
+    
+    // enable agent to buy/sell
+    const permissionReceipt = simnet.callPublicFn(
+      contractAddress,
+      "set-agent-can-buy-sell",
+      [Cl.bool(true)],
+      deployer
+    );
+    expect(permissionReceipt.result).toBeOk(Cl.bool(true));
+    
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "sell-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
+      address2 // agent address
+    );
+    
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+  });
+  it("sell-asset() emits the correct notification event", () => {
+    // arrange
+    const amount = 100;
+    const dex = tokenDexContractAddress;
+    const asset = daoTokenAddress;
+    const expectedEvent = {
+      notification: "sell-asset",
+      payload: {
+        dexContract: dex,
+        asset: asset,
+        amount: amount.toString(),
+        sender: deployer,
+        caller: deployer,
+      },
+    };
+    
+    // First buy some tokens to sell
+    const depositReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit-stx",
+      [Cl.uint(100000000)], // 100 STX
+      deployer
+    );
+    expect(depositReceipt.result).toBeOk(Cl.bool(true));
+    
+    const buyReceipt = simnet.callPublicFn(
+      contractAddress,
+      "buy-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(1000)],
+      deployer
+    );
+    expect(buyReceipt.result).toBeOk(Cl.bool(true));
+    
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "sell-asset",
+      [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
+      deployer
+    );
+    
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
+
 describe(`read-only functions: ${contractName}`, () => {
+  ////////////////////////////////////////
+  // is-approved-dex() tests
+  ////////////////////////////////////////
+  it("is-approved-dex() returns expected values for a dex", () => {
+    // arrange
+    const dex = `${deployer}.test-dex`;
+    // act
+    const isApproved = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-approved-dex",
+      [Cl.principal(dex)],
+      deployer
+    );
+    // assert
+    expect(isApproved.result).toStrictEqual(Cl.bool(false));
+    // approve the dex
+    const approveReceipt = simnet.callPublicFn(
+      contractAddress,
+      "approve-dex",
+      [Cl.principal(dex)],
+      deployer
+    );
+    expect(approveReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const isApproved2 = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-approved-dex",
+      [Cl.principal(dex)],
+      deployer
+    );
+    // assert
+    expect(isApproved2.result).toStrictEqual(Cl.bool(true));
+    // revoke the dex
+    const revokeReceipt = simnet.callPublicFn(
+      contractAddress,
+      "revoke-dex",
+      [Cl.principal(dex)],
+      deployer
+    );
+    expect(revokeReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const isApproved3 = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-approved-dex",
+      [Cl.principal(dex)],
+      deployer
+    );
+    // assert
+    expect(isApproved3.result).toStrictEqual(Cl.bool(false));
+  });
+  
   ////////////////////////////////////////
   // is-approved-asset() tests
   ////////////////////////////////////////
