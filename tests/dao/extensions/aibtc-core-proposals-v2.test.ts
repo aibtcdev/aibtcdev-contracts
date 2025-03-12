@@ -833,14 +833,6 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress the chain past the first voting period
     simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingPeriod);
-    // create proposal
-    const coreProposalReceipt = simnet.callPublicFn(
-      coreProposalsV2ContractAddress,
-      "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
-      deployer
-    );
-    expect(coreProposalReceipt.result).toBeOk(Cl.bool(true));
     // get balance for deployer
     const deployerBalance = simnet.callReadOnlyFn(
       tokenContractAddress,
@@ -855,6 +847,14 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       [Cl.principal(address1)],
       deployer
     ).result as ResponseOkCV;
+    // create proposal
+    const coreProposalReceipt = simnet.callPublicFn(
+      coreProposalsV2ContractAddress,
+      "create-proposal",
+      [Cl.principal(coreProposalContactAddress)],
+      deployer
+    );
+    expect(coreProposalReceipt.result).toBeOk(Cl.bool(true));
     // progress past voting delay for at-block calls
     simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingDelay);
     // vote on proposal
