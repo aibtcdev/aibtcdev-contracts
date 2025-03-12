@@ -1,14 +1,3 @@
-/*
-(define-read-only (get-contract-status)
-    (ok 
-    {
-        is-period-1-expired: (is-period-1-expired),
-        is-distribution-period: (> (var-get distribution-height) u0),
-        total-users: (var-get total-users),
-        total-seats-taken: (var-get total-seats-taken)
-    }))
-*/
-
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 
