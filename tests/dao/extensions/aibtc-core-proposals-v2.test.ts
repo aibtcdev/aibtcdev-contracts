@@ -97,6 +97,47 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
   });
 
+  it("set-proposal-bond() succeeds if called by a DAO proposal", () => {
+    // arrange
+
+    // setup contract names
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_CORE_PROPOSALS_SET_PROPOSAL_BOND}`;
+    // select voting config
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
+
+    // fund accounts for creating and voting on proposals
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+
+    // construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // act
+    // conclude proposal
+    const concludeProposalReceipt = passCoreProposal(
+      coreProposalsContractAddress,
+      proposalContractAddress,
+      deployer,
+      [deployer, address1, address2],
+      votingConfig
+    );
+    // assert
+    expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
+  });
+
   ////////////////////////////////////////
   // create-proposal() tests
   ////////////////////////////////////////
