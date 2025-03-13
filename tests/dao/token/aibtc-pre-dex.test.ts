@@ -13,6 +13,13 @@ describe(`token: ${contractName}`, () => {
   it("get-contract-status() should return the contract status", () => {
     // arrange
     const expectedObject = Cl.tuple({
+      "accelerated-vesting": Cl.bool(false),
+      "deployment-height": Cl.uint(5), // hardcoded for now
+      "distribution-height": Cl.uint(0),
+      "expiration-period": Cl.uint(2100),
+      "governance-active": Cl.bool(false),
+      "market-open": Cl.bool(false),
+      "seat-holders": Cl.list([]),
       "is-period-1-expired": Cl.bool(false),
       "is-distribution-period": Cl.bool(false),
       "total-users": Cl.uint(0),
