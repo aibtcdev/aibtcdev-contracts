@@ -12,7 +12,7 @@ const contractAddress = `${deployer}.${contractName}`;
 const tokenContractName = "aibtc-token";
 const tokenContractAddress = `${deployer}.${tokenContractName}`;
 
-describe(`extension: ${contractName}`, () => {
+describe(`token: ${contractName}`, () => {
   it("buy() succeeds and transfers token to buyer", () => {
     const buyAmount = 1000000; // 1 STX
     const receipt = simnet.callPublicFn(

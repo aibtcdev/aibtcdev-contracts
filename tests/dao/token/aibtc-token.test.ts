@@ -9,7 +9,7 @@ const address2 = accounts.get("wallet_2")!;
 const contractName = "aibtc-token";
 const contractAddress = `${deployer}.${contractName}`;
 
-describe(`extension: ${contractName}`, () => {
+describe(`token: ${contractName}`, () => {
   it("get-symbol() should return the token symbol", () => {
     const result = simnet.callReadOnlyFn(
       contractAddress,
