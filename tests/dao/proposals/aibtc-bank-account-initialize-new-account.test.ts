@@ -4,7 +4,7 @@ import { OnchainMessagingErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
-const contractName = "aibtc-bank-account-initialize-new-account";
+const contractName = "aibtc-timed-vault-initialize-new-account";
 const contractAddress = `${deployer}.${contractName}`;
 
 const expectedErr = Cl.uint(OnchainMessagingErrCode.ERR_UNAUTHORIZED);

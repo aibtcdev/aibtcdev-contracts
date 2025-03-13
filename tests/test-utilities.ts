@@ -61,7 +61,7 @@ export function generateContractNames(tokenSymbol: string): ContractNames {
     [ContractType.DAO_BASE]: `${tokenSymbol.toLowerCase()}-base-dao`,
     [ContractType.DAO_ACTION_PROPOSALS]: `${tokenSymbol.toLowerCase()}-action-proposals`,
     [ContractType.DAO_ACTION_PROPOSALS_V2]: `${tokenSymbol.toLowerCase()}-action-proposals-v2`,
-    [ContractType.DAO_BANK_ACCOUNT]: `${tokenSymbol.toLowerCase()}-bank-account`,
+    [ContractType.DAO_TIMED_VAULT]: `${tokenSymbol.toLowerCase()}-timed-vault`,
     [ContractType.DAO_CHARTER]: `${tokenSymbol.toLowerCase()}-dao-charter`,
     [ContractType.DAO_CORE_PROPOSALS]: `${tokenSymbol.toLowerCase()}-core-proposals`,
     [ContractType.DAO_CORE_PROPOSALS_V2]: `${tokenSymbol.toLowerCase()}-core-proposals-v2`,

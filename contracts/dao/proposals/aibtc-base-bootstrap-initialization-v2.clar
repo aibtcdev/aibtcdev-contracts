@@ -10,7 +10,7 @@
       (list
         {extension: .aibtc-dao-charter, enabled: true}
         {extension: .aibtc-action-proposals-v2, enabled: true}
-        {extension: .aibtc-bank-account, enabled: true}
+        {extension: .aibtc-timed-vault, enabled: true}
         {extension: .aibtc-core-proposals-v2, enabled: true}
         {extension: .aibtc-onchain-messaging, enabled: true}
         {extension: .aibtc-payments-invoices, enabled: true}

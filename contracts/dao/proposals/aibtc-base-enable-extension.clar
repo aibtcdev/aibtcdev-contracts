@@ -5,7 +5,7 @@
 (define-constant CFG_MESSAGE "Executed Core Proposal: Enabled extension in DAO")
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 ;; was CFG_BASE_DAO .aibtc-base-dao
-;; was CFG_EXTENSION .aibtc-bank-account
+;; was CFG_EXTENSION .aibtc-timed-vault
 
 ;; errors
 (define-constant ERR_EXTENSION_NOT_FOUND (err u3003))
@@ -16,9 +16,9 @@
     ;; send a message from the dao
     (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
     ;; check that extension exists, avoids write if not
-    (asserts! (contract-call? .aibtc-base-dao is-extension .aibtc-bank-account) ERR_EXTENSION_NOT_FOUND)
+    (asserts! (contract-call? .aibtc-base-dao is-extension .aibtc-timed-vault) ERR_EXTENSION_NOT_FOUND)
     ;; update extension status
-    (try! (contract-call? .aibtc-base-dao set-extension .aibtc-bank-account true))
+    (try! (contract-call? .aibtc-base-dao set-extension .aibtc-timed-vault true))
     (ok true)
   )
 )

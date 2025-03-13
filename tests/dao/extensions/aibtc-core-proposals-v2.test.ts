@@ -1003,9 +1003,9 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeUint(expectedProposals);
     // create 10 proposals
     const coreProposals = [
-      getContract(ContractProposalType.DAO_BANK_ACCOUNT_DEPOSIT_STX),
-      getContract(ContractProposalType.DAO_BANK_ACCOUNT_WITHDRAW_STX),
-      getContract(ContractProposalType.DAO_BANK_ACCOUNT_SET_ACCOUNT_HOLDER),
+      getContract(ContractProposalType.DAO_TIMED_VAULT_DEPOSIT_STX),
+      getContract(ContractProposalType.DAO_TIMED_VAULT_WITHDRAW_STX),
+      getContract(ContractProposalType.DAO_TIMED_VAULT_SET_ACCOUNT_HOLDER),
       getContract(ContractProposalType.DAO_BASE_ADD_NEW_EXTENSION),
       getContract(ContractProposalType.DAO_BASE_DISABLE_EXTENSION),
       getContract(ContractProposalType.DAO_PAYMENTS_INVOICES_ADD_RESOURCE),

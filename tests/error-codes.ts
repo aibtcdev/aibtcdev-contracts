@@ -44,7 +44,7 @@ export enum ActionErrCode {
   ERR_INVALID_PARAMS,
 }
 
-export enum BankAccountErrCode {
+export enum TimedVaultErrCode {
   ERR_INVALID = 2000,
   ERR_UNAUTHORIZED,
   ERR_TOO_SOON,

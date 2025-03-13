@@ -16,7 +16,7 @@
     ;; verify within limits for low quorum
     ;; more than 0, less than 100 STX (100_000_000)
     (asserts! (and (> amount u0) (< amount u100000000)) ERR_INVALID_PARAMS)
-    (contract-call? .aibtc-bank-account set-withdrawal-amount amount)
+    (contract-call? .aibtc-timed-vault set-withdrawal-amount amount)
   )
 )
 

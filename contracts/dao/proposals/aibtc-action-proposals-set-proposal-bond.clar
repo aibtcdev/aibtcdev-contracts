@@ -9,7 +9,7 @@
   (begin
     ;; send a message from the dao
     (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true)) ;; CFG_MESSAGE_CONTRACT
-    ;; deposit STX in the bank account
+    ;; deposit STX in the timed vault
     (contract-call? .aibtc-action-proposals-v2 set-proposal-bond CFG_BOND_AMOUNT) ;; CFG_BOND_AMOUNT
   )
 )
