@@ -44,6 +44,7 @@
 (define-constant VOTING_THRESHOLD u90) ;; 90% of votes must be in favor
 
 ;; contracts used for voting calculations
+(define-constant VOTING_TOKEN_PRE_DEX .aibtc-pre-dex)
 (define-constant VOTING_TOKEN_DEX .aibtc-token-dex)
 (define-constant VOTING_TOKEN_POOL .aibtc-bitflow-pool)
 (define-constant VOTING_TREASURY .aibtc-treasury)
@@ -329,11 +330,13 @@
     (
       (blockHash (unwrap! (get-block-hash blockHeight) ERR_RETRIEVING_START_BLOCK_HASH))
       (totalSupply (unwrap! (at-block blockHash (contract-call? .aibtc-token get-total-supply)) ERR_FETCHING_TOKEN_DATA))
+      (preDexBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_PRE_DEX)) ERR_FETCHING_TOKEN_DATA))
       (dexBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_DEX)) ERR_FETCHING_TOKEN_DATA))
       (poolBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_POOL)) ERR_FETCHING_TOKEN_DATA))
       (treasuryBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TREASURY)) ERR_FETCHING_TOKEN_DATA))
+      (totalLocked (+ preDexBalance dexBalance poolBalance treasuryBalance))
     )
-    (ok (- totalSupply (+ dexBalance poolBalance treasuryBalance)))
+    (ok (- totalSupply totalLocked))
   )
 )
 
