@@ -43,6 +43,12 @@ fi
 echo -e "\nChecking test file coverage..."
 echo "==================================="
 for contract in "${contracts[@]}"; do
+    # band-aid to skip trait file in diff location
+    if [[ "$contract" == *"aibtc-smart-wallet-traits.clar"* ]]; then
+        echo "⏩ Skipping excluded file: $contract"
+        continue
+    fi
+
     let "total_contracts=total_contracts+1"
     test_file=$(get_test_path "$contract")
     

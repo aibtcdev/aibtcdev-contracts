@@ -45,11 +45,23 @@ contract_id = 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token'
 [contracts.aibtcdev-airdrop-1]
 path = 'contracts/aibtcdev-airdrop-1.clar'
 clarity_version = 2
-epoch = 3.1
+epoch = 3.0
 
 [contracts.aibtcdev-airdrop-2]
 path = 'contracts/aibtcdev-airdrop-2.clar'
 clarity_version = 2
+epoch = 3.0
+
+# smart wallet and traits
+
+[contracts.aibtc-smart-wallet-traits]
+path = 'contracts/aibtc-smart-wallet-traits.clar'
+clarity_version = 3
+epoch = 3.1
+
+[contracts.aibtc-user-agent-smart-wallet]
+path = 'contracts/aibtc-user-agent-smart-wallet.clar'
+clarity_version = 3
 epoch = 3.1
 
 # dao base contract
@@ -444,13 +456,12 @@ path = 'contracts/test/unknown-action-proposal.clar'
 clarity_version = 2
 epoch = 3.1
 
-# user agent traits and smart wallet
-[contracts.aibtc-user-agent-traits]
-path = 'contracts/dao/traits/aibtc-user-agent-traits.clar'
-clarity_version = 3
+[contracts.test-dex-1]
+path = 'contracts/dao/token/aibtc-token-dex.clar'
+clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-user-agent-smart-wallet]
-path = 'contracts/aibtc-user-agent-smart-wallet.clar'
-clarity_version = 3
+[contracts.test-dex-2]
+path = 'contracts/dao/token/aibtc-token-dex.clar'
+clarity_version = 2
 epoch = 3.1
