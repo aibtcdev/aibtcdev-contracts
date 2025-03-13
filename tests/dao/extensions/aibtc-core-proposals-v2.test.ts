@@ -85,7 +85,7 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
 
   it("set-proposal-bond() fails if called directly", () => {
     // arrange
-    const newBondAmount = 100;
+    const newBondAmount = 10000000000;
     // act
     const receipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
@@ -775,7 +775,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
   });
 
   it("get-proposal() succeeds and returns stored proposal data", () => {
-    const proposalBond = 100000000000;
+    const proposalBond = coreProposalV2VoteSettings.votingBond;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -1148,7 +1148,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
 
   it("get-voting-configuration() returns the voting configuration in the contract", () => {
-    const proposalBond = 100000000000n;
+    const proposalBond = coreProposalV2VoteSettings.votingBond;
     const tokenPoolContractAddress = `${deployer}.${ContractType.DAO_BITFLOW_POOL}`;
     const treasuryContractAddress = `${deployer}.${ContractType.DAO_TREASURY}`;
     const burnBlockHeight = simnet.burnBlockHeight;
@@ -1222,7 +1222,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
   it("get-proposal-bond() returns the proposal bond set in the contract", () => {
     // arrange
-    const proposalBond = 100000000000;
+    const proposalBond = coreProposalV2VoteSettings.votingBond;
     // act
     const receipt = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,

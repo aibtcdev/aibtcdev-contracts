@@ -27,24 +27,28 @@ export const VOTING_CONFIG: VotingConfig = {
     votingPeriod: 144, // 144 Bitcoin blocks (~1 days)
     votingQuorum: 95, // 95% of liquid supply must participate
     votingThreshold: 95, // 95% of votes must be in favor
+    votingBond: 0, // no bond
   },
   [ContractType.DAO_CORE_PROPOSALS_V2]: {
     votingDelay: 432, // 3 x 144 Bitcoin blocks (~3 days)
     votingPeriod: 432, // 3 x 144 Bitcoin blocks (~3 days)
     votingQuorum: 25, // 25% of liquid supply must participate
     votingThreshold: 90, // 90% of votes must be in favor
+    votingBond: 100000000000, // 1000 DAO token, 8 decimals
   },
   [ContractType.DAO_ACTION_PROPOSALS]: {
     votingDelay: 0, // no delay
     votingPeriod: 144, // 144 Bitcoin blocks (~1 days)
     votingQuorum: 66, // 66% of liquid supply must participate
     votingThreshold: 66, // 66% of votes must be in favor
+    votingBond: 0, // no bond
   },
   [ContractType.DAO_ACTION_PROPOSALS_V2]: {
     votingDelay: 144, // 1 x 144 Bitcoin blocks (~3 days)
     votingPeriod: 288, // 2 x 144 Bitcoin blocks (~2 days)
     votingQuorum: 15, // 15% of liquid supply must participate
     votingThreshold: 66, // 66% of votes must be in favor
+    votingBond: 100000000000, // 1000 DAO token, 8 decimals
   },
 };
 

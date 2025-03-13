@@ -107,6 +107,7 @@ export type VoteSettings = {
   votingPeriod: number;
   votingQuorum: number;
   votingThreshold: number;
+  votingBond: number;
 };
 
 type VotableContracts =
