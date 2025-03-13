@@ -123,7 +123,7 @@ export function getDaoTokens(
     [Cl.principal(tokenContractAddress), Cl.uint(satsAmount)],
     address
   );
-
+  //console.log(`getDaoTokensReceipt: ${JSON.stringify(getDaoTokensReceipt)}`);
   return getDaoTokensReceipt;
 }
 

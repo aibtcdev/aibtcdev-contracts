@@ -19,8 +19,8 @@
 
 ;; error messages
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u1000))
-(define-constant ERR_INSUFFICIENT_BALANCE (err u1001))
-(define-constant ERR_FETCHING_TOKEN_DATA (err u1002))
+(define-constant ERR_FETCHING_TOKEN_DATA (err u1001))
+(define-constant ERR_INSUFFICIENT_BALANCE (err u1002))
 (define-constant ERR_PROPOSAL_NOT_FOUND (err u1003))
 (define-constant ERR_PROPOSAL_VOTING_ACTIVE (err u1004))
 (define-constant ERR_PROPOSAL_EXECUTION_DELAY (err u1005))
