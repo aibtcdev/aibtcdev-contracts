@@ -94,7 +94,7 @@
     ;; ft distribution
     (try! (ft-mint? SYMBOL (/ (* MAX u80) u100) .aibtc-treasury)) ;; 80% treasury SPVMS254T8Q0RXQP95Y01T7KBHZV91X88CDK48QH
     (try! (ft-mint? SYMBOL (/ (* MAX u16) u100) .aibtc-token-dex)) ;; 16% dex SPVMS254T8Q0RXQP95Y01T7KBHZV91X88CDK48QH
-    (try! (ft-mint? NAME (/ (* MAX u4) u100) .aibtc-pre-dex)) ;; 4% pre-launch SPVMS254T8Q0RXQP95Y01T7KBHZV91X88CDK48QH
+    (try! (ft-mint? SYMBOL (/ (* MAX u4) u100) .aibtc-pre-dex)) ;; 4% pre-launch SPVMS254T8Q0RXQP95Y01T7KBHZV91X88CDK48QH
 
     (print { 
         type: "faktory-trait-v1", 
