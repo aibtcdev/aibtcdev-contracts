@@ -104,22 +104,30 @@ function fundSmartWallet(sender: string, amount: number) {
   if (!sbtcBalance || isNaN(sbtcBalance)) {
     throw new Error("Failed to get sbtc balance");
   }
+  // deposit stx to the smart wallet
+  const depositReceiptStx = simnet.callPublicFn(
+    contractAddress,
+    "deposit-stx",
+    [Cl.uint(amount)],
+    sender
+  );
+  expect(depositReceiptStx.result).toBeOk(Cl.bool(true));
   // deposit sbtc to the smart wallet
-  const depositReceipt = simnet.callPublicFn(
+  const depositReceiptSbtc = simnet.callPublicFn(
     contractAddress,
     "deposit-ft",
     [Cl.principal(sbtcTokenAddress), Cl.uint(sbtcBalance)],
     sender
   );
-  expect(depositReceipt.result).toBeOk(Cl.bool(true));
+  expect(depositReceiptSbtc.result).toBeOk(Cl.bool(true));
   // deposit dao tokens to the smart wallet
-  const depositReceipt2 = simnet.callPublicFn(
+  const depositReceiptDao = simnet.callPublicFn(
     contractAddress,
     "deposit-ft",
     [Cl.principal(daoTokenAddress), Cl.uint(amount)],
     sender
   );
-  expect(depositReceipt2.result).toBeOk(Cl.bool(true));
+  expect(depositReceiptDao.result).toBeOk(Cl.bool(true));
 }
 
 describe(`public functions: ${contractName}`, () => {
@@ -1621,33 +1629,12 @@ describe(`public functions: ${contractName}`, () => {
   });
   it("sell-asset() succeeds when called by user", () => {
     // arrange
-    const amount = 100;
+    const amount = 10000000;
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
 
-    // fund smart wallet with sbtc and dao token
-    fundSmartWallet(deployer, 10000);
-
-    // get the sbtc balance of the smart contract
-    const balanceCV = simnet.callReadOnlyFn(
-      sbtcTokenAddress,
-      "get-balance",
-      [Cl.principal(contractAddress)],
-      deployer
-    ).result as ResponseOkCV;
-
-    // get the dao token balance of the smart contract
-    const balanceCV2 = simnet.callReadOnlyFn(
-      daoTokenAddress,
-      "get-balance",
-      [Cl.principal(contractAddress)],
-      deployer
-    ).result as ResponseOkCV;
-
-    const balance = cvToValue(balanceCV.value, true);
-    const balance2 = cvToValue(balanceCV2.value, true);
-    console.log(" sbtc:", balance);
-    console.log("aibtc:", balance2);
+    // fund smart wallet with stx, sbtc and dao token
+    fundSmartWallet(deployer, 1000000000);
 
     // act
     const receipt = simnet.callPublicFn(
@@ -1662,10 +1649,12 @@ describe(`public functions: ${contractName}`, () => {
   });
   it("sell-asset() succeeds when called by agent with permission", () => {
     // arrange
-    const amount = 100;
+    const amount = 10000000;
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
-    fundSmartWallet(deployer, 1000);
+
+    // fund smart wallet with stx, sbtc and dao token
+    fundSmartWallet(deployer, 1000000000);
 
     // First buy some tokens to sell
     const depositReceipt = simnet.callPublicFn(
@@ -1706,10 +1695,12 @@ describe(`public functions: ${contractName}`, () => {
   });
   it("sell-asset() emits the correct notification event", () => {
     // arrange
-    const amount = 100;
+    const amount = 10000000;
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
-    fundSmartWallet(deployer, 1000);
+    // fund smart wallet with stx, sbtc and dao token
+    fundSmartWallet(deployer, 1000000000);
+    // build expected print event
     const expectedEvent = {
       notification: "sell-asset",
       payload: {
