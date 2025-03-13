@@ -1271,6 +1271,8 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
         );
       }
     };
+    // progress the chain so we're out of deployment range
+    simnet.mineEmptyBurnBlocks(10);
     // log starting info
     console.log("\n-- starting the test:");
     logBlockHeights();
@@ -1465,7 +1467,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       self: Cl.principal(actionProposalsV2ContractAddress),
       deployedBurnBlock: Cl.uint(burnBlockHeight),
       // not sure why this works, but matching stacksBlockHeight is way off
-      deployedStacksBlock: Cl.uint(burnBlockHeight),
+      deployedStacksBlock: Cl.uint(burnBlockHeight + 1),
       proposalBond: Cl.uint(proposalBond),
       delay: Cl.uint(actionProposalV2VoteSettings.votingDelay),
       period: Cl.uint(actionProposalV2VoteSettings.votingPeriod),
