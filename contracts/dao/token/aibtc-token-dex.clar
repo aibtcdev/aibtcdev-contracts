@@ -190,6 +190,7 @@
 
   ;; boot dex
     (begin
+      (var-set open (if is-in-mainnet false true))
       (var-set fak-ustx FAK_STX)
       (var-set ft-balance u16000000000000000)
         (print { 
