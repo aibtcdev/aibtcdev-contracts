@@ -1624,24 +1624,30 @@ describe(`public functions: ${contractName}`, () => {
     const amount = 100;
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
-    fundSmartWallet(deployer, 1000);
 
-    // First buy some tokens to sell
-    const depositReceipt = simnet.callPublicFn(
-      contractAddress,
-      "deposit-stx",
-      [Cl.uint(100000000)], // 100 STX
-      deployer
-    );
-    expect(depositReceipt.result).toBeOk(Cl.bool(true));
+    // fund smart wallet with sbtc and dao token
+    fundSmartWallet(deployer, 10000);
 
-    const buyReceipt = simnet.callPublicFn(
-      contractAddress,
-      "buy-asset",
-      [Cl.principal(dex), Cl.principal(asset), Cl.uint(1000)],
+    // get the sbtc balance of the smart contract
+    const balanceCV = simnet.callReadOnlyFn(
+      sbtcTokenAddress,
+      "get-balance",
+      [Cl.principal(contractAddress)],
       deployer
-    );
-    expect(buyReceipt.result).toBeOk(Cl.bool(true));
+    ).result as ResponseOkCV;
+
+    // get the dao token balance of the smart contract
+    const balanceCV2 = simnet.callReadOnlyFn(
+      daoTokenAddress,
+      "get-balance",
+      [Cl.principal(contractAddress)],
+      deployer
+    ).result as ResponseOkCV;
+
+    const balance = cvToValue(balanceCV.value, true);
+    const balance2 = cvToValue(balanceCV2.value, true);
+    console.log(" sbtc:", balance);
+    console.log("aibtc:", balance2);
 
     // act
     const receipt = simnet.callPublicFn(
