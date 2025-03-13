@@ -170,7 +170,7 @@
         (asserts! (< current-seats SEATS) ERR-NO-SEATS-LEFT)
         
         ;; Process payment
-        (match (contract-call? .sbtc-token transfer (* PRICE-PER-SEAT actual-seats) tx-sender (as-contract tx-sender) none)
+        (match (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer (* PRICE-PER-SEAT actual-seats) tx-sender (as-contract tx-sender) none)
             success 
                 (begin
                     (if (is-eq user-seats u0) 
@@ -210,7 +210,7 @@
         
         (var-set target-owner tx-sender)
         ;; Process refund
-        (match (as-contract (contract-call? .sbtc-token transfer (* PRICE-PER-SEAT user-seats) tx-sender seat-owner none))
+        (match (as-contract (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer (* PRICE-PER-SEAT user-seats) tx-sender seat-owner none))
             success 
                 (let ((is-removed (unwrap! (remove-seat-holder) ERR-REMOVING-HOLDER)))
                     (map-delete seats-owned tx-sender)
@@ -353,9 +353,9 @@
     (begin
         (var-set market-open true)
         (var-set governance-active true) ;; jason:  in core/action proposal, checks from create proposal, deadlocks anything happening
-        (try! (as-contract (contract-call? .sbtc-token transfer DEX-AMOUNT tx-sender DEX-DAO none))) ;; 0.00250000 BTC to DEX  
-        (try! (as-contract (contract-call? .sbtc-token transfer MULTI-SIG-AMOUNT tx-sender FAKTORY1 none))) ;; 0.00010000 BTC  -> covers contract deployment gaz fees
-        (try! (as-contract (contract-call? .sbtc-token transfer FEE-AMOUNT tx-sender FAKTORY1 none)))  ;; 0.00140000 BTC fees -> covers ordinals bot, xlink and faktory
+        (try! (as-contract (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer DEX-AMOUNT tx-sender DEX-DAO none))) ;; 0.00250000 BTC to DEX  
+        (try! (as-contract (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer MULTI-SIG-AMOUNT tx-sender FAKTORY1 none))) ;; 0.00010000 BTC  -> covers contract deployment gaz fees
+        (try! (as-contract (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer FEE-AMOUNT tx-sender FAKTORY1 none)))  ;; 0.00140000 BTC fees -> covers ordinals bot, xlink and faktory
         (var-set distribution-height burn-block-height)
         (var-set last-airdrop-height (some burn-block-height))
         (var-set ft-balance FT-INITIALIZED-BALANCE) ;; 40M tokens
@@ -455,7 +455,7 @@
         
         ;; Only distribute if the user's share is greater than zero
         (if (> user-share u0)
-                (match (as-contract (contract-call? .sbtc-token transfer user-share tx-sender holder none))
+                (match (as-contract (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer user-share tx-sender holder none))
                     success
                         (begin 
                             (print {

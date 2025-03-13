@@ -1459,7 +1459,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     const proposalBond = 1000n;
     const tokenPoolContractAddress = `${deployer}.${ContractType.DAO_BITFLOW_POOL}`;
     const treasuryContractAddress = `${deployer}.${ContractType.DAO_TREASURY}`;
-    const burnBlockHeight = simnet.burnBlockHeight - 1; // no clue why this works
+    const burnBlockHeight = simnet.burnBlockHeight;
     // const stacksBlockHeight = simnet.stacksBlockHeight;
     const expectedResult = Cl.tuple({
       self: Cl.principal(actionProposalsV2ContractAddress),

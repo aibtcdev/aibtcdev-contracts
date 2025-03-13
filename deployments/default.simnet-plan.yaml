@@ -7,33 +7,43 @@ genesis:
     - name: deployer
       address: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
       balance: "100000000000000"
+      sbtc-balance: "1000000000"
     - name: faucet
       address: STNHKEPYEPJ8ET55ZZ0M5A34J0R3N5FM2CMMMAZ6
       balance: "100000000000000"
+      sbtc-balance: "1000000000"
     - name: wallet_1
       address: ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5
       balance: "100000000000000"
+      sbtc-balance: "1000000000"
     - name: wallet_2
       address: ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG
       balance: "100000000000000"
+      sbtc-balance: "1000000000"
     - name: wallet_3
       address: ST2JHG361ZXG51QTKY2NQCVBPPRRE2KZB1HR05NNC
       balance: "100000000000000"
+      sbtc-balance: "1000000000"
     - name: wallet_4
       address: ST2NEB84ASENDXKYGJPQW86YXQCEFEX2ZQPG87ND
       balance: "100000000000000"
+      sbtc-balance: "1000000000"
     - name: wallet_5
       address: ST2REHHS5J3CERCRBEPMGH7921Q6PYKAADT7JP2VB
       balance: "100000000000000"
+      sbtc-balance: "1000000000"
     - name: wallet_6
       address: ST3AM1A56AK2C1XAFJ4115ZSV26EB49BVQ10MGCS0
       balance: "100000000000000"
+      sbtc-balance: "1000000000"
     - name: wallet_7
       address: ST3PF13W7Z0RRM42A8VZRVFQ75SV1K26RXEP8YGKJ
       balance: "100000000000000"
+      sbtc-balance: "1000000000"
     - name: wallet_8
       address: ST3NBRSFKX28FQ2ZJ1MAKX58HKHSDGNV5N7R21XCP
       balance: "100000000000000"
+      sbtc-balance: "1000000000"
   contracts:
     - costs
     - pox
@@ -86,6 +96,11 @@ plan:
     - id: 2
       transactions:
         - emulated-contract-publish:
+            contract-name: sbtc-token
+            emulated-sender: STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2
+            path: "./.cache/requirements/STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token.clar"
+            clarity-version: 3
+        - emulated-contract-publish:
             contract-name: faktory-trait-v1
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/traits/faktory-trait-v1.clar
@@ -128,7 +143,7 @@ plan:
         - emulated-contract-publish:
             contract-name: aibtc-token
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/dao/extensions/aibtc-token.clar
+            path: contracts/dao/token/aibtc-token.clar
             clarity-version: 2
         - emulated-contract-publish:
             contract-name: aibtcdev-dao-traits-v1
@@ -205,14 +220,14 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/proposals/aibtc-bank-account-set-account-holder.clar
             clarity-version: 2
+      epoch: "3.1"
+    - id: 3
+      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-bank-account-set-withdrawal-amount
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/proposals/aibtc-bank-account-set-withdrawal-amount.clar
             clarity-version: 2
-      epoch: "3.0"
-    - id: 3
-      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-bank-account-set-withdrawal-period
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
@@ -266,7 +281,7 @@ plan:
         - emulated-contract-publish:
             contract-name: aibtc-bitflow-pool
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/dao/extensions/aibtc-bitflow-pool.clar
+            path: contracts/dao/token/aibtc-bitflow-pool.clar
             clarity-version: 2
         - emulated-contract-publish:
             contract-name: aibtc-core-proposals
@@ -324,23 +339,28 @@ plan:
             path: contracts/dao/proposals/aibtc-payments-invoices-toggle-resource-by-name.clar
             clarity-version: 2
         - emulated-contract-publish:
+            contract-name: aibtc-pre-dex
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/dao/token/aibtc-pre-dex.clar
+            clarity-version: 2
+        - emulated-contract-publish:
             contract-name: faktory-dex-trait-v1-1
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/traits/faktory-dex-trait-v1-1.clar
             clarity-version: 2
+      epoch: "3.1"
+    - id: 4
+      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-token-dex
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/dao/extensions/aibtc-token-dex.clar
+            path: contracts/dao/token/aibtc-token-dex.clar
             clarity-version: 2
         - emulated-contract-publish:
             contract-name: aibtc-token-owner
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/dao/extensions/aibtc-token-owner.clar
             clarity-version: 2
-      epoch: "3.0"
-    - id: 4
-      transactions:
         - emulated-contract-publish:
             contract-name: aibtc-token-owner-set-token-uri
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
@@ -456,6 +476,9 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/test/disable-onchain-messaging-action.clar
             clarity-version: 2
+      epoch: "3.1"
+    - id: 5
+      transactions:
         - emulated-contract-publish:
             contract-name: test-proxy
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
@@ -466,9 +489,6 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/test/sip010-token.clar
             clarity-version: 2
-      epoch: "3.0"
-    - id: 5
-      transactions:
         - emulated-contract-publish:
             contract-name: test-treasury
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
@@ -484,12 +504,4 @@ plan:
             emulated-sender: ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5
             path: contracts/test/proxy.clar
             clarity-version: 2
-      epoch: "3.0"
-    - id: 6
-      transactions:
-        - emulated-contract-publish:
-            contract-name: sbtc-token
-            emulated-sender: STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2
-            path: "./.cache/requirements/STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token.clar"
-            clarity-version: 3
       epoch: "3.1"
