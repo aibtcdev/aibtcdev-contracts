@@ -1,6 +1,7 @@
 **/settings/Mainnet.toml
 **/settings/Testnet.toml
 .cache/**
+deployments/
 history.txt
 node_modules
 lcov.info
