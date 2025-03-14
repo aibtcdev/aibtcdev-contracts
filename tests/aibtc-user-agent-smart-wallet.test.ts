@@ -37,7 +37,7 @@ const coreProposalVotingConfig = VOTING_CONFIG["aibtc-core-proposals-v2"];
 // Error codes
 const ErrCode = UserAgentSmartWalletErrCode;
 
-function setupSmartWallet(sender: string, satsAmount: number = 100000000) {
+function setupSmartWallet(sender: string, satsAmount: number = 100000) {
   // construct the dao so we can call extensions
   const constructReceipt = constructDao(
     sender,

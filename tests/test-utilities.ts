@@ -149,12 +149,14 @@ export function fundVoters(
 ) {
   const amounts: Map<string, number> = new Map();
   for (const voter of voters) {
-    const stxAmount = Math.floor(Math.random() * 500000000) + 1000000;
+    // between 100k and 1M satoshis
+    const btcAmount =
+      Math.floor(Math.random() * (1000000 - 100000 + 1)) + 100000;
     const getDaoTokensReceipt = getDaoTokens(
       tokenContractAddress,
       tokenDexContractAddress,
       voter,
-      stxAmount
+      btcAmount
     );
     expect(getDaoTokensReceipt.result).toBeOk(Cl.bool(true));
     const getDaoTokensEvent = getDaoTokensReceipt.events.find(
