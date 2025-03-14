@@ -15,6 +15,8 @@ import {
 } from "./dao-types";
 import { ClarityEvent } from "@hirosystems/clarinet-sdk";
 
+export const SBTC_CONTRACT = `STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token`;
+
 // bigint replacer for json.stringify()
 export function bigIntReplacer(_key: string, value: any) {
   typeof value === "bigint" ? value.toString() : value;
@@ -121,6 +123,15 @@ export function getDaoTokens(
   address: string,
   satsAmount: number
 ) {
+  // get sbtc from the faucet
+  const faucetReceipt = simnet.callPublicFn(
+    SBTC_CONTRACT,
+    "faucet",
+    [],
+    address
+  );
+  expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+  // get dao tokens from the token dex
   const getDaoTokensReceipt = simnet.callPublicFn(
     tokenDexContractAddress,
     "buy",

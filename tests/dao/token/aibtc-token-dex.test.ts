@@ -1,5 +1,6 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
+import { SBTC_CONTRACT } from "../../test-utilities";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
@@ -14,7 +15,14 @@ const tokenContractAddress = `${deployer}.${tokenContractName}`;
 
 describe(`token: ${contractName}`, () => {
   it("buy() succeeds and transfers token to buyer", () => {
-    const buyAmount = 1000000; // 1 STX
+    const buyAmount = 100000; // 0.001 BTC
+    const faucetReceipt = simnet.callPublicFn(
+      SBTC_CONTRACT,
+      "faucet",
+      [],
+      address1
+    );
+    expect(faucetReceipt.result).toBeOk(Cl.bool(true));
     const receipt = simnet.callPublicFn(
       contractAddress,
       "buy",
