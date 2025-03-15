@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Deposit STX in timed vault")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Deposited STX in the timed vault extension")
 (define-constant CFG_DEPOSIT_AMOUNT u10000000)
 
 (define-public (execute (sender principal))

@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Send a message from the DAO")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Sent an on-chain message verifed from the DAO")
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 
 (define-public (execute (sender principal))

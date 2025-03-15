@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Set the payment address for invoices")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Updated the payment address in the payments/invoices extension")
 (define-constant CFG_PAYOUT_ADDRESS .aibtc-timed-vault)
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 ;; was CFG_PAYMENTS_CONTRACT .aibtc-payments-invoices

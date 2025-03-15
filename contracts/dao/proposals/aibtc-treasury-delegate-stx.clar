@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Delegate STX for stacking")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Delegated STX for stacking in the treasury extension")
 (define-constant CFG_AMOUNT u1000000)
 (define-constant CFG_DELEGATE_TO 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM)
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging

@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Replaced proposal voting extensions")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Replaced core and action proposal voting extensions in the base DAO")
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 ;; was CFG_BASE_DAO .aibtc-base-dao
 ;; was CFG_OLD_ACTION_PROPOSALS .aibtc-action-proposals

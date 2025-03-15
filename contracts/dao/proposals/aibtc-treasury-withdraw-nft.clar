@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Withdraw an NFT from the treasury")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Withdrew an NFT in the treasury extension")
 (define-constant CFG_NFT_ID u1)
 (define-constant CFG_RECIPIENT 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM)
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
