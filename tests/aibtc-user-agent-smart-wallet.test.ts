@@ -4,6 +4,7 @@ import { UserAgentSmartWalletErrCode } from "./error-codes";
 import {
   constructDao,
   convertSIP019PrintEvent,
+  dbgLog,
   fundVoters,
   getDaoTokens,
   SBTC_CONTRACT,
@@ -55,7 +56,7 @@ function setupSmartWallet(sender: string, satsAmount: number = 100000) {
   expect(dexReceipt.result).toBeOk(Cl.bool(true));
   // get our balances from the assets map
   const balancesMap = simnet.getAssetsMap();
-  //console.log(balancesMap);
+  dbgLog(balancesMap);
   const aibtcKey = ".aibtc-token.SYMBOL";
   const sbtcKey = ".sbtc-token.sbtc-token";
   const stxKey = "STX";
@@ -64,7 +65,7 @@ function setupSmartWallet(sender: string, satsAmount: number = 100000) {
     aibtc: balancesMap.get(aibtcKey)?.get(deployer) ?? 0n,
     stx: balancesMap.get(stxKey)?.get(deployer) ?? 0n,
   };
-  //console.log(`deployerBalances: ${JSON.stringify(deployerBalances)}`);
+  dbgLog(`deployerBalances: ${JSON.stringify(deployerBalances)}`);
 
   // deposit sBTC so we can buy DAO tokens
   const depositReceiptSbtc = simnet.callPublicFn(
@@ -1446,7 +1447,7 @@ describe(`public functions: ${contractName}`, () => {
     setupSmartWallet(deployer);
     // get our balances from the assets map
     const balancesMap = simnet.getAssetsMap();
-    //console.log(balancesMap);
+    dbgLog(balancesMap);
     const aibtcKey = ".aibtc-token.SYMBOL";
     const sbtcKey = ".sbtc-token.sbtc-token";
     const stxKey = "STX";
@@ -1455,7 +1456,7 @@ describe(`public functions: ${contractName}`, () => {
       aibtc: balancesMap.get(aibtcKey)?.get(contractAddress) ?? 0n,
       stx: balancesMap.get(stxKey)?.get(contractAddress) ?? 0n,
     };
-    console.log(`smartWalletBalances: ${JSON.stringify(smartWalletBalances)}`);
+    dbgLog(`smartWalletBalances: ${JSON.stringify(smartWalletBalances)}`);
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,

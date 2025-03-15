@@ -15,6 +15,35 @@ import {
 } from "./dao-types";
 import { ClarityEvent } from "@hirosystems/clarinet-sdk";
 
+// set to true to enable logging
+const DEBUG_ENABLED = false;
+// helper function to log messages to the console
+export function dbgLog(
+  msg: unknown,
+  forceLog = false,
+  logType?: string,
+  titleBefore?: string
+) {
+  if (DEBUG_ENABLED || forceLog) {
+    if (titleBefore) {
+      console.log(titleBefore);
+    }
+    switch (logType) {
+      case "error":
+        console.error(msg);
+        break;
+      case "warn":
+        console.warn(msg);
+        break;
+      case "info":
+        console.info(msg);
+        break;
+      default:
+        console.log(msg);
+    }
+  }
+}
+
 export const SBTC_CONTRACT = `STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token`;
 
 // bigint replacer for json.stringify()
@@ -138,7 +167,7 @@ export function getDaoTokens(
     [Cl.principal(tokenContractAddress), Cl.uint(satsAmount)],
     address
   );
-  //console.log(`getDaoTokensReceipt: ${JSON.stringify(getDaoTokensReceipt)}`);
+  //dbgLog(`getDaoTokensReceipt: ${JSON.stringify(getDaoTokensReceipt)}`);
   return getDaoTokensReceipt;
 }
 
@@ -166,7 +195,7 @@ export function fundVoters(
     );
     expect(getDaoTokensEvent).toBeDefined();
     const daoTokensAmount = parseInt(getDaoTokensEvent!.data.amount);
-    // console.log(`voter: ${voter}, daoTokensAmount: ${daoTokensAmount}`);
+    // dbgLog(`voter: ${voter}, daoTokensAmount: ${daoTokensAmount}`);
     amounts.set(voter, daoTokensAmount);
   }
   // progress chain for at-block calls
