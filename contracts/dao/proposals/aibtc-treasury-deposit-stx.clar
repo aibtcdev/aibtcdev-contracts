@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Deposit STX to the treasury")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Deposited STX in the treasury extension")
 (define-constant CFG_STX_AMOUNT u1000000) ;; in microSTX
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 ;; was CFG_TREASURY_CONTRACT .aibtc-treasury

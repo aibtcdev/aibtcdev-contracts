@@ -4,6 +4,8 @@
 (define-constant ERR_UNAUTHORIZED (err u10001))
 (define-constant ERR_INVALID_PARAMS (err u10002))
 
+(define-constant CFG_MESSAGE "Executed Action Proposal: Set new account holder in timed vault extension")
+
 (define-public (callback (sender principal) (memo (buff 34))) (ok true))
 
 (define-public (run (parameters (buff 2048)))
@@ -12,6 +14,7 @@
       (accountHolder (unwrap! (from-consensus-buff? principal parameters) ERR_INVALID_PARAMS))
     )
     (try! (is-dao-or-extension))
+    (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
     (contract-call? .aibtc-timed-vault set-account-holder accountHolder)
   )
 )

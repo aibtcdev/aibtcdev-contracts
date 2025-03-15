@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Add a new resource available for invoicing")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Added a new resource available in the payments/invoices extension")
 (define-constant CFG_RESOURCE_NAME u"example-resource")
 (define-constant CFG_RESOURCE_DESCRIPTION u"An example resource")
 (define-constant CFG_RESOURCE_AMOUNT u1000000)

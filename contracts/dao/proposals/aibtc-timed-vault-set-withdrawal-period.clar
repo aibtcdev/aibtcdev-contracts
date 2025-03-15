@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Set timed vault withdrawal period")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Set withdrawal period in the timed vault extension")
 (define-constant CFG_WITHDRAWAL_PERIOD u144)
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 ;; was CFG_TIMED_VAULT_EXTENSION .aibtc-timed-vault

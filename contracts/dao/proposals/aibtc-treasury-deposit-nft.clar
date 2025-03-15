@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Deposit NFT to the treasury")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Deposited NFT in the treasury extension")
 (define-constant CFG_NFT_ID u1)
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 ;; was CFG_TREASURY_CONTRACT .aibtc-treasury

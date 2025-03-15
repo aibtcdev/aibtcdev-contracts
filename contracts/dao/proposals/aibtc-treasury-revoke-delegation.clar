@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Revoke STX delegation")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Revoked STX for stacking in the treasury extension")
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 ;; was CFG_TREASURY_CONTRACT .aibtc-treasury
 

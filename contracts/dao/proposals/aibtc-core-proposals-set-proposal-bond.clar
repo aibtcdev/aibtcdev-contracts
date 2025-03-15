@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Update core proposal bond amount")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Updated proposal bond amount in the core proposals extension")
 (define-constant CFG_BOND_AMOUNT u100)
 
 (define-public (execute (sender principal))

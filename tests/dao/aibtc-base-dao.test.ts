@@ -102,6 +102,39 @@ describe(`public functions: ${contractName}`, () => {
 
 describe(`read-only functions: ${contractName}`, () => {
   ////////////////////////////////////////
+  // is-constructed() tests
+  ////////////////////////////////////////
+  it("is-constructed() returns false before dao is constructed", () => {
+    // arrange
+    // act
+    const result = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-constructed",
+      [],
+      deployer
+    ).result;
+    // assert
+    expect(result).toStrictEqual(Cl.bool(false));
+  });
+  it("is-constructed() returns true after dao is constructed", () => {
+    // arrange
+    const constructReceipt = constructDao(
+      deployer,
+      contractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const result = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-constructed",
+      [],
+      deployer
+    ).result;
+    // assert
+    expect(result).toStrictEqual(Cl.bool(true));
+  });
+  ////////////////////////////////////////
   // is-extension() tests
   ////////////////////////////////////////
   it("is-extension() returns false before dao is constructed", () => {
@@ -115,6 +148,24 @@ describe(`read-only functions: ${contractName}`, () => {
     ).result;
     // assert
     expect(result).toStrictEqual(Cl.bool(false));
+  });
+  it("is-extension() returns true after dao is constructed", () => {
+    // arrange
+    const constructReceipt = constructDao(
+      deployer,
+      contractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const result = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-extension",
+      [Cl.principal(treasuryContractAddress)],
+      deployer
+    ).result;
+    // assert
+    expect(result).toStrictEqual(Cl.bool(true));
   });
   ////////////////////////////////////////
   // executed-at() tests
@@ -130,5 +181,24 @@ describe(`read-only functions: ${contractName}`, () => {
     ).result;
     // assert
     expect(result).toBeNone();
+  });
+  it("executed-at() returns some blockheight if the proposal was executed", () => {
+    // arrange
+    const constructReceipt = constructDao(
+      deployer,
+      contractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+    // act
+    const blockHeight = simnet.blockHeight;
+    const result = simnet.callReadOnlyFn(
+      contractAddress,
+      "executed-at",
+      [Cl.principal(bootstrapContractAddress)],
+      deployer
+    ).result;
+    // assert
+    expect(result).toBeSome(Cl.uint(blockHeight));
   });
 });

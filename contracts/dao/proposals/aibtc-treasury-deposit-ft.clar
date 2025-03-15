@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Deposit fungible tokens to the treasury")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Deposited fungible tokens in the treasury extension")
 (define-constant CFG_TOKEN_AMOUNT u1000) ;; in microFT
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 ;; was CFG_TREASURY_CONTRACT .aibtc-treasury

@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Disable an asset for deposit and withdrawal in the treasury")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Disabled an asset for deposit and withdrawal in the treasury")
 (define-constant CFG_ASSET_CONTRACT 'SP3D6PV2ACBPEKYJTCMH7HEN02KP87QSP8KTEH335.abtc)
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 ;; was CFG_TREASURY_CONTRACT .aibtc-treasury

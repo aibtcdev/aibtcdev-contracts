@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Set DAO Charter")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Set or updated the DAO charter extension")
 (define-constant CFG_CHARTER_TEXT "<%= it.dao_charter_text %>")
 (define-constant CFG_CHARTER_INSCRIPTION_ID 0x) ;; <%= it.dao_charter_inscription_id %>
 ;; was CFG_CHARTER_CONTRACT .aibtc-dao-charter

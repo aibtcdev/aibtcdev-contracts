@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Toggle a resource enabled status by name")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Toggled a resource status by name in the payments/invoices extension")
 (define-constant CFG_RESOURCE_NAME u"example-resource")
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 ;; was CFG_PAYMENTS_CONTRACT .aibtc-payments-invoices
