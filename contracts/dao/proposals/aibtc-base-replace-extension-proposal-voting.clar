@@ -18,9 +18,9 @@
   (begin
     ;; send a message from the dao
     (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
-    ;; check that old extensions exist
-    (asserts! (contract-call? .aibtc-base-dao is-extension .aibtc-action-proposals) ERR_EXTENSION_NOT_FOUND)
-    (asserts! (contract-call? .aibtc-base-dao is-extension .aibtc-core-proposals) ERR_EXTENSION_NOT_FOUND)
+    ;; check that old extensions exist (commenting out, not in bootstrap v2)
+    ;; (asserts! (contract-call? .aibtc-base-dao is-extension .aibtc-action-proposals) ERR_EXTENSION_NOT_FOUND)
+    ;; (asserts! (contract-call? .aibtc-base-dao is-extension .aibtc-core-proposals) ERR_EXTENSION_NOT_FOUND)
     ;; disable old extensions
     (try! (contract-call? .aibtc-base-dao set-extension .aibtc-action-proposals false))
     (try! (contract-call? .aibtc-base-dao set-extension .aibtc-core-proposals false))
