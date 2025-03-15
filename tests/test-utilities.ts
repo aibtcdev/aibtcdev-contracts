@@ -20,15 +20,17 @@ const DEBUG_ENABLED = false;
 // helper function to log messages to the console
 export function dbgLog(
   msg: unknown,
-  forceLog = false,
-  logType?: string,
-  titleBefore?: string
+  params: {
+    forceLog?: boolean;
+    logType?: string;
+    titleBefore?: string;
+  } = {}
 ) {
-  if (DEBUG_ENABLED || forceLog) {
-    if (titleBefore) {
-      console.log(titleBefore);
+  if (DEBUG_ENABLED || params.forceLog) {
+    if (params.titleBefore) {
+      console.log(params.titleBefore);
     }
-    switch (logType) {
+    switch (params.logType) {
       case "error":
         console.error(msg);
         break;

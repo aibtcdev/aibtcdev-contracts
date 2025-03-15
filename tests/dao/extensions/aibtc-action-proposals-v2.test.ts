@@ -1316,8 +1316,9 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       1000
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
-    dbgLog("after fetching dao tokens:");
-    dbgLog(`tx result: ${cvToValue(daoTokensReceipt.result, true).value}`);
+    dbgLog(`tx result: ${cvToValue(daoTokensReceipt.result, true).value}`, {
+      titleBefore: "after fetching dao tokens:",
+    });
     logBlockHeights();
     // progress the chain for at-block calls
     // pushing this higher to make sure past blocks exist
