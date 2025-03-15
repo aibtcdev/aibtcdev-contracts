@@ -3,6 +3,7 @@ export enum BaseDaoErrCode {
   ERR_ALREADY_EXECUTED,
   ERR_INVALID_EXTENSION,
   ERR_NO_EMPTY_LISTS,
+  ERR_DAO_NOT_CONSTRUCTED,
 }
 
 export enum ActionProposalsErrCode {

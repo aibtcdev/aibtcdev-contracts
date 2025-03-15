@@ -16,12 +16,14 @@
 (define-constant ERR_ALREADY_EXECUTED (err u901))
 (define-constant ERR_INVALID_EXTENSION (err u902))
 (define-constant ERR_NO_EMPTY_LISTS (err u903))
+(define-constant ERR_DAO_ALREADY_CONSTRUCTED (err u904))
 
 ;; data vars
 ;;
 
 ;; used for initial construction, set to contract itself after
 (define-data-var executive principal tx-sender)
+(define-data-var constructed bool false)
 
 ;; data maps
 ;;
@@ -39,6 +41,7 @@
   (let
     ((sender tx-sender))
     (asserts! (is-eq sender (var-get executive)) ERR_UNAUTHORIZED)
+    (asserts! (not (var-get constructed)) ERR_DAO_ALREADY_CONSTRUCTED)
     (var-set executive (as-contract tx-sender))
     (as-contract (execute proposal sender))
   )

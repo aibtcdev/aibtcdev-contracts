@@ -1,6 +1,7 @@
-import { Cl } from "@stacks/transactions";
+import { bufferCVFromString, Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { BaseDaoErrCode } from "../error-codes";
+import { constructDao } from "../test-utilities";
 
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
@@ -9,55 +10,125 @@ const deployer = accounts.get("deployer")!;
 
 const contractName = "aibtc-base-dao";
 const contractAddress = `${deployer}.${contractName}`;
+const coreProposalOnchainMessaging = `${deployer}.aibtc-onchain-messaging-send`;
+const treasuryContractAddress = `${deployer}.aibtc-treasury`;
+const bootstrapContractAddress = `${deployer}.aibtc-base-bootstrap-initialization-v2`;
 
 const ErrCode = BaseDaoErrCode;
 
-describe(`base dao: ${contractName}`, () => {
-  it("should have tests written", () => {
-    expect(true).toBe(true);
-  });
-  /*
-  // Extension Management Tests
-  describe("set-extension()", () => {
-    it("fails if caller is not DAO or extension");
-    it("succeeds and sets extension status");
-  });
-
-  describe("set-extensions()", () => {
-    it("fails if caller is not DAO or extension");
-    it("succeeds and sets multiple extension statuses");
-  });
-
-  // Execution Tests
-  describe("execute()", () => {
-    it("fails if caller is not DAO or extension");
-    it("succeeds and executes proposal");
-  });
-
-  // Construction Tests
-  describe("construct()", () => {
-    it("fails when called by an account that is not the deployer");
-    it("fails when initializing the DAO with bootstrap proposal a second time");
-    it("succeeds when initializing the DAO with bootstrap proposal");
-  });
-
-  // Extension Callback Tests
-  describe("request-extension-callback()", () => {
-    it("fails if caller is not an extension");
-    it("succeeds and calls an extension");
-  });
-
-  // Query Tests
-  describe("is-extension()", () => {
-    it("succeeds and returns false with unrecognized extension");
-    it("succeeds and returns true for active extensions");
-  });
-
-  describe("executed-at()", () => {
-    it("succeeds and returns none with unrecognized proposal");
-    it(
-      "succeeds and returns the Bitcoin block height the proposal was executed"
+describe(`public functions: ${contractName}`, () => {
+  ////////////////////////////////////////
+  // construct() tests
+  ////////////////////////////////////////
+  it("construct() fails if called directly", () => {
+    // arrange
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "construct",
+      [Cl.principal(coreProposalOnchainMessaging)],
+      address1
     );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
-  */
+  ////////////////////////////////////////
+  // execute() tests
+  ////////////////////////////////////////
+  it("execute() fails if called directly", () => {
+    // arrange
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "execute",
+      [Cl.principal(coreProposalOnchainMessaging), Cl.principal(address1)],
+      address1
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  ////////////////////////////////////////
+  // set-extension() tests
+  ////////////////////////////////////////
+  it("set-extension() fails if called directly", () => {
+    // arrange
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "set-extension",
+      [Cl.principal(coreProposalOnchainMessaging), Cl.bool(true)],
+      address1
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  ////////////////////////////////////////
+  // set-extensions() tests
+  ////////////////////////////////////////
+  it("set-extensions() fails if called directly", () => {
+    // arrange
+    const extension = Cl.tuple({
+      extension: Cl.principal(coreProposalOnchainMessaging),
+      enabled: Cl.bool(true),
+    });
+    const extensionList = Cl.list([extension]);
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "set-extensions",
+      [extensionList],
+      address1
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+  ////////////////////////////////////////
+  // request-extension-callback() tests
+  ////////////////////////////////////////
+  it("request-extension-callback() fails if called directly", () => {
+    // arrange
+    const memo = bufferCVFromString("0x");
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "request-extension-callback",
+      [Cl.principal(treasuryContractAddress), memo],
+      address1
+    );
+    // assert
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_EXTENSION));
+  });
+});
+
+describe(`read-only functions: ${contractName}`, () => {
+  ////////////////////////////////////////
+  // is-extension() tests
+  ////////////////////////////////////////
+  it("is-extension() returns false before dao is constructed", () => {
+    // arrange
+    // act
+    const result = simnet.callReadOnlyFn(
+      contractAddress,
+      "is-extension",
+      [Cl.principal(treasuryContractAddress)],
+      deployer
+    ).result;
+    // assert
+    expect(result).toStrictEqual(Cl.bool(false));
+  });
+  ////////////////////////////////////////
+  // executed-at() tests
+  ////////////////////////////////////////
+  it("executed-at() returns none if the proposal was not executed", () => {
+    // arrange
+    // act
+    const result = simnet.callReadOnlyFn(
+      contractAddress,
+      "executed-at",
+      [Cl.principal(bootstrapContractAddress)],
+      deployer
+    ).result;
+    // assert
+    expect(result).toBeNone();
+  });
 });
