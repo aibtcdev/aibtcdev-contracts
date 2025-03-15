@@ -4,6 +4,7 @@ import {
   cvToValue,
   ResponseOkCV,
   SomeCV,
+  UIntCV,
 } from "@stacks/transactions";
 import { tx } from "@hirosystems/clarinet-sdk";
 import { describe, expect, it } from "vitest";
@@ -39,7 +40,10 @@ const actionProposalContractAddress = getContract(
   ContractActionType.DAO_ACTION_SEND_MESSAGE
 );
 const tokenContractAddress = getContract(ContractType.DAO_TOKEN);
+const tokenPreDexContractAddress = getContract(ContractType.DAO_TOKEN_PRE_DEX);
 const tokenDexContractAddress = getContract(ContractType.DAO_TOKEN_DEX);
+const tokenPoolContractAddress = getContract(ContractType.DAO_BITFLOW_POOL);
+const treasuryContractAddress = getContract(ContractType.DAO_TREASURY);
 const baseDaoContractAddress = getContract(ContractType.DAO_BASE);
 const bootstrapContractAddress = getContract(
   ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2
@@ -74,6 +78,55 @@ const getProposalBlocks = (burnBlockHeight: number) => {
   const startBlock = getProposalStartBlock(burnBlockHeight);
   const endBlock = getProposalEndBlock(startBlock);
   return { startBlock, endBlock };
+};
+
+// helper function to get liquid supply from total supply
+function getLiquidSupply() {
+  const expectedTotalSupply = 100000000000000000n;
+  // get the total supply
+  const totalSupplyResult = simnet.callReadOnlyFn(
+    tokenContractAddress,
+    "get-total-supply",
+    [],
+    deployer
+  ).result as ResponseOkCV;
+  expect(totalSupplyResult).toBeOk(Cl.uint(expectedTotalSupply));
+  const totalSupply = BigInt(cvToValue(totalSupplyResult.value, true));
+  //console.log(`totalSupply: ${totalSupply} ${typeof totalSupply}`);
+  // get the balances for each contract
+  const lockedSupplyContracts = [
+    tokenPreDexContractAddress,
+    tokenDexContractAddress,
+    tokenPoolContractAddress,
+    treasuryContractAddress,
+  ];
+  const lockedSupply = lockedSupplyContracts.reduce((acc, contractAddress) => {
+    // call aibtc-token to get token supply result
+    const balanceResult = simnet.callReadOnlyFn(
+      tokenContractAddress,
+      "get-balance",
+      [Cl.principal(contractAddress)],
+      deployer
+    ).result as ResponseOkCV;
+    // convert token result to number
+    const balance = BigInt(cvToValue(balanceResult.value, true));
+    // add number to accumulator
+    //console.log(`${contractAddress}`);
+    //console.log(`${acc} + ${balance} = ${acc + balance}`);
+    return acc + balance;
+  }, 0n);
+  return totalSupply - lockedSupply;
+}
+
+// helper function to get liquid supply from contract
+const getLiquidSupplyFromContract = (blockHeight: number) => {
+  const result = simnet.callReadOnlyFn(
+    actionProposalsV2ContractAddress,
+    "get-liquid-supply",
+    [Cl.uint(blockHeight)],
+    deployer
+  ).result as ResponseOkCV;
+  return result;
 };
 
 describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
@@ -111,13 +164,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
 
   it("set-proposal-bond() succeeds if called by a DAO proposal", () => {
     // arrange
-
     // setup contract names
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
     const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_ACTION_PROPOSALS_SET_PROPOSAL_BOND}`;
     // select voting config
     const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
@@ -140,7 +187,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
     // act
     // conclude proposal
     const concludeProposalReceipt = passCoreProposal(
-      coreProposalsContractAddress,
+      coreProposalsV2ContractAddress,
       proposalContractAddress,
       deployer,
       [deployer, address1, address2],
@@ -351,7 +398,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
         deployer
       ),
     ]);
-    console.log(actionBlock);
+    //console.log(actionBlock);
     // review block receipts
     for (let i = 0; i < actionBlock.length; i++) {
       if (i === 0) {
@@ -958,8 +1005,20 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       deployer
     );
     expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
-    // progress past voting delay for at-block calls
-    simnet.mineEmptyBlocks(actionProposalV2VoteSettings.votingDelay);
+    const actionProposalReceiptEvent = actionProposalReceipt.events.find(
+      (eventRecord) => eventRecord.event === "print_event"
+    );
+    expect(actionProposalReceiptEvent).toBeDefined();
+    const actionProposalReceiptEventData =
+      actionProposalReceiptEvent!.data.value;
+    expect(actionProposalReceiptEventData).toBeDefined();
+    const actionProposalPrintEvent = cvToValue(actionProposalReceiptEventData!);
+    const createdAt = parseInt(
+      actionProposalPrintEvent.payload.value.createdAt.value
+    );
+    expect(createdAt).toBe(createdAtStacksBlock);
+    // get the liquid supply
+    const expectedLiquidSupply = getLiquidSupply();
     // get proposal
     const proposalInfo = simnet.callReadOnlyFn(
       actionProposalsV2ContractAddress,
@@ -978,7 +1037,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
         bond: Cl.uint(proposalBond),
         endBlock: Cl.uint(endBlock),
         executed: Cl.bool(false),
-        liquidTokens: Cl.uint(33809918),
+        liquidTokens: Cl.uint(expectedLiquidSupply),
         metQuorum: Cl.bool(false),
         metThreshold: Cl.bool(false),
         parameters: Cl.bufferFromHex("0x74657374"),
@@ -1249,27 +1308,6 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       );
     };
     */
-    // helper function for calling read-only function
-    // get-liquid-supply with a block height, result: ok/err
-    const getLiquidSupply = (blockHeight: number) => {
-      const receipt = simnet.callReadOnlyFn(
-        actionProposalsV2ContractAddress,
-        "get-liquid-supply",
-        [Cl.uint(blockHeight)],
-        deployer
-      );
-      if (receipt.result.type === ClarityType.ResponseOk) {
-        console.log(
-          `liquid supply at ${blockHeight}:  ${cvToValue(receipt.result).value}`
-        );
-      } else if (receipt.result.type === ClarityType.ResponseErr) {
-        console.log(
-          `liquid supply at ${blockHeight}: error u${
-            cvToValue(receipt.result).value
-          }`
-        );
-      }
-    };
     // progress the chain so we're out of deployment range
     simnet.mineEmptyBurnBlocks(10);
     // log starting info
@@ -1329,11 +1367,11 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       );
       // log block hash and supply
       //getBlockHash(blockHeight);
-      getLiquidSupply(blockHeight);
+      getLiquidSupplyFromContract(blockHeight);
       //getBlockHash(burnBlockHeight);
-      getLiquidSupply(burnBlockHeight);
+      getLiquidSupplyFromContract(burnBlockHeight);
       //getBlockHash(stacksBlockHeight);
-      getLiquidSupply(stacksBlockHeight);
+      getLiquidSupplyFromContract(stacksBlockHeight);
     }
     // for the last values in each array, test minus 1
     const lastBlockHeight =
@@ -1353,11 +1391,11 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       })}`
     );
     //getBlockHash(lastBlockHeight);
-    getLiquidSupply(lastBlockHeight);
+    getLiquidSupplyFromContract(lastBlockHeight);
     //getBlockHash(lastBurnBlockHeight);
-    getLiquidSupply(lastBurnBlockHeight);
+    getLiquidSupplyFromContract(lastBurnBlockHeight);
     //getBlockHash(lastStacksBlockHeight);
-    getLiquidSupply(lastStacksBlockHeight);
+    getLiquidSupplyFromContract(lastStacksBlockHeight);
 
     // create proposal
     const actionProposalReceipt = simnet.callPublicFn(
@@ -1458,8 +1496,6 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
 
   it("get-voting-configuration() returns the voting configuration in the contract", () => {
     const proposalBond = actionProposalV2VoteSettings.votingBond;
-    const tokenPoolContractAddress = `${deployer}.${ContractType.DAO_BITFLOW_POOL}`;
-    const treasuryContractAddress = `${deployer}.${ContractType.DAO_TREASURY}`;
     const burnBlockHeight = simnet.burnBlockHeight;
     // const stacksBlockHeight = simnet.stacksBlockHeight;
     const expectedResult = Cl.tuple({
@@ -1490,46 +1526,19 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
 
   it("get-liquid-supply() returns the total liquid supply of the dao token", () => {
-    let liquidSupply = 0;
-    let blockHeight = simnet.blockHeight;
-    // progress chain by 1 for at-block call
-    simnet.mineEmptyBlock();
-    // get liquid supply
-    const receipt = simnet.callReadOnlyFn(
-      actionProposalsV2ContractAddress,
-      "get-liquid-supply",
-      [Cl.uint(blockHeight)],
-      deployer
-    ).result;
-    expect(receipt).toBeOk(Cl.uint(liquidSupply));
-    // get dao tokens for deployer, increases liquid tokens
-    const daoTokensReceipt = getDaoTokens(
-      tokenContractAddress,
-      tokenDexContractAddress,
-      deployer,
-      1000
+    // arrange
+    // store blockheight to check later
+    const blockHeightBeforeCall = simnet.blockHeight;
+    // progress chain by 10 burn blocks for at block call
+    simnet.mineEmptyBurnBlocks(10);
+    // get the liquid supply
+    const expectedLiquidSupply = getLiquidSupply();
+    // act
+    const contractLiquidSupply = getLiquidSupplyFromContract(
+      blockHeightBeforeCall
     );
-    expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
-    // progress chain by 1 for at-block call
-    simnet.mineEmptyBlock();
-    // get deployer balance
-    const deployerBalanceResult = simnet.callReadOnlyFn(
-      tokenContractAddress,
-      "get-balance",
-      [Cl.principal(deployer)],
-      deployer
-    ).result as ResponseOkCV;
-    liquidSupply += Number(cvToValue(deployerBalanceResult.value) as BigInt);
-    // find the correct block height
-    blockHeight = simnet.blockHeight - 1;
-    // get liquid supply
-    const receipt2 = simnet.callReadOnlyFn(
-      actionProposalsV2ContractAddress,
-      "get-liquid-supply",
-      [Cl.uint(blockHeight)],
-      deployer
-    ).result;
-    expect(receipt2).toBeOk(Cl.uint(liquidSupply));
+    // assert
+    expect(contractLiquidSupply).toBeOk(Cl.uint(expectedLiquidSupply));
   });
 
   ////////////////////////////////////////

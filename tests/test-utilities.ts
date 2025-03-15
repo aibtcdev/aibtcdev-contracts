@@ -160,10 +160,13 @@ export function fundVoters(
     );
     expect(getDaoTokensReceipt.result).toBeOk(Cl.bool(true));
     const getDaoTokensEvent = getDaoTokensReceipt.events.find(
-      (eventRecord) => eventRecord.event === "ft_transfer_event"
+      (eventRecord) =>
+        eventRecord.event === "ft_transfer_event" &&
+        eventRecord.data?.asset_identifier === `${tokenContractAddress}::SYMBOL`
     );
     expect(getDaoTokensEvent).toBeDefined();
     const daoTokensAmount = parseInt(getDaoTokensEvent!.data.amount);
+    // console.log(`voter: ${voter}, daoTokensAmount: ${daoTokensAmount}`);
     amounts.set(voter, daoTokensAmount);
   }
   // progress chain for at-block calls
