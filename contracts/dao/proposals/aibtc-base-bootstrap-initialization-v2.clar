@@ -35,7 +35,12 @@
     ;; send DAO manifest as onchain message
     (try! (contract-call? .aibtc-onchain-messaging send CFG_DAO_MANIFEST_TEXT true))
     ;; allow assets in treasury
-    (try! (contract-call? .aibtc-treasury allow-asset .aibtc-token true))
+    (try! (contract-call? .aibtc-treasury allow-assets
+      (list
+        {token: .aibtc-token, enabled: true}
+        {token: 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token, enabled: true}
+      )
+    ))
     ;; print manifest
     (print CFG_DAO_MANIFEST_TEXT)
     (ok true)
