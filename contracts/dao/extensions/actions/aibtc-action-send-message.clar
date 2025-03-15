@@ -4,6 +4,8 @@
 (define-constant ERR_UNAUTHORIZED (err u10001))
 (define-constant ERR_INVALID_PARAMS (err u10002))
 
+(define-constant CFG_MESSAGE "Executed Action Proposal: Sent an on-chain message verifed from the DAO")
+
 (define-public (callback (sender principal) (memo (buff 34))) (ok true))
 
 (define-public (run (parameters (buff 2048)))
