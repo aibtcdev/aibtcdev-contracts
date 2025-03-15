@@ -38,7 +38,7 @@ const coreProposalVotingConfig = VOTING_CONFIG["aibtc-core-proposals-v2"];
 // Error codes
 const ErrCode = UserAgentSmartWalletErrCode;
 
-function setupSmartWallet(sender: string, satsAmount: number = 100000) {
+function setupSmartWallet(sender: string, satsAmount: number = 1000000) {
   // construct the dao so we can call extensions
   const constructReceipt = constructDao(
     sender,
@@ -1581,12 +1581,31 @@ describe(`public functions: ${contractName}`, () => {
   });
   it("sell-asset() succeeds when called by user", () => {
     // arrange
-    const amount = 10000000;
+    const amount = 1000000000000n; // sell 10000 dao tokens
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
 
+    dbgLog(simnet.getAssetsMap(), {
+      titleBefore: "asset map before setup",
+    });
+
     // construct dao / setup smart wallet with dao tokens
     setupSmartWallet(deployer);
+
+    dbgLog(simnet.getAssetsMap(), {
+      titleBefore: "asset map after setup",
+    });
+
+    // get sell info from dex
+    const sellInfoCV = simnet.callReadOnlyFn(
+      tokenDexContractAddress,
+      "get-out",
+      [Cl.uint(amount)],
+      deployer
+    ).result;
+    dbgLog(cvToValue(sellInfoCV), {
+      titleBefore: "sell info from dex",
+    });
 
     // act
     const receipt = simnet.callPublicFn(
@@ -1596,34 +1615,21 @@ describe(`public functions: ${contractName}`, () => {
       deployer
     );
 
+    dbgLog(JSON.stringify(receipt, null, 2), {
+      titleBefore: "sell-asset receipt",
+    });
+
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
   it("sell-asset() succeeds when called by agent with permission", () => {
     // arrange
-    const amount = 10000000;
+    const amount = 1000000000000n; // sell 10000 dao tokens
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
 
     // construct dao / setup smart wallet with dao tokens
     setupSmartWallet(deployer);
-
-    // First buy some tokens to sell
-    const depositReceipt = simnet.callPublicFn(
-      contractAddress,
-      "deposit-stx",
-      [Cl.uint(100000000)], // 100 STX
-      deployer
-    );
-    expect(depositReceipt.result).toBeOk(Cl.bool(true));
-
-    const buyReceipt = simnet.callPublicFn(
-      contractAddress,
-      "buy-asset",
-      [Cl.principal(dex), Cl.principal(asset), Cl.uint(1000)],
-      deployer
-    );
-    expect(buyReceipt.result).toBeOk(Cl.bool(true));
 
     // enable agent to buy/sell
     const permissionReceipt = simnet.callPublicFn(
@@ -1647,7 +1653,7 @@ describe(`public functions: ${contractName}`, () => {
   });
   it("sell-asset() emits the correct notification event", () => {
     // arrange
-    const amount = 10000000;
+    const amount = 1000000000000n; // sell 10000 dao tokens
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
     // construct dao / setup smart wallet with dao tokens
@@ -1663,23 +1669,6 @@ describe(`public functions: ${contractName}`, () => {
         caller: deployer,
       },
     };
-
-    // First buy some tokens to sell
-    const depositReceipt = simnet.callPublicFn(
-      contractAddress,
-      "deposit-stx",
-      [Cl.uint(100000000)], // 100 STX
-      deployer
-    );
-    expect(depositReceipt.result).toBeOk(Cl.bool(true));
-
-    const buyReceipt = simnet.callPublicFn(
-      contractAddress,
-      "buy-asset",
-      [Cl.principal(dex), Cl.principal(asset), Cl.uint(1000)],
-      deployer
-    );
-    expect(buyReceipt.result).toBeOk(Cl.bool(true));
 
     // act
     const receipt = simnet.callPublicFn(
