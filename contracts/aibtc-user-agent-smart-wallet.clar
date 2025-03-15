@@ -27,10 +27,10 @@
 (define-constant DAO_TOKEN_DEX .aibtc-token-dex) ;; DAO token DEX
 
 ;; Error codes
-(define-constant ERR_UNAUTHORIZED (err u1000))
-(define-constant ERR_UNKNOWN_ASSET (err u1001))
-(define-constant ERR_OPERATION_FAILED (err u1002))
-(define-constant ERR_BUY_SELL_NOT_ALLOWED (err u1003))
+(define-constant ERR_UNAUTHORIZED (err u9000))
+(define-constant ERR_UNKNOWN_ASSET (err u9001))
+(define-constant ERR_OPERATION_FAILED (err u9002))
+(define-constant ERR_BUY_SELL_NOT_ALLOWED (err u9003))
 
 ;; data maps
 (define-map ApprovedAssets principal bool)

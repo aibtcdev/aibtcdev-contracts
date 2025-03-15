@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import {
   constructDao,
   convertSIP019PrintEvent,
+  dbgLog,
   fundVoters,
   passActionProposal,
   VOTING_CONFIG,
@@ -88,24 +89,24 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_SEND_MESSAGE}`, () =
       votingConfig
     );
 
-    //console.log("-- concludeProposalReceipt:");
-    //console.log(JSON.stringify(concludeProposalReceipt, null, 2));
+    //dbgLog("-- concludeProposalReceipt:");
+    //dbgLog(JSON.stringify(concludeProposalReceipt, null, 2));
     const result = cvToValue(concludeProposalReceipt.result);
-    console.log(`-- tx result: ${JSON.stringify(result)}`);
+    dbgLog(`-- tx result: ${JSON.stringify(result)}`);
 
     for (const event of concludeProposalReceipt.events) {
-      console.log(`-- tx event: ${event.event}`);
+      dbgLog(`-- tx event: ${event.event}`);
 
       if (event.data.value?.type === ClarityType.StringASCII) {
-        console.log(`type: ${event.data.value.type} (StringASCII)`);
-        console.log(`value: ${event.data.value.data}`);
+        dbgLog(`type: ${event.data.value.type} (StringASCII)`);
+        dbgLog(`value: ${event.data.value.data}`);
       } else if (event.data.value?.type === ClarityType.Tuple) {
-        console.log(`type: ${event.data.value.type} (Tuple)`);
+        dbgLog(`type: ${event.data.value.type} (Tuple)`);
         const printEvent = convertSIP019PrintEvent(event);
-        console.log(`value: ${JSON.stringify(printEvent, null, 2)}`);
+        dbgLog(`value: ${JSON.stringify(printEvent, null, 2)}`);
       } else {
-        console.log(`type: ${event.data.value?.type} (unknown)`);
-        console.log(`value: ${JSON.stringify(event.data.value, null, 2)}`);
+        dbgLog(`type: ${event.data.value?.type} (unknown)`);
+        dbgLog(`value: ${JSON.stringify(event.data.value, null, 2)}`);
       }
     }
 

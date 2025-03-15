@@ -1,16 +1,16 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
-import { BankAccountErrCode } from "../../error-codes";
+import { TimedVaultErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const deployer = accounts.get("deployer")!;
 
-const contractName = "aibtc-bank-account";
+const contractName = "aibtc-timed-vault";
 const contractAddress = `${deployer}.${contractName}`;
 
-const ErrCode = BankAccountErrCode;
+const ErrCode = TimedVaultErrCode;
 
 const withdrawalAmount = 10000000; // 10 STX
 const withdrawalPeriod = 144; // 144 blocks

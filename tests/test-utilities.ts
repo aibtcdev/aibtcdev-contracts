@@ -15,6 +15,39 @@ import {
 } from "./dao-types";
 import { ClarityEvent } from "@hirosystems/clarinet-sdk";
 
+// set to true to enable logging
+const DEBUG_ENABLED = false;
+// helper function to log messages to the console
+export function dbgLog(
+  msg: unknown,
+  params: {
+    forceLog?: boolean;
+    logType?: string;
+    titleBefore?: string;
+  } = {}
+) {
+  if (DEBUG_ENABLED || params.forceLog) {
+    if (params.titleBefore) {
+      console.log(params.titleBefore);
+    }
+    switch (params.logType) {
+      case "error":
+        console.error(msg);
+        break;
+      case "warn":
+        console.warn(msg);
+        break;
+      case "info":
+        console.info(msg);
+        break;
+      default:
+        console.log(msg);
+    }
+  }
+}
+
+export const SBTC_CONTRACT = `STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token`;
+
 // bigint replacer for json.stringify()
 export function bigIntReplacer(_key: string, value: any) {
   typeof value === "bigint" ? value.toString() : value;
@@ -27,24 +60,28 @@ export const VOTING_CONFIG: VotingConfig = {
     votingPeriod: 144, // 144 Bitcoin blocks (~1 days)
     votingQuorum: 95, // 95% of liquid supply must participate
     votingThreshold: 95, // 95% of votes must be in favor
+    votingBond: 0, // no bond
   },
   [ContractType.DAO_CORE_PROPOSALS_V2]: {
     votingDelay: 432, // 3 x 144 Bitcoin blocks (~3 days)
     votingPeriod: 432, // 3 x 144 Bitcoin blocks (~3 days)
     votingQuorum: 25, // 25% of liquid supply must participate
     votingThreshold: 90, // 90% of votes must be in favor
+    votingBond: 100000000000, // 1000 DAO token, 8 decimals
   },
   [ContractType.DAO_ACTION_PROPOSALS]: {
     votingDelay: 0, // no delay
     votingPeriod: 144, // 144 Bitcoin blocks (~1 days)
     votingQuorum: 66, // 66% of liquid supply must participate
     votingThreshold: 66, // 66% of votes must be in favor
+    votingBond: 0, // no bond
   },
   [ContractType.DAO_ACTION_PROPOSALS_V2]: {
     votingDelay: 144, // 1 x 144 Bitcoin blocks (~3 days)
     votingPeriod: 288, // 2 x 144 Bitcoin blocks (~2 days)
     votingQuorum: 15, // 15% of liquid supply must participate
     votingThreshold: 66, // 66% of votes must be in favor
+    votingBond: 100000000000, // 1000 DAO token, 8 decimals
   },
 };
 
@@ -57,7 +94,7 @@ export function generateContractNames(tokenSymbol: string): ContractNames {
     [ContractType.DAO_BASE]: `${tokenSymbol.toLowerCase()}-base-dao`,
     [ContractType.DAO_ACTION_PROPOSALS]: `${tokenSymbol.toLowerCase()}-action-proposals`,
     [ContractType.DAO_ACTION_PROPOSALS_V2]: `${tokenSymbol.toLowerCase()}-action-proposals-v2`,
-    [ContractType.DAO_BANK_ACCOUNT]: `${tokenSymbol.toLowerCase()}-bank-account`,
+    [ContractType.DAO_TIMED_VAULT]: `${tokenSymbol.toLowerCase()}-timed-vault`,
     [ContractType.DAO_CHARTER]: `${tokenSymbol.toLowerCase()}-dao-charter`,
     [ContractType.DAO_CORE_PROPOSALS]: `${tokenSymbol.toLowerCase()}-core-proposals`,
     [ContractType.DAO_CORE_PROPOSALS_V2]: `${tokenSymbol.toLowerCase()}-core-proposals-v2`,
@@ -117,13 +154,22 @@ export function getDaoTokens(
   address: string,
   satsAmount: number
 ) {
+  // get sbtc from the faucet
+  const faucetReceipt = simnet.callPublicFn(
+    SBTC_CONTRACT,
+    "faucet",
+    [],
+    address
+  );
+  expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+  // get dao tokens from the token dex
   const getDaoTokensReceipt = simnet.callPublicFn(
     tokenDexContractAddress,
     "buy",
     [Cl.principal(tokenContractAddress), Cl.uint(satsAmount)],
     address
   );
-
+  //dbgLog(`getDaoTokensReceipt: ${JSON.stringify(getDaoTokensReceipt)}`);
   return getDaoTokensReceipt;
 }
 
@@ -134,19 +180,24 @@ export function fundVoters(
 ) {
   const amounts: Map<string, number> = new Map();
   for (const voter of voters) {
-    const stxAmount = Math.floor(Math.random() * 500000000) + 1000000;
+    // between 100k and 1M satoshis
+    const btcAmount =
+      Math.floor(Math.random() * (1000000 - 100000 + 1)) + 100000;
     const getDaoTokensReceipt = getDaoTokens(
       tokenContractAddress,
       tokenDexContractAddress,
       voter,
-      stxAmount
+      btcAmount
     );
     expect(getDaoTokensReceipt.result).toBeOk(Cl.bool(true));
     const getDaoTokensEvent = getDaoTokensReceipt.events.find(
-      (eventRecord) => eventRecord.event === "ft_transfer_event"
+      (eventRecord) =>
+        eventRecord.event === "ft_transfer_event" &&
+        eventRecord.data?.asset_identifier === `${tokenContractAddress}::SYMBOL`
     );
     expect(getDaoTokensEvent).toBeDefined();
     const daoTokensAmount = parseInt(getDaoTokensEvent!.data.amount);
+    // dbgLog(`voter: ${voter}, daoTokensAmount: ${daoTokensAmount}`);
     amounts.set(voter, daoTokensAmount);
   }
   // progress chain for at-block calls

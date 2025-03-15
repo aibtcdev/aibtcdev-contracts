@@ -16,7 +16,7 @@
     ;; verify within limits for low quorum
     ;; more than 6 blocks (1hr), less than 1008 blocks (~1 week)
     (asserts! (and (> period u6) (< period u1008)) ERR_PARAMS_OUT_OF_RANGE)
-    (contract-call? .aibtc-bank-account set-withdrawal-period period)
+    (contract-call? .aibtc-timed-vault set-withdrawal-period period)
   )
 )
 

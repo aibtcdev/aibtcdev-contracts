@@ -4,14 +4,12 @@ import { OnchainMessagingErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
-const contractName = "aibtc-bank-account-initialize-new-account";
+const contractName = "aibtc-timed-vault-withdraw-stx";
 const contractAddress = `${deployer}.${contractName}`;
 
 const expectedErr = Cl.uint(OnchainMessagingErrCode.ERR_UNAUTHORIZED);
 
 describe(`core proposal: ${contractName}`, () => {
-  //console.log(`core proposal: ${contractName}`);
-  //console.log(`contractAddress: ${contractAddress}`);
   it("execute() fails if called directly", () => {
     const receipt = simnet.callPublicFn(
       contractAddress,

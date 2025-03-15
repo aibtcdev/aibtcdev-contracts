@@ -83,7 +83,7 @@
 
 ;; a smart contract that can be funded and assigned to a principal
 ;; withdrawals are based on a set amount and time period in blocks
-(define-trait bank-account (
+(define-trait timed-vault (
   ;; set account holder
   ;; @param principal the new account holder
   ;; @returns (response bool uint)
@@ -100,11 +100,11 @@
   ;; @param block the new last withdrawal block
   ;; @returns (response bool uint)
   (override-last-withdrawal-block (uint) (response bool uint))
-  ;; deposit STX to the bank account
+  ;; deposit STX to the timed vault
   ;; @param amount amount of microSTX to deposit
   ;; @returns (response bool uint)
   (deposit-stx (uint) (response bool uint))
-  ;; withdraw STX from the bank account
+  ;; withdraw STX from the timed vault
   ;; @returns (response bool uint) 
   (withdraw-stx () (response bool uint))
 ))

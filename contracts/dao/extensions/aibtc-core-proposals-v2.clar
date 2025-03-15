@@ -22,9 +22,9 @@
 (define-constant ERR_FETCHING_TOKEN_DATA (err u3001))
 (define-constant ERR_INSUFFICIENT_BALANCE (err u3002))
 (define-constant ERR_PROPOSAL_NOT_FOUND (err u3003))
-(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u3004))
-(define-constant ERR_PROPOSAL_VOTING_ACTIVE (err u3005))
-(define-constant ERR_PROPOSAL_EXECUTION_DELAY (err u3006))
+(define-constant ERR_PROPOSAL_VOTING_ACTIVE (err u3004))
+(define-constant ERR_PROPOSAL_EXECUTION_DELAY (err u3005))
+(define-constant ERR_PROPOSAL_ALREADY_EXECUTED (err u3006))
 (define-constant ERR_SAVING_PROPOSAL (err u3007))
 (define-constant ERR_PROPOSAL_ALREADY_CONCLUDED (err u3008))
 (define-constant ERR_RETRIEVING_START_BLOCK_HASH (err u3009))
@@ -44,6 +44,7 @@
 (define-constant VOTING_THRESHOLD u90) ;; 90% of votes must be in favor
 
 ;; contracts used for voting calculations
+(define-constant VOTING_TOKEN_PRE_DEX .aibtc-pre-dex)
 (define-constant VOTING_TOKEN_DEX .aibtc-token-dex)
 (define-constant VOTING_TOKEN_POOL .aibtc-bitflow-pool)
 (define-constant VOTING_TREASURY .aibtc-treasury)
@@ -52,8 +53,7 @@
 ;;
 (define-data-var proposalCount uint u0) ;; total number of proposals
 (define-data-var lastProposalCreated uint u0) ;; block height of last proposal created
-(define-data-var proposalBond uint u1000) ;; proposal bond amount, starts at 1000 DAO tokens
-
+(define-data-var proposalBond uint u100000000000) ;; proposal bond amount, starts at 1000 DAO tokens (8 decimals)
 ;; data maps
 ;;
 (define-map Proposals
@@ -330,11 +330,13 @@
     (
       (blockHash (unwrap! (get-block-hash blockHeight) ERR_RETRIEVING_START_BLOCK_HASH))
       (totalSupply (unwrap! (at-block blockHash (contract-call? .aibtc-token get-total-supply)) ERR_FETCHING_TOKEN_DATA))
+      (preDexBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_PRE_DEX)) ERR_FETCHING_TOKEN_DATA))
       (dexBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_DEX)) ERR_FETCHING_TOKEN_DATA))
       (poolBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TOKEN_POOL)) ERR_FETCHING_TOKEN_DATA))
       (treasuryBalance (unwrap! (at-block blockHash (contract-call? .aibtc-token get-balance VOTING_TREASURY)) ERR_FETCHING_TOKEN_DATA))
+      (totalLocked (+ preDexBalance dexBalance poolBalance treasuryBalance))
     )
-    (ok (- totalSupply (+ dexBalance poolBalance treasuryBalance)))
+    (ok (- totalSupply totalLocked))
   )
 )
 

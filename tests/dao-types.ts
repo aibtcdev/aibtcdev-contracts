@@ -10,13 +10,14 @@ export enum ContractType {
   // deployed before dao
   DAO_TOKEN = "aibtc-token",
   DAO_BITFLOW_POOL = "aibtc-bitflow-pool",
+  DAO_TOKEN_PRE_DEX = "aibtc-pre-dex",
   DAO_TOKEN_DEX = "aibtc-token-dex",
   // base dao
   DAO_BASE = "aibtc-base-dao",
   // dao extensions
   DAO_ACTION_PROPOSALS = "aibtc-action-proposals",
   DAO_ACTION_PROPOSALS_V2 = "aibtc-action-proposals-v2",
-  DAO_BANK_ACCOUNT = "aibtc-bank-account",
+  DAO_TIMED_VAULT = "aibtc-timed-vault",
   DAO_CHARTER = "aibtc-dao-charter",
   DAO_CORE_PROPOSALS = "aibtc-core-proposals",
   DAO_CORE_PROPOSALS_V2 = "aibtc-core-proposals-v2",
@@ -40,13 +41,13 @@ export enum ContractActionType {
 export enum ContractProposalType {
   // dao proposal templates
   DAO_ACTION_PROPOSALS_SET_PROPOSAL_BOND = "aibtc-action-proposals-set-proposal-bond",
-  DAO_BANK_ACCOUNT_DEPOSIT_STX = "aibtc-bank-account-deposit-stx",
-  DAO_BANK_ACCOUNT_INITIALIZE_NEW_ACCOUNT = "aibtc-bank-account-initialize-new-account",
-  DAO_BANK_ACCOUNT_OVERRIDE_LAST_WITHDRAWAL = "aibtc-bank-account-override-last-withdrawal",
-  DAO_BANK_ACCOUNT_SET_ACCOUNT_HOLDER = "aibtc-bank-account-set-account-holder",
-  DAO_BANK_ACCOUNT_SET_WITHDRAWAL_AMOUNT = "aibtc-bank-account-set-withdrawal-amount",
-  DAO_BANK_ACCOUNT_SET_WITHDRAWAL_PERIOD = "aibtc-bank-account-set-withdrawal-period",
-  DAO_BANK_ACCOUNT_WITHDRAW_STX = "aibtc-bank-account-withdraw-stx",
+  DAO_TIMED_VAULT_DEPOSIT_STX = "aibtc-timed-vault-deposit-stx",
+  DAO_TIMED_VAULT_INITIALIZE_NEW_ACCOUNT = "aibtc-timed-vault-initialize-new-account",
+  DAO_TIMED_VAULT_OVERRIDE_LAST_WITHDRAWAL = "aibtc-timed-vault-override-last-withdrawal",
+  DAO_TIMED_VAULT_SET_ACCOUNT_HOLDER = "aibtc-timed-vault-set-account-holder",
+  DAO_TIMED_VAULT_SET_WITHDRAWAL_AMOUNT = "aibtc-timed-vault-set-withdrawal-amount",
+  DAO_TIMED_VAULT_SET_WITHDRAWAL_PERIOD = "aibtc-timed-vault-set-withdrawal-period",
+  DAO_TIMED_VAULT_WITHDRAW_STX = "aibtc-timed-vault-withdraw-stx",
   DAO_BASE_ADD_NEW_EXTENSION = "aibtc-base-add-new-extension",
   DAO_BASE_BOOTSTRAP_INITIALIZATION = "aibtc-base-bootstrap-initialization",
   DAO_BASE_BOOTSTRAP_INITIALIZATION_V2 = "aibtc-base-bootstrap-initialization-v2",
@@ -107,6 +108,7 @@ export type VoteSettings = {
   votingPeriod: number;
   votingQuorum: number;
   votingThreshold: number;
+  votingBond: number;
 };
 
 type VotableContracts =

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { CoreProposalV2ErrCode } from "../../error-codes";
 import {
   constructDao,
+  dbgLog,
   failCoreProposal,
   fundVoters,
   getDaoTokens,
@@ -32,7 +33,10 @@ const coreProposalContactAddress = getContract(
   ContractProposalType.DAO_ONCHAIN_MESSAGING_SEND
 );
 const tokenContractAddress = getContract(ContractType.DAO_TOKEN);
+const tokenPreDexContractAddress = getContract(ContractType.DAO_TOKEN_PRE_DEX);
 const tokenDexContractAddress = getContract(ContractType.DAO_TOKEN_DEX);
+const tokenPoolContractAddress = getContract(ContractType.DAO_BITFLOW_POOL);
+const treasuryContractAddress = getContract(ContractType.DAO_TREASURY);
 const baseDaoContractAddress = getContract(ContractType.DAO_BASE);
 const bootstrapContractAddress = getContract(
   ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2
@@ -64,6 +68,44 @@ const getProposalBlocks = (burnBlockHeight: number) => {
   return { startBlock, endBlock };
 };
 
+// helper function to get liquid supply from total supply
+function getLiquidSupply() {
+  const expectedTotalSupply = 100000000000000000n;
+  // get the total supply
+  const totalSupplyResult = simnet.callReadOnlyFn(
+    tokenContractAddress,
+    "get-total-supply",
+    [],
+    deployer
+  ).result as ResponseOkCV;
+  expect(totalSupplyResult).toBeOk(Cl.uint(expectedTotalSupply));
+  const totalSupply = BigInt(cvToValue(totalSupplyResult.value, true));
+  //dbgLog(`totalSupply: ${totalSupply} ${typeof totalSupply}`);
+  // get the balances for each contract
+  const lockedSupplyContracts = [
+    tokenPreDexContractAddress,
+    tokenDexContractAddress,
+    tokenPoolContractAddress,
+    treasuryContractAddress,
+  ];
+  const lockedSupply = lockedSupplyContracts.reduce((acc, contractAddress) => {
+    // call aibtc-token to get token supply result
+    const balanceResult = simnet.callReadOnlyFn(
+      tokenContractAddress,
+      "get-balance",
+      [Cl.principal(contractAddress)],
+      deployer
+    ).result as ResponseOkCV;
+    // convert token result to number
+    const balance = BigInt(cvToValue(balanceResult.value, true));
+    // add number to accumulator
+    //dbgLog(`${contractAddress}`);
+    //dbgLog(`${acc} + ${balance} = ${acc + balance}`);
+    return acc + balance;
+  }, 0n);
+  return totalSupply - lockedSupply;
+}
+
 describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
   // callback() tests
@@ -85,7 +127,7 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
 
   it("set-proposal-bond() fails if called directly", () => {
     // arrange
-    const newBondAmount = 100;
+    const newBondAmount = 10000000000;
     // act
     const receipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
@@ -775,7 +817,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
   });
 
   it("get-proposal() succeeds and returns stored proposal data", () => {
-    const proposalBond = 1000;
+    const proposalBond = coreProposalV2VoteSettings.votingBond;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -784,11 +826,6 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       1000
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
-    const daoTokensReceiptEvent = daoTokensReceipt.events.find(
-      (eventRecord) => eventRecord.event === "ft_transfer_event"
-    );
-    expect(daoTokensReceiptEvent).toBeDefined();
-    const daoTokensAmount = parseInt(daoTokensReceiptEvent!.data.amount);
     // construct DAO
     const constructReceipt = constructDao(
       deployer,
@@ -798,7 +835,6 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
     // progress the chain past the first voting period
     simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingPeriod);
-
     // create core proposal
     const createdAtStacksBlock = simnet.stacksBlockHeight;
     const createdAtBurnBlock = simnet.burnBlockHeight;
@@ -816,11 +852,14 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     expect(createProposalReceiptEvent).toBeDefined();
     const createProposalReceiptEventData =
       createProposalReceiptEvent!.data.value;
+    expect(createProposalReceiptEvent).toBeDefined();
     const createProposalPrintEvent = cvToValue(createProposalReceiptEventData!);
     const createdAt = parseInt(
       createProposalPrintEvent.payload.value.createdAt.value
     );
-
+    expect(createdAt).toBe(createdAtStacksBlock);
+    // get liquid supply
+    const expectedLiquidSupply = getLiquidSupply();
     // get proposal info
     const receipt = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
@@ -839,7 +878,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
         endBlock: Cl.uint(endBlock), // createdAt + coreProposalV2VoteSettings.votingDelay + coreProposalV2VoteSettings.votingPeriod
         votesFor: Cl.uint(0),
         votesAgainst: Cl.uint(0),
-        liquidTokens: Cl.uint(daoTokensAmount),
+        liquidTokens: Cl.uint(expectedLiquidSupply),
         concluded: Cl.bool(false),
         metQuorum: Cl.bool(false),
         metThreshold: Cl.bool(false),
@@ -1003,9 +1042,9 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeUint(expectedProposals);
     // create 10 proposals
     const coreProposals = [
-      getContract(ContractProposalType.DAO_BANK_ACCOUNT_DEPOSIT_STX),
-      getContract(ContractProposalType.DAO_BANK_ACCOUNT_WITHDRAW_STX),
-      getContract(ContractProposalType.DAO_BANK_ACCOUNT_SET_ACCOUNT_HOLDER),
+      getContract(ContractProposalType.DAO_TIMED_VAULT_DEPOSIT_STX),
+      getContract(ContractProposalType.DAO_TIMED_VAULT_WITHDRAW_STX),
+      getContract(ContractProposalType.DAO_TIMED_VAULT_SET_ACCOUNT_HOLDER),
       getContract(ContractProposalType.DAO_BASE_ADD_NEW_EXTENSION),
       getContract(ContractProposalType.DAO_BASE_DISABLE_EXTENSION),
       getContract(ContractProposalType.DAO_PAYMENTS_INVOICES_ADD_RESOURCE),
@@ -1050,12 +1089,11 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
   });
 
   it("get-last-proposal-created() succeeds and returns the block height of the last proposal", () => {
-    console.log("current epoch", simnet.currentEpoch);
-    console.log(
-      "clarity version",
-      simnet.getDefaultClarityVersionForCurrentEpoch()
-    );
-    console.log("starting block", simnet.blockHeight);
+    dbgLog(simnet.currentEpoch, { titleBefore: "current epoch" });
+    dbgLog(simnet.getDefaultClarityVersionForCurrentEpoch(), {
+      titleBefore: "clarity version",
+    });
+    dbgLog(simnet.blockHeight, { titleBefore: "starting block" });
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -1064,10 +1102,10 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       1000
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
-    console.log("after dao tokens receipt", simnet.blockHeight);
+    dbgLog(simnet.blockHeight, { titleBefore: "after dao tokens receipt" });
     // progress the chain for at-block calls
     simnet.mineEmptyBlocks(10);
-    console.log("after mine empty blocks", simnet.blockHeight);
+    dbgLog(simnet.blockHeight, { titleBefore: "after mine empty blocks" });
     // construct the dao
     const constructReceipt = constructDao(
       deployer,
@@ -1075,10 +1113,10 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       bootstrapContractAddress
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
-    console.log("after construct dao", simnet.blockHeight);
+    dbgLog(simnet.blockHeight, { titleBefore: "after construct dao" });
     // progress the chain past the first voting period
     simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingPeriod);
-    console.log("after mine empty blocks", simnet.blockHeight);
+    dbgLog(simnet.blockHeight, { titleBefore: "after mine empty blocks" });
     // create proposal
     const coreProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
@@ -1087,7 +1125,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       deployer
     );
     expect(coreProposalReceipt.result).toBeOk(Cl.bool(true));
-    console.log("after create proposal", simnet.blockHeight);
+    dbgLog(simnet.blockHeight, { titleBefore: "after create proposal" });
     // extract createdAt
     const coreProposalReceiptEvent = coreProposalReceipt.events.find(
       (eventRecord) => eventRecord.event === "print_event"
@@ -1098,7 +1136,9 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const createdAt = parseInt(
       coreProposalPrintEvent.payload.value.createdAt.value
     );
-    console.log("compared to createdAt", simnet.blockHeight, createdAt);
+    dbgLog(`${simnet.blockHeight}, ${createdAt}`, {
+      titleBefore: "compared to createdAt",
+    });
     // get last proposal created
     const receipt = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
@@ -1109,7 +1149,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     expect(receipt.result).toBeUint(createdAt);
     // progress the chain
     simnet.mineEmptyBlocks(10);
-    console.log("after mine empty blocks", simnet.blockHeight);
+    dbgLog(simnet.blockHeight, { titleBefore: "after mine empty blocks" });
     // create proposal
     const coreProposalContractAddress2 = getContract(
       ContractProposalType.DAO_BASE_ENABLE_EXTENSION
@@ -1121,7 +1161,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       deployer
     );
     expect(coreProposalReceipt2.result).toBeOk(Cl.bool(true));
-    console.log("after create proposal 2", simnet.blockHeight);
+    dbgLog(simnet.blockHeight, { titleBefore: "after create proposal 2" });
     // extract createdAt
     const coreProposalReceiptEvent2 = coreProposalReceipt2.events.find(
       (eventRecord) => eventRecord.event === "print_event"
@@ -1132,7 +1172,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const createdAt2 = parseInt(
       coreProposalPrintEvent2.payload.value.createdAt.value
     );
-    console.log("compared to createdAt2", simnet.blockHeight, createdAt2);
+    dbgLog(simnet.blockHeight, { titleBefore: "compared to createdAt2" });
     // get last proposal created
     const receipt2 = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
@@ -1148,7 +1188,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
 
   it("get-voting-configuration() returns the voting configuration in the contract", () => {
-    const proposalBond = 1000n;
+    const proposalBond = coreProposalV2VoteSettings.votingBond;
     const tokenPoolContractAddress = `${deployer}.${ContractType.DAO_BITFLOW_POOL}`;
     const treasuryContractAddress = `${deployer}.${ContractType.DAO_TREASURY}`;
     const burnBlockHeight = simnet.burnBlockHeight;
@@ -1181,40 +1221,50 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
 
   it("get-liquid-supply() returns the total liquid supply of the dao token", () => {
-    let liquidSupply = 0;
-    let blockHeight = simnet.blockHeight;
-    // progress chain by 1 for at-block call
-    simnet.mineEmptyBlock();
-    // get liquid supply
+    // arrange
+    const blockHeightBeforeCall = simnet.blockHeight;
+    // progress chain by 10 burn blocks for at-block call
+    simnet.mineEmptyBurnBlocks(10);
+    // get the liquid supply
+    const expectedLiquidSupply = getLiquidSupply();
+    //dbgLog(`expectedLiquidSupply: ${expectedLiquidSupply}`);
+    // get the liquid supply
     const liquidSupplyResult = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
       "get-liquid-supply",
-      [Cl.uint(blockHeight)],
+      [Cl.uint(blockHeightBeforeCall)],
       deployer
-    ).result;
-    expect(liquidSupplyResult).toBeOk(Cl.uint(liquidSupply));
+    ).result as ResponseOkCV;
+    //dbgLog(
+    //  `liquidSupplyResult: ${cvToValue(liquidSupplyResult.value, true)}`
+    //);
+    expect(liquidSupplyResult).toBeOk(Cl.uint(expectedLiquidSupply));
     // get dao tokens for deployer, increases liquid tokens
-    const daoTokensReceipt = getDaoTokens(
+    const daoTokensResult = getDaoTokens(
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000
-    );
-    const daoTokensReceiptEvent = daoTokensReceipt.events.find(
-      (eventRecord) => eventRecord.event === "ft_transfer_event"
-    );
-    expect(daoTokensReceiptEvent).toBeDefined();
-    liquidSupply += parseInt(daoTokensReceiptEvent!.data.amount);
+      10000
+    ).result;
+    expect(daoTokensResult).toBeOk(Cl.bool(true));
+    // arrange part 2
+    const blockHeightBeforeCall2 = simnet.blockHeight;
     // progress chain for at-block calls
-    simnet.mineEmptyBlocks(10);
-    // get liquid supply
+    simnet.mineEmptyBurnBlocks(10);
+    // get the liquid supply
+    const expectedLiquidSupply2 = getLiquidSupply();
+    dbgLog(`expectedLiquidSupply2: ${expectedLiquidSupply2}`);
+    // get the liquid supply
     const liquidSupplyResult2 = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
       "get-liquid-supply",
-      [Cl.uint(blockHeight + 2)],
+      [Cl.uint(blockHeightBeforeCall2)],
       deployer
-    ).result;
-    expect(liquidSupplyResult2).toBeOk(Cl.uint(liquidSupply));
+    ).result as ResponseOkCV;
+    dbgLog(
+      `liquidSupplyResult2: ${cvToValue(liquidSupplyResult2.value, true)}`
+    );
+    expect(liquidSupplyResult2).toBeOk(Cl.uint(expectedLiquidSupply2));
   });
 
   ////////////////////////////////////////
@@ -1222,7 +1272,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
   it("get-proposal-bond() returns the proposal bond set in the contract", () => {
     // arrange
-    const proposalBond = 1000;
+    const proposalBond = coreProposalV2VoteSettings.votingBond;
     // act
     const receipt = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
