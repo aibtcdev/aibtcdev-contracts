@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Toggle a resource enabled status by index")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Toggled a resource status by index in the payments/invoices extension")
 (define-constant CFG_RESOURCE_INDEX u1)
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 ;; was CFG_PAYMENTS_CONTRACT .aibtc-payments-invoices

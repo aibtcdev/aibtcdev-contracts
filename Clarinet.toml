@@ -167,11 +167,6 @@ path = 'contracts/dao/proposals/aibtc-action-proposals-set-proposal-bond.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-timed-vault-deposit-stx]
-path = 'contracts/dao/proposals/aibtc-timed-vault-deposit-stx.clar'
-clarity_version = 2
-epoch = 3.1
-
 [contracts.aibtc-timed-vault-initialize-new-account]
 path = 'contracts/dao/proposals/aibtc-timed-vault-initialize-new-account.clar'
 clarity_version = 2
@@ -257,16 +252,6 @@ path = 'contracts/dao/proposals/aibtc-payments-invoices-add-resource.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-payments-invoices-pay-invoice-by-resource-name]
-path = 'contracts/dao/proposals/aibtc-payments-invoices-pay-invoice-by-resource-name.clar'
-clarity_version = 2
-epoch = 3.1
-
-[contracts.aibtc-payments-invoices-pay-invoice]
-path = 'contracts/dao/proposals/aibtc-payments-invoices-pay-invoice.clar'
-clarity_version = 2
-epoch = 3.1
-
 [contracts.aibtc-payments-invoices-set-payment-address]
 path = 'contracts/dao/proposals/aibtc-payments-invoices-set-payment-address.clar'
 clarity_version = 2
@@ -299,21 +284,6 @@ epoch = 3.1
 
 [contracts.aibtc-treasury-delegate-stx]
 path = 'contracts/dao/proposals/aibtc-treasury-delegate-stx.clar'
-clarity_version = 2
-epoch = 3.1
-
-[contracts.aibtc-treasury-deposit-ft]
-path = 'contracts/dao/proposals/aibtc-treasury-deposit-ft.clar'
-clarity_version = 2
-epoch = 3.1
-
-[contracts.aibtc-treasury-deposit-nft]
-path = 'contracts/dao/proposals/aibtc-treasury-deposit-nft.clar'
-clarity_version = 2
-epoch = 3.1
-
-[contracts.aibtc-treasury-deposit-stx]
-path = 'contracts/dao/proposals/aibtc-treasury-deposit-stx.clar'
 clarity_version = 2
 epoch = 3.1
 

@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Set token uri for dao token")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Set token URI in the DAO token contract")
 (define-constant CFG_TOKEN_URI u"https://example.com/token.json")
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 ;; was CFG_TOKEN_OWNER_CONTRACT .aibtc-token-owner

@@ -42,6 +42,7 @@
     ((sender tx-sender))
     (asserts! (is-eq sender (var-get executive)) ERR_UNAUTHORIZED)
     (asserts! (not (var-get constructed)) ERR_DAO_ALREADY_CONSTRUCTED)
+    (var-set constructed true)
     (var-set executive (as-contract tx-sender))
     (as-contract (execute proposal sender))
   )
@@ -107,6 +108,10 @@
 
 ;; read only functions
 ;;
+
+(define-read-only (is-constructed)
+  (var-get constructed)
+)
 
 (define-read-only (is-extension (extension principal))
   (default-to false (map-get? Extensions extension))

@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Transfer dao token ownership to new owner")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Transferred token ownership to new owner in the DAO token contract")
 (define-constant CFG_NEW_OWNER 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM)
 ;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
 ;; was CFG_TOKEN_OWNER_CONTRACT .aibtc-token-owner
