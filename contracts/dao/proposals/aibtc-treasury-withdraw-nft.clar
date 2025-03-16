@@ -11,9 +11,11 @@
 
 (define-public (execute (sender principal))
   (begin
+    ;; allow asset in the treasury
+    (try! (contract-call? .aibtc-treasury allow-asset .aibtcdev-airdrop-1 true))
     ;; send a message from the dao
     (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
-    ;; withdraw an NFT from the treasury
+    ;; withdraw NFT from the treasury
     (contract-call? .aibtc-treasury withdraw-nft .aibtcdev-airdrop-1 CFG_NFT_ID CFG_RECIPIENT)
   )
 )
