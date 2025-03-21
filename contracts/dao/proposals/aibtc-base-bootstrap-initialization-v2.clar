@@ -8,12 +8,12 @@
     ;; set initial dao extensions list
     (try! (contract-call? .aibtc-base-dao set-extensions
       (list
-        {extension: .aibtc-dao-charter, enabled: true}
         {extension: .aibtc-action-proposals-v2, enabled: true}
-        {extension: .aibtc-timed-vault, enabled: true}
         {extension: .aibtc-core-proposals-v2, enabled: true}
+        {extension: .aibtc-dao-charter, enabled: true}
         {extension: .aibtc-onchain-messaging, enabled: true}
         {extension: .aibtc-payments-invoices, enabled: true}
+        {extension: .aibtc-timed-vault, enabled: true}
         {extension: .aibtc-token-owner, enabled: true}
         {extension: .aibtc-treasury, enabled: true}
       )

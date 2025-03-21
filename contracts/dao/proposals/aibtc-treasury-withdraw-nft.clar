@@ -11,7 +11,7 @@
 
 (define-public (execute (sender principal))
   (begin
-    ;; allow asset in the treasury
+    ;; allow asset in the treasury (FOR TESTING ONLY - need to separate)
     (try! (contract-call? .aibtc-treasury allow-asset .aibtcdev-airdrop-1 true))
     ;; send a message from the dao
     (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
