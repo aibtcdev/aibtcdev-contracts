@@ -6,11 +6,9 @@ coverage:
   round: down
   range: "70...100"
   status:
-
-  status:
     project:
       default:
-        target: 50% # 95% goal
+        target: 60% # 95% goal
         threshold: 10% # 5% goal
         base: auto
         if_ci_failed: error
@@ -32,4 +30,6 @@ comment:
   require_head: true
 
 ignore:
-  - "contracts/test/**/*"  # Ignore everything in contracts/test directory
+  - "contracts/test"
+  - "aibtcdev-airdrop-1.clar"
+  - "aibtcdev-airdrop-2.clar"
