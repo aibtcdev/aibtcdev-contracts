@@ -582,6 +582,8 @@ describe(`public functions: ${contractName}`, () => {
   ////////////////////////////////////////
   // proxy-propose-action() tests
   ////////////////////////////////////////
+  const memoContext = "Can pass up to 1024 characters for additional context.";
+
   it("proxy-propose-action() fails if caller is not authorized (user or agent)", () => {
     // arrange
     const message = Cl.stringAscii("hello world");
@@ -593,6 +595,7 @@ describe(`public functions: ${contractName}`, () => {
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
         Cl.buffer(Cl.serialize(message)),
+        Cl.some(Cl.stringAscii(memoContext)),
       ],
       address3
     );
@@ -612,6 +615,7 @@ describe(`public functions: ${contractName}`, () => {
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
         Cl.buffer(Cl.serialize(message)),
+        Cl.some(Cl.stringAscii(memoContext)),
       ],
       deployer
     );
@@ -641,6 +645,7 @@ describe(`public functions: ${contractName}`, () => {
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
         Cl.buffer(Cl.serialize(message)),
+        Cl.some(Cl.stringAscii(memoContext)),
       ],
       deployer
     );
@@ -662,6 +667,7 @@ describe(`public functions: ${contractName}`, () => {
       [
         Cl.principal(coreProposalsV2ContractAddress),
         Cl.principal(baseEnableExtensionContractAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
       ],
       address3
     );
@@ -681,6 +687,7 @@ describe(`public functions: ${contractName}`, () => {
       [
         Cl.principal(coreProposalsV2ContractAddress),
         Cl.principal(baseEnableExtensionContractAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
       ],
       deployer
     );
@@ -710,6 +717,7 @@ describe(`public functions: ${contractName}`, () => {
       [
         Cl.principal(coreProposalsV2ContractAddress),
         Cl.principal(baseEnableExtensionContractAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
       ],
       deployer
     );
@@ -756,6 +764,7 @@ describe(`public functions: ${contractName}`, () => {
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
         Cl.buffer(Cl.serialize(message)),
+        Cl.some(Cl.stringAscii(memoContext)),
       ],
       deployer
     );
@@ -791,6 +800,7 @@ describe(`public functions: ${contractName}`, () => {
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
         Cl.buffer(Cl.serialize(message)),
+        Cl.some(Cl.stringAscii(memoContext)),
       ],
       deployer
     );
@@ -860,6 +870,7 @@ describe(`public functions: ${contractName}`, () => {
       [
         Cl.principal(coreProposalsV2ContractAddress),
         Cl.principal(baseEnableExtensionContractAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
       ],
       deployer
     );
@@ -894,6 +905,7 @@ describe(`public functions: ${contractName}`, () => {
       [
         Cl.principal(coreProposalsV2ContractAddress),
         Cl.principal(baseEnableExtensionContractAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
       ],
       deployer
     );
@@ -968,6 +980,7 @@ describe(`public functions: ${contractName}`, () => {
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
         Cl.buffer(Cl.serialize(message)),
+        Cl.some(Cl.stringAscii(memoContext)),
       ],
       deployer
     );
@@ -1050,6 +1063,7 @@ describe(`public functions: ${contractName}`, () => {
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
         Cl.buffer(Cl.serialize(message)),
+        Cl.some(Cl.stringAscii(memoContext)),
       ],
       deployer
     );
@@ -1142,6 +1156,7 @@ describe(`public functions: ${contractName}`, () => {
       [
         Cl.principal(coreProposalsV2ContractAddress),
         Cl.principal(baseEnableExtensionContractAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
       ],
       deployer
     );

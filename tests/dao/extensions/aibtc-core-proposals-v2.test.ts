@@ -47,6 +47,9 @@ const coreProposalV2VoteSettings =
 // import contract error codes
 const ErrCode = CoreProposalV2ErrCode;
 
+// generic context for creating proposals
+const memoContext = "Can pass up to 1024 characters for additional context.";
+
 // helper for getting start block for proposals
 const getProposalStartBlock = (burnBlockHeight: number): number => {
   return burnBlockHeight + coreProposalV2VoteSettings.votingDelay;
@@ -188,7 +191,10 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const receipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_FETCHING_TOKEN_DATA));
@@ -216,7 +222,10 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const receipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_FIRST_VOTING_PERIOD));
@@ -244,7 +253,10 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const receipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       address1
     );
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_INSUFFICIENT_BALANCE));
@@ -279,7 +291,10 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const receipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(receipt.result).toBeErr(
@@ -326,7 +341,10 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const createProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -399,7 +417,10 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const createProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -435,7 +456,10 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const createProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -476,7 +500,10 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const createProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -576,7 +603,10 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const createProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -614,7 +644,10 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const createProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -687,7 +720,10 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const createProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -842,7 +878,10 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const createProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -873,6 +912,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
         createdAt: Cl.uint(createdAtStacksBlock), // createdAt
         caller: Cl.principal(deployer),
         creator: Cl.principal(deployer),
+        memo: Cl.some(Cl.stringAscii(memoContext)),
         bond: Cl.uint(proposalBond),
         startBlock: Cl.uint(startBlock), // createdAt + coreProposalV2VoteSettings.votingDelay
         endBlock: Cl.uint(endBlock), // createdAt + coreProposalV2VoteSettings.votingDelay + coreProposalV2VoteSettings.votingPeriod
@@ -951,7 +991,10 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const coreProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(coreProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -1028,7 +1071,10 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const coreProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(coreProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -1059,7 +1105,10 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       const coreProposalReceipt = simnet.callPublicFn(
         coreProposalsV2ContractAddress,
         "create-proposal",
-        [Cl.principal(coreProposals[i])],
+        [
+          Cl.principal(coreProposals[i]),
+          i % 2 === 0 ? Cl.some(Cl.stringAscii(memoContext)) : Cl.none(),
+        ],
         deployer
       );
       expect(coreProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -1121,7 +1170,10 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const coreProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContactAddress)],
+      [
+        Cl.principal(coreProposalContactAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
       deployer
     );
     expect(coreProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -1157,7 +1209,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     const coreProposalReceipt2 = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
       "create-proposal",
-      [Cl.principal(coreProposalContractAddress2)],
+      [Cl.principal(coreProposalContractAddress2), Cl.none()],
       deployer
     );
     expect(coreProposalReceipt2.result).toBeOk(Cl.bool(true));

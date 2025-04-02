@@ -220,6 +220,8 @@ export function constructDao(
   return constructDaoReceipt;
 }
 
+const memoContext = "Can pass up to 1024 characters for additional context.";
+
 export function passCoreProposal(
   coreProposalsContractAddress: string,
   proposalContractAddress: string,
@@ -234,7 +236,10 @@ export function passCoreProposal(
   const createProposalReceipt = simnet.callPublicFn(
     coreProposalsContractAddress,
     "create-proposal",
-    [Cl.principal(proposalContractAddress)],
+    [
+      Cl.principal(proposalContractAddress),
+      Cl.some(Cl.stringAscii(memoContext)),
+    ],
     sender
   );
   expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -279,7 +284,10 @@ export function failCoreProposal(
   const createProposalReceipt = simnet.callPublicFn(
     coreProposalsContractAddress,
     "create-proposal",
-    [Cl.principal(proposalContractAddress)],
+    [
+      Cl.principal(proposalContractAddress),
+      Cl.some(Cl.stringAscii(memoContext)),
+    ],
     sender
   );
   expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -327,6 +335,7 @@ export function passActionProposal(
     [
       Cl.principal(proposalContractAddress),
       Cl.buffer(Cl.serialize(proposalParams)),
+      Cl.some(Cl.stringAscii(memoContext)),
     ],
     sender
   );
