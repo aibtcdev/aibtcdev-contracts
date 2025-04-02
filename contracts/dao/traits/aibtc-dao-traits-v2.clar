@@ -68,7 +68,7 @@
   ;; @param action the action contract
   ;; @param parameters encoded action parameters
   ;; @returns (response bool uint)
-  (propose-action (<action> (buff 2048)) (response bool uint))
+  (propose-action (<action> (buff 2048) (optional (string-ascii 1024))) (response bool uint))
   ;; vote on an existing proposal
   ;; @param proposal the proposal id
   ;; @param vote true for yes, false for no
@@ -126,7 +126,7 @@
   ;; create a new proposal
   ;; @param proposal the proposal contract
   ;; @returns (response bool uint)
-  (create-proposal (<proposal>) (response bool uint))
+  (create-proposal (<proposal> (optional (string-ascii 1024))) (response bool uint))
   ;; vote on an existing proposal
   ;; @param proposal the proposal contract
   ;; @param vote true for yes, false for no

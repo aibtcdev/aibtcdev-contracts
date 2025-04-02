@@ -48,12 +48,12 @@
   ;; @param action the action contract
   ;; @param parameters encoded action parameters
   ;; @returns (response bool uint)
-  (proxy-propose-action (<dao-action-proposals-trait> <dao-action-trait> (buff 2048)) (response bool uint))
+  (proxy-propose-action (<dao-action-proposals-trait> <dao-action-trait> (buff 2048) (optional (string-ascii 1024))) (response bool uint))
   ;; create a core proposal to the DAO (user or agent)
   ;; @param core-proposals the core proposals contract
   ;; @param proposal the proposal contract
   ;; @returns (response bool uint)
-  (proxy-create-proposal (<dao-core-proposals-trait> <dao-proposal-trait>) (response bool uint))  
+  (proxy-create-proposal (<dao-core-proposals-trait> <dao-proposal-trait> (optional (string-ascii 1024))) (response bool uint))  
   ;; vote on an action proposal (user or agent)
   ;; @param action-proposals the action proposals contract
   ;; @param proposalId the proposal ID
