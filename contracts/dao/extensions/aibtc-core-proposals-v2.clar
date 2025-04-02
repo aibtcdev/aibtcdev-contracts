@@ -62,6 +62,7 @@
     createdAt: uint, ;; stacks block height for at-block calls
     caller: principal, ;; contract caller
     creator: principal, ;; proposal creator (tx-sender)
+    memo: (optional (string-ascii 1024)), ;; memo for the proposal
     bond: uint, ;; proposal bond amount
     startBlock: uint, ;; burn block height
     endBlock: uint, ;; burn block height
@@ -110,7 +111,7 @@
   )
 )
 
-(define-public (create-proposal (proposal <proposal-trait>))
+(define-public (create-proposal (proposal <proposal-trait>) (memo (optional (string-ascii 1024))))
   (let
     (
       (proposalContract (contract-of proposal))
@@ -150,6 +151,7 @@
       caller: contract-caller,
       creator: tx-sender,
       createdAt: createdAt,
+      memo: (if (is-some memo) memo none),
       bond: bondAmount,
       startBlock: startBlock,
       endBlock: endBlock,

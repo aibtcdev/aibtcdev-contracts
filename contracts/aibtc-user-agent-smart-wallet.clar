@@ -144,7 +144,7 @@
 
 ;; DAO Interaction Functions
 
-(define-public (proxy-propose-action (action-proposals <action-proposals-trait>) (action <action-trait>) (parameters (buff 2048)))
+(define-public (proxy-propose-action (action-proposals <action-proposals-trait>) (action <action-trait>) (parameters (buff 2048)) (memo (optional (string-ascii 1024))))
   (begin
     (asserts! (is-authorized) ERR_UNAUTHORIZED)
     (print {
@@ -157,11 +157,11 @@
         caller: contract-caller
       }
     })
-    (as-contract (contract-call? action-proposals propose-action action parameters))
+    (as-contract (contract-call? action-proposals propose-action action parameters memo))
   )
 )
 
-(define-public (proxy-create-proposal (core-proposals <core-proposals-trait>) (proposal <proposal-trait>))
+(define-public (proxy-create-proposal (core-proposals <core-proposals-trait>) (proposal <proposal-trait>) (memo (optional (string-ascii 1024))))
   (begin
     (asserts! (is-authorized) ERR_UNAUTHORIZED)
     (print {
@@ -173,7 +173,7 @@
         caller: contract-caller
       }
     })
-    (as-contract (contract-call? core-proposals create-proposal proposal))
+    (as-contract (contract-call? core-proposals create-proposal proposal memo))
   )
 )
 
