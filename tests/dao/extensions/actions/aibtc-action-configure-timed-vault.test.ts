@@ -189,7 +189,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
       const concludeProposalReceipt = passActionProposal(
         actionProposalsContractAddress,
         contractAddress,
-        2, // proposal ID
+        1, // proposal ID
         paramsCV,
         deployer,
         deployer,
@@ -239,7 +239,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
       const concludeProposalReceipt = passActionProposal(
         actionProposalsContractAddress,
         contractAddress,
-        3, // proposal ID
+        1, // proposal ID
         paramsCV,
         deployer,
         deployer,
@@ -289,7 +289,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
       const concludeProposalReceipt = passActionProposal(
         actionProposalsContractAddress,
         contractAddress,
-        4, // proposal ID
+        1, // proposal ID
         paramsCV,
         deployer,
         deployer,
@@ -341,7 +341,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
       const concludeProposalReceipt = passActionProposal(
         actionProposalsContractAddress,
         contractAddress,
-        5, // proposal ID
+        1, // proposal ID
         paramsCV,
         deployer,
         deployer,
@@ -392,7 +392,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
       const concludeProposalReceipt = passActionProposal(
         actionProposalsContractAddress,
         contractAddress,
-        6, // proposal ID
+        1, // proposal ID
         paramsCV,
         deployer,
         deployer,
@@ -443,7 +443,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
       const concludeProposalReceipt = passActionProposal(
         actionProposalsContractAddress,
         contractAddress,
-        7, // proposal ID
+        1, // proposal ID
         paramsCV,
         deployer,
         deployer,
@@ -494,7 +494,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
       const concludeProposalReceipt = passActionProposal(
         actionProposalsContractAddress,
         contractAddress,
-        8, // proposal ID
+        1, // proposal ID
         paramsCV,
         deployer,
         deployer,
@@ -547,7 +547,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
       const concludeProposalReceipt = passActionProposal(
         actionProposalsContractAddress,
         contractAddress,
-        9, // proposal ID
+        1, // proposal ID
         paramsCV,
         deployer,
         deployer,
@@ -597,7 +597,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
       const concludeProposalReceipt = passActionProposal(
         actionProposalsContractAddress,
         contractAddress,
-        10, // proposal ID
+        1, // proposal ID
         paramsCV,
         deployer,
         deployer,
@@ -647,7 +647,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
       const concludeProposalReceipt = passActionProposal(
         actionProposalsContractAddress,
         contractAddress,
-        11, // proposal ID
+        1, // proposal ID
         paramsCV,
         deployer,
         deployer,
@@ -697,7 +697,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
       const concludeProposalReceipt = passActionProposal(
         actionProposalsContractAddress,
         contractAddress,
-        12, // proposal ID
+        1, // proposal ID
         paramsCV,
         deployer,
         deployer,
