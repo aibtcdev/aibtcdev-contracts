@@ -31,8 +31,8 @@
       (try! (contract-call? .aibtc-timed-vault set-withdrawal-amount (unwrap-panic optAmount)))
     )
     ;; set period if present and within limits
-    (and (is-some optPeriod)) (> (unwrap-panic optPeriod) u6) (< (unwrap-panic optPeriod) u8064)
-      (try! (contract-call? .aibtc-timed-vault set-withdrawal-period (unwrap-panic optPeriod))
+    (and (is-some optPeriod) (> (unwrap-panic optPeriod) u6) (< (unwrap-panic optPeriod) u8064)
+      (try! (contract-call? .aibtc-timed-vault set-withdrawal-period (unwrap-panic optPeriod)))
     )
     (ok true)
   )

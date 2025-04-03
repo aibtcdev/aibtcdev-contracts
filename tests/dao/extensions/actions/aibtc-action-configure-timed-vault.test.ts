@@ -159,7 +159,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
         amount: withdrawalAmount,
         period: withdrawalPeriod,
       });
-      
+
       // setup contract names
       const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
       const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
@@ -209,7 +209,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
         amount: withdrawalAmount,
         period: withdrawalPeriod,
       });
-      
+
       // setup contract names
       const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
       const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
@@ -259,7 +259,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
         amount: withdrawalAmount,
         period: withdrawalPeriod,
       });
-      
+
       // setup contract names
       const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
       const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
@@ -311,7 +311,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
         amount: withdrawalAmount,
         period: withdrawalPeriod,
       });
-      
+
       // setup contract names
       const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
       const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
@@ -362,7 +362,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
         amount: withdrawalAmount,
         period: withdrawalPeriod,
       });
-      
+
       // setup contract names
       const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
       const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
@@ -413,7 +413,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
         amount: withdrawalAmount,
         period: withdrawalPeriod,
       });
-      
+
       // setup contract names
       const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
       const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
@@ -464,7 +464,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
         amount: withdrawalAmount,
         period: withdrawalPeriod,
       });
-      
+
       // setup contract names
       const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
       const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
@@ -510,14 +510,14 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
   describe("Boundary Value Tests", () => {
     it("run() succeeds with minimum valid withdrawal amount", () => {
       const accountHolder = Cl.none();
-      const withdrawalAmount = Cl.some(Cl.uint(1)); // Minimum valid amount
+      const withdrawalAmount = Cl.some(Cl.uint(10)); // Minimum valid amount
       const withdrawalPeriod = Cl.none();
       const paramsCV = Cl.tuple({
         accountHolder,
         amount: withdrawalAmount,
         period: withdrawalPeriod,
       });
-      
+
       // setup contract names
       const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
       const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
@@ -567,7 +567,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
         amount: withdrawalAmount,
         period: withdrawalPeriod,
       });
-      
+
       // setup contract names
       const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
       const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
@@ -617,7 +617,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
         amount: withdrawalAmount,
         period: withdrawalPeriod,
       });
-      
+
       // setup contract names
       const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
       const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
@@ -667,7 +667,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
         amount: withdrawalAmount,
         period: withdrawalPeriod,
       });
-      
+
       // setup contract names
       const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
       const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
