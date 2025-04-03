@@ -36,6 +36,7 @@ export enum ContractActionType {
   DAO_ACTION_SET_WITHDRAWAL_AMOUNT = "aibtc-action-set-withdrawal-amount",
   DAO_ACTION_SET_WITHDRAWAL_PERIOD = "aibtc-action-set-withdrawal-period",
   DAO_ACTION_TOGGLE_RESOURCE_BY_NAME = "aibtc-action-toggle-resource-by-name",
+  DAO_ACTION_CONFIGURE_TIMED_VAULT = "aibtc-action-configure-timed-vault",
 }
 
 export enum ContractProposalType {

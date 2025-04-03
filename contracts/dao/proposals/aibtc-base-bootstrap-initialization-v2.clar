@@ -23,6 +23,7 @@
       (list
         {extension: .aibtc-action-add-resource, enabled: true}
         {extension: .aibtc-action-allow-asset, enabled: true}
+        {extension: .aibtc-action-configure-timed-vault, enabled: true}
         {extension: .aibtc-action-send-message, enabled: true}
         {extension: .aibtc-action-set-account-holder, enabled: true}
         {extension: .aibtc-action-set-withdrawal-amount, enabled: true}
