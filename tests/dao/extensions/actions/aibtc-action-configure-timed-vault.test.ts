@@ -300,4 +300,412 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
       expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
     });
   });
+
+  describe("Parameter Validation Tests", () => {
+    it("run() fails with invalid withdrawal amount (zero)", () => {
+      const accountHolder = Cl.none();
+      const withdrawalAmount = Cl.some(Cl.uint(0)); // Invalid: amount = 0
+      const withdrawalPeriod = Cl.none();
+      const paramsCV = Cl.tuple({
+        accountHolder,
+        amount: withdrawalAmount,
+        period: withdrawalPeriod,
+      });
+      
+      // setup contract names
+      const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+      const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+      const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+      const actionProposalsContractAddress = `${deployer}.${ContractType.DAO_ACTION_PROPOSALS_V2}`;
+      const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+
+      // setup voting config
+      const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+      // fund accounts for creating and voting on proposals
+      fundVoters(tokenContractAddress, tokenDexContractAddress, [
+        deployer,
+        address1,
+        address2,
+      ]);
+
+      // construct DAO
+      const constructReceipt = constructDao(
+        deployer,
+        baseDaoContractAddress,
+        bootstrapContractAddress
+      );
+      expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+      // pass action proposal
+      const concludeProposalReceipt = passActionProposal(
+        actionProposalsContractAddress,
+        contractAddress,
+        5, // proposal ID
+        paramsCV,
+        deployer,
+        deployer,
+        [deployer, address1, address2],
+        votingConfig
+      );
+
+      // Expect false as the action should not execute with invalid parameters
+      expect(concludeProposalReceipt.result).toBeOk(Cl.bool(false));
+    });
+
+    it("run() fails with invalid withdrawal amount (too large)", () => {
+      const accountHolder = Cl.none();
+      const withdrawalAmount = Cl.some(Cl.uint(100000001)); // Invalid: amount > 100000000
+      const withdrawalPeriod = Cl.none();
+      const paramsCV = Cl.tuple({
+        accountHolder,
+        amount: withdrawalAmount,
+        period: withdrawalPeriod,
+      });
+      
+      // setup contract names
+      const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+      const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+      const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+      const actionProposalsContractAddress = `${deployer}.${ContractType.DAO_ACTION_PROPOSALS_V2}`;
+      const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+
+      // setup voting config
+      const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+      // fund accounts for creating and voting on proposals
+      fundVoters(tokenContractAddress, tokenDexContractAddress, [
+        deployer,
+        address1,
+        address2,
+      ]);
+
+      // construct DAO
+      const constructReceipt = constructDao(
+        deployer,
+        baseDaoContractAddress,
+        bootstrapContractAddress
+      );
+      expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+      // pass action proposal
+      const concludeProposalReceipt = passActionProposal(
+        actionProposalsContractAddress,
+        contractAddress,
+        6, // proposal ID
+        paramsCV,
+        deployer,
+        deployer,
+        [deployer, address1, address2],
+        votingConfig
+      );
+
+      // Expect false as the action should not execute with invalid parameters
+      expect(concludeProposalReceipt.result).toBeOk(Cl.bool(false));
+    });
+
+    it("run() fails with invalid withdrawal period (too small)", () => {
+      const accountHolder = Cl.none();
+      const withdrawalAmount = Cl.none();
+      const withdrawalPeriod = Cl.some(Cl.uint(5)); // Invalid: period < 6
+      const paramsCV = Cl.tuple({
+        accountHolder,
+        amount: withdrawalAmount,
+        period: withdrawalPeriod,
+      });
+      
+      // setup contract names
+      const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+      const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+      const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+      const actionProposalsContractAddress = `${deployer}.${ContractType.DAO_ACTION_PROPOSALS_V2}`;
+      const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+
+      // setup voting config
+      const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+      // fund accounts for creating and voting on proposals
+      fundVoters(tokenContractAddress, tokenDexContractAddress, [
+        deployer,
+        address1,
+        address2,
+      ]);
+
+      // construct DAO
+      const constructReceipt = constructDao(
+        deployer,
+        baseDaoContractAddress,
+        bootstrapContractAddress
+      );
+      expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+      // pass action proposal
+      const concludeProposalReceipt = passActionProposal(
+        actionProposalsContractAddress,
+        contractAddress,
+        7, // proposal ID
+        paramsCV,
+        deployer,
+        deployer,
+        [deployer, address1, address2],
+        votingConfig
+      );
+
+      // Expect false as the action should not execute with invalid parameters
+      expect(concludeProposalReceipt.result).toBeOk(Cl.bool(false));
+    });
+
+    it("run() fails with invalid withdrawal period (too large)", () => {
+      const accountHolder = Cl.none();
+      const withdrawalAmount = Cl.none();
+      const withdrawalPeriod = Cl.some(Cl.uint(8065)); // Invalid: period > 8064
+      const paramsCV = Cl.tuple({
+        accountHolder,
+        amount: withdrawalAmount,
+        period: withdrawalPeriod,
+      });
+      
+      // setup contract names
+      const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+      const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+      const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+      const actionProposalsContractAddress = `${deployer}.${ContractType.DAO_ACTION_PROPOSALS_V2}`;
+      const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+
+      // setup voting config
+      const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+      // fund accounts for creating and voting on proposals
+      fundVoters(tokenContractAddress, tokenDexContractAddress, [
+        deployer,
+        address1,
+        address2,
+      ]);
+
+      // construct DAO
+      const constructReceipt = constructDao(
+        deployer,
+        baseDaoContractAddress,
+        bootstrapContractAddress
+      );
+      expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+      // pass action proposal
+      const concludeProposalReceipt = passActionProposal(
+        actionProposalsContractAddress,
+        contractAddress,
+        8, // proposal ID
+        paramsCV,
+        deployer,
+        deployer,
+        [deployer, address1, address2],
+        votingConfig
+      );
+
+      // Expect false as the action should not execute with invalid parameters
+      expect(concludeProposalReceipt.result).toBeOk(Cl.bool(false));
+    });
+  });
+
+  describe("Boundary Value Tests", () => {
+    it("run() succeeds with minimum valid withdrawal amount", () => {
+      const accountHolder = Cl.none();
+      const withdrawalAmount = Cl.some(Cl.uint(1)); // Minimum valid amount
+      const withdrawalPeriod = Cl.none();
+      const paramsCV = Cl.tuple({
+        accountHolder,
+        amount: withdrawalAmount,
+        period: withdrawalPeriod,
+      });
+      
+      // setup contract names
+      const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+      const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+      const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+      const actionProposalsContractAddress = `${deployer}.${ContractType.DAO_ACTION_PROPOSALS_V2}`;
+      const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+
+      // setup voting config
+      const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+      // fund accounts for creating and voting on proposals
+      fundVoters(tokenContractAddress, tokenDexContractAddress, [
+        deployer,
+        address1,
+        address2,
+      ]);
+
+      // construct DAO
+      const constructReceipt = constructDao(
+        deployer,
+        baseDaoContractAddress,
+        bootstrapContractAddress
+      );
+      expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+      // pass action proposal
+      const concludeProposalReceipt = passActionProposal(
+        actionProposalsContractAddress,
+        contractAddress,
+        9, // proposal ID
+        paramsCV,
+        deployer,
+        deployer,
+        [deployer, address1, address2],
+        votingConfig
+      );
+
+      expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
+    });
+
+    it("run() succeeds with maximum valid withdrawal amount", () => {
+      const accountHolder = Cl.none();
+      const withdrawalAmount = Cl.some(Cl.uint(99999999)); // Maximum valid amount
+      const withdrawalPeriod = Cl.none();
+      const paramsCV = Cl.tuple({
+        accountHolder,
+        amount: withdrawalAmount,
+        period: withdrawalPeriod,
+      });
+      
+      // setup contract names
+      const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+      const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+      const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+      const actionProposalsContractAddress = `${deployer}.${ContractType.DAO_ACTION_PROPOSALS_V2}`;
+      const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+
+      // setup voting config
+      const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+      // fund accounts for creating and voting on proposals
+      fundVoters(tokenContractAddress, tokenDexContractAddress, [
+        deployer,
+        address1,
+        address2,
+      ]);
+
+      // construct DAO
+      const constructReceipt = constructDao(
+        deployer,
+        baseDaoContractAddress,
+        bootstrapContractAddress
+      );
+      expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+      // pass action proposal
+      const concludeProposalReceipt = passActionProposal(
+        actionProposalsContractAddress,
+        contractAddress,
+        10, // proposal ID
+        paramsCV,
+        deployer,
+        deployer,
+        [deployer, address1, address2],
+        votingConfig
+      );
+
+      expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
+    });
+
+    it("run() succeeds with minimum valid withdrawal period", () => {
+      const accountHolder = Cl.none();
+      const withdrawalAmount = Cl.none();
+      const withdrawalPeriod = Cl.some(Cl.uint(7)); // Minimum valid period
+      const paramsCV = Cl.tuple({
+        accountHolder,
+        amount: withdrawalAmount,
+        period: withdrawalPeriod,
+      });
+      
+      // setup contract names
+      const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+      const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+      const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+      const actionProposalsContractAddress = `${deployer}.${ContractType.DAO_ACTION_PROPOSALS_V2}`;
+      const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+
+      // setup voting config
+      const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+      // fund accounts for creating and voting on proposals
+      fundVoters(tokenContractAddress, tokenDexContractAddress, [
+        deployer,
+        address1,
+        address2,
+      ]);
+
+      // construct DAO
+      const constructReceipt = constructDao(
+        deployer,
+        baseDaoContractAddress,
+        bootstrapContractAddress
+      );
+      expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+      // pass action proposal
+      const concludeProposalReceipt = passActionProposal(
+        actionProposalsContractAddress,
+        contractAddress,
+        11, // proposal ID
+        paramsCV,
+        deployer,
+        deployer,
+        [deployer, address1, address2],
+        votingConfig
+      );
+
+      expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
+    });
+
+    it("run() succeeds with maximum valid withdrawal period", () => {
+      const accountHolder = Cl.none();
+      const withdrawalAmount = Cl.none();
+      const withdrawalPeriod = Cl.some(Cl.uint(8063)); // Maximum valid period
+      const paramsCV = Cl.tuple({
+        accountHolder,
+        amount: withdrawalAmount,
+        period: withdrawalPeriod,
+      });
+      
+      // setup contract names
+      const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+      const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+      const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+      const actionProposalsContractAddress = `${deployer}.${ContractType.DAO_ACTION_PROPOSALS_V2}`;
+      const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+
+      // setup voting config
+      const votingConfig = VOTING_CONFIG[ContractType.DAO_ACTION_PROPOSALS_V2];
+
+      // fund accounts for creating and voting on proposals
+      fundVoters(tokenContractAddress, tokenDexContractAddress, [
+        deployer,
+        address1,
+        address2,
+      ]);
+
+      // construct DAO
+      const constructReceipt = constructDao(
+        deployer,
+        baseDaoContractAddress,
+        bootstrapContractAddress
+      );
+      expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+      // pass action proposal
+      const concludeProposalReceipt = passActionProposal(
+        actionProposalsContractAddress,
+        contractAddress,
+        12, // proposal ID
+        paramsCV,
+        deployer,
+        deployer,
+        [deployer, address1, address2],
+        votingConfig
+      );
+
+      expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
+    });
+  });
 });
