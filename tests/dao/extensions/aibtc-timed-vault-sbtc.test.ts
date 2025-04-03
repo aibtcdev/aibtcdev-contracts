@@ -1,21 +1,24 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { TimedVaultErrCode } from "../../error-codes";
+import { ContractType } from "../../dao-types";
 
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const deployer = accounts.get("deployer")!;
 
-const contractName = "aibtc-timed-vault-sbtc";
-const contractAddress = `${deployer}.${contractName}`;
+const contractAddress = `${deployer}.${ContractType.DAO_TIMED_VAULT_SBTC}`;
 
 const ErrCode = TimedVaultErrCode;
 
-const withdrawalAmount = 10000000; // 10 STX
+const withdrawalAmount = 10000000; // 10 sBTC (in sats)
 const withdrawalPeriod = 144; // 144 blocks
 
-describe(`extension: ${contractName}`, () => {
+describe(`public functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
+  ////////////////////////////////////////
+  // callback() tests
+  ////////////////////////////////////////
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,
@@ -25,46 +28,91 @@ describe(`extension: ${contractName}`, () => {
     );
     expect(callback.result).toBeOk(Cl.bool(true));
   });
-  /*
-  // Account Holder Tests
-  describe("set-account-holder()", () => {
-    it("fails if caller is not DAO or extension");
-    it("fails if old address matches current holder");
-    it("succeeds and sets new account holder");
+  ////////////////////////////////////////
+  // set-account-holder() tests
+  ////////////////////////////////////////
+  it("set-account-holder() fails if called directly", () => {
+    const setAccountHolder = simnet.callPublicFn(
+      contractAddress,
+      "set-account-holder",
+      [Cl.principal(address1)],
+      deployer
+    );
+    expect(setAccountHolder.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
-
-  // Withdrawal Period Tests
-  describe("set-withdrawal-period()", () => {
-    it("fails if caller is not DAO or extension");
-    it("fails if period is 0");
-    it("succeeds and sets new withdrawal period");
+  ///////////////////////////////////////////
+  // set-withdrawal-period() tests
+  ///////////////////////////////////////////
+  it("set-withdrawal-period() fails if called directly", () => {
+    const setWithdrawalPeriod = simnet.callPublicFn(
+      contractAddress,
+      "set-withdrawal-period",
+      [Cl.uint(withdrawalPeriod)],
+      deployer
+    );
+    expect(setWithdrawalPeriod.result).toBeErr(
+      Cl.uint(ErrCode.ERR_UNAUTHORIZED)
+    );
   });
-
-  // Withdrawal Amount Tests
-  describe("set-withdrawal-amount()", () => {
-    it("fails if caller is not DAO or extension");
-    it("fails if amount is 0");
-    it("succeeds and sets new withdrawal amount");
+  ///////////////////////////////////////////
+  // set-withdrawal-amount() tests
+  ///////////////////////////////////////////
+  it("set-withdrawal-amount() fails if called directly", () => {
+    const setWithdrawalAmount = simnet.callPublicFn(
+      contractAddress,
+      "set-withdrawal-amount",
+      [Cl.uint(withdrawalAmount)],
+      deployer
+    );
+    expect(setWithdrawalAmount.result).toBeErr(
+      Cl.uint(ErrCode.ERR_UNAUTHORIZED)
+    );
   });
-
-  // Last Withdrawal Block Tests
-  describe("override-last-withdrawal-block()", () => {
-    it("fails if caller is not DAO or extension");
-    it("fails if block is before deployment");
-    it("succeeds and sets new last withdrawal block");
+  ///////////////////////////////////////////
+  // override-last-withdrawal-block() tests
+  ///////////////////////////////////////////
+  it("override-last-withdrawal-block() fails if called directly", () => {
+    const overrideLastWithdrawalBlock = simnet.callPublicFn(
+      contractAddress,
+      "override-last-withdrawal-block",
+      [Cl.uint(100)],
+      deployer
+    );
+    expect(overrideLastWithdrawalBlock.result).toBeErr(
+      Cl.uint(ErrCode.ERR_UNAUTHORIZED)
+    );
   });
-
-  // Deposit Tests
-  describe("deposit-stx()", () => {
-    it("fails if amount is 0");
-    it("succeeds and transfers STX to contract");
+  ///////////////////////////////////////////
+  // deposit-sbtc() tests
+  ///////////////////////////////////////////
+  it("deposit-sbtc() fails if amount is 0", () => {
+    const depositSbtc = simnet.callPublicFn(
+      contractAddress,
+      "deposit-sbtc",
+      [Cl.uint(0)],
+      deployer
+    );
+    expect(depositSbtc.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_AMOUNT));
   });
-
-  // Withdrawal Tests
-  describe("withdraw-stx()", () => {
-    it("fails if caller is not account holder");
-    it("fails if withdrawing too soon");
-    it("succeeds and transfers STX to account holder");
+  it("deposit-sbtc() succeeds and transfers sBTC to contract", () => {
+    const depositSbtc = simnet.callPublicFn(
+      contractAddress,
+      "deposit-sbtc",
+      [Cl.uint(withdrawalAmount)],
+      deployer
+    );
+    expect(depositSbtc.result).toBeOk(Cl.bool(true));
   });
-  */
+  ///////////////////////////////////////////
+  // withdraw-sbtc() tests
+  ///////////////////////////////////////////
+  it("withdraw-sbtc() fails if caller is not account holder", () => {
+    const withdrawSbtc = simnet.callPublicFn(
+      contractAddress,
+      "withdraw-sbtc",
+      [],
+      address2
+    );
+    expect(withdrawSbtc.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
 });
