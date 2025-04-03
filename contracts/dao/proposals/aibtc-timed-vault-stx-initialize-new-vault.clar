@@ -12,14 +12,14 @@
     ;; send a message from the dao
     (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true)) ;; CFG_MESSAGE_CONTRACT
     ;; set the account holder in the timed vault
-    (try! (contract-call? .aibtc-timed-vault set-account-holder CFG_ACCOUNT_HOLDER)) ;; CFG_NEW_TIMED_VAULT_CONTRACT
+    (try! (contract-call? .aibtc-timed-vault-stx set-account-holder CFG_ACCOUNT_HOLDER)) ;; CFG_NEW_TIMED_VAULT_CONTRACT
     ;; enable the extension in the dao
-    (try! (contract-call? .aibtc-base-dao set-extension .aibtc-timed-vault true)) ;; CFG_BASE_DAO, CFG_NEW_TIMED_VAULT_CONTRACT
+    (try! (contract-call? .aibtc-base-dao set-extension .aibtc-timed-vault-stx true)) ;; CFG_BASE_DAO, CFG_NEW_TIMED_VAULT_CONTRACT
     ;; fund the extension from the treasury
     (and (> CFG_AMOUNT_TO_FUND_STX u0)
-      (try! (contract-call? .aibtc-treasury withdraw-stx CFG_AMOUNT_TO_FUND_STX .aibtc-timed-vault))) ;; CFG_TREASURY_CONTRACT, CFG_NEW_TIMED_VAULT_CONTRACT
+      (try! (contract-call? .aibtc-treasury withdraw-stx CFG_AMOUNT_TO_FUND_STX .aibtc-timed-vault-stx))) ;; CFG_TREASURY_CONTRACT, CFG_NEW_TIMED_VAULT_CONTRACT
     (and (> CFG_AMOUNT_TO_FUND_FT u0)
-      (try! (contract-call? .aibtc-treasury withdraw-ft .aibtc-token CFG_AMOUNT_TO_FUND_FT .aibtc-timed-vault))) ;; CFG_TREASURY_CONTRACT, CFG_TOKEN_CONTRACT, CFG_NEW_TIMED_VAULT_CONTRACT
+      (try! (contract-call? .aibtc-treasury withdraw-ft .aibtc-token CFG_AMOUNT_TO_FUND_FT .aibtc-timed-vault-stx))) ;; CFG_TREASURY_CONTRACT, CFG_TOKEN_CONTRACT, CFG_NEW_TIMED_VAULT_CONTRACT
     (ok true)
   )
 )

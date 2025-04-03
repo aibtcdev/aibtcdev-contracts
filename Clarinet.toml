@@ -108,8 +108,18 @@ path = 'contracts/dao/extensions/aibtc-payments-invoices.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-timed-vault]
-path = 'contracts/dao/extensions/aibtc-timed-vault.clar'
+[contracts.aibtc-timed-vault-dao]
+path = 'contracts/dao/extensions/aibtc-timed-vault-dao.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-timed-vault-sbtc]
+path = 'contracts/dao/extensions/aibtc-timed-vault-sbtc.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-timed-vault-stx]
+path = 'contracts/dao/extensions/aibtc-timed-vault-stx.clar'
 clarity_version = 2
 epoch = 3.1
 
@@ -157,33 +167,33 @@ path = 'contracts/dao/proposals/aibtc-action-proposals-set-proposal-bond.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-timed-vault-initialize-new-account]
-path = 'contracts/dao/proposals/aibtc-timed-vault-initialize-new-account.clar'
+[contracts.aibtc-timed-vault-stx-initialize-new-vault]
+path = 'contracts/dao/proposals/aibtc-timed-vault-stx-initialize-new-vault.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-timed-vault-override-last-withdrawal-block]
-path = 'contracts/dao/proposals/aibtc-timed-vault-override-last-withdrawal-block.clar'
+[contracts.aibtc-timed-vault-stx-override-last-withdrawal-block]
+path = 'contracts/dao/proposals/aibtc-timed-vault-stx-override-last-withdrawal-block.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-timed-vault-set-account-holder]
-path = 'contracts/dao/proposals/aibtc-timed-vault-set-account-holder.clar'
+[contracts.aibtc-timed-vault-stx-set-account-holder]
+path = 'contracts/dao/proposals/aibtc-timed-vault-stx-set-account-holder.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-timed-vault-set-withdrawal-amount]
-path = 'contracts/dao/proposals/aibtc-timed-vault-set-withdrawal-amount.clar'
+[contracts.aibtc-timed-vault-stx-set-withdrawal-amount]
+path = 'contracts/dao/proposals/aibtc-timed-vault-stx-set-withdrawal-amount.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-timed-vault-set-withdrawal-period]
-path = 'contracts/dao/proposals/aibtc-timed-vault-set-withdrawal-period.clar'
+[contracts.aibtc-timed-vault-stx-set-withdrawal-period]
+path = 'contracts/dao/proposals/aibtc-timed-vault-stx-set-withdrawal-period.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-timed-vault-withdraw-stx]
-path = 'contracts/dao/proposals/aibtc-timed-vault-withdraw-stx.clar'
+[contracts.aibtc-timed-vault-stx-withdraw-stx]
+path = 'contracts/dao/proposals/aibtc-timed-vault-stx-withdraw-stx.clar'
 clarity_version = 2
 epoch = 3.1
 

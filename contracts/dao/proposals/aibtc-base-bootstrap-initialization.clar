@@ -8,7 +8,7 @@
     (try! (contract-call? .aibtc-base-dao set-extensions
       (list
         {extension: .aibtc-action-proposals, enabled: true}
-        {extension: .aibtc-timed-vault, enabled: true}
+        {extension: .aibtc-timed-vault-stx, enabled: true}
         {extension: .aibtc-core-proposals, enabled: true}
         {extension: .aibtc-onchain-messaging, enabled: true}
         {extension: .aibtc-payments-invoices, enabled: true}

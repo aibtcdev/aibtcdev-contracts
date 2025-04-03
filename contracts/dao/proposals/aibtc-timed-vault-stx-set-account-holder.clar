@@ -10,6 +10,6 @@
     ;; send a message from the dao
     (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
     ;; set the account holder
-    (contract-call? .aibtc-timed-vault set-account-holder CFG_ACCOUNT_HOLDER)
+    (contract-call? .aibtc-timed-vault-stx set-account-holder CFG_ACCOUNT_HOLDER)
   )
 )

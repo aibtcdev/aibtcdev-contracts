@@ -9,6 +9,6 @@
     ;; send a message from the dao
     (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
     ;; withdraw STX from the timed vault
-    (contract-call? .aibtc-timed-vault withdraw-stx)
+    (contract-call? .aibtc-timed-vault-stx withdraw-stx)
   )
 )

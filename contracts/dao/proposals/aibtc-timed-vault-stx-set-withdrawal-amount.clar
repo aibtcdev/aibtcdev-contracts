@@ -10,6 +10,6 @@
     ;; send a message from the dao
     (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
     ;; set the withdrawal amount
-    (contract-call? .aibtc-timed-vault set-withdrawal-amount CFG_WITHDRAWAL_AMOUNT)
+    (contract-call? .aibtc-timed-vault-stx set-withdrawal-amount CFG_WITHDRAWAL_AMOUNT)
   )
 )

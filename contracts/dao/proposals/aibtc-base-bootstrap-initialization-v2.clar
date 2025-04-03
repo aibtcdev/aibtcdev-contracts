@@ -13,7 +13,9 @@
         {extension: .aibtc-dao-charter, enabled: true}
         {extension: .aibtc-onchain-messaging, enabled: true}
         {extension: .aibtc-payments-invoices, enabled: true}
-        {extension: .aibtc-timed-vault, enabled: true}
+        {extension: .aibtc-timed-vault-dao, enabled: true}
+        {extension: .aibtc-timed-vault-sbtc, enabled: true}
+        {extension: .aibtc-timed-vault-stx, enabled: true}
         {extension: .aibtc-token-owner, enabled: true}
         {extension: .aibtc-treasury, enabled: true}
       )
