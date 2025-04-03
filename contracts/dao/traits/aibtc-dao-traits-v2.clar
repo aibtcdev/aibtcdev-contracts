@@ -85,28 +85,28 @@
 ;; withdrawals are based on a set amount and time period in blocks
 (define-trait timed-vault (
   ;; set account holder
-  ;; @param principal the new account holder
+  ;; @param principal the new account holder who can withdraw
   ;; @returns (response bool uint)
   (set-account-holder (principal) (response bool uint))
   ;; set withdrawal period
-  ;; @param period the new withdrawal period in blocks
+  ;; @param period the new withdrawal period in Bitcoin blocks
   ;; @returns (response bool uint)
   (set-withdrawal-period (uint) (response bool uint))
   ;; set withdrawal amount
-  ;; @param amount the new withdrawal amount in microSTX
+  ;; @param amount the new withdrawal amount in micro-units
   ;; @returns (response bool uint)
   (set-withdrawal-amount (uint) (response bool uint))
   ;; override last withdrawal block
   ;; @param block the new last withdrawal block
   ;; @returns (response bool uint)
   (override-last-withdrawal-block (uint) (response bool uint))
-  ;; deposit STX to the timed vault
-  ;; @param amount amount of microSTX to deposit
+  ;; deposit funds to the timed vault
+  ;; @param amount amount of token to deposit in micro-units
   ;; @returns (response bool uint)
-  (deposit-stx (uint) (response bool uint))
-  ;; withdraw STX from the timed vault
+  (deposit (uint) (response bool uint))
+  ;; withdraw funds from the timed vault
   ;; @returns (response bool uint) 
-  (withdraw-stx () (response bool uint))
+  (withdraw () (response bool uint))
 ))
 
 ;; an extension to manage the dao charter and mission

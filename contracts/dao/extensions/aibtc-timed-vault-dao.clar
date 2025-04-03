@@ -70,11 +70,11 @@
   )
 )
 
-(define-public (deposit-stx (amount uint))
+(define-public (deposit (amount uint))
   (begin
     (asserts! (> amount u0) ERR_INVALID_AMOUNT)
     (print {
-      notification: "deposit-stx",
+      notification: "deposit",
       payload: {
         amount: amount,
         caller: contract-caller,
@@ -85,7 +85,7 @@
   )
 )
 
-(define-public (withdraw-stx)
+(define-public (withdraw)
   (begin
     ;; verify user is enabled in the map
     (try! (is-account-holder))
@@ -95,7 +95,7 @@
     (var-set lastWithdrawalBlock burn-block-height)
     ;; print notification and transfer STX
     (print {
-      notification: "withdraw-stx",
+      notification: "withdraw",
       payload: {
         amount: (var-get withdrawalAmount),
         caller: contract-caller,

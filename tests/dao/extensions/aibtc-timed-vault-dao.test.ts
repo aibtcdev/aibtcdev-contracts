@@ -83,33 +83,33 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_DAO}`, () => {
     );
   });
   ///////////////////////////////////////////
-  // deposit-dao() tests
+  // deposit() tests
   ///////////////////////////////////////////
-  it("deposit-dao() fails if amount is 0", () => {
+  it("deposit() fails if amount is 0", () => {
     const depositDao = simnet.callPublicFn(
       contractAddress,
-      "deposit-dao",
+      "deposit",
       [Cl.uint(0)],
       deployer
     );
     expect(depositDao.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_AMOUNT));
   });
-  it("deposit-dao() succeeds and transfers DAO tokens to contract", () => {
+  it("deposit() succeeds and transfers DAO tokens to contract", () => {
     const depositDao = simnet.callPublicFn(
       contractAddress,
-      "deposit-dao",
+      "deposit",
       [Cl.uint(withdrawalAmount)],
       deployer
     );
     expect(depositDao.result).toBeOk(Cl.bool(true));
   });
   ///////////////////////////////////////////
-  // withdraw-dao() tests
+  // withdraw() tests
   ///////////////////////////////////////////
-  it("withdraw-dao() fails if caller is not account holder", () => {
+  it("withdraw() fails if caller is not account holder", () => {
     const withdrawDao = simnet.callPublicFn(
       contractAddress,
-      "withdraw-dao",
+      "withdraw",
       [],
       address2
     );

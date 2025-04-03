@@ -83,33 +83,33 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
     );
   });
   ///////////////////////////////////////////
-  // deposit-sbtc() tests
+  // deposit() tests
   ///////////////////////////////////////////
-  it("deposit-sbtc() fails if amount is 0", () => {
+  it("deposit() fails if amount is 0", () => {
     const depositSbtc = simnet.callPublicFn(
       contractAddress,
-      "deposit-sbtc",
+      "deposit",
       [Cl.uint(0)],
       deployer
     );
     expect(depositSbtc.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_AMOUNT));
   });
-  it("deposit-sbtc() succeeds and transfers sBTC to contract", () => {
+  it("deposit() succeeds and transfers sBTC to contract", () => {
     const depositSbtc = simnet.callPublicFn(
       contractAddress,
-      "deposit-sbtc",
+      "deposit",
       [Cl.uint(withdrawalAmount)],
       deployer
     );
     expect(depositSbtc.result).toBeOk(Cl.bool(true));
   });
   ///////////////////////////////////////////
-  // withdraw-sbtc() tests
+  // withdraw() tests
   ///////////////////////////////////////////
-  it("withdraw-sbtc() fails if caller is not account holder", () => {
+  it("withdraw() fails if caller is not account holder", () => {
     const withdrawSbtc = simnet.callPublicFn(
       contractAddress,
-      "withdraw-sbtc",
+      "withdraw",
       [],
       address2
     );

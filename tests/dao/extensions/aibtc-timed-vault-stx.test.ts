@@ -83,33 +83,33 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_STX}`, () => {
     );
   });
   ///////////////////////////////////////////
-  // deposit-stx() tests
+  // deposit() tests
   ///////////////////////////////////////////
-  it("deposit-stx() fails if amount is 0", () => {
+  it("deposit() fails if amount is 0", () => {
     const depositStx = simnet.callPublicFn(
       contractAddress,
-      "deposit-stx",
+      "deposit",
       [Cl.uint(0)],
       deployer
     );
     expect(depositStx.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_AMOUNT));
   });
-  it("deposit-stx() succeeds and transfers STX to contract", () => {
+  it("deposit() succeeds and transfers STX to contract", () => {
     const depositStx = simnet.callPublicFn(
       contractAddress,
-      "deposit-stx",
+      "deposit",
       [Cl.uint(withdrawalAmount)],
       deployer
     );
     expect(depositStx.result).toBeOk(Cl.bool(true));
   });
   ///////////////////////////////////////////
-  // withdraw-stx() tests
+  // withdraw() tests
   ///////////////////////////////////////////
-  it("withdraw-stx() fails if caller is not account holder", () => {
+  it("withdraw() fails if caller is not account holder", () => {
     const withdrawStx = simnet.callPublicFn(
       contractAddress,
-      "withdraw-stx",
+      "withdraw",
       [],
       address2
     );
