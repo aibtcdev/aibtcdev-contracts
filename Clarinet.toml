@@ -130,8 +130,8 @@ path = 'contracts/dao/extensions/actions/aibtc-action-add-resource.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-allow-asset]
-path = 'contracts/dao/extensions/actions/aibtc-action-allow-asset.clar'
+[contracts.aibtc-action-treasury-allow-asset]
+path = 'contracts/dao/extensions/actions/aibtc-action-treasury-allow-asset.clar'
 clarity_version = 2
 epoch = 3.1
 
@@ -140,23 +140,8 @@ path = 'contracts/dao/extensions/actions/aibtc-action-send-message.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-set-account-holder]
-path = 'contracts/dao/extensions/actions/aibtc-action-set-account-holder.clar'
-clarity_version = 2
-epoch = 3.1
-
 [contracts.aibtc-action-configure-timed-vault]
 path = 'contracts/dao/extensions/actions/aibtc-action-configure-timed-vault.clar'
-clarity_version = 2
-epoch = 3.1
-
-[contracts.aibtc-action-set-withdrawal-amount]
-path = 'contracts/dao/extensions/actions/aibtc-action-set-withdrawal-amount.clar'
-clarity_version = 2
-epoch = 3.1
-
-[contracts.aibtc-action-set-withdrawal-period]
-path = 'contracts/dao/extensions/actions/aibtc-action-set-withdrawal-period.clar'
 clarity_version = 2
 epoch = 3.1
 

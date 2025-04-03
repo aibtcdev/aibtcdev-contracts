@@ -30,7 +30,7 @@ export enum ContractType {
 export enum ContractActionType {
   // dao extension actions
   DAO_ACTION_ADD_RESOURCE = "aibtc-action-add-resource",
-  DAO_ACTION_ALLOW_ASSET = "aibtc-action-allow-asset",
+  DAO_ACTION_ALLOW_ASSET = "aibtc-action-treasury-allow-asset",
   DAO_ACTION_SEND_MESSAGE = "aibtc-action-send-message",
   DAO_ACTION_SET_ACCOUNT_HOLDER = "aibtc-action-set-account-holder",
   DAO_ACTION_SET_WITHDRAWAL_AMOUNT = "aibtc-action-set-withdrawal-amount",

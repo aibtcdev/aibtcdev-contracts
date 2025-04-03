@@ -20,11 +20,8 @@
     (try! (contract-call? .aibtc-base-dao set-extensions
       (list
         {extension: .aibtc-action-add-resource, enabled: true}
-        {extension: .aibtc-action-allow-asset, enabled: true}
+        {extension: .aibtc-action-allow-treasury-asset, enabled: true}
         {extension: .aibtc-action-send-message, enabled: true}
-        {extension: .aibtc-action-set-account-holder, enabled: true}
-        {extension: .aibtc-action-set-withdrawal-amount, enabled: true}
-        {extension: .aibtc-action-set-withdrawal-period, enabled: true}
         {extension: .aibtc-action-toggle-resource-by-name, enabled: true}
       )
     ))
