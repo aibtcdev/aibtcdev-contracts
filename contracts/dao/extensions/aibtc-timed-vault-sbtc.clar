@@ -9,8 +9,14 @@
 
 ;; constants
 ;;
-(define-constant SELF (as-contract tx-sender))
 (define-constant DEPLOYED_BURN_BLOCK burn-block-height)
+(define-constant DEPLOYED_STACKS_BLOCK stacks-block-height)
+(define-constant SELF (as-contract tx-sender))
+
+;; template variables
+(define-constant CFG_VAULT_TOKEN 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token)
+
+;; error messages
 (define-constant ERR_INVALID (err u2000))
 (define-constant ERR_UNAUTHORIZED (err u2001))
 (define-constant ERR_TOO_SOON (err u2002))
@@ -102,39 +108,17 @@
 
 ;; read only functions
 ;;
-(define-read-only (get-deployed-block)
-  DEPLOYED_BURN_BLOCK
-)
-
-(define-read-only (get-account-balance)
-  (stx-get-balance SELF)
-)
-
-(define-read-only (get-account-holder)
-  (var-get accountHolder)
-)
-
-(define-read-only (get-last-withdrawal-block)
-  (var-get lastWithdrawalBlock)
-)
-
-(define-read-only (get-withdrawal-period)
-  (var-get withdrawalPeriod)
-)
-
-(define-read-only (get-withdrawal-amount)
-  (var-get withdrawalAmount)
-)
-
 (define-read-only (get-account-terms)
   {
-    accountBalance: (get-account-balance),
-    accountHolder: (get-account-holder),
+    accountBalance: (contract-call? .aibtc-token get-balance SELF),
+    accountHolder: (var-get accountHolder),
     contractName: SELF,
-    deployedAt: (get-deployed-block),
-    lastWithdrawalBlock: (get-last-withdrawal-block),
-    withdrawalAmount: (get-withdrawal-amount),
-    withdrawalPeriod: (get-withdrawal-period),
+    deployedBurnBlock: DEPLOYED_BURN_BLOCK,
+    deployedStacksBlock: DEPLOYED_STACKS_BLOCK,
+    lastWithdrawalBlock: (var-get lastWithdrawalBlock),
+    vaultToken: CFG_VAULT_TOKEN,
+    withdrawalAmount: (var-get withdrawalAmount),
+    withdrawalPeriod: (var-get withdrawalPeriod),
   }
 )
 
