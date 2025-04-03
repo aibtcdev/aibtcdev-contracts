@@ -105,32 +105,32 @@ epoch = 3.1
 
 [contracts.aibtc-payments-invoices]
 path = 'contracts/dao/extensions/aibtc-payments-invoices.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.1
 
 [contracts.aibtc-timed-vault-dao]
 path = 'contracts/dao/extensions/aibtc-timed-vault-dao.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.1
 
 [contracts.aibtc-timed-vault-sbtc]
 path = 'contracts/dao/extensions/aibtc-timed-vault-sbtc.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.1
 
 [contracts.aibtc-timed-vault-stx]
 path = 'contracts/dao/extensions/aibtc-timed-vault-stx.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.1
 
 [contracts.aibtc-token-owner]
 path = 'contracts/dao/extensions/aibtc-token-owner.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.1
 
 [contracts.aibtc-treasury]
 path = 'contracts/dao/extensions/aibtc-treasury.clar'
-clarity_version = 2
+clarity_version = 3
 epoch = 3.1
 
 # dao actions (as extensions)
