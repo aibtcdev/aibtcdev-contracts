@@ -17,7 +17,9 @@ export enum ContractType {
   // dao extensions
   DAO_ACTION_PROPOSALS = "aibtc-action-proposals",
   DAO_ACTION_PROPOSALS_V2 = "aibtc-action-proposals-v2",
-  DAO_TIMED_VAULT = "aibtc-timed-vault",
+  DAO_TIMED_VAULT_DAO = "aibtc-timed-vault-dao",
+  DAO_TIMED_VAULT_SBTC = "aibtc-timed-vault-sbtc",
+  DAO_TIMED_VAULT_STX = "aibtc-timed-vault-stx",
   DAO_CHARTER = "aibtc-dao-charter",
   DAO_CORE_PROPOSALS = "aibtc-core-proposals",
   DAO_CORE_PROPOSALS_V2 = "aibtc-core-proposals-v2",
