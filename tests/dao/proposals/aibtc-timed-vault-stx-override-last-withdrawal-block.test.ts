@@ -4,7 +4,7 @@ import { OnchainMessagingErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
-const contractName = "aibtc-timed-vault-override-last-withdrawal-block";
+const contractName = "aibtc-timed-vault-stx-override-last-withdrawal-block";
 const contractAddress = `${deployer}.${contractName}`;
 
 const expectedErr = Cl.uint(OnchainMessagingErrCode.ERR_UNAUTHORIZED);

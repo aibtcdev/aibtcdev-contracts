@@ -39,12 +39,12 @@ export enum ContractActionType {
 export enum ContractProposalType {
   // dao proposal templates
   DAO_ACTION_PROPOSALS_SET_PROPOSAL_BOND = "aibtc-action-proposals-set-proposal-bond",
-  DAO_TIMED_VAULT_INITIALIZE_NEW_ACCOUNT = "aibtc-timed-vault-initialize-new-account",
-  DAO_TIMED_VAULT_OVERRIDE_LAST_WITHDRAWAL_BLOCK = "aibtc-timed-vault-override-last-withdrawal-block",
-  DAO_TIMED_VAULT_SET_ACCOUNT_HOLDER = "aibtc-timed-vault-set-account-holder",
-  DAO_TIMED_VAULT_SET_WITHDRAWAL_AMOUNT = "aibtc-timed-vault-set-withdrawal-amount",
-  DAO_TIMED_VAULT_SET_WITHDRAWAL_PERIOD = "aibtc-timed-vault-set-withdrawal-period",
-  DAO_TIMED_VAULT_WITHDRAW_STX = "aibtc-timed-vault-withdraw-stx",
+  DAO_TIMED_VAULT_INITIALIZE_NEW_ACCOUNT = "aibtc-timed-vault-stx-initialize-new-vault",
+  DAO_TIMED_VAULT_OVERRIDE_LAST_WITHDRAWAL_BLOCK = "aibtc-timed-vault-stx-override-last-withdrawal-block",
+  DAO_TIMED_VAULT_SET_ACCOUNT_HOLDER = "aibtc-timed-vault-stx-set-account-holder",
+  DAO_TIMED_VAULT_SET_WITHDRAWAL_AMOUNT = "aibtc-timed-vault-stx-set-withdrawal-amount",
+  DAO_TIMED_VAULT_SET_WITHDRAWAL_PERIOD = "aibtc-timed-vault-stx-set-withdrawal-period",
+  DAO_TIMED_VAULT_WITHDRAW_STX = "aibtc-timed-vault-stx-withdraw-stx",
   DAO_BASE_ADD_NEW_EXTENSION = "aibtc-base-add-new-extension",
   DAO_BASE_BOOTSTRAP_INITIALIZATION = "aibtc-base-bootstrap-initialization",
   DAO_BASE_BOOTSTRAP_INITIALIZATION_V2 = "aibtc-base-bootstrap-initialization-v2",
