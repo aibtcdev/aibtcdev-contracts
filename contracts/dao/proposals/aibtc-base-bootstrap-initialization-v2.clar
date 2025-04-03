@@ -24,7 +24,9 @@
     (try! (contract-call? .aibtc-base-dao set-extensions
       (list
         {extension: .aibtc-action-add-resource, enabled: true}
-        {extension: .aibtc-action-configure-timed-vault, enabled: true}
+        {extension: .aibtc-action-configure-timed-vault-dao, enabled: true}
+        {extension: .aibtc-action-configure-timed-vault-sbtc, enabled: true}
+        {extension: .aibtc-action-configure-timed-vault-stx, enabled: true}
         {extension: .aibtc-action-send-message, enabled: true}
         {extension: .aibtc-action-toggle-resource-by-name, enabled: true}
         {extension: .aibtc-action-treasury-allow-asset, enabled: true}

@@ -150,8 +150,18 @@ path = 'contracts/dao/extensions/actions/aibtc-action-send-message.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-configure-timed-vault]
-path = 'contracts/dao/extensions/actions/aibtc-action-configure-timed-vault.clar'
+[contracts.aibtc-action-configure-timed-vault-dao]
+path = 'contracts/dao/extensions/actions/aibtc-action-configure-timed-vault-dao.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-action-configure-timed-vault-sbtc]
+path = 'contracts/dao/extensions/actions/aibtc-action-configure-timed-vault-sbtc.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-action-configure-timed-vault-stx]
+path = 'contracts/dao/extensions/actions/aibtc-action-configure-timed-vault-stx.clar'
 clarity_version = 2
 epoch = 3.1
 

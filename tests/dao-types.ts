@@ -31,7 +31,9 @@ export enum ContractActionType {
   // dao extension actions
   DAO_ACTION_ADD_RESOURCE = "aibtc-action-add-resource",
   DAO_ACTION_ALLOW_ASSET = "aibtc-action-treasury-allow-asset",
-  DAO_ACTION_CONFIGURE_TIMED_VAULT = "aibtc-action-configure-timed-vault",
+  DAO_ACTION_CONFIGURE_TIMED_VAULT_DAO = "aibtc-action-configure-timed-vault-dao",
+  DAO_ACTION_CONFIGURE_TIMED_VAULT_SBTC = "aibtc-action-configure-timed-vault-sbtc",
+  DAO_ACTION_CONFIGURE_TIMED_VAULT_STX = "aibtc-action-configure-timed-vault-stx",
   DAO_ACTION_SEND_MESSAGE = "aibtc-action-send-message",
   DAO_ACTION_TOGGLE_RESOURCE_BY_NAME = "aibtc-action-toggle-resource-by-name",
 }

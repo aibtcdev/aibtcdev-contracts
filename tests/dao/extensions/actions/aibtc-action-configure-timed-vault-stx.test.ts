@@ -19,9 +19,9 @@ const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const address3 = accounts.get("wallet_3")!;
 
-const contractAddress = `${deployer}.${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAULT}`;
+const contractAddress = `${deployer}.${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAULT_STX}`;
 
-describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAULT}`, () => {
+describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAULT_STX}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,
