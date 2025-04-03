@@ -31,12 +31,9 @@ export enum ContractActionType {
   // dao extension actions
   DAO_ACTION_ADD_RESOURCE = "aibtc-action-add-resource",
   DAO_ACTION_ALLOW_ASSET = "aibtc-action-treasury-allow-asset",
-  DAO_ACTION_SEND_MESSAGE = "aibtc-action-send-message",
-  DAO_ACTION_SET_ACCOUNT_HOLDER = "aibtc-action-set-account-holder",
-  DAO_ACTION_SET_WITHDRAWAL_AMOUNT = "aibtc-action-set-withdrawal-amount",
-  DAO_ACTION_SET_WITHDRAWAL_PERIOD = "aibtc-action-set-withdrawal-period",
-  DAO_ACTION_TOGGLE_RESOURCE_BY_NAME = "aibtc-action-toggle-resource-by-name",
   DAO_ACTION_CONFIGURE_TIMED_VAULT = "aibtc-action-configure-timed-vault",
+  DAO_ACTION_SEND_MESSAGE = "aibtc-action-send-message",
+  DAO_ACTION_TOGGLE_RESOURCE_BY_NAME = "aibtc-action-toggle-resource-by-name",
 }
 
 export enum ContractProposalType {
