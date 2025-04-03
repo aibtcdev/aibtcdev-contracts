@@ -14,25 +14,25 @@
       (paramsTuple (unwrap! (from-consensus-buff?
         { accountHolder: (optional principal), amount: (optional uint), period: (optional uint) }
         parameters) ERR_INVALID_PARAMS))
+      (optAccountHolder (get accountHolder paramsTuple))
+      (optAmount (get amount paramsTuple))
+      (optPeriod (get period paramsTuple))
     )
     (try! (is-dao-or-extension))
+    ;; have to provide at least one
+    (asserts! (or (is-some optAccountHolder) (is-some optAmount) (is-some optPeriod)) ERR_INVALID_PARAMS)
     (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
-    (and (is-some (get accountHolder paramsTuple))
-      (try! (contract-call? .aibtc-timed-vault set-account-holder (unwrap-panic (get accountHolder paramsTuple))))
+    ;; set account holder if present
+    (and (is-some optAccountHolder)
+      (try! (contract-call? .aibtc-timed-vault set-account-holder (unwrap-panic optAccountHolder)))
     )
-    (and (is-some (get amount paramsTuple))
-      (let ((amount (unwrap-panic (get amount paramsTuple))))
-        ;; verify within limits for low quorum
-        (asserts! (and (> amount u0) (< amount u100000000)) ERR_INVALID_PARAMS)
-        (try! (contract-call? .aibtc-timed-vault set-withdrawal-amount (unwrap-panic (get amount paramsTuple))))
-      )
+    ;; set amounts if present and within limits
+    (and (is-some optAmount) (> (unwrap-panic optAmount) u0) (< (unwrap-panic optAmount) u100000000)
+      (try! (contract-call? .aibtc-timed-vault set-withdrawal-amount (unwrap-panic optAmount)))
     )
-    (and (is-some (get period paramsTuple))
-      (let ((period (unwrap-panic (get period paramsTuple))))
-        ;; verify within limits for low quorum
-        (asserts! (and (> period u6) (< period u8064)) ERR_INVALID_PARAMS)
-        (try! (contract-call? .aibtc-timed-vault set-withdrawal-period (unwrap-panic (get period paramsTuple))))
-      )
+    ;; set period if present and within limits
+    (and (is-some optPeriod)) (> (unwrap-panic optPeriod) u6) (< (unwrap-panic optPeriod) u8064)
+      (try! (contract-call? .aibtc-timed-vault set-withdrawal-period (unwrap-panic optPeriod))
     )
     (ok true)
   )
