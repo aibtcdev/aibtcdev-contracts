@@ -4,7 +4,7 @@
 (define-constant ERR_UNAUTHORIZED (err u10001))
 (define-constant ERR_INVALID_PARAMS (err u10002))
 
-(define-constant CFG_MESSAGE "Executed Action Proposal: Updated configuration in timed vault extension")
+(define-constant CFG_MESSAGE "Executed Action Proposal: Updated configuration in BTC timed vault extension")
 
 (define-public (callback (sender principal) (memo (buff 34))) (ok true))
 
@@ -26,7 +26,7 @@
     ;; set account holder if present
     (and (is-some optAccountHolder)
       (let ((accountHolder (unwrap! optAccountHolder ERR_INVALID_PARAMS)))
-        (try! (contract-call? .aibtc-timed-vault-stx set-account-holder accountHolder))
+        (try! (contract-call? .aibtc-timed-vault-sbtc set-account-holder accountHolder))
       )
     )
     ;; set amounts if present and within limits
@@ -34,7 +34,7 @@
       (let ((amount (unwrap! optAmount ERR_INVALID_PARAMS)))
         (asserts! (> amount u0) ERR_INVALID_PARAMS)
         (asserts! (< amount u100000000) ERR_INVALID_PARAMS)
-        (try! (contract-call? .aibtc-timed-vault-stx set-withdrawal-amount amount))
+        (try! (contract-call? .aibtc-timed-vault-sbtc set-withdrawal-amount amount))
       )
     )
     ;; set period if present and within limits
@@ -42,7 +42,7 @@
       (let ((period (unwrap! optPeriod ERR_INVALID_PARAMS)))
         (asserts! (> period u6) ERR_INVALID_PARAMS)
         (asserts! (< period u8064) ERR_INVALID_PARAMS)
-        (try! (contract-call? .aibtc-timed-vault-stx set-withdrawal-period period))
+        (try! (contract-call? .aibtc-timed-vault-sbtc set-withdrawal-period period))
       )
     )
     (ok true)
