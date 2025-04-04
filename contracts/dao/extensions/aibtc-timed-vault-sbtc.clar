@@ -81,7 +81,7 @@
         recipient: SELF
       }
     })
-    (contract-call? CFG_VAULT_TOKEN transfer amount tx-sender SELF none)
+    (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer amount tx-sender SELF none)
   )
 )
 
@@ -102,14 +102,14 @@
         recipient: (var-get accountHolder)
       }
     })
-    (as-contract (contract-call? CFG_VAULT_TOKEN transfer (var-get withdrawalAmount) SELF (var-get accountHolder) none))
+    (as-contract (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer (var-get withdrawalAmount) SELF (var-get accountHolder) none))
   )
 )
 
 ;; read only functions
 ;;
 (define-read-only (get-account-balance)
-  (contract-call? CFG_VAULT_TOKEN get-balance SELF)
+  (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token get-balance SELF)
 )
 
 (define-read-only (get-account-terms)
