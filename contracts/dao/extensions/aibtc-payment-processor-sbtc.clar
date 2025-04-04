@@ -13,8 +13,7 @@
 
 ;; initially scoped to service provider deploying a contract
 (define-constant SELF (as-contract tx-sender))
-(define-constant CFG_PAYMENT_TOKEN "sBTC")
-(define-constant CFG_TOKEN_CONTRACT 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token)
+(define-constant CFG_PAYMENT_TOKEN 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token)
 
 ;; errors
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u5000))
@@ -397,7 +396,6 @@
     contractAddress: SELF,
     paymentAddress: (get-payment-address),
     paymentToken: CFG_PAYMENT_TOKEN,
-    tokenContract: CFG_TOKEN_CONTRACT,
     totalInvoices: (get-total-invoices),
     totalResources: (get-total-resources),
     totalRevenue: (get-total-revenue),
