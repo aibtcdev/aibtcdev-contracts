@@ -14,7 +14,7 @@
 ;; initially scoped to service provider deploying a contract
 (define-constant SELF (as-contract tx-sender))
 (define-constant CFG_PAYMENT_TOKEN "DAO")
-(define-constant TOKEN_CONTRACT .aibtc-token)
+(define-constant CFG_TOKEN_CONTRACT .aibtc-token)
 
 ;; errors
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u5000))
@@ -296,9 +296,9 @@
       ;; DAO tokens don't support memo directly, so we print it separately
       (begin
         (print {memo: (unwrap-panic memo)})
-        (try! (contract-call? TOKEN_CONTRACT transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
+        (try! (contract-call? CFG_TOKEN_CONTRACT transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
       )
-      (try! (contract-call? TOKEN_CONTRACT transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
+      (try! (contract-call? CFG_TOKEN_CONTRACT transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
     )
     ;; return new count
     (ok newCount)
@@ -397,7 +397,7 @@
     contractAddress: SELF,
     paymentAddress: (get-payment-address),
     paymentToken: CFG_PAYMENT_TOKEN,
-    tokenContract: TOKEN_CONTRACT,
+    tokenContract: CFG_TOKEN_CONTRACT,
     totalInvoices: (get-total-invoices),
     totalResources: (get-total-resources),
     totalRevenue: (get-total-revenue),
