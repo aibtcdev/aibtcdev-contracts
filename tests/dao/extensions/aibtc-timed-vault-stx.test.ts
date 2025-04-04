@@ -12,7 +12,7 @@ const contractAddress = `${deployer}.${ContractType.DAO_TIMED_VAULT_STX}`;
 
 const ErrCode = TimedVaultErrCode;
 
-const withdrawalAmount = 10000000; // 10 STX
+const withdrawalAmount = 10000000; // 10 STX (6 decimals)
 const withdrawalPeriod = 144; // 144 blocks
 
 describe(`public functions: ${ContractType.DAO_TIMED_VAULT_STX}`, () => {
@@ -38,7 +38,9 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_STX}`, () => {
       [Cl.principal(address1)],
       deployer
     );
-    expect(setAccountHolder.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    expect(setAccountHolder.result).toBeErr(
+      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
+    );
   });
   ///////////////////////////////////////////
   // set-withdrawal-period() tests
@@ -51,7 +53,7 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_STX}`, () => {
       deployer
     );
     expect(setWithdrawalPeriod.result).toBeErr(
-      Cl.uint(ErrCode.ERR_UNAUTHORIZED)
+      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
     );
   });
   ///////////////////////////////////////////
@@ -65,7 +67,7 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_STX}`, () => {
       deployer
     );
     expect(setWithdrawalAmount.result).toBeErr(
-      Cl.uint(ErrCode.ERR_UNAUTHORIZED)
+      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
     );
   });
   ///////////////////////////////////////////
@@ -79,7 +81,7 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_STX}`, () => {
       deployer
     );
     expect(overrideLastWithdrawalBlock.result).toBeErr(
-      Cl.uint(ErrCode.ERR_UNAUTHORIZED)
+      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
     );
   });
   ///////////////////////////////////////////
@@ -113,7 +115,7 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_STX}`, () => {
       [],
       address2
     );
-    expect(withdrawStx.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    expect(withdrawStx.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_ACCOUNT_HOLDER));
   });
 });
 
@@ -133,7 +135,7 @@ describe(`read-only functions: ${ContractType.DAO_TIMED_VAULT_STX}`, () => {
     ).result;
     // assert
     expect(getAccountBalance).toStrictEqual(expectedResult);
-    
+
     // arrange - deposit some STX
     const depositAmount = Cl.uint(10000000); // 10 STX
     const depositStxReceipt = simnet.callPublicFn(
@@ -143,7 +145,7 @@ describe(`read-only functions: ${ContractType.DAO_TIMED_VAULT_STX}`, () => {
       deployer
     );
     expect(depositStxReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // act - check balance after deposit
     const getAccountBalance2 = simnet.callReadOnlyFn(
       contractAddress,
@@ -151,7 +153,7 @@ describe(`read-only functions: ${ContractType.DAO_TIMED_VAULT_STX}`, () => {
       [],
       deployer
     ).result;
-    
+
     // assert - balance should match deposit
     expect(getAccountBalance2).toBeOk(depositAmount);
   });

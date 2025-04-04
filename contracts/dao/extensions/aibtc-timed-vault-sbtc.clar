@@ -18,15 +18,17 @@
 
 ;; error messages
 (define-constant ERR_INVALID (err u2000))
-(define-constant ERR_UNAUTHORIZED (err u2001))
-(define-constant ERR_TOO_SOON (err u2002))
-(define-constant ERR_INVALID_AMOUNT (err u2003))
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u2001))
+(define-constant ERR_NOT_ACCOUNT_HOLDER (err u2002))
+(define-constant ERR_TOO_SOON (err u2003))
+(define-constant ERR_INVALID_AMOUNT (err u2004))
+(define-constant ERR_FETCHING_BALANCE (err u2005))
 
 
 ;; data vars
 ;;
 (define-data-var withdrawalPeriod uint u144) ;; 144 Bitcoin blocks, ~1 day
-(define-data-var withdrawalAmount uint u10000000) ;; 10,000,000 sats, or 0.1 sBTC
+(define-data-var withdrawalAmount uint u100000) ;; 100000 sats, or 0.001 BTC
 (define-data-var lastWithdrawalBlock uint u0)
 (define-data-var accountHolder principal SELF)
 
@@ -130,12 +132,12 @@
 
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
-    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )
 
 (define-private (is-account-holder)
-  (ok (asserts! (is-eq (var-get accountHolder) (get-standard-caller)) ERR_UNAUTHORIZED))
+  (ok (asserts! (is-eq (var-get accountHolder) (get-standard-caller)) ERR_NOT_ACCOUNT_HOLDER))
 )
 
 (define-private (get-standard-caller)

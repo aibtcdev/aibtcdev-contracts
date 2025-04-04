@@ -47,9 +47,11 @@ export enum ActionErrCode {
 
 export enum TimedVaultErrCode {
   ERR_INVALID = 2000,
-  ERR_UNAUTHORIZED,
+  ERR_NOT_DAO_OR_EXTENSION,
+  ERR_NOT_ACCOUNT_HOLDER,
   ERR_TOO_SOON,
   ERR_INVALID_AMOUNT,
+  ERR_FETCHING_BALANCE,
 }
 
 export enum CoreProposalErrCode {

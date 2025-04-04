@@ -12,7 +12,7 @@ const contractAddress = `${deployer}.${ContractType.DAO_TIMED_VAULT_SBTC}`;
 
 const ErrCode = TimedVaultErrCode;
 
-const withdrawalAmount = 10000000; // 10 sBTC (in sats)
+const withdrawalAmount = 100000; // 0.001 sBTC (8 decimals)
 const withdrawalPeriod = 144; // 144 blocks
 
 describe(`public functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
@@ -38,7 +38,9 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
       [Cl.principal(address1)],
       deployer
     );
-    expect(setAccountHolder.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    expect(setAccountHolder.result).toBeErr(
+      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
+    );
   });
   ///////////////////////////////////////////
   // set-withdrawal-period() tests
@@ -51,7 +53,7 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
       deployer
     );
     expect(setWithdrawalPeriod.result).toBeErr(
-      Cl.uint(ErrCode.ERR_UNAUTHORIZED)
+      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
     );
   });
   ///////////////////////////////////////////
@@ -65,7 +67,7 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
       deployer
     );
     expect(setWithdrawalAmount.result).toBeErr(
-      Cl.uint(ErrCode.ERR_UNAUTHORIZED)
+      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
     );
   });
   ///////////////////////////////////////////
@@ -79,7 +81,7 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
       deployer
     );
     expect(overrideLastWithdrawalBlock.result).toBeErr(
-      Cl.uint(ErrCode.ERR_UNAUTHORIZED)
+      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
     );
   });
   ///////////////////////////////////////////
@@ -96,7 +98,7 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
   });
   it("deposit() succeeds and transfers sBTC to contract", () => {
     // Get sBTC from faucet first
-    const sbtcContract = 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token';
+    const sbtcContract = "STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token";
     const faucetReceipt = simnet.callPublicFn(
       sbtcContract,
       "faucet",
@@ -104,7 +106,7 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
       deployer
     );
     expect(faucetReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // Now deposit sBTC to the vault
     const depositSbtc = simnet.callPublicFn(
       contractAddress,
@@ -124,7 +126,9 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
       [],
       address2
     );
-    expect(withdrawSbtc.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    expect(withdrawSbtc.result).toBeErr(
+      Cl.uint(ErrCode.ERR_NOT_ACCOUNT_HOLDER)
+    );
   });
 });
 
@@ -134,9 +138,9 @@ describe(`read-only functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
   /////////////////////////////////////////////
   it("get-account-balance() returns the contract account balance", () => {
     // arrange
-    const sbtcContract = 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token';
+    const sbtcContract = "STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token";
     const expectedResult = Cl.ok(Cl.uint(0));
-    
+
     // act - check initial balance
     const getAccountBalance = simnet.callReadOnlyFn(
       contractAddress,
@@ -144,10 +148,10 @@ describe(`read-only functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
       [],
       deployer
     ).result;
-    
+
     // assert - initial balance should be 0
     expect(getAccountBalance).toStrictEqual(expectedResult);
-    
+
     // arrange - get sBTC from faucet and deposit
     const faucetReceipt = simnet.callPublicFn(
       sbtcContract,
@@ -156,7 +160,7 @@ describe(`read-only functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
       deployer
     );
     expect(faucetReceipt.result).toBeOk(Cl.bool(true));
-    
+
     const depositAmount = Cl.uint(10000000); // 10 sBTC (in sats)
     const depositSbtcReceipt = simnet.callPublicFn(
       contractAddress,
@@ -165,7 +169,7 @@ describe(`read-only functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
       deployer
     );
     expect(depositSbtcReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // act - check balance after deposit
     const getAccountBalance2 = simnet.callReadOnlyFn(
       contractAddress,
@@ -173,7 +177,7 @@ describe(`read-only functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
       [],
       deployer
     ).result;
-    
+
     // assert - balance should match deposit
     expect(getAccountBalance2).toBeOk(depositAmount);
   });
@@ -183,7 +187,7 @@ describe(`read-only functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
   /////////////////////////////////////////////
   it("get-account-terms() returns the contract account terms", () => {
     // arrange
-    const sbtcContract = 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token';
+    const sbtcContract = "STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token";
     const expectedResult = Cl.tuple({
       accountHolder: Cl.principal(contractAddress),
       contractName: Cl.principal(contractAddress),

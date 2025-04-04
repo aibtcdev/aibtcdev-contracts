@@ -13,7 +13,7 @@ const contractAddress = `${deployer}.${ContractType.DAO_TIMED_VAULT_DAO}`;
 
 const ErrCode = TimedVaultErrCode;
 
-const withdrawalAmount = 10000000; // 10 aibtc tokens
+const withdrawalAmount = 100000000000; // 1,000 DAO tokens (8 decimals)
 const withdrawalPeriod = 144; // 144 blocks
 
 describe(`public functions: ${ContractType.DAO_TIMED_VAULT_DAO}`, () => {
@@ -39,7 +39,9 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_DAO}`, () => {
       [Cl.principal(address1)],
       deployer
     );
-    expect(setAccountHolder.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    expect(setAccountHolder.result).toBeErr(
+      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
+    );
   });
   ///////////////////////////////////////////
   // set-withdrawal-period() tests
@@ -52,7 +54,7 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_DAO}`, () => {
       deployer
     );
     expect(setWithdrawalPeriod.result).toBeErr(
-      Cl.uint(ErrCode.ERR_UNAUTHORIZED)
+      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
     );
   });
   ///////////////////////////////////////////
@@ -66,7 +68,7 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_DAO}`, () => {
       deployer
     );
     expect(setWithdrawalAmount.result).toBeErr(
-      Cl.uint(ErrCode.ERR_UNAUTHORIZED)
+      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
     );
   });
   ///////////////////////////////////////////
@@ -80,7 +82,7 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_DAO}`, () => {
       deployer
     );
     expect(overrideLastWithdrawalBlock.result).toBeErr(
-      Cl.uint(ErrCode.ERR_UNAUTHORIZED)
+      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
     );
   });
   ///////////////////////////////////////////
@@ -133,7 +135,7 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_DAO}`, () => {
       [],
       address2
     );
-    expect(withdrawDao.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    expect(withdrawDao.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_ACCOUNT_HOLDER));
   });
 });
 
