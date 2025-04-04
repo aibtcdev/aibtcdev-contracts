@@ -13,6 +13,8 @@
 
 ;; initially scoped to service provider deploying a contract
 (define-constant SELF (as-contract tx-sender))
+(define-constant PAYMENT_TOKEN "sBTC")
+(define-constant TOKEN_CONTRACT 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token)
 
 ;; errors
 (define-constant ERR_UNAUTHORIZED (err u5000))
@@ -291,8 +293,12 @@
     })
     ;; make transfer
     (if (is-some memo)
-      (try! (stx-transfer-memo? (get price resourceData) contract-caller (var-get paymentAddress) (unwrap-panic memo)))
-      (try! (stx-transfer? (get price resourceData) contract-caller (var-get paymentAddress)))
+      ;; sBTC tokens don't support memo directly, so we print it separately
+      (begin
+        (print {memo: (unwrap-panic memo)})
+        (try! (contract-call? TOKEN_CONTRACT transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
+      )
+      (try! (contract-call? TOKEN_CONTRACT transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
     )
     ;; return new count
     (ok newCount)
@@ -388,7 +394,10 @@
 ;; returns aggregate contract data
 (define-read-only (get-contract-data)
   {
+    contractAddress: SELF,
     paymentAddress: (get-payment-address),
+    paymentToken: PAYMENT_TOKEN,
+    tokenContract: TOKEN_CONTRACT,
     totalInvoices: (get-total-invoices),
     totalResources: (get-total-resources),
     totalRevenue: (get-total-revenue),

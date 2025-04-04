@@ -13,6 +13,7 @@
 
 ;; initially scoped to service provider deploying a contract
 (define-constant SELF (as-contract tx-sender))
+(define-constant PAYMENT_TOKEN "STX")
 
 ;; errors
 (define-constant ERR_UNAUTHORIZED (err u5000))
@@ -388,7 +389,9 @@
 ;; returns aggregate contract data
 (define-read-only (get-contract-data)
   {
+    contractAddress: SELF,
     paymentAddress: (get-payment-address),
+    paymentToken: PAYMENT_TOKEN,
     totalInvoices: (get-total-invoices),
     totalResources: (get-total-resources),
     totalRevenue: (get-total-revenue),
