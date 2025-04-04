@@ -290,11 +290,8 @@
         userData: (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND)
       }
     })
-    ;; make transfer
-    (if (is-some memo)
-      (try! (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer (get price resourceData) contract-caller (var-get paymentAddress) memo))
-      (try! (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
-    )
+    ;; make transfer - directly pass the memo parameter
+    (try! (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer (get price resourceData) contract-caller (var-get paymentAddress) memo))
     ;; return new count
     (ok newCount)
   )

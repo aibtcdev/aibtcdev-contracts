@@ -290,7 +290,7 @@
         userData: (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND)
       }
     })
-    ;; make transfer
+    ;; make transfer - STX requires different functions for with/without memo
     (if (is-some memo)
       (try! (stx-transfer-memo? (get price resourceData) contract-caller (var-get paymentAddress) (unwrap-panic memo)))
       (try! (stx-transfer? (get price resourceData) contract-caller (var-get paymentAddress)))
