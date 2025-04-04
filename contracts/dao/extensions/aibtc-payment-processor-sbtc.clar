@@ -292,11 +292,7 @@
     })
     ;; make transfer
     (if (is-some memo)
-      ;; sBTC tokens don't support memo directly, so we print it separately
-      (begin
-        (print {memo: (unwrap-panic memo)})
-        (try! (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
-      )
+      (try! (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer (get price resourceData) contract-caller (var-get paymentAddress) memo))
       (try! (contract-call? 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
     )
     ;; return new count
