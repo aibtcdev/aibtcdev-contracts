@@ -296,9 +296,9 @@
       ;; DAO tokens don't support memo directly, so we print it separately
       (begin
         (print {memo: (unwrap-panic memo)})
-        (try! (contract-call? CFG_TOKEN_CONTRACT transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
+        (try! (contract-call? .aibtc-token transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
       )
-      (try! (contract-call? CFG_TOKEN_CONTRACT transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
+      (try! (contract-call? .aibtc-token transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
     )
     ;; return new count
     (ok newCount)
