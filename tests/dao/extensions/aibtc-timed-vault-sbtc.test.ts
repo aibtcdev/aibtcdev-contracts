@@ -12,7 +12,7 @@ const contractAddress = `${deployer}.${ContractType.DAO_TIMED_VAULT_SBTC}`;
 
 const ErrCode = TimedVaultErrCode;
 
-const withdrawalAmount = 100000; // 0.001 sBTC (8 decimals)
+const withdrawalAmount = 10000; // 0.0001 sBTC (8 decimals)
 const withdrawalPeriod = 144; // 144 blocks
 
 describe(`public functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
