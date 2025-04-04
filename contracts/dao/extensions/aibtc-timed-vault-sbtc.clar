@@ -81,7 +81,7 @@
         recipient: SELF
       }
     })
-    (stx-transfer? amount contract-caller SELF)
+    (contract-call? CFG_VAULT_TOKEN transfer amount tx-sender SELF none)
   )
 )
 
@@ -93,7 +93,7 @@
     (asserts! (>= burn-block-height (+ (var-get lastWithdrawalBlock) (var-get withdrawalPeriod))) ERR_TOO_SOON)
     ;; update last withdrawal block
     (var-set lastWithdrawalBlock burn-block-height)
-    ;; print notification and transfer STX
+    ;; print notification and transfer sBTC
     (print {
       notification: "withdraw",
       payload: {
@@ -102,15 +102,18 @@
         recipient: (var-get accountHolder)
       }
     })
-    (as-contract (stx-transfer? (var-get withdrawalAmount) SELF (var-get accountHolder)))
+    (as-contract (contract-call? CFG_VAULT_TOKEN transfer (var-get withdrawalAmount) SELF (var-get accountHolder) none))
   )
 )
 
 ;; read only functions
 ;;
+(define-read-only (get-account-balance)
+  (contract-call? CFG_VAULT_TOKEN get-balance SELF)
+)
+
 (define-read-only (get-account-terms)
   {
-    accountBalance: (contract-call? .aibtc-token get-balance SELF),
     accountHolder: (var-get accountHolder),
     contractName: SELF,
     deployedBurnBlock: DEPLOYED_BURN_BLOCK,

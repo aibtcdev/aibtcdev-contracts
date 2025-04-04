@@ -116,3 +116,52 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
     expect(withdrawSbtc.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
 });
+
+describe(`read-only functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
+  /////////////////////////////////////////////
+  // get-account-balance() tests
+  /////////////////////////////////////////////
+  it("get-account-balance() returns the contract account balance", () => {
+    // arrange
+    const expectedResult = Cl.ok(Cl.uint(0));
+    // act
+    const getAccountBalance = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-account-balance",
+      [],
+      deployer
+    ).result;
+    // assert
+    expect(getAccountBalance).toStrictEqual(expectedResult);
+    
+    // Note: We can't actually test with real sBTC deposits in this test environment
+    // This would require mocking the sBTC token contract
+  });
+
+  /////////////////////////////////////////////
+  // get-account-terms() tests
+  /////////////////////////////////////////////
+  it("get-account-terms() returns the contract account terms", () => {
+    // arrange
+    const sbtcContract = 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token';
+    const expectedResult = Cl.tuple({
+      accountHolder: Cl.principal(contractAddress),
+      contractName: Cl.principal(contractAddress),
+      deployedBurnBlock: Cl.uint(5),
+      deployedStacksBlock: Cl.uint(6),
+      lastWithdrawalBlock: Cl.uint(0),
+      vaultToken: Cl.principal(sbtcContract),
+      withdrawalAmount: Cl.uint(withdrawalAmount),
+      withdrawalPeriod: Cl.uint(withdrawalPeriod),
+    });
+    // act
+    const getAccountTerms = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-account-terms",
+      [],
+      deployer
+    ).result;
+    // assert
+    expect(getAccountTerms).toStrictEqual(expectedResult);
+  });
+});

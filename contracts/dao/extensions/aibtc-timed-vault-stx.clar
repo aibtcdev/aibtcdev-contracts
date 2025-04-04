@@ -105,9 +105,12 @@
 
 ;; read only functions
 ;;
+(define-read-only (get-account-balance)
+  (ok (stx-get-balance SELF))
+)
+
 (define-read-only (get-account-terms)
   {
-    accountBalance: (contract-call? .aibtc-token get-balance SELF),
     accountHolder: (var-get accountHolder),
     contractName: SELF,
     deployedBurnBlock: DEPLOYED_BURN_BLOCK,

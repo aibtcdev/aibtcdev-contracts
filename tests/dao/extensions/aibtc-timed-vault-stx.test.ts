@@ -116,3 +116,69 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_STX}`, () => {
     expect(withdrawStx.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
 });
+
+describe(`read-only functions: ${ContractType.DAO_TIMED_VAULT_STX}`, () => {
+  /////////////////////////////////////////////
+  // get-account-balance() tests
+  /////////////////////////////////////////////
+  it("get-account-balance() returns the contract account balance", () => {
+    // arrange
+    const expectedResult = Cl.ok(Cl.uint(0));
+    // act
+    const getAccountBalance = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-account-balance",
+      [],
+      deployer
+    ).result;
+    // assert
+    expect(getAccountBalance).toStrictEqual(expectedResult);
+    
+    // arrange - deposit some STX
+    const depositAmount = Cl.uint(10000000); // 10 STX
+    const depositStxReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit",
+      [depositAmount],
+      deployer
+    );
+    expect(depositStxReceipt.result).toBeOk(Cl.bool(true));
+    
+    // act - check balance after deposit
+    const getAccountBalance2 = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-account-balance",
+      [],
+      deployer
+    ).result;
+    
+    // assert - balance should match deposit
+    expect(getAccountBalance2).toBeOk(depositAmount);
+  });
+
+  /////////////////////////////////////////////
+  // get-account-terms() tests
+  /////////////////////////////////////////////
+  it("get-account-terms() returns the contract account terms", () => {
+    // arrange
+    const expectedResult = Cl.tuple({
+      accountHolder: Cl.principal(contractAddress),
+      contractName: Cl.principal(contractAddress),
+      deployedBurnBlock: Cl.uint(5),
+      deployedStacksBlock: Cl.uint(6),
+      lastWithdrawalBlock: Cl.uint(0),
+      vaultToken: Cl.stringAscii("STX"),
+      withdrawalAmount: Cl.uint(withdrawalAmount),
+      withdrawalPeriod: Cl.uint(withdrawalPeriod),
+    });
+    // act
+    const getAccountTerms = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-account-terms",
+      [],
+      deployer
+    ).result;
+    // assert
+    expect(getAccountTerms).toStrictEqual(expectedResult);
+  });
+});
