@@ -95,6 +95,17 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
     expect(depositSbtc.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_AMOUNT));
   });
   it("deposit() succeeds and transfers sBTC to contract", () => {
+    // Get sBTC from faucet first
+    const sbtcContract = 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token';
+    const faucetReceipt = simnet.callPublicFn(
+      sbtcContract,
+      "faucet",
+      [],
+      deployer
+    );
+    expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+    
+    // Now deposit sBTC to the vault
     const depositSbtc = simnet.callPublicFn(
       contractAddress,
       "deposit",
@@ -123,19 +134,48 @@ describe(`read-only functions: ${ContractType.DAO_TIMED_VAULT_SBTC}`, () => {
   /////////////////////////////////////////////
   it("get-account-balance() returns the contract account balance", () => {
     // arrange
+    const sbtcContract = 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token';
     const expectedResult = Cl.ok(Cl.uint(0));
-    // act
+    
+    // act - check initial balance
     const getAccountBalance = simnet.callReadOnlyFn(
       contractAddress,
       "get-account-balance",
       [],
       deployer
     ).result;
-    // assert
+    
+    // assert - initial balance should be 0
     expect(getAccountBalance).toStrictEqual(expectedResult);
     
-    // Note: We can't actually test with real sBTC deposits in this test environment
-    // This would require mocking the sBTC token contract
+    // arrange - get sBTC from faucet and deposit
+    const faucetReceipt = simnet.callPublicFn(
+      sbtcContract,
+      "faucet",
+      [],
+      deployer
+    );
+    expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+    
+    const depositAmount = Cl.uint(10000000); // 10 sBTC (in sats)
+    const depositSbtcReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit",
+      [depositAmount],
+      deployer
+    );
+    expect(depositSbtcReceipt.result).toBeOk(Cl.bool(true));
+    
+    // act - check balance after deposit
+    const getAccountBalance2 = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-account-balance",
+      [],
+      deployer
+    ).result;
+    
+    // assert - balance should match deposit
+    expect(getAccountBalance2).toBeOk(depositAmount);
   });
 
   /////////////////////////////////////////////
