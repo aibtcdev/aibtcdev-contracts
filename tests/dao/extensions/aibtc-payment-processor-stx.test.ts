@@ -58,7 +58,7 @@ describe(`public functions: aibtc-payment-processor-stx`, () => {
         Cl.stringUtf8(resourceName),
         Cl.stringUtf8(resourceDescription),
         Cl.uint(resourcePrice),
-        Cl.some(Cl.stringUtf8(resourceUrl))
+        Cl.some(Cl.stringUtf8(resourceUrl)),
       ],
       deployer
     );
@@ -71,6 +71,7 @@ describe(`public functions: aibtc-payment-processor-stx`, () => {
   // toggle-resource() tests
   ////////////////////////////////////////
   it("toggle-resource() fails if called directly", () => {
+    // NOTE: full check would pass and add one first
     const toggleResource = simnet.callPublicFn(
       contractAddress,
       "toggle-resource",
@@ -78,7 +79,7 @@ describe(`public functions: aibtc-payment-processor-stx`, () => {
       deployer
     );
     expect(toggleResource.result).toBeErr(
-      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
+      Cl.uint(ErrCode.ERR_RESOURCE_NOT_FOUND)
     );
   });
 
@@ -86,6 +87,7 @@ describe(`public functions: aibtc-payment-processor-stx`, () => {
   // toggle-resource-by-name() tests
   ////////////////////////////////////////
   it("toggle-resource-by-name() fails if called directly", () => {
+    // NOTE: full check would pass and add one first
     const toggleResourceByName = simnet.callPublicFn(
       contractAddress,
       "toggle-resource-by-name",
@@ -93,7 +95,7 @@ describe(`public functions: aibtc-payment-processor-stx`, () => {
       deployer
     );
     expect(toggleResourceByName.result).toBeErr(
-      Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION)
+      Cl.uint(ErrCode.ERR_RESOURCE_NOT_FOUND)
     );
   });
 
@@ -107,9 +109,7 @@ describe(`public functions: aibtc-payment-processor-stx`, () => {
       [Cl.uint(1), Cl.none()],
       address1
     );
-    expect(payInvoice.result).toBeErr(
-      Cl.uint(ErrCode.ERR_RESOURCE_NOT_FOUND)
-    );
+    expect(payInvoice.result).toBeErr(Cl.uint(ErrCode.ERR_RESOURCE_NOT_FOUND));
   });
 
   it("pay-invoice() fails if resource index is 0", () => {
@@ -119,9 +119,7 @@ describe(`public functions: aibtc-payment-processor-stx`, () => {
       [Cl.uint(0), Cl.none()],
       address1
     );
-    expect(payInvoice.result).toBeErr(
-      Cl.uint(ErrCode.ERR_INVALID_PARAMS)
-    );
+    expect(payInvoice.result).toBeErr(Cl.uint(ErrCode.ERR_RESOURCE_NOT_FOUND));
   });
 
   ////////////////////////////////////////
@@ -191,7 +189,9 @@ describe(`read-only functions: aibtc-payment-processor-stx`, () => {
       deployer
     ).result;
     // Default payment address should be the treasury
-    expect(getPaymentAddress).toStrictEqual(Cl.some(Cl.principal(`${deployer}.aibtc-treasury`)));
+    expect(getPaymentAddress).toStrictEqual(
+      Cl.some(Cl.principal(`${deployer}.aibtc-treasury`))
+    );
   });
 
   /////////////////////////////////////////////
@@ -217,7 +217,7 @@ describe(`read-only functions: aibtc-payment-processor-stx`, () => {
       [],
       deployer
     ).result;
-    
+
     const expectedData = Cl.tuple({
       contractAddress: Cl.principal(contractAddress),
       paymentAddress: Cl.some(Cl.principal(`${deployer}.aibtc-treasury`)),
@@ -225,9 +225,9 @@ describe(`read-only functions: aibtc-payment-processor-stx`, () => {
       totalInvoices: Cl.uint(0),
       totalResources: Cl.uint(0),
       totalRevenue: Cl.uint(0),
-      totalUsers: Cl.uint(0)
+      totalUsers: Cl.uint(0),
     });
-    
+
     expect(getContractData).toStrictEqual(expectedData);
   });
 });

@@ -190,10 +190,10 @@
       (resourceData (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND))
       (newStatus (not (get enabled resourceData)))
     )
-    ;; verify resource > 0
-    (asserts! (> resourceIndex u0) ERR_INVALID_PARAMS)
     ;; check if caller is authorized
     (try! (is-dao-or-extension))
+    ;; verify resource > 0
+    (asserts! (> resourceIndex u0) ERR_INVALID_PARAMS)
     ;; update ResourceData map
     (map-set ResourceData
       resourceIndex
