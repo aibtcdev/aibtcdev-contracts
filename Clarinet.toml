@@ -150,6 +150,36 @@ epoch = 3.1
 
 # dao actions (as extensions)
 
+[contracts.aibtc-action-payments-dao-add-resource]
+path = 'contracts/dao/extensions/actions/aibtc-action-payments-dao-add-resource.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-action-payments-dao-toggle-resource]
+path = 'contracts/dao/extensions/actions/aibtc-action-payments-dao-toggle-resource.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-action-payments-sbtc-add-resource]
+path = 'contracts/dao/extensions/actions/aibtc-action-payments-sbtc-add-resource.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-action-payments-sbtc-toggle-resource]
+path = 'contracts/dao/extensions/actions/aibtc-action-payments-sbtc-toggle-resource.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-action-payments-stx-add-resource]
+path = 'contracts/dao/extensions/actions/aibtc-action-payments-stx-add-resource.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-action-payments-stx-toggle-resource]
+path = 'contracts/dao/extensions/actions/aibtc-action-payments-stx-toggle-resource.clar'
+clarity_version = 2
+epoch = 3.1
+
 [contracts.aibtc-action-add-resource]
 path = 'contracts/dao/extensions/actions/aibtc-action-add-resource.clar'
 clarity_version = 2
@@ -269,6 +299,66 @@ epoch = 3.1
 
 [contracts.aibtc-onchain-messaging-send]
 path = 'contracts/dao/proposals/aibtc-onchain-messaging-send.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-payments-stx-add-resource]
+path = 'contracts/dao/proposals/aibtc-payments-stx-add-resource.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-payments-stx-set-payment-address]
+path = 'contracts/dao/proposals/aibtc-payments-stx-set-payment-address.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-payments-stx-toggle-resource-by-name]
+path = 'contracts/dao/proposals/aibtc-payments-stx-toggle-resource-by-name.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-payments-stx-toggle-resource]
+path = 'contracts/dao/proposals/aibtc-payments-stx-toggle-resource.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-payments-sbtc-add-resource]
+path = 'contracts/dao/proposals/aibtc-payments-sbtc-add-resource.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-payments-sbtc-set-payment-address]
+path = 'contracts/dao/proposals/aibtc-payments-sbtc-set-payment-address.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-payments-sbtc-toggle-resource-by-name]
+path = 'contracts/dao/proposals/aibtc-payments-sbtc-toggle-resource-by-name.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-payments-sbtc-toggle-resource]
+path = 'contracts/dao/proposals/aibtc-payments-sbtc-toggle-resource.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-payments-dao-add-resource]
+path = 'contracts/dao/proposals/aibtc-payments-dao-add-resource.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-payments-dao-set-payment-address]
+path = 'contracts/dao/proposals/aibtc-payments-dao-set-payment-address.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-payments-dao-toggle-resource-by-name]
+path = 'contracts/dao/proposals/aibtc-payments-dao-toggle-resource-by-name.clar'
+clarity_version = 2
+epoch = 3.1
+
+[contracts.aibtc-payments-dao-toggle-resource]
+path = 'contracts/dao/proposals/aibtc-payments-dao-toggle-resource.clar'
 clarity_version = 2
 epoch = 3.1
 
