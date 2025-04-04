@@ -17,7 +17,7 @@
 (define-constant TOKEN_CONTRACT 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token)
 
 ;; errors
-(define-constant ERR_UNAUTHORIZED (err u5000))
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u5000))
 (define-constant ERR_INVALID_PARAMS (err u5001))
 (define-constant ERR_NAME_ALREADY_USED (err u5002))
 (define-constant ERR_SAVING_RESOURCE_DATA (err u5003))
@@ -122,7 +122,7 @@
     ;; check if caller is authorized
     (try! (is-dao-or-extension))
     ;; check that new address differs from current address
-    (asserts! (not (is-eq newAddress (var-get paymentAddress))) ERR_UNAUTHORIZED)   
+    (asserts! (not (is-eq newAddress (var-get paymentAddress))) ERR_NOT_DAO_OR_EXTENSION)   
     ;; print details
     (print {
       notification: "set-payment-address",
@@ -410,7 +410,7 @@
 
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
-    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )
 
