@@ -92,9 +92,12 @@ export function generateContractNames(tokenSymbol: string): ContractNames {
     [ContractType.DAO_TOKEN_DEX]: `${tokenSymbol.toLowerCase()}-faktory-dex`,
     [ContractType.DAO_TOKEN_OWNER]: `${tokenSymbol.toLowerCase()}-token-owner`,
     [ContractType.DAO_BASE]: `${tokenSymbol.toLowerCase()}-base-dao`,
+    [ContractType.DAO_TOKEN_PRE_DEX]: `${tokenSymbol.toLowerCase()}-faktory-pre-dex`,
     [ContractType.DAO_ACTION_PROPOSALS]: `${tokenSymbol.toLowerCase()}-action-proposals`,
     [ContractType.DAO_ACTION_PROPOSALS_V2]: `${tokenSymbol.toLowerCase()}-action-proposals-v2`,
-    [ContractType.DAO_TIMED_VAULT]: `${tokenSymbol.toLowerCase()}-timed-vault`,
+    [ContractType.DAO_TIMED_VAULT_DAO]: `${tokenSymbol.toLowerCase()}-timed-vault-dao`,
+    [ContractType.DAO_TIMED_VAULT_SBTC]: `${tokenSymbol.toLowerCase()}-timed-vault-sbtc`,
+    [ContractType.DAO_TIMED_VAULT_STX]: `${tokenSymbol.toLowerCase()}-timed-vault-stx`,
     [ContractType.DAO_CHARTER]: `${tokenSymbol.toLowerCase()}-dao-charter`,
     [ContractType.DAO_CORE_PROPOSALS]: `${tokenSymbol.toLowerCase()}-core-proposals`,
     [ContractType.DAO_CORE_PROPOSALS_V2]: `${tokenSymbol.toLowerCase()}-core-proposals-v2`,
@@ -104,10 +107,10 @@ export function generateContractNames(tokenSymbol: string): ContractNames {
     [ContractActionType.DAO_ACTION_ADD_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-add-resource`,
     [ContractActionType.DAO_ACTION_ALLOW_ASSET]: `${tokenSymbol.toLowerCase()}-action-allow-asset`,
     [ContractActionType.DAO_ACTION_SEND_MESSAGE]: `${tokenSymbol.toLowerCase()}-action-send-message`,
-    [ContractActionType.DAO_ACTION_SET_ACCOUNT_HOLDER]: `${tokenSymbol.toLowerCase()}-action-set-account-holder`,
-    [ContractActionType.DAO_ACTION_SET_WITHDRAWAL_AMOUNT]: `${tokenSymbol.toLowerCase()}-action-set-withdrawal-amount`,
-    [ContractActionType.DAO_ACTION_SET_WITHDRAWAL_PERIOD]: `${tokenSymbol.toLowerCase()}-action-set-withdrawal-period`,
     [ContractActionType.DAO_ACTION_TOGGLE_RESOURCE_BY_NAME]: `${tokenSymbol.toLowerCase()}-action-toggle-resource`,
+    [ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAULT_DAO]: `${tokenSymbol.toLowerCase()}-action-configure-timed-vault-dao`,
+    [ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAULT_SBTC]: `${tokenSymbol.toLowerCase()}-action-configure-timed-vault-sbtc`,
+    [ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAULT_STX]: `${tokenSymbol.toLowerCase()}-action-configure-timed-vault-stx`,
   };
 }
 
