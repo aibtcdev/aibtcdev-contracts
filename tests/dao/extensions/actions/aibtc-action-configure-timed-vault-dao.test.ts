@@ -8,6 +8,7 @@ import {
 import { ActionErrCode } from "../../../error-codes";
 import {
   constructDao,
+  dbgLog,
   fundVoters,
   passActionProposal,
   VOTING_CONFIG,
@@ -102,7 +103,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
 
   it("run() succeeds if called as a DAO action proposal", () => {
     const accountHolder = Cl.some(Cl.principal(address3));
-    const withdrawalAmount = Cl.some(Cl.uint(1000));
+    const withdrawalAmount = Cl.some(Cl.uint(100000000));
     const withdrawalPeriod = Cl.some(Cl.uint(100));
     const paramsCV = Cl.tuple({
       accountHolder,
@@ -144,6 +145,10 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
       deployer,
       [deployer, address1, address2],
       votingConfig
+    );
+    dbgLog(
+      `concludeProposalReceipt: ${JSON.stringify(concludeProposalReceipt)}`,
+      { forceLog: true }
     );
 
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -201,7 +206,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
 
   it("run() succeeds with only withdrawal amount parameter", () => {
     const accountHolder = Cl.none();
-    const withdrawalAmount = Cl.some(Cl.uint(5000));
+    const withdrawalAmount = Cl.some(Cl.uint(200000000));
     const withdrawalPeriod = Cl.none();
     const paramsCV = Cl.tuple({
       accountHolder,
@@ -352,7 +357,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
 
   it("run() fails with invalid withdrawal amount (too large)", () => {
     const accountHolder = Cl.none();
-    const withdrawalAmount = Cl.some(Cl.uint(100000001)); // Invalid: amount > 100000000
+    const withdrawalAmount = Cl.some(Cl.uint(1000000000001)); // Invalid: amount > 100000000
     const withdrawalPeriod = Cl.none();
     const paramsCV = Cl.tuple({
       accountHolder,
@@ -505,7 +510,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
 
   it("run() succeeds with minimum valid withdrawal amount", () => {
     const accountHolder = Cl.none();
-    const withdrawalAmount = Cl.some(Cl.uint(10)); // Minimum valid amount
+    const withdrawalAmount = Cl.some(Cl.uint(100000000)); // Minimum valid amount
     const withdrawalPeriod = Cl.none();
     const paramsCV = Cl.tuple({
       accountHolder,
@@ -555,7 +560,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
 
   it("run() succeeds with maximum valid withdrawal amount", () => {
     const accountHolder = Cl.none();
-    const withdrawalAmount = Cl.some(Cl.uint(99999999)); // Maximum valid amount
+    const withdrawalAmount = Cl.some(Cl.uint(999999999999)); // Maximum valid amount
     const withdrawalPeriod = Cl.none();
     const paramsCV = Cl.tuple({
       accountHolder,

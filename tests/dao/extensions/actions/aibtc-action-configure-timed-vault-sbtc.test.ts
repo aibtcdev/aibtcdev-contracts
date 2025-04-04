@@ -505,7 +505,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
 
   it("run() succeeds with minimum valid withdrawal amount", () => {
     const accountHolder = Cl.none();
-    const withdrawalAmount = Cl.some(Cl.uint(10)); // Minimum valid amount
+    const withdrawalAmount = Cl.some(Cl.uint(1000)); // Minimum valid amount
     const withdrawalPeriod = Cl.none();
     const paramsCV = Cl.tuple({
       accountHolder,
@@ -555,7 +555,7 @@ describe(`action extension: ${ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAUL
 
   it("run() succeeds with maximum valid withdrawal amount", () => {
     const accountHolder = Cl.none();
-    const withdrawalAmount = Cl.some(Cl.uint(99999999)); // Maximum valid amount
+    const withdrawalAmount = Cl.some(Cl.uint(9999999)); // Maximum valid amount
     const withdrawalPeriod = Cl.none();
     const paramsCV = Cl.tuple({
       accountHolder,
