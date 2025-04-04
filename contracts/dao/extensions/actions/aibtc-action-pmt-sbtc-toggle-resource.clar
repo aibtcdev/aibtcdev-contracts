@@ -15,7 +15,7 @@
     )
     (try! (is-dao-or-extension))
     (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
-    (contract-call? .aibtc-payments-invoices toggle-resource-by-name resourceName)
+    (contract-call? .aibtc-payment-processor-sbtc toggle-resource-by-name resourceName)
   )
 )
 

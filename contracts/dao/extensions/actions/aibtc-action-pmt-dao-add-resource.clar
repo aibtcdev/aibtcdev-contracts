@@ -17,7 +17,7 @@
     )
     (try! (is-dao-or-extension))
     (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
-    (try! (contract-call? .aibtc-payments-invoices add-resource (get name paramsTuple) (get description paramsTuple) (get price paramsTuple) (get url paramsTuple)))
+    (try! (contract-call? .aibtc-payment-processor-dao add-resource (get name paramsTuple) (get description paramsTuple) (get price paramsTuple) (get url paramsTuple)))
     (ok true)
   )
 )
