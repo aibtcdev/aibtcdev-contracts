@@ -17,8 +17,8 @@
 (define-constant CFG_VAULT_TOKEN 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token)
 
 ;; error messages
-(define-constant ERR_INVALID (err u2000))
-(define-constant ERR_NOT_DAO_OR_EXTENSION (err u2001))
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u2000))
+(define-constant ERR_INVALID (err u2001))
 (define-constant ERR_NOT_ACCOUNT_HOLDER (err u2002))
 (define-constant ERR_TOO_SOON (err u2003))
 (define-constant ERR_INVALID_AMOUNT (err u2004))
