@@ -26,7 +26,7 @@
 ;; data vars
 ;;
 (define-data-var withdrawalPeriod uint u144) ;; 144 Bitcoin blocks, ~1 day
-(define-data-var withdrawalAmount uint u10000000) ;; 10,000,000 microSTX, or 10 STX
+(define-data-var withdrawalAmount uint u10000000) ;; 10,000,000 sats, or 0.1 sBTC
 (define-data-var lastWithdrawalBlock uint u0)
 (define-data-var accountHolder principal SELF)
 
