@@ -114,6 +114,12 @@ export function generateContractNames(tokenSymbol: string): ContractNames {
     [ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAULT_DAO]: `${tokenSymbol.toLowerCase()}-action-configure-timed-vault-dao`,
     [ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAULT_SBTC]: `${tokenSymbol.toLowerCase()}-action-configure-timed-vault-sbtc`,
     [ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAULT_STX]: `${tokenSymbol.toLowerCase()}-action-configure-timed-vault-stx`,
+    [ContractActionType.DAO_ACTION_PAYMENTS_DAO_ADD_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-payments-dao-add-resource`,
+    [ContractActionType.DAO_ACTION_PAYMENTS_DAO_TOGGLE_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-payments-dao-toggle-resource`,
+    [ContractActionType.DAO_ACTION_PAYMENTS_SBTC_ADD_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-payments-sbtc-add-resource`,
+    [ContractActionType.DAO_ACTION_PAYMENTS_SBTC_TOGGLE_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-payments-sbtc-toggle-resource`,
+    [ContractActionType.DAO_ACTION_PAYMENTS_STX_ADD_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-payments-stx-add-resource`,
+    [ContractActionType.DAO_ACTION_PAYMENTS_STX_TOGGLE_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-payments-stx-toggle-resource`,
   };
 }
 

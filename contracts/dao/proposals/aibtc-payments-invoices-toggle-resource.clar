@@ -10,6 +10,6 @@
     ;; send a message from the dao
     (try! (contract-call? .aibtc-onchain-messaging send CFG_MESSAGE true))
     ;; toggle a resource enabled status by index
-    (contract-call? .aibtc-payment-processor-dao toggle-resource CFG_RESOURCE_INDEX)
+    (contract-call? .aibtc-payments-invoices toggle-resource CFG_RESOURCE_INDEX)
   )
 )

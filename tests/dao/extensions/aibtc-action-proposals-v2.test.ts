@@ -1592,7 +1592,7 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       self: Cl.principal(actionProposalsV2ContractAddress),
       deployedBurnBlock: Cl.uint(burnBlockHeight),
       // not sure why this works, but matching stacksBlockHeight is way off
-      deployedStacksBlock: Cl.uint(burnBlockHeight + 1),
+      deployedStacksBlock: Cl.uint(burnBlockHeight + 2),
       proposalBond: Cl.uint(proposalBond),
       delay: Cl.uint(actionProposalV2VoteSettings.votingDelay),
       period: Cl.uint(actionProposalV2VoteSettings.votingPeriod),
