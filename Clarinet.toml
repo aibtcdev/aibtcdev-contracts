@@ -108,6 +108,21 @@ path = 'contracts/dao/extensions/aibtc-payments-invoices.clar'
 clarity_version = 3
 epoch = 3.1
 
+[contracts.aibtc-payment-processor-dao]
+path = 'contracts/dao/extensions/aibtc-payment-processor-dao.clar'
+clarity_version = 3
+epoch = 3.1
+
+[contracts.aibtc-payment-processor-sbtc]
+path = 'contracts/dao/extensions/aibtc-payment-processor-sbtc.clar'
+clarity_version = 3
+epoch = 3.1
+
+[contracts.aibtc-payment-processor-stx]
+path = 'contracts/dao/extensions/aibtc-payment-processor-stx.clar'
+clarity_version = 3
+epoch = 3.1
+
 [contracts.aibtc-timed-vault-dao]
 path = 'contracts/dao/extensions/aibtc-timed-vault-dao.clar'
 clarity_version = 3

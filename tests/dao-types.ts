@@ -25,6 +25,9 @@ export enum ContractType {
   DAO_CORE_PROPOSALS_V2 = "aibtc-core-proposals-v2",
   DAO_MESSAGING = "aibtc-onchain-messaging",
   DAO_PAYMENTS = "aibtc-payments-invoices",
+  DAO_PAYMENT_PROCESSOR_DAO = "aibtc-payment-processor-dao",
+  DAO_PAYMENT_PROCESSOR_SBTC = "aibtc-payment-processor-sbtc",
+  DAO_PAYMENT_PROCESSOR_STX = "aibtc-payment-processor-stx",
   DAO_TOKEN_OWNER = "aibtc-token-owner",
   DAO_TREASURY = "aibtc-treasury",
 }
