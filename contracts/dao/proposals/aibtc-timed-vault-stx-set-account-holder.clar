@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Set or updated the account holder in the timed vault extension")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Set or updated the account holder in the STX timed vault extension")
 (define-constant CFG_ACCOUNT_HOLDER 'ST1SJ3DTE5DN7X54YDH5D64R3BCB6A2AG2ZQ8YPD5)
 
 (define-public (execute (sender principal))

@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Set withdrawal amount in the timed vault extension")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Set withdrawal amount in the STX timed vault extension")
 (define-constant CFG_WITHDRAWAL_AMOUNT u10000000)
 
 (define-public (execute (sender principal))
