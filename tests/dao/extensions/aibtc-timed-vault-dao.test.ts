@@ -2,6 +2,7 @@ import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { TimedVaultErrCode } from "../../error-codes";
 import { ContractType } from "../../dao-types";
+import { getDaoTokens } from "../../test-utilities";
 
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
@@ -95,6 +96,25 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_DAO}`, () => {
     expect(depositDao.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_AMOUNT));
   });
   it("deposit() succeeds and transfers DAO tokens to contract", () => {
+    // arrange
+    const daoTokenContract = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const daoTokenDexContract = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const satsAmount = 400000; // 400,000 sats or 0.004 BTC
+    const depositAmount = Cl.uint(withdrawalAmount);
+    const faucetReceipt = getDaoTokens(
+      daoTokenContract,
+      daoTokenDexContract,
+      deployer,
+      satsAmount
+    );
+    expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+    const depositDaoReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit",
+      [depositAmount],
+      deployer
+    );
+    expect(depositDaoReceipt.result).toBeOk(Cl.bool(true));
     const depositDao = simnet.callPublicFn(
       contractAddress,
       "deposit",
@@ -114,5 +134,80 @@ describe(`public functions: ${ContractType.DAO_TIMED_VAULT_DAO}`, () => {
       address2
     );
     expect(withdrawDao.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+});
+
+describe(`read-only functions: ${ContractType.DAO_TIMED_VAULT_DAO}`, () => {
+  /////////////////////////////////////////////
+  // get-account-balance() tests
+  /////////////////////////////////////////////
+  it("get-account-balance() returns the contract account balance", () => {
+    // arrange
+    const expectedResult = Cl.ok(Cl.uint(0));
+    // act
+    const getAccountBalance = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-account-balance",
+      [],
+      deployer
+    ).result;
+    // assert
+    expect(getAccountBalance).toStrictEqual(expectedResult);
+    // arrange
+    const daoTokenContract = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const daoTokenDexContract = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const satsAmount = 400000; // 400,000 sats or 0.004 BTC
+    const depositAmount = Cl.uint(10000000000); // 100 dao token, 8 decimals
+    const faucetReceipt = getDaoTokens(
+      daoTokenContract,
+      daoTokenDexContract,
+      deployer,
+      satsAmount
+    );
+    expect(faucetReceipt.result).toBeOk(Cl.bool(true));
+    const depositDaoReceipt = simnet.callPublicFn(
+      contractAddress,
+      "deposit",
+      [depositAmount],
+      deployer
+    );
+    expect(depositDaoReceipt.result).toBeOk(Cl.bool(true));
+    const expectedResult2 = Cl.ok(depositAmount);
+    // act
+    const getAccountBalance2 = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-account-balance",
+      [],
+      deployer
+    ).result;
+    // assert
+    expect(getAccountBalance2).toStrictEqual(expectedResult2);
+  });
+
+  /////////////////////////////////////////////
+  // get-account-terms() tests
+  /////////////////////////////////////////////
+  it("get-account-terms() returns the contract account terms", () => {
+    // arrange
+    const daoTokenContract = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const expectedResult = Cl.tuple({
+      accountHolder: Cl.principal(contractAddress),
+      contractName: Cl.principal(contractAddress),
+      deployedBurnBlock: Cl.uint(5),
+      deployedStacksBlock: Cl.uint(6),
+      lastWithdrawalBlock: Cl.uint(0),
+      vaultToken: Cl.principal(daoTokenContract),
+      withdrawalAmount: Cl.uint(withdrawalAmount),
+      withdrawalPeriod: Cl.uint(withdrawalPeriod),
+    });
+    // act
+    const getAccountTerms = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-account-terms",
+      [],
+      deployer
+    ).result;
+    // assert
+    expect(getAccountTerms).toStrictEqual(expectedResult);
   });
 });

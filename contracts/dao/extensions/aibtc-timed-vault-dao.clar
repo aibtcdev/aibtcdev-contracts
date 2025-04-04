@@ -21,6 +21,7 @@
 (define-constant ERR_UNAUTHORIZED (err u2001))
 (define-constant ERR_TOO_SOON (err u2002))
 (define-constant ERR_INVALID_AMOUNT (err u2003))
+(define-constant ERR_FETCHING_BALANCE (err u2004))
 
 
 ;; data vars
@@ -81,7 +82,7 @@
         recipient: SELF
       }
     })
-    (stx-transfer? amount contract-caller SELF)
+    (contract-call? .aibtc-token transfer amount tx-sender SELF none)
   )
 )
 
@@ -102,15 +103,18 @@
         recipient: (var-get accountHolder)
       }
     })
-    (as-contract (stx-transfer? (var-get withdrawalAmount) SELF (var-get accountHolder)))
+    (as-contract (contract-call? .aibtc-token transfer (var-get withdrawalAmount) SELF (var-get accountHolder) none))
   )
 )
 
 ;; read only functions
 ;;
+(define-read-only (get-account-balance)
+  (contract-call? .aibtc-token get-balance SELF)
+)
+
 (define-read-only (get-account-terms)
   {
-    accountBalance: (contract-call? .aibtc-token get-balance SELF),
     accountHolder: (var-get accountHolder),
     contractName: SELF,
     deployedBurnBlock: DEPLOYED_BURN_BLOCK,
