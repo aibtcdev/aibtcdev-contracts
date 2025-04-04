@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Withdrew sBTC from the timed vault extension")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Withdrew BTC from the timed vault extension")
 
 (define-public (execute (sender principal))
   (begin

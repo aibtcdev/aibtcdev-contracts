@@ -2,7 +2,7 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Set withdrawal period in the sBTC timed vault extension")
+(define-constant CFG_MESSAGE "Executed Core Proposal: Set withdrawal period in the BTC timed vault extension")
 (define-constant CFG_WITHDRAWAL_PERIOD u144)
 
 (define-public (execute (sender principal))
