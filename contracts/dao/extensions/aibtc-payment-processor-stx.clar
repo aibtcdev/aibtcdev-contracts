@@ -13,7 +13,7 @@
 
 ;; initially scoped to service provider deploying a contract
 (define-constant SELF (as-contract tx-sender))
-(define-constant PAYMENT_TOKEN "STX")
+(define-constant CFG_PAYMENT_TOKEN "STX")
 
 ;; errors
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u5000))
@@ -391,7 +391,7 @@
   {
     contractAddress: SELF,
     paymentAddress: (get-payment-address),
-    paymentToken: PAYMENT_TOKEN,
+    paymentToken: CFG_PAYMENT_TOKEN,
     totalInvoices: (get-total-invoices),
     totalResources: (get-total-resources),
     totalRevenue: (get-total-revenue),

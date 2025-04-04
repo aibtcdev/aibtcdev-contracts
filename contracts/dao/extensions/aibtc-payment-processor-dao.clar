@@ -13,7 +13,7 @@
 
 ;; initially scoped to service provider deploying a contract
 (define-constant SELF (as-contract tx-sender))
-(define-constant PAYMENT_TOKEN "DAO")
+(define-constant CFG_PAYMENT_TOKEN "DAO")
 (define-constant TOKEN_CONTRACT .aibtc-token)
 
 ;; errors
@@ -396,7 +396,7 @@
   {
     contractAddress: SELF,
     paymentAddress: (get-payment-address),
-    paymentToken: PAYMENT_TOKEN,
+    paymentToken: CFG_PAYMENT_TOKEN,
     tokenContract: TOKEN_CONTRACT,
     totalInvoices: (get-total-invoices),
     totalResources: (get-total-resources),
