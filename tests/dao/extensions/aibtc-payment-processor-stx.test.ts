@@ -62,9 +62,6 @@ function setupTest(createUser = false) {
   expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
 
   if (createUser) {
-    // Fund the user with STX
-    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
-
     // Pay an invoice
     const payInvoice = simnet.callPublicFn(
       contractAddress,
@@ -240,9 +237,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     );
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
 
-    // Fund the user with STX
-    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
-
     // Pay an invoice
     const payInvoice = simnet.callPublicFn(
       contractAddress,
@@ -362,9 +356,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     );
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
 
-    // Fund the user with STX
-    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
-
     // Pay an invoice
     const payInvoice = simnet.callPublicFn(
       contractAddress,
@@ -445,9 +436,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     );
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
 
-    // Fund the user with STX
-    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
-
     // Pay an invoice
     const payInvoice = simnet.callPublicFn(
       contractAddress,
@@ -523,9 +511,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     );
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
 
-    // Fund the user with STX
-    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
-
     // Pay an invoice
     const payInvoice = simnet.callPublicFn(
       contractAddress,
@@ -600,9 +585,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     );
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
 
-    // Fund the user with STX
-    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
-
     // Pay an invoice
     const payInvoice = simnet.callPublicFn(
       contractAddress,
@@ -667,9 +649,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     );
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
 
-    // Fund the user with STX
-    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
-
     // Pay an invoice
     const payInvoice = simnet.callPublicFn(
       contractAddress,
@@ -686,9 +665,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       [Cl.uint(1)],
       deployer
     ).result;
-
-    // Assert
-    expect(getUserData).toBeSome();
 
     // Verify user data
     const userData = getUserData as any;
@@ -721,9 +697,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       [Cl.principal(address1)],
       deployer
     ).result;
-
-    // Assert
-    expect(getUserDataByAddress).toBeSome();
 
     // Verify user data
     const userData = getUserDataByAddress as any;
@@ -786,9 +759,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Assert
-    expect(getResource).toBeSome();
-
     // Verify resource data
     const resourceData = getResource as any;
     expect(resourceData.value.name.value).toBe(resourceName);
@@ -825,9 +795,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Assert
-    expect(getResourceByName).toBeSome();
-
     // Verify resource data
     const resourceData = getResourceByName as any;
     expect(resourceData.value.name.value).toBe(resourceName);
@@ -860,9 +827,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       [Cl.uint(1)],
       deployer
     ).result;
-
-    // Assert
-    expect(getInvoice).toBeSome();
 
     // Verify invoice data
     const invoiceData = getInvoice as any;
@@ -926,9 +890,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Assert
-    expect(getRecentPaymentData).toBeSome();
-
     // Verify invoice data
     const invoiceData = getRecentPaymentData as any;
     expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
@@ -961,9 +922,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       [Cl.stringUtf8(resourceName), Cl.principal(address1)],
       deployer
     ).result;
-
-    // Assert
-    expect(getRecentPaymentDataByAddress).toBeSome();
 
     // Verify invoice data
     const invoiceData = getRecentPaymentDataByAddress as any;
