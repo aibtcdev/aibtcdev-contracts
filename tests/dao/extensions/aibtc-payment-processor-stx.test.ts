@@ -1,10 +1,7 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { PaymentsInvoicesErrCode } from "../../error-codes";
-import { 
-  ContractType, 
-  ContractProposalType 
-} from "../../dao-types";
+import { ContractType, ContractProposalType } from "../../dao-types";
 import {
   constructDao,
   fundVoters,
@@ -24,7 +21,7 @@ const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
 const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
 const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
 const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
-const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
+const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PAYMENTS_STX_ADD_RESOURCE}`;
 
 const ErrCode = PaymentsInvoicesErrCode;
 
@@ -63,7 +60,7 @@ function setupTest(createUser = false) {
     votingConfig
   );
   expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
-  
+
   if (createUser) {
     // Fund the user with STX
     simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
@@ -78,7 +75,6 @@ function setupTest(createUser = false) {
     expect(payInvoice.result).toBeOk(Cl.uint(1));
   }
 }
-
 
 describe(`public functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () => {
   ////////////////////////////////////////
@@ -200,9 +196,7 @@ describe(`public functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () => {
   });
 });
 
-
 describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () => {
-
   /////////////////////////////////////////////
   // get-total-users() tests
   /////////////////////////////////////////////
@@ -245,7 +239,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       votingConfig
     );
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // Fund the user with STX
     simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
 
@@ -257,7 +251,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       address1
     );
     expect(payInvoice.result).toBeOk(Cl.uint(1));
-    
+
     // Act
     const getTotalUsers = simnet.callReadOnlyFn(
       contractAddress,
@@ -265,7 +259,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       [],
       deployer
     ).result;
-    
+
     // Assert
     expect(getTotalUsers).toStrictEqual(Cl.uint(1));
   });
@@ -312,7 +306,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       votingConfig
     );
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // Act
     const getTotalResources = simnet.callReadOnlyFn(
       contractAddress,
@@ -320,7 +314,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       [],
       deployer
     ).result;
-    
+
     // Assert
     expect(getTotalResources).toStrictEqual(Cl.uint(1));
   });
@@ -367,7 +361,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       votingConfig
     );
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // Fund the user with STX
     simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
 
@@ -379,7 +373,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       address1
     );
     expect(payInvoice.result).toBeOk(Cl.uint(1));
-    
+
     // Act
     const getTotalInvoices = simnet.callReadOnlyFn(
       contractAddress,
@@ -387,7 +381,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       [],
       deployer
     ).result;
-    
+
     // Assert
     expect(getTotalInvoices).toStrictEqual(Cl.uint(1));
   });
@@ -403,7 +397,9 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
     // Default payment address should be the treasury
-    expect(getPaymentAddress).toBeSome(Cl.principal(`${deployer}.aibtc-treasury`));
+    expect(getPaymentAddress).toBeSome(
+      Cl.principal(`${deployer}.aibtc-treasury`)
+    );
   });
 
   /////////////////////////////////////////////
@@ -448,7 +444,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       votingConfig
     );
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // Fund the user with STX
     simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
 
@@ -460,7 +456,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       address1
     );
     expect(payInvoice.result).toBeOk(Cl.uint(1));
-    
+
     // Act
     const getTotalRevenue = simnet.callReadOnlyFn(
       contractAddress,
@@ -468,7 +464,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       [],
       deployer
     ).result;
-    
+
     // Assert
     expect(getTotalRevenue).toStrictEqual(Cl.uint(resourcePrice));
   });
@@ -526,7 +522,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       votingConfig
     );
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // Fund the user with STX
     simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
 
@@ -538,7 +534,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       address1
     );
     expect(payInvoice.result).toBeOk(Cl.uint(1));
-    
+
     // Act
     const getContractData = simnet.callReadOnlyFn(
       contractAddress,
@@ -603,7 +599,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       votingConfig
     );
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // Fund the user with STX
     simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
 
@@ -615,7 +611,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       address1
     );
     expect(payInvoice.result).toBeOk(Cl.uint(1));
-    
+
     // Act
     const getUserIndex = simnet.callReadOnlyFn(
       contractAddress,
@@ -623,7 +619,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       [Cl.principal(address1)],
       deployer
     ).result;
-    
+
     // Assert
     expect(getUserIndex).toBeSome(Cl.uint(1));
   });
@@ -670,7 +666,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       votingConfig
     );
     expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // Fund the user with STX
     simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
 
@@ -682,7 +678,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       address1
     );
     expect(payInvoice.result).toBeOk(Cl.uint(1));
-    
+
     // Act
     const getUserData = simnet.callReadOnlyFn(
       contractAddress,
@@ -693,7 +689,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
     // Assert
     expect(getUserData).toBeSome();
-    
+
     // Verify user data
     const userData = getUserData as any;
     expect(userData.value.address).toStrictEqual(Cl.principal(address1));
@@ -717,7 +713,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   it("get-user-data-by-address() returns the correct data for existing user", () => {
     // Arrange
     setupTest(true);
-    
+
     // Act
     const getUserDataByAddress = simnet.callReadOnlyFn(
       contractAddress,
@@ -728,7 +724,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
     // Assert
     expect(getUserDataByAddress).toBeSome();
-    
+
     // Verify user data
     const userData = getUserDataByAddress as any;
     expect(userData.value.address).toStrictEqual(Cl.principal(address1));
@@ -752,7 +748,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   it("get-resource-index() returns the correct index for existing resource", () => {
     // Arrange
     setupTest(false);
-    
+
     // Act
     const getResourceIndex = simnet.callReadOnlyFn(
       contractAddress,
@@ -760,7 +756,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       [Cl.stringUtf8(resourceName)],
       deployer
     ).result;
-    
+
     // Assert
     expect(getResourceIndex).toBeSome(Cl.uint(1));
   });
@@ -781,7 +777,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   it("get-resource() returns the correct data for existing resource", () => {
     // Arrange
     setupTest(false);
-    
+
     // Act
     const getResource = simnet.callReadOnlyFn(
       contractAddress,
@@ -792,14 +788,16 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
     // Assert
     expect(getResource).toBeSome();
-    
+
     // Verify resource data
     const resourceData = getResource as any;
     expect(resourceData.value.name.value).toBe(resourceName);
     expect(resourceData.value.description.value).toBe(resourceDescription);
     expect(resourceData.value.price).toStrictEqual(Cl.uint(resourcePrice));
     expect(resourceData.value.enabled).toStrictEqual(Cl.bool(true));
-    expect(resourceData.value.url).toStrictEqual(Cl.some(Cl.stringUtf8(resourceUrl)));
+    expect(resourceData.value.url).toStrictEqual(
+      Cl.some(Cl.stringUtf8(resourceUrl))
+    );
   });
 
   /////////////////////////////////////////////
@@ -818,7 +816,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   it("get-resource-by-name() returns the correct data for existing resource", () => {
     // Arrange
     setupTest(false);
-    
+
     // Act
     const getResourceByName = simnet.callReadOnlyFn(
       contractAddress,
@@ -829,7 +827,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
     // Assert
     expect(getResourceByName).toBeSome();
-    
+
     // Verify resource data
     const resourceData = getResourceByName as any;
     expect(resourceData.value.name.value).toBe(resourceName);
@@ -854,7 +852,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   it("get-invoice() returns the correct data for existing invoice", () => {
     // Arrange
     setupTest(true);
-    
+
     // Act
     const getInvoice = simnet.callReadOnlyFn(
       contractAddress,
@@ -865,7 +863,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
     // Assert
     expect(getInvoice).toBeSome();
-    
+
     // Verify invoice data
     const invoiceData = getInvoice as any;
     expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
@@ -890,7 +888,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   it("get-recent-payment() returns the correct invoice index for existing user/resource", () => {
     // Arrange
     setupTest(true);
-    
+
     // Act
     const getRecentPayment = simnet.callReadOnlyFn(
       contractAddress,
@@ -898,7 +896,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       [Cl.uint(1), Cl.uint(1)],
       deployer
     ).result;
-    
+
     // Assert
     expect(getRecentPayment).toBeSome(Cl.uint(1));
   });
@@ -919,7 +917,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   it("get-recent-payment-data() returns the correct data for existing user/resource", () => {
     // Arrange
     setupTest(true);
-    
+
     // Act
     const getRecentPaymentData = simnet.callReadOnlyFn(
       contractAddress,
@@ -930,7 +928,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
     // Assert
     expect(getRecentPaymentData).toBeSome();
-    
+
     // Verify invoice data
     const invoiceData = getRecentPaymentData as any;
     expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
@@ -955,7 +953,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   it("get-recent-payment-data-by-address() returns the correct data for existing user/resource", () => {
     // Arrange
     setupTest(true);
-    
+
     // Act
     const getRecentPaymentDataByAddress = simnet.callReadOnlyFn(
       contractAddress,
@@ -966,7 +964,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
     // Assert
     expect(getRecentPaymentDataByAddress).toBeSome();
-    
+
     // Verify invoice data
     const invoiceData = getRecentPaymentDataByAddress as any;
     expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
