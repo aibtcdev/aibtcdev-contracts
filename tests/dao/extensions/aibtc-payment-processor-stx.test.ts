@@ -388,8 +388,8 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
     // Default payment address should be the treasury
-    expect(getPaymentAddress).toBeSome(
-      Cl.principal(`${deployer}.aibtc-treasury`)
+    expect(getPaymentAddress).toStrictEqual(
+      Cl.some(Cl.principal(`${deployer}.aibtc-treasury`))
     );
   });
 
@@ -603,7 +603,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     ).result;
 
     // Assert
-    expect(getUserIndex).toBeSome(Cl.uint(1));
+    expect(getUserIndex).toStrictEqual(Cl.some(Cl.uint(1)));
   });
 
   /////////////////////////////////////////////
@@ -667,15 +667,13 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     ).result;
 
     // Assert
-    expect(getUserData).toBeSome();
-    
     const expectedUserData = Cl.tuple({
       address: Cl.principal(address1),
       totalSpent: Cl.uint(resourcePrice),
       totalUsed: Cl.uint(1)
     });
     
-    expect(getUserData).toBeSome(expectedUserData);
+    expect(getUserData).toStrictEqual(Cl.some(expectedUserData));
   });
 
   /////////////////////////////////////////////
@@ -704,15 +702,13 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     ).result;
 
     // Assert
-    expect(getUserDataByAddress).toBeSome();
-    
     const expectedUserData = Cl.tuple({
       address: Cl.principal(address1),
       totalSpent: Cl.uint(resourcePrice),
       totalUsed: Cl.uint(1)
     });
     
-    expect(getUserDataByAddress).toBeSome(expectedUserData);
+    expect(getUserDataByAddress).toStrictEqual(Cl.some(expectedUserData));
   });
 
   /////////////////////////////////////////////
@@ -741,7 +737,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     ).result;
 
     // Assert
-    expect(getResourceIndex).toBeSome(Cl.uint(1));
+    expect(getResourceIndex).toStrictEqual(Cl.some(Cl.uint(1)));
   });
 
   /////////////////////////////////////////////
@@ -770,8 +766,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     ).result;
 
     // Assert
-    expect(getResource).toBeSome();
-    
     const expectedResourceData = Cl.tuple({
       name: Cl.stringUtf8(resourceName),
       description: Cl.stringUtf8(resourceDescription),
@@ -783,7 +777,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       totalUsed: Cl.uint(0)
     });
     
-    expect(getResource).toBeSome(expectedResourceData);
+    expect(getResource).toStrictEqual(Cl.some(expectedResourceData));
   });
 
   /////////////////////////////////////////////
@@ -812,8 +806,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     ).result;
 
     // Assert
-    expect(getResourceByName).toBeSome();
-    
     const expectedResourceData = Cl.tuple({
       name: Cl.stringUtf8(resourceName),
       description: Cl.stringUtf8(resourceDescription),
@@ -825,7 +817,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       totalUsed: Cl.uint(0)
     });
     
-    expect(getResourceByName).toBeSome(expectedResourceData);
+    expect(getResourceByName).toStrictEqual(Cl.some(expectedResourceData));
   });
 
   /////////////////////////////////////////////
@@ -854,8 +846,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     ).result;
 
     // Assert
-    expect(getInvoice).toBeSome();
-    
     const expectedInvoiceData = Cl.tuple({
       amount: Cl.uint(resourcePrice),
       userIndex: Cl.uint(1),
@@ -864,7 +854,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       createdAt: (getInvoice as any).value.createdAt
     });
     
-    expect(getInvoice).toBeSome(expectedInvoiceData);
+    expect(getInvoice).toStrictEqual(Cl.some(expectedInvoiceData));
   });
 
   /////////////////////////////////////////////
@@ -893,7 +883,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     ).result;
 
     // Assert
-    expect(getRecentPayment).toBeSome(Cl.uint(1));
+    expect(getRecentPayment).toStrictEqual(Cl.some(Cl.uint(1)));
   });
 
   /////////////////////////////////////////////
@@ -922,8 +912,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     ).result;
 
     // Assert
-    expect(getRecentPaymentData).toBeSome();
-    
     const expectedInvoiceData = Cl.tuple({
       amount: Cl.uint(resourcePrice),
       userIndex: Cl.uint(1),
@@ -932,7 +920,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       createdAt: (getRecentPaymentData as any).value.createdAt
     });
     
-    expect(getRecentPaymentData).toBeSome(expectedInvoiceData);
+    expect(getRecentPaymentData).toStrictEqual(Cl.some(expectedInvoiceData));
   });
 
   /////////////////////////////////////////////
@@ -961,8 +949,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     ).result;
 
     // Assert
-    expect(getRecentPaymentDataByAddress).toBeSome();
-    
     const expectedInvoiceData = Cl.tuple({
       amount: Cl.uint(resourcePrice),
       userIndex: Cl.uint(1),
@@ -971,6 +957,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       createdAt: (getRecentPaymentDataByAddress as any).value.createdAt
     });
     
-    expect(getRecentPaymentDataByAddress).toBeSome(expectedInvoiceData);
+    expect(getRecentPaymentDataByAddress).toStrictEqual(Cl.some(expectedInvoiceData));
   });
 });
