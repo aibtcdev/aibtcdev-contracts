@@ -1,7 +1,16 @@
 import { Cl } from "@stacks/transactions";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeAll } from "vitest";
 import { PaymentsInvoicesErrCode } from "../../error-codes";
-import { ContractType } from "../../dao-types";
+import { 
+  ContractType, 
+  ContractProposalType 
+} from "../../dao-types";
+import {
+  constructDao,
+  fundVoters,
+  passCoreProposal,
+  VOTING_CONFIG,
+} from "../../test-utilities";
 
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
@@ -138,118 +147,87 @@ describe(`public functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () => {
   });
 });
 
-describe(`read-only functions with test data: aibtc-payment-processor-stx`, () => {
-  // Helper function to mock DAO authorization and add a resource
-  it("can add a resource when authorized as DAO", () => {
-    // Mock the DAO authorization by temporarily replacing the is-dao-or-extension function
-    const mockDaoCheck = simnet.patchContract(
-      contractAddress,
-      "(define-private (is-dao-or-extension) (ok true))"
-    );
 
-    // Add a resource
-    const addResource = simnet.callPublicFn(
-      contractAddress,
-      "add-resource",
-      [
-        Cl.stringUtf8(resourceName),
-        Cl.stringUtf8(resourceDescription),
-        Cl.uint(resourcePrice),
-        Cl.some(Cl.stringUtf8(resourceUrl)),
-      ],
-      deployer
-    );
-    expect(addResource.result).toBeOk(Cl.uint(1));
+describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () => {
+  // Setup variables for tests with data
+  let resourceAdded = false;
+  let userCreated = false;
+  
+  // Helper function to set up DAO and add a resource
+  const setupResourceAndUser = () => {
+    if (!resourceAdded) {
+      // Setup contract names
+      const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+      const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+      const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+      const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+      const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+      const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
+      
+      // Setup voting config
+      const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
 
-    // Verify resource was added
-    const getTotalResources = simnet.callReadOnlyFn(
+      // Fund accounts for creating and voting on proposals
+      fundVoters(tokenContractAddress, tokenDexContractAddress, [
+        deployer,
+        address1,
+        address2,
+      ]);
+
+      // Construct DAO
+      const constructReceipt = constructDao(
+        deployer,
+        baseDaoContractAddress,
+        bootstrapContractAddress
+      );
+      expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+      // Pass proposal to add resource
+      const concludeProposalReceipt = passCoreProposal(
+        coreProposalsContractAddress,
+        proposalContractAddress,
+        deployer,
+        [deployer, address1, address2],
+        votingConfig
+      );
+      expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
+      
+      resourceAdded = true;
+    }
+    
+    if (!userCreated && resourceAdded) {
+      // Fund the user with STX
+      simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
+
+      // Pay an invoice
+      const payInvoice = simnet.callPublicFn(
+        contractAddress,
+        "pay-invoice",
+        [Cl.uint(1), Cl.none()],
+        address1
+      );
+      expect(payInvoice.result).toBeOk(Cl.uint(1));
+      
+      userCreated = true;
+    }
+  };
+
+  /////////////////////////////////////////////
+  // get-total-users() tests
+  /////////////////////////////////////////////
+  it("get-total-users() returns the total number of users before any are created", () => {
+    const getTotalUsers = simnet.callReadOnlyFn(
       contractAddress,
-      "get-total-resources",
+      "get-total-users",
       [],
       deployer
     ).result;
-    expect(getTotalResources).toStrictEqual(Cl.uint(1));
-
-    // Restore the original contract
-    mockDaoCheck.restore();
+    expect(getTotalUsers).toStrictEqual(Cl.uint(0));
   });
 
-  // Test resource-related functions with existing resource
-  it("get-resource-index() returns the correct index for existing resource", () => {
-    const getResourceIndex = simnet.callReadOnlyFn(
-      contractAddress,
-      "get-resource-index",
-      [Cl.stringUtf8(resourceName)],
-      deployer
-    ).result;
-    expect(getResourceIndex).toStrictEqual(Cl.some(Cl.uint(1)));
-  });
-
-  it("get-resource() returns the correct data for existing resource", () => {
-    const getResource = simnet.callReadOnlyFn(
-      contractAddress,
-      "get-resource",
-      [Cl.uint(1)],
-      deployer
-    ).result;
-
-    // Check that we got a resource back
-    expect(getResource).not.toBeNone();
-
-    // Verify resource data
-    const resourceData = getResource as any;
-    expect(resourceData.value.name.value).toBe(resourceName);
-    expect(resourceData.value.description.value).toBe(resourceDescription);
-    expect(resourceData.value.price).toStrictEqual(Cl.uint(resourcePrice));
-    expect(resourceData.value.enabled).toStrictEqual(Cl.bool(true));
-    expect(resourceData.value.url).toStrictEqual(
-      Cl.some(Cl.stringUtf8(resourceUrl))
-    );
-  });
-
-  it("get-resource-by-name() returns the correct data for existing resource", () => {
-    const getResourceByName = simnet.callReadOnlyFn(
-      contractAddress,
-      "get-resource-by-name",
-      [Cl.stringUtf8(resourceName)],
-      deployer
-    ).result;
-
-    // Check that we got a resource back
-    expect(getResourceByName).not.toBeNone();
-
-    // Verify resource data
-    const resourceData = getResourceByName as any;
-    expect(resourceData.value.name.value).toBe(resourceName);
-    expect(resourceData.value.description.value).toBe(resourceDescription);
-    expect(resourceData.value.price).toStrictEqual(Cl.uint(resourcePrice));
-    expect(resourceData.value.enabled).toStrictEqual(Cl.bool(true));
-  });
-
-  // Create a user by paying an invoice
-  it("can create a user by paying an invoice", () => {
-    // Fund the user with STX
-    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
-
-    // Pay an invoice
-    const payInvoice = simnet.callPublicFn(
-      contractAddress,
-      "pay-invoice",
-      [Cl.uint(1), Cl.none()],
-      address1
-    );
-    expect(payInvoice.result).toBeOk(Cl.uint(1));
-
-    // Verify invoice was created
-    const getTotalInvoices = simnet.callReadOnlyFn(
-      contractAddress,
-      "get-total-invoices",
-      [],
-      deployer
-    ).result;
-    expect(getTotalInvoices).toStrictEqual(Cl.uint(1));
-
-    // Verify user was created
+  it("get-total-users() returns the correct count after a user is created", () => {
+    setupResourceAndUser();
+    
     const getTotalUsers = simnet.callReadOnlyFn(
       contractAddress,
       "get-total-users",
@@ -259,123 +237,86 @@ describe(`read-only functions with test data: aibtc-payment-processor-stx`, () =
     expect(getTotalUsers).toStrictEqual(Cl.uint(1));
   });
 
-  // Test user-related functions with existing user
-  it("get-user-index() returns the correct index for existing user", () => {
-    const getUserIndex = simnet.callReadOnlyFn(
+  /////////////////////////////////////////////
+  // get-total-resources() tests
+  /////////////////////////////////////////////
+  it("get-total-resources() returns the total number of resources before any are created", () => {
+    const getTotalResources = simnet.callReadOnlyFn(
       contractAddress,
-      "get-user-index",
-      [Cl.principal(address1)],
+      "get-total-resources",
+      [],
       deployer
     ).result;
-    expect(getUserIndex).toStrictEqual(Cl.some(Cl.uint(1)));
+    expect(getTotalResources).toStrictEqual(Cl.uint(0));
   });
 
-  it("get-user-data() returns the correct data for existing user", () => {
-    const getUserData = simnet.callReadOnlyFn(
+  it("get-total-resources() returns the correct count after a resource is added", () => {
+    setupResourceAndUser();
+    
+    const getTotalResources = simnet.callReadOnlyFn(
       contractAddress,
-      "get-user-data",
-      [Cl.uint(1)],
+      "get-total-resources",
+      [],
       deployer
     ).result;
-
-    // Check that we got user data back
-    expect(getUserData).not.toBeNone();
-
-    // Verify user data
-    const userData = getUserData as any;
-    expect(userData.value.address).toStrictEqual(Cl.principal(address1));
-    expect(userData.value.totalSpent).toStrictEqual(Cl.uint(resourcePrice));
-    expect(userData.value.totalUsed).toStrictEqual(Cl.uint(1));
+    expect(getTotalResources).toStrictEqual(Cl.uint(1));
   });
 
-  it("get-user-data-by-address() returns the correct data for existing user", () => {
-    const getUserDataByAddress = simnet.callReadOnlyFn(
+  /////////////////////////////////////////////
+  // get-total-invoices() tests
+  /////////////////////////////////////////////
+  it("get-total-invoices() returns the total number of invoices before any are created", () => {
+    const getTotalInvoices = simnet.callReadOnlyFn(
       contractAddress,
-      "get-user-data-by-address",
-      [Cl.principal(address1)],
+      "get-total-invoices",
+      [],
       deployer
     ).result;
-
-    // Check that we got user data back
-    expect(getUserDataByAddress).not.toBeNone();
-
-    // Verify user data
-    const userData = getUserDataByAddress as any;
-    expect(userData.value.address).toStrictEqual(Cl.principal(address1));
-    expect(userData.value.totalSpent).toStrictEqual(Cl.uint(resourcePrice));
-    expect(userData.value.totalUsed).toStrictEqual(Cl.uint(1));
+    expect(getTotalInvoices).toStrictEqual(Cl.uint(0));
   });
 
-  // Test invoice-related functions with existing invoice
-  it("get-invoice() returns the correct data for existing invoice", () => {
-    const getInvoice = simnet.callReadOnlyFn(
+  it("get-total-invoices() returns the correct count after an invoice is created", () => {
+    setupResourceAndUser();
+    
+    const getTotalInvoices = simnet.callReadOnlyFn(
       contractAddress,
-      "get-invoice",
-      [Cl.uint(1)],
+      "get-total-invoices",
+      [],
       deployer
     ).result;
-
-    // Check that we got invoice data back
-    expect(getInvoice).not.toBeNone();
-
-    // Verify invoice data
-    const invoiceData = getInvoice as any;
-    expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
-    expect(invoiceData.value.userIndex).toStrictEqual(Cl.uint(1));
-    expect(invoiceData.value.resourceIndex).toStrictEqual(Cl.uint(1));
-    expect(invoiceData.value.resourceName.value).toBe(resourceName);
+    expect(getTotalInvoices).toStrictEqual(Cl.uint(1));
   });
 
-  it("get-recent-payment() returns the correct invoice index for existing user/resource", () => {
-    const getRecentPayment = simnet.callReadOnlyFn(
+  /////////////////////////////////////////////
+  // get-payment-address() tests
+  /////////////////////////////////////////////
+  it("get-payment-address() returns the payment address", () => {
+    const getPaymentAddress = simnet.callReadOnlyFn(
       contractAddress,
-      "get-recent-payment",
-      [Cl.uint(1), Cl.uint(1)],
+      "get-payment-address",
+      [],
       deployer
     ).result;
-    expect(getRecentPayment).toStrictEqual(Cl.some(Cl.uint(1)));
+    // Default payment address should be the treasury
+    expect(getPaymentAddress).toBeSome(Cl.principal(`${deployer}.aibtc-treasury`));
   });
 
-  it("get-recent-payment-data() returns the correct data for existing user/resource", () => {
-    const getRecentPaymentData = simnet.callReadOnlyFn(
+  /////////////////////////////////////////////
+  // get-total-revenue() tests
+  /////////////////////////////////////////////
+  it("get-total-revenue() returns zero before any payments", () => {
+    const getTotalRevenue = simnet.callReadOnlyFn(
       contractAddress,
-      "get-recent-payment-data",
-      [Cl.uint(1), Cl.uint(1)],
+      "get-total-revenue",
+      [],
       deployer
     ).result;
-
-    // Check that we got invoice data back
-    expect(getRecentPaymentData).not.toBeNone();
-
-    // Verify invoice data
-    const invoiceData = getRecentPaymentData as any;
-    expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
-    expect(invoiceData.value.userIndex).toStrictEqual(Cl.uint(1));
-    expect(invoiceData.value.resourceIndex).toStrictEqual(Cl.uint(1));
-    expect(invoiceData.value.resourceName.value).toBe(resourceName);
+    expect(getTotalRevenue).toStrictEqual(Cl.uint(0));
   });
 
-  it("get-recent-payment-data-by-address() returns the correct data for existing user/resource", () => {
-    const getRecentPaymentDataByAddress = simnet.callReadOnlyFn(
-      contractAddress,
-      "get-recent-payment-data-by-address",
-      [Cl.stringUtf8(resourceName), Cl.principal(address1)],
-      deployer
-    ).result;
-
-    // Check that we got invoice data back
-    expect(getRecentPaymentDataByAddress).not.toBeNone();
-
-    // Verify invoice data
-    const invoiceData = getRecentPaymentDataByAddress as any;
-    expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
-    expect(invoiceData.value.userIndex).toStrictEqual(Cl.uint(1));
-    expect(invoiceData.value.resourceIndex).toStrictEqual(Cl.uint(1));
-    expect(invoiceData.value.resourceName.value).toBe(resourceName);
-  });
-
-  // Test total revenue after payment
   it("get-total-revenue() returns the correct total after payment", () => {
+    setupResourceAndUser();
+    
     const getTotalRevenue = simnet.callReadOnlyFn(
       contractAddress,
       "get-total-revenue",
@@ -385,8 +326,33 @@ describe(`read-only functions with test data: aibtc-payment-processor-stx`, () =
     expect(getTotalRevenue).toStrictEqual(Cl.uint(resourcePrice));
   });
 
-  // Test contract data after payment
+  /////////////////////////////////////////////
+  // get-contract-data() tests
+  /////////////////////////////////////////////
+  it("get-contract-data() returns the initial contract data", () => {
+    const getContractData = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-contract-data",
+      [],
+      deployer
+    ).result;
+
+    const expectedData = Cl.tuple({
+      contractAddress: Cl.principal(contractAddress),
+      paymentAddress: Cl.some(Cl.principal(`${deployer}.aibtc-treasury`)),
+      paymentToken: Cl.stringAscii("STX"),
+      totalInvoices: Cl.uint(0),
+      totalResources: Cl.uint(0),
+      totalRevenue: Cl.uint(0),
+      totalUsers: Cl.uint(0),
+    });
+
+    expect(getContractData).toStrictEqual(expectedData);
+  });
+
   it("get-contract-data() returns updated contract data after payment", () => {
+    setupResourceAndUser();
+    
     const getContractData = simnet.callReadOnlyFn(
       contractAddress,
       "get-contract-data",
@@ -401,100 +367,6 @@ describe(`read-only functions with test data: aibtc-payment-processor-stx`, () =
       totalInvoices: Cl.uint(1),
       totalResources: Cl.uint(1),
       totalRevenue: Cl.uint(resourcePrice),
-      totalUsers: Cl.uint(0),
-    });
-
-    expect(getContractData).toStrictEqual(expectedData);
-  });
-});
-
-describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () => {
-  /////////////////////////////////////////////
-  // get-total-users() tests
-  /////////////////////////////////////////////
-  it("get-total-users() returns the total number of users", () => {
-    const getTotalUsers = simnet.callReadOnlyFn(
-      contractAddress,
-      "get-total-users",
-      [],
-      deployer
-    ).result;
-    expect(getTotalUsers).toStrictEqual(Cl.uint(0));
-  });
-
-  /////////////////////////////////////////////
-  // get-total-resources() tests
-  /////////////////////////////////////////////
-  it("get-total-resources() returns the total number of resources", () => {
-    const getTotalResources = simnet.callReadOnlyFn(
-      contractAddress,
-      "get-total-resources",
-      [],
-      deployer
-    ).result;
-    expect(getTotalResources).toStrictEqual(Cl.uint(0));
-  });
-
-  /////////////////////////////////////////////
-  // get-total-invoices() tests
-  /////////////////////////////////////////////
-  it("get-total-invoices() returns the total number of invoices", () => {
-    const getTotalInvoices = simnet.callReadOnlyFn(
-      contractAddress,
-      "get-total-invoices",
-      [],
-      deployer
-    ).result;
-    expect(getTotalInvoices).toStrictEqual(Cl.uint(0));
-  });
-
-  /////////////////////////////////////////////
-  // get-payment-address() tests
-  /////////////////////////////////////////////
-  it("get-payment-address() returns the payment address", () => {
-    const getPaymentAddress = simnet.callReadOnlyFn(
-      contractAddress,
-      "get-payment-address",
-      [],
-      deployer
-    ).result;
-    // Default payment address should be the treasury
-    expect(getPaymentAddress).toStrictEqual(
-      Cl.some(Cl.principal(`${deployer}.aibtc-treasury`))
-    );
-  });
-
-  /////////////////////////////////////////////
-  // get-total-revenue() tests
-  /////////////////////////////////////////////
-  it("get-total-revenue() returns the total revenue", () => {
-    const getTotalRevenue = simnet.callReadOnlyFn(
-      contractAddress,
-      "get-total-revenue",
-      [],
-      deployer
-    ).result;
-    expect(getTotalRevenue).toStrictEqual(Cl.uint(10000000));
-  });
-
-  /////////////////////////////////////////////
-  // get-contract-data() tests
-  /////////////////////////////////////////////
-  it("get-contract-data() returns the contract data", () => {
-    const getContractData = simnet.callReadOnlyFn(
-      contractAddress,
-      "get-contract-data",
-      [],
-      deployer
-    ).result;
-
-    const expectedData = Cl.tuple({
-      contractAddress: Cl.principal(contractAddress),
-      paymentAddress: Cl.some(Cl.principal(`${deployer}.aibtc-treasury`)),
-      paymentToken: Cl.stringAscii("STX"),
-      totalInvoices: Cl.uint(1),
-      totalResources: Cl.uint(1),
-      totalRevenue: Cl.uint(10000000),
       totalUsers: Cl.uint(1),
     });
 
@@ -508,10 +380,22 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     const getUserIndex = simnet.callReadOnlyFn(
       contractAddress,
       "get-user-index",
-      [Cl.principal(address1)],
+      [Cl.principal(address2)],
       deployer
     ).result;
     expect(getUserIndex).toBeNone();
+  });
+
+  it("get-user-index() returns the correct index for existing user", () => {
+    setupResourceAndUser();
+    
+    const getUserIndex = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-user-index",
+      [Cl.principal(address1)],
+      deployer
+    ).result;
+    expect(getUserIndex).toBeSome(Cl.uint(1));
   });
 
   /////////////////////////////////////////////
@@ -521,10 +405,30 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     const getUserData = simnet.callReadOnlyFn(
       contractAddress,
       "get-user-data",
-      [Cl.uint(1)],
+      [Cl.uint(999)],
       deployer
     ).result;
     expect(getUserData).toBeNone();
+  });
+
+  it("get-user-data() returns the correct data for existing user", () => {
+    setupResourceAndUser();
+    
+    const getUserData = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-user-data",
+      [Cl.uint(1)],
+      deployer
+    ).result;
+
+    // Check that we got user data back
+    expect(getUserData).toBeSome();
+    
+    // Verify user data
+    const userData = getUserData as any;
+    expect(userData.value.address).toStrictEqual(Cl.principal(address1));
+    expect(userData.value.totalSpent).toStrictEqual(Cl.uint(resourcePrice));
+    expect(userData.value.totalUsed).toStrictEqual(Cl.uint(1));
   });
 
   /////////////////////////////////////////////
@@ -534,10 +438,30 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     const getUserDataByAddress = simnet.callReadOnlyFn(
       contractAddress,
       "get-user-data-by-address",
-      [Cl.principal(address1)],
+      [Cl.principal(address2)],
       deployer
     ).result;
     expect(getUserDataByAddress).toBeNone();
+  });
+
+  it("get-user-data-by-address() returns the correct data for existing user", () => {
+    setupResourceAndUser();
+    
+    const getUserDataByAddress = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-user-data-by-address",
+      [Cl.principal(address1)],
+      deployer
+    ).result;
+
+    // Check that we got user data back
+    expect(getUserDataByAddress).toBeSome();
+    
+    // Verify user data
+    const userData = getUserDataByAddress as any;
+    expect(userData.value.address).toStrictEqual(Cl.principal(address1));
+    expect(userData.value.totalSpent).toStrictEqual(Cl.uint(resourcePrice));
+    expect(userData.value.totalUsed).toStrictEqual(Cl.uint(1));
   });
 
   /////////////////////////////////////////////
@@ -547,10 +471,22 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     const getResourceIndex = simnet.callReadOnlyFn(
       contractAddress,
       "get-resource-index",
-      [Cl.stringUtf8(resourceName)],
+      [Cl.stringUtf8("non-existent-resource")],
       deployer
     ).result;
     expect(getResourceIndex).toBeNone();
+  });
+
+  it("get-resource-index() returns the correct index for existing resource", () => {
+    setupResourceAndUser();
+    
+    const getResourceIndex = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-resource-index",
+      [Cl.stringUtf8(resourceName)],
+      deployer
+    ).result;
+    expect(getResourceIndex).toBeSome(Cl.uint(1));
   });
 
   /////////////////////////////////////////////
@@ -560,10 +496,32 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     const getResource = simnet.callReadOnlyFn(
       contractAddress,
       "get-resource",
-      [Cl.uint(1)],
+      [Cl.uint(999)],
       deployer
     ).result;
     expect(getResource).toBeNone();
+  });
+
+  it("get-resource() returns the correct data for existing resource", () => {
+    setupResourceAndUser();
+    
+    const getResource = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-resource",
+      [Cl.uint(1)],
+      deployer
+    ).result;
+
+    // Check that we got a resource back
+    expect(getResource).toBeSome();
+    
+    // Verify resource data
+    const resourceData = getResource as any;
+    expect(resourceData.value.name.value).toBe(resourceName);
+    expect(resourceData.value.description.value).toBe(resourceDescription);
+    expect(resourceData.value.price).toStrictEqual(Cl.uint(resourcePrice));
+    expect(resourceData.value.enabled).toStrictEqual(Cl.bool(true));
+    expect(resourceData.value.url).toStrictEqual(Cl.some(Cl.stringUtf8(resourceUrl)));
   });
 
   /////////////////////////////////////////////
@@ -573,10 +531,31 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     const getResourceByName = simnet.callReadOnlyFn(
       contractAddress,
       "get-resource-by-name",
-      [Cl.stringUtf8(resourceName)],
+      [Cl.stringUtf8("non-existent-resource")],
       deployer
     ).result;
     expect(getResourceByName).toBeNone();
+  });
+
+  it("get-resource-by-name() returns the correct data for existing resource", () => {
+    setupResourceAndUser();
+    
+    const getResourceByName = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-resource-by-name",
+      [Cl.stringUtf8(resourceName)],
+      deployer
+    ).result;
+
+    // Check that we got a resource back
+    expect(getResourceByName).toBeSome();
+    
+    // Verify resource data
+    const resourceData = getResourceByName as any;
+    expect(resourceData.value.name.value).toBe(resourceName);
+    expect(resourceData.value.description.value).toBe(resourceDescription);
+    expect(resourceData.value.price).toStrictEqual(Cl.uint(resourcePrice));
+    expect(resourceData.value.enabled).toStrictEqual(Cl.bool(true));
   });
 
   /////////////////////////////////////////////
@@ -586,10 +565,31 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     const getInvoice = simnet.callReadOnlyFn(
       contractAddress,
       "get-invoice",
-      [Cl.uint(1)],
+      [Cl.uint(999)],
       deployer
     ).result;
     expect(getInvoice).toBeNone();
+  });
+
+  it("get-invoice() returns the correct data for existing invoice", () => {
+    setupResourceAndUser();
+    
+    const getInvoice = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-invoice",
+      [Cl.uint(1)],
+      deployer
+    ).result;
+
+    // Check that we got invoice data back
+    expect(getInvoice).toBeSome();
+    
+    // Verify invoice data
+    const invoiceData = getInvoice as any;
+    expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
+    expect(invoiceData.value.userIndex).toStrictEqual(Cl.uint(1));
+    expect(invoiceData.value.resourceIndex).toStrictEqual(Cl.uint(1));
+    expect(invoiceData.value.resourceName.value).toBe(resourceName);
   });
 
   /////////////////////////////////////////////
@@ -599,10 +599,22 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     const getRecentPayment = simnet.callReadOnlyFn(
       contractAddress,
       "get-recent-payment",
-      [Cl.uint(1), Cl.uint(1)],
+      [Cl.uint(999), Cl.uint(999)],
       deployer
     ).result;
     expect(getRecentPayment).toBeNone();
+  });
+
+  it("get-recent-payment() returns the correct invoice index for existing user/resource", () => {
+    setupResourceAndUser();
+    
+    const getRecentPayment = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-recent-payment",
+      [Cl.uint(1), Cl.uint(1)],
+      deployer
+    ).result;
+    expect(getRecentPayment).toBeSome(Cl.uint(1));
   });
 
   /////////////////////////////////////////////
@@ -612,10 +624,31 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     const getRecentPaymentData = simnet.callReadOnlyFn(
       contractAddress,
       "get-recent-payment-data",
-      [Cl.uint(1), Cl.uint(1)],
+      [Cl.uint(999), Cl.uint(999)],
       deployer
     ).result;
     expect(getRecentPaymentData).toBeNone();
+  });
+
+  it("get-recent-payment-data() returns the correct data for existing user/resource", () => {
+    setupResourceAndUser();
+    
+    const getRecentPaymentData = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-recent-payment-data",
+      [Cl.uint(1), Cl.uint(1)],
+      deployer
+    ).result;
+
+    // Check that we got invoice data back
+    expect(getRecentPaymentData).toBeSome();
+    
+    // Verify invoice data
+    const invoiceData = getRecentPaymentData as any;
+    expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
+    expect(invoiceData.value.userIndex).toStrictEqual(Cl.uint(1));
+    expect(invoiceData.value.resourceIndex).toStrictEqual(Cl.uint(1));
+    expect(invoiceData.value.resourceName.value).toBe(resourceName);
   });
 
   /////////////////////////////////////////////
@@ -625,9 +658,30 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     const getRecentPaymentDataByAddress = simnet.callReadOnlyFn(
       contractAddress,
       "get-recent-payment-data-by-address",
-      [Cl.stringUtf8(resourceName), Cl.principal(address1)],
+      [Cl.stringUtf8("non-existent-resource"), Cl.principal(address2)],
       deployer
     ).result;
     expect(getRecentPaymentDataByAddress).toBeNone();
+  });
+
+  it("get-recent-payment-data-by-address() returns the correct data for existing user/resource", () => {
+    setupResourceAndUser();
+    
+    const getRecentPaymentDataByAddress = simnet.callReadOnlyFn(
+      contractAddress,
+      "get-recent-payment-data-by-address",
+      [Cl.stringUtf8(resourceName), Cl.principal(address1)],
+      deployer
+    ).result;
+
+    // Check that we got invoice data back
+    expect(getRecentPaymentDataByAddress).toBeSome();
+    
+    // Verify invoice data
+    const invoiceData = getRecentPaymentDataByAddress as any;
+    expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
+    expect(invoiceData.value.userIndex).toStrictEqual(Cl.uint(1));
+    expect(invoiceData.value.resourceIndex).toStrictEqual(Cl.uint(1));
+    expect(invoiceData.value.resourceName.value).toBe(resourceName);
   });
 });
