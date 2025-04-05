@@ -366,7 +366,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("propose-action() fails if more than one proposal is created in a stacks block", () => {
-    const actionProposalContractAddress2 = `${deployer}.${ContractActionType.DAO_ACTION_PAYMENTS_DAO_ADD_RESOURCE}`;
+    const actionProposalContractAddress2 = `${deployer}.${ContractActionType.DAO_ACTION_PMT_DAO_ADD_RESOURCE}`;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -765,7 +765,7 @@ describe(`public functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("conclude-proposal() fails if the action does not match the stored action", () => {
-    const actionProposalContractAddress2 = `${deployer}.${ContractActionType.DAO_ACTION_PAYMENTS_DAO_ADD_RESOURCE}`;
+    const actionProposalContractAddress2 = `${deployer}.${ContractActionType.DAO_ACTION_PMT_DAO_ADD_RESOURCE}`;
     const proposalId = 1;
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(

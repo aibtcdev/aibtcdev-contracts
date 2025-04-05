@@ -18,9 +18,9 @@ const deployer = accounts.get("deployer")!;
 const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 
-const contractAddress = `${deployer}.${ContractActionType.DAO_ACTION_PAYMENTS_SBTC_ADD_RESOURCE}`;
+const contractAddress = `${deployer}.${ContractActionType.DAO_ACTION_PMT_SBTC_ADD_RESOURCE}`;
 
-describe(`action extension: ${ContractActionType.DAO_ACTION_PAYMENTS_SBTC_ADD_RESOURCE}`, () => {
+describe(`action extension: ${ContractActionType.DAO_ACTION_PMT_SBTC_ADD_RESOURCE}`, () => {
   it("callback() should respond with (ok true)", () => {
     const callback = simnet.callPublicFn(
       contractAddress,

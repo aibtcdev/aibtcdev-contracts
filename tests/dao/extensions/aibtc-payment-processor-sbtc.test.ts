@@ -22,7 +22,7 @@ const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
 const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
 const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
 const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
-const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PAYMENTS_SBTC_ADD_RESOURCE}`;
+const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_SBTC_ADD_RESOURCE}`;
 
 const ErrCode = PaymentProcessorErrCode;
 
