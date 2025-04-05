@@ -5,7 +5,7 @@
 (define-constant CFG_MESSAGE "Executed Core Proposal: Added a new resource available in the BTC payment processor")
 (define-constant CFG_RESOURCE_NAME u"example-resource")
 (define-constant CFG_RESOURCE_DESCRIPTION u"An example resource")
-(define-constant CFG_RESOURCE_AMOUNT u1000000)
+(define-constant CFG_RESOURCE_AMOUNT u1000000) ;; 0.01 BTC (8 decimals)
 (define-constant CFG_RESOURCE_URL (some u"https://example.com")) ;; or none
 
 (define-public (execute (sender principal))

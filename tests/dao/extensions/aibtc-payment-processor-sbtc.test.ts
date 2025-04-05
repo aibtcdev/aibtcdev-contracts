@@ -8,7 +8,7 @@ import {
   fundVoters,
   passCoreProposal,
   VOTING_CONFIG,
-  SBTC_CONTRACT
+  SBTC_CONTRACT,
 } from "../../test-utilities";
 
 const accounts = simnet.getAccounts();
@@ -27,10 +27,10 @@ const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PAYMENTS
 const ErrCode = PaymentsInvoicesErrCode;
 
 // Test resource data
-const resourceName = "test-resource";
-const resourceDescription = "Test resource description";
-const resourcePrice = 10000; // 0.0001 sBTC (8 decimals)
-const resourceUrl = "https://example.com/resource";
+const resourceName = "example-resource";
+const resourceDescription = "An example resource";
+const resourcePrice = 1000000; // 0.01 sBTC (8 decimals)
+const resourceUrl = "https://example.com";
 
 // Helper function to set up a test with a resource and optionally a user
 function setupTest(createUser = false) {
