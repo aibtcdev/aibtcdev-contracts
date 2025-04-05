@@ -666,11 +666,16 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Verify user data
-    const userData = getUserData as any;
-    expect(userData.value.address).toStrictEqual(Cl.principal(address1));
-    expect(userData.value.totalSpent).toStrictEqual(Cl.uint(resourcePrice));
-    expect(userData.value.totalUsed).toStrictEqual(Cl.uint(1));
+    // Assert
+    expect(getUserData).toBeSome();
+    
+    const expectedUserData = Cl.tuple({
+      address: Cl.principal(address1),
+      totalSpent: Cl.uint(resourcePrice),
+      totalUsed: Cl.uint(1)
+    });
+    
+    expect(getUserData).toBeSome(expectedUserData);
   });
 
   /////////////////////////////////////////////
@@ -698,11 +703,16 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Verify user data
-    const userData = getUserDataByAddress as any;
-    expect(userData.value.address).toStrictEqual(Cl.principal(address1));
-    expect(userData.value.totalSpent).toStrictEqual(Cl.uint(resourcePrice));
-    expect(userData.value.totalUsed).toStrictEqual(Cl.uint(1));
+    // Assert
+    expect(getUserDataByAddress).toBeSome();
+    
+    const expectedUserData = Cl.tuple({
+      address: Cl.principal(address1),
+      totalSpent: Cl.uint(resourcePrice),
+      totalUsed: Cl.uint(1)
+    });
+    
+    expect(getUserDataByAddress).toBeSome(expectedUserData);
   });
 
   /////////////////////////////////////////////
@@ -759,15 +769,21 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Verify resource data
-    const resourceData = getResource as any;
-    expect(resourceData.value.name.value).toBe(resourceName);
-    expect(resourceData.value.description.value).toBe(resourceDescription);
-    expect(resourceData.value.price).toStrictEqual(Cl.uint(resourcePrice));
-    expect(resourceData.value.enabled).toStrictEqual(Cl.bool(true));
-    expect(resourceData.value.url).toStrictEqual(
-      Cl.some(Cl.stringUtf8(resourceUrl))
-    );
+    // Assert
+    expect(getResource).toBeSome();
+    
+    const expectedResourceData = Cl.tuple({
+      name: Cl.stringUtf8(resourceName),
+      description: Cl.stringUtf8(resourceDescription),
+      price: Cl.uint(resourcePrice),
+      enabled: Cl.bool(true),
+      url: Cl.some(Cl.stringUtf8(resourceUrl)),
+      createdAt: (getResource as any).value.createdAt,
+      totalSpent: Cl.uint(0),
+      totalUsed: Cl.uint(0)
+    });
+    
+    expect(getResource).toBeSome(expectedResourceData);
   });
 
   /////////////////////////////////////////////
@@ -795,12 +811,21 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Verify resource data
-    const resourceData = getResourceByName as any;
-    expect(resourceData.value.name.value).toBe(resourceName);
-    expect(resourceData.value.description.value).toBe(resourceDescription);
-    expect(resourceData.value.price).toStrictEqual(Cl.uint(resourcePrice));
-    expect(resourceData.value.enabled).toStrictEqual(Cl.bool(true));
+    // Assert
+    expect(getResourceByName).toBeSome();
+    
+    const expectedResourceData = Cl.tuple({
+      name: Cl.stringUtf8(resourceName),
+      description: Cl.stringUtf8(resourceDescription),
+      price: Cl.uint(resourcePrice),
+      enabled: Cl.bool(true),
+      url: Cl.some(Cl.stringUtf8(resourceUrl)),
+      createdAt: (getResourceByName as any).value.createdAt,
+      totalSpent: Cl.uint(0),
+      totalUsed: Cl.uint(0)
+    });
+    
+    expect(getResourceByName).toBeSome(expectedResourceData);
   });
 
   /////////////////////////////////////////////
@@ -828,12 +853,18 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Verify invoice data
-    const invoiceData = getInvoice as any;
-    expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
-    expect(invoiceData.value.userIndex).toStrictEqual(Cl.uint(1));
-    expect(invoiceData.value.resourceIndex).toStrictEqual(Cl.uint(1));
-    expect(invoiceData.value.resourceName.value).toBe(resourceName);
+    // Assert
+    expect(getInvoice).toBeSome();
+    
+    const expectedInvoiceData = Cl.tuple({
+      amount: Cl.uint(resourcePrice),
+      userIndex: Cl.uint(1),
+      resourceIndex: Cl.uint(1),
+      resourceName: Cl.stringUtf8(resourceName),
+      createdAt: (getInvoice as any).value.createdAt
+    });
+    
+    expect(getInvoice).toBeSome(expectedInvoiceData);
   });
 
   /////////////////////////////////////////////
@@ -890,12 +921,18 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Verify invoice data
-    const invoiceData = getRecentPaymentData as any;
-    expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
-    expect(invoiceData.value.userIndex).toStrictEqual(Cl.uint(1));
-    expect(invoiceData.value.resourceIndex).toStrictEqual(Cl.uint(1));
-    expect(invoiceData.value.resourceName.value).toBe(resourceName);
+    // Assert
+    expect(getRecentPaymentData).toBeSome();
+    
+    const expectedInvoiceData = Cl.tuple({
+      amount: Cl.uint(resourcePrice),
+      userIndex: Cl.uint(1),
+      resourceIndex: Cl.uint(1),
+      resourceName: Cl.stringUtf8(resourceName),
+      createdAt: (getRecentPaymentData as any).value.createdAt
+    });
+    
+    expect(getRecentPaymentData).toBeSome(expectedInvoiceData);
   });
 
   /////////////////////////////////////////////
@@ -923,11 +960,17 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Verify invoice data
-    const invoiceData = getRecentPaymentDataByAddress as any;
-    expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
-    expect(invoiceData.value.userIndex).toStrictEqual(Cl.uint(1));
-    expect(invoiceData.value.resourceIndex).toStrictEqual(Cl.uint(1));
-    expect(invoiceData.value.resourceName.value).toBe(resourceName);
+    // Assert
+    expect(getRecentPaymentDataByAddress).toBeSome();
+    
+    const expectedInvoiceData = Cl.tuple({
+      amount: Cl.uint(resourcePrice),
+      userIndex: Cl.uint(1),
+      resourceIndex: Cl.uint(1),
+      resourceName: Cl.stringUtf8(resourceName),
+      createdAt: (getRecentPaymentDataByAddress as any).value.createdAt
+    });
+    
+    expect(getRecentPaymentDataByAddress).toBeSome(expectedInvoiceData);
   });
 });
