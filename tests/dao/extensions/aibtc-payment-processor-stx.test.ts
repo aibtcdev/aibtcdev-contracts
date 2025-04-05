@@ -1,9 +1,10 @@
-import { Cl } from "@stacks/transactions";
+import { Cl, cvToValue, ClarityValue, UIntCV } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { PaymentsInvoicesErrCode } from "../../error-codes";
 import { ContractType, ContractProposalType } from "../../dao-types";
 import {
   constructDao,
+  dbgLog,
   fundVoters,
   passCoreProposal,
   VOTING_CONFIG,
@@ -26,10 +27,10 @@ const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PAYMENTS
 const ErrCode = PaymentsInvoicesErrCode;
 
 // Test resource data
-const resourceName = "test-resource";
-const resourceDescription = "Test resource description";
-const resourcePrice = 10000000; // 10 STX
-const resourceUrl = "https://example.com/resource";
+const resourceName = "example-resource";
+const resourceDescription = "An example resource";
+const resourcePrice = 1000000; // 1 STX
+const resourceUrl = "https://example.com";
 
 // Helper function to set up a test with a resource and optionally a user
 function setupTest(createUser = false) {
@@ -670,9 +671,9 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     const expectedUserData = Cl.tuple({
       address: Cl.principal(address1),
       totalSpent: Cl.uint(resourcePrice),
-      totalUsed: Cl.uint(1)
+      totalUsed: Cl.uint(1),
     });
-    
+
     expect(getUserData).toStrictEqual(Cl.some(expectedUserData));
   });
 
@@ -705,9 +706,9 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     const expectedUserData = Cl.tuple({
       address: Cl.principal(address1),
       totalSpent: Cl.uint(resourcePrice),
-      totalUsed: Cl.uint(1)
+      totalUsed: Cl.uint(1),
     });
-    
+
     expect(getUserDataByAddress).toStrictEqual(Cl.some(expectedUserData));
   });
 
@@ -758,13 +759,18 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
     setupTest(false);
 
     // Act
-    const getResource = simnet.callReadOnlyFn(
+    const resourceRecordCV = simnet.callReadOnlyFn(
       contractAddress,
       "get-resource",
       [Cl.uint(1)],
       deployer
     ).result;
-
+    const resourceRecord = cvToValue(resourceRecordCV).value;
+    const createdAtCV: UIntCV = {
+      type: 1,
+      value: resourceRecord.createdAt.value,
+    };
+    const createdAt = cvToValue(createdAtCV);
     // Assert
     const expectedResourceData = Cl.tuple({
       name: Cl.stringUtf8(resourceName),
@@ -772,12 +778,12 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       price: Cl.uint(resourcePrice),
       enabled: Cl.bool(true),
       url: Cl.some(Cl.stringUtf8(resourceUrl)),
-      createdAt: (getResource as any).value.createdAt,
+      createdAt: Cl.uint(createdAt),
       totalSpent: Cl.uint(0),
-      totalUsed: Cl.uint(0)
+      totalUsed: Cl.uint(0),
     });
-    
-    expect(getResource).toStrictEqual(Cl.some(expectedResourceData));
+
+    expect(resourceRecordCV).toStrictEqual(Cl.some(expectedResourceData));
   });
 
   /////////////////////////////////////////////
@@ -814,9 +820,9 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       url: Cl.some(Cl.stringUtf8(resourceUrl)),
       createdAt: (getResourceByName as any).value.createdAt,
       totalSpent: Cl.uint(0),
-      totalUsed: Cl.uint(0)
+      totalUsed: Cl.uint(0),
     });
-    
+
     expect(getResourceByName).toStrictEqual(Cl.some(expectedResourceData));
   });
 
@@ -851,9 +857,9 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       userIndex: Cl.uint(1),
       resourceIndex: Cl.uint(1),
       resourceName: Cl.stringUtf8(resourceName),
-      createdAt: (getInvoice as any).value.createdAt
+      createdAt: (getInvoice as any).value.createdAt,
     });
-    
+
     expect(getInvoice).toStrictEqual(Cl.some(expectedInvoiceData));
   });
 
@@ -917,9 +923,9 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       userIndex: Cl.uint(1),
       resourceIndex: Cl.uint(1),
       resourceName: Cl.stringUtf8(resourceName),
-      createdAt: (getRecentPaymentData as any).value.createdAt
+      createdAt: (getRecentPaymentData as any).value.createdAt,
     });
-    
+
     expect(getRecentPaymentData).toStrictEqual(Cl.some(expectedInvoiceData));
   });
 
@@ -954,9 +960,11 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       userIndex: Cl.uint(1),
       resourceIndex: Cl.uint(1),
       resourceName: Cl.stringUtf8(resourceName),
-      createdAt: (getRecentPaymentDataByAddress as any).value.createdAt
+      createdAt: (getRecentPaymentDataByAddress as any).value.createdAt,
     });
-    
-    expect(getRecentPaymentDataByAddress).toStrictEqual(Cl.some(expectedInvoiceData));
+
+    expect(getRecentPaymentDataByAddress).toStrictEqual(
+      Cl.some(expectedInvoiceData)
+    );
   });
 });
