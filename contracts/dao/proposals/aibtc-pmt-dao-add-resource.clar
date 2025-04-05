@@ -5,7 +5,7 @@
 (define-constant CFG_MESSAGE "Executed Core Proposal: Added a new resource available in the DAO payment processor")
 (define-constant CFG_RESOURCE_NAME u"example-resource")
 (define-constant CFG_RESOURCE_DESCRIPTION u"An example resource")
-(define-constant CFG_RESOURCE_AMOUNT u1000000)
+(define-constant CFG_RESOURCE_AMOUNT u100000000000) ;; 1,000 DAO tokens (8 decimals)
 (define-constant CFG_RESOURCE_URL (some u"https://example.com")) ;; or none
 
 (define-public (execute (sender principal))
