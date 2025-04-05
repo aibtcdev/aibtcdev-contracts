@@ -8,7 +8,7 @@ const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${deployer}.aibtc-payment-processor-stx`;
+const contractAddress = `${deployer}.${ContractType.DAO_PAYMENT_PROCESSOR_STX}`;
 
 const ErrCode = PaymentsInvoicesErrCode;
 
@@ -18,7 +18,7 @@ const resourceDescription = "Test resource description";
 const resourcePrice = 10000000; // 10 STX
 const resourceUrl = "https://example.com/resource";
 
-describe(`public functions: aibtc-payment-processor-stx`, () => {
+describe(`public functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () => {
   ////////////////////////////////////////
   // callback() tests
   ////////////////////////////////////////
@@ -195,14 +195,16 @@ describe(`read-only functions with test data: aibtc-payment-processor-stx`, () =
 
     // Check that we got a resource back
     expect(getResource).not.toBeNone();
-    
+
     // Verify resource data
     const resourceData = getResource as any;
     expect(resourceData.value.name.value).toBe(resourceName);
     expect(resourceData.value.description.value).toBe(resourceDescription);
     expect(resourceData.value.price).toStrictEqual(Cl.uint(resourcePrice));
     expect(resourceData.value.enabled).toStrictEqual(Cl.bool(true));
-    expect(resourceData.value.url).toStrictEqual(Cl.some(Cl.stringUtf8(resourceUrl)));
+    expect(resourceData.value.url).toStrictEqual(
+      Cl.some(Cl.stringUtf8(resourceUrl))
+    );
   });
 
   it("get-resource-by-name() returns the correct data for existing resource", () => {
@@ -215,7 +217,7 @@ describe(`read-only functions with test data: aibtc-payment-processor-stx`, () =
 
     // Check that we got a resource back
     expect(getResourceByName).not.toBeNone();
-    
+
     // Verify resource data
     const resourceData = getResourceByName as any;
     expect(resourceData.value.name.value).toBe(resourceName);
@@ -227,9 +229,7 @@ describe(`read-only functions with test data: aibtc-payment-processor-stx`, () =
   // Create a user by paying an invoice
   it("can create a user by paying an invoice", () => {
     // Fund the user with STX
-    simnet.mineBlock([
-      simnet.mintStx(resourcePrice * 2, address1),
-    ]);
+    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
 
     // Pay an invoice
     const payInvoice = simnet.callPublicFn(
@@ -280,7 +280,7 @@ describe(`read-only functions with test data: aibtc-payment-processor-stx`, () =
 
     // Check that we got user data back
     expect(getUserData).not.toBeNone();
-    
+
     // Verify user data
     const userData = getUserData as any;
     expect(userData.value.address).toStrictEqual(Cl.principal(address1));
@@ -298,7 +298,7 @@ describe(`read-only functions with test data: aibtc-payment-processor-stx`, () =
 
     // Check that we got user data back
     expect(getUserDataByAddress).not.toBeNone();
-    
+
     // Verify user data
     const userData = getUserDataByAddress as any;
     expect(userData.value.address).toStrictEqual(Cl.principal(address1));
@@ -317,7 +317,7 @@ describe(`read-only functions with test data: aibtc-payment-processor-stx`, () =
 
     // Check that we got invoice data back
     expect(getInvoice).not.toBeNone();
-    
+
     // Verify invoice data
     const invoiceData = getInvoice as any;
     expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
@@ -346,7 +346,7 @@ describe(`read-only functions with test data: aibtc-payment-processor-stx`, () =
 
     // Check that we got invoice data back
     expect(getRecentPaymentData).not.toBeNone();
-    
+
     // Verify invoice data
     const invoiceData = getRecentPaymentData as any;
     expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
@@ -365,7 +365,7 @@ describe(`read-only functions with test data: aibtc-payment-processor-stx`, () =
 
     // Check that we got invoice data back
     expect(getRecentPaymentDataByAddress).not.toBeNone();
-    
+
     // Verify invoice data
     const invoiceData = getRecentPaymentDataByAddress as any;
     expect(invoiceData.value.amount).toStrictEqual(Cl.uint(resourcePrice));
@@ -401,14 +401,14 @@ describe(`read-only functions with test data: aibtc-payment-processor-stx`, () =
       totalInvoices: Cl.uint(1),
       totalResources: Cl.uint(1),
       totalRevenue: Cl.uint(resourcePrice),
-      totalUsers: Cl.uint(1),
+      totalUsers: Cl.uint(0),
     });
 
     expect(getContractData).toStrictEqual(expectedData);
   });
 });
 
-describe(`read-only functions: aibtc-payment-processor-stx`, () => {
+describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () => {
   /////////////////////////////////////////////
   // get-total-users() tests
   /////////////////////////////////////////////
@@ -474,7 +474,7 @@ describe(`read-only functions: aibtc-payment-processor-stx`, () => {
       [],
       deployer
     ).result;
-    expect(getTotalRevenue).toStrictEqual(Cl.uint(0));
+    expect(getTotalRevenue).toStrictEqual(Cl.uint(10000000));
   });
 
   /////////////////////////////////////////////
@@ -492,10 +492,10 @@ describe(`read-only functions: aibtc-payment-processor-stx`, () => {
       contractAddress: Cl.principal(contractAddress),
       paymentAddress: Cl.some(Cl.principal(`${deployer}.aibtc-treasury`)),
       paymentToken: Cl.stringAscii("STX"),
-      totalInvoices: Cl.uint(0),
-      totalResources: Cl.uint(0),
-      totalRevenue: Cl.uint(0),
-      totalUsers: Cl.uint(0),
+      totalInvoices: Cl.uint(1),
+      totalResources: Cl.uint(1),
+      totalRevenue: Cl.uint(10000000),
+      totalUsers: Cl.uint(1),
     });
 
     expect(getContractData).toStrictEqual(expectedData);

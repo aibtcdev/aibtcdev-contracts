@@ -8,7 +8,7 @@ const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const deployer = accounts.get("deployer")!;
 
-const contractAddress = `${deployer}.aibtc-payment-processor-dao`;
+const contractAddress = `${deployer}.${ContractType.DAO_PAYMENT_PROCESSOR_DAO}`;
 
 const ErrCode = PaymentsInvoicesErrCode;
 
@@ -18,7 +18,7 @@ const resourceDescription = "Test resource description";
 const resourcePrice = 100000000000; // 1,000 DAO tokens (8 decimals)
 const resourceUrl = "https://example.com/resource";
 
-describe(`public functions: aibtc-payment-processor-dao`, () => {
+describe(`public functions: ${ContractType.DAO_PAYMENT_PROCESSOR_DAO}`, () => {
   ////////////////////////////////////////
   // callback() tests
   ////////////////////////////////////////
@@ -138,7 +138,7 @@ describe(`public functions: aibtc-payment-processor-dao`, () => {
   });
 });
 
-describe(`read-only functions: aibtc-payment-processor-dao`, () => {
+describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_DAO}`, () => {
   /////////////////////////////////////////////
   // get-total-users() tests
   /////////////////////////////////////////////
