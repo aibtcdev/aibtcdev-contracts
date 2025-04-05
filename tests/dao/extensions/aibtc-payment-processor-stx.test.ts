@@ -1,5 +1,5 @@
 import { Cl } from "@stacks/transactions";
-import { describe, expect, it, beforeAll } from "vitest";
+import { describe, expect, it } from "vitest";
 import { PaymentsInvoicesErrCode } from "../../error-codes";
 import { 
   ContractType, 
@@ -11,6 +11,59 @@ import {
   passCoreProposal,
   VOTING_CONFIG,
 } from "../../test-utilities";
+
+// Helper function to set up a test with a resource and optionally a user
+function setupTest(createUser = false) {
+  // Setup contract names
+  const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+  const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+  const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+  const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+  const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+  const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
+  
+  // Setup voting config
+  const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
+
+  // Fund accounts for creating and voting on proposals
+  fundVoters(tokenContractAddress, tokenDexContractAddress, [
+    deployer,
+    address1,
+    address2,
+  ]);
+
+  // Construct DAO
+  const constructReceipt = constructDao(
+    deployer,
+    baseDaoContractAddress,
+    bootstrapContractAddress
+  );
+  expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+  // Pass proposal to add resource
+  const concludeProposalReceipt = passCoreProposal(
+    coreProposalsContractAddress,
+    proposalContractAddress,
+    deployer,
+    [deployer, address1, address2],
+    votingConfig
+  );
+  expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
+  
+  if (createUser) {
+    // Fund the user with STX
+    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
+
+    // Pay an invoice
+    const payInvoice = simnet.callPublicFn(
+      contractAddress,
+      "pay-invoice",
+      [Cl.uint(1), Cl.none()],
+      address1
+    );
+    expect(payInvoice.result).toBeOk(Cl.uint(1));
+  }
+}
 
 const accounts = simnet.getAccounts();
 const address1 = accounts.get("wallet_1")!;
@@ -149,68 +202,6 @@ describe(`public functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () => {
 
 
 describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () => {
-  // Setup variables for tests with data
-  let resourceAdded = false;
-  let userCreated = false;
-  
-  // Helper function to set up DAO and add a resource
-  const setupResourceAndUser = () => {
-    if (!resourceAdded) {
-      // Setup contract names
-      const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-      const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-      const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-      const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
-      const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
-      const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
-      
-      // Setup voting config
-      const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
-
-      // Fund accounts for creating and voting on proposals
-      fundVoters(tokenContractAddress, tokenDexContractAddress, [
-        deployer,
-        address1,
-        address2,
-      ]);
-
-      // Construct DAO
-      const constructReceipt = constructDao(
-        deployer,
-        baseDaoContractAddress,
-        bootstrapContractAddress
-      );
-      expect(constructReceipt.result).toBeOk(Cl.bool(true));
-
-      // Pass proposal to add resource
-      const concludeProposalReceipt = passCoreProposal(
-        coreProposalsContractAddress,
-        proposalContractAddress,
-        deployer,
-        [deployer, address1, address2],
-        votingConfig
-      );
-      expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
-      
-      resourceAdded = true;
-    }
-    
-    if (!userCreated && resourceAdded) {
-      // Fund the user with STX
-      simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
-
-      // Pay an invoice
-      const payInvoice = simnet.callPublicFn(
-        contractAddress,
-        "pay-invoice",
-        [Cl.uint(1), Cl.none()],
-        address1
-      );
-      expect(payInvoice.result).toBeOk(Cl.uint(1));
-      
-      userCreated = true;
-    }
-  };
 
   /////////////////////////////////////////////
   // get-total-users() tests
@@ -226,14 +217,64 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-total-users() returns the correct count after a user is created", () => {
-    setupResourceAndUser();
+    // Arrange
+    // Setup contract names
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
     
+    // Setup voting config
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
+
+    // Fund accounts for creating and voting on proposals
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+
+    // Construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // Pass proposal to add resource
+    const concludeProposalReceipt = passCoreProposal(
+      coreProposalsContractAddress,
+      proposalContractAddress,
+      deployer,
+      [deployer, address1, address2],
+      votingConfig
+    );
+    expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
+    
+    // Fund the user with STX
+    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
+
+    // Pay an invoice
+    const payInvoice = simnet.callPublicFn(
+      contractAddress,
+      "pay-invoice",
+      [Cl.uint(1), Cl.none()],
+      address1
+    );
+    expect(payInvoice.result).toBeOk(Cl.uint(1));
+    
+    // Act
     const getTotalUsers = simnet.callReadOnlyFn(
       contractAddress,
       "get-total-users",
       [],
       deployer
     ).result;
+    
+    // Assert
     expect(getTotalUsers).toStrictEqual(Cl.uint(1));
   });
 
@@ -251,14 +292,52 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-total-resources() returns the correct count after a resource is added", () => {
-    setupResourceAndUser();
+    // Arrange
+    // Setup contract names
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
     
+    // Setup voting config
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
+
+    // Fund accounts for creating and voting on proposals
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+
+    // Construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // Pass proposal to add resource
+    const concludeProposalReceipt = passCoreProposal(
+      coreProposalsContractAddress,
+      proposalContractAddress,
+      deployer,
+      [deployer, address1, address2],
+      votingConfig
+    );
+    expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
+    
+    // Act
     const getTotalResources = simnet.callReadOnlyFn(
       contractAddress,
       "get-total-resources",
       [],
       deployer
     ).result;
+    
+    // Assert
     expect(getTotalResources).toStrictEqual(Cl.uint(1));
   });
 
@@ -276,14 +355,64 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-total-invoices() returns the correct count after an invoice is created", () => {
-    setupResourceAndUser();
+    // Arrange
+    // Setup contract names
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
     
+    // Setup voting config
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
+
+    // Fund accounts for creating and voting on proposals
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+
+    // Construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // Pass proposal to add resource
+    const concludeProposalReceipt = passCoreProposal(
+      coreProposalsContractAddress,
+      proposalContractAddress,
+      deployer,
+      [deployer, address1, address2],
+      votingConfig
+    );
+    expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
+    
+    // Fund the user with STX
+    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
+
+    // Pay an invoice
+    const payInvoice = simnet.callPublicFn(
+      contractAddress,
+      "pay-invoice",
+      [Cl.uint(1), Cl.none()],
+      address1
+    );
+    expect(payInvoice.result).toBeOk(Cl.uint(1));
+    
+    // Act
     const getTotalInvoices = simnet.callReadOnlyFn(
       contractAddress,
       "get-total-invoices",
       [],
       deployer
     ).result;
+    
+    // Assert
     expect(getTotalInvoices).toStrictEqual(Cl.uint(1));
   });
 
@@ -315,14 +444,64 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-total-revenue() returns the correct total after payment", () => {
-    setupResourceAndUser();
+    // Arrange
+    // Setup contract names
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
     
+    // Setup voting config
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
+
+    // Fund accounts for creating and voting on proposals
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+
+    // Construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // Pass proposal to add resource
+    const concludeProposalReceipt = passCoreProposal(
+      coreProposalsContractAddress,
+      proposalContractAddress,
+      deployer,
+      [deployer, address1, address2],
+      votingConfig
+    );
+    expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
+    
+    // Fund the user with STX
+    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
+
+    // Pay an invoice
+    const payInvoice = simnet.callPublicFn(
+      contractAddress,
+      "pay-invoice",
+      [Cl.uint(1), Cl.none()],
+      address1
+    );
+    expect(payInvoice.result).toBeOk(Cl.uint(1));
+    
+    // Act
     const getTotalRevenue = simnet.callReadOnlyFn(
       contractAddress,
       "get-total-revenue",
       [],
       deployer
     ).result;
+    
+    // Assert
     expect(getTotalRevenue).toStrictEqual(Cl.uint(resourcePrice));
   });
 
@@ -351,8 +530,56 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-contract-data() returns updated contract data after payment", () => {
-    setupResourceAndUser();
+    // Arrange
+    // Setup contract names
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
     
+    // Setup voting config
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
+
+    // Fund accounts for creating and voting on proposals
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+
+    // Construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // Pass proposal to add resource
+    const concludeProposalReceipt = passCoreProposal(
+      coreProposalsContractAddress,
+      proposalContractAddress,
+      deployer,
+      [deployer, address1, address2],
+      votingConfig
+    );
+    expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
+    
+    // Fund the user with STX
+    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
+
+    // Pay an invoice
+    const payInvoice = simnet.callPublicFn(
+      contractAddress,
+      "pay-invoice",
+      [Cl.uint(1), Cl.none()],
+      address1
+    );
+    expect(payInvoice.result).toBeOk(Cl.uint(1));
+    
+    // Act
     const getContractData = simnet.callReadOnlyFn(
       contractAddress,
       "get-contract-data",
@@ -360,6 +587,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
+    // Assert
     const expectedData = Cl.tuple({
       contractAddress: Cl.principal(contractAddress),
       paymentAddress: Cl.some(Cl.principal(`${deployer}.aibtc-treasury`)),
@@ -387,14 +615,64 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-user-index() returns the correct index for existing user", () => {
-    setupResourceAndUser();
+    // Arrange
+    // Setup contract names
+    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
     
+    // Setup voting config
+    const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
+
+    // Fund accounts for creating and voting on proposals
+    fundVoters(tokenContractAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+
+    // Construct DAO
+    const constructReceipt = constructDao(
+      deployer,
+      baseDaoContractAddress,
+      bootstrapContractAddress
+    );
+    expect(constructReceipt.result).toBeOk(Cl.bool(true));
+
+    // Pass proposal to add resource
+    const concludeProposalReceipt = passCoreProposal(
+      coreProposalsContractAddress,
+      proposalContractAddress,
+      deployer,
+      [deployer, address1, address2],
+      votingConfig
+    );
+    expect(concludeProposalReceipt.result).toBeOk(Cl.bool(true));
+    
+    // Fund the user with STX
+    simnet.mineBlock([simnet.mintStx(resourcePrice * 2, address1)]);
+
+    // Pay an invoice
+    const payInvoice = simnet.callPublicFn(
+      contractAddress,
+      "pay-invoice",
+      [Cl.uint(1), Cl.none()],
+      address1
+    );
+    expect(payInvoice.result).toBeOk(Cl.uint(1));
+    
+    // Act
     const getUserIndex = simnet.callReadOnlyFn(
       contractAddress,
       "get-user-index",
       [Cl.principal(address1)],
       deployer
     ).result;
+    
+    // Assert
     expect(getUserIndex).toBeSome(Cl.uint(1));
   });
 
@@ -412,8 +690,10 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-user-data() returns the correct data for existing user", () => {
-    setupResourceAndUser();
+    // Arrange
+    setupTest(true);
     
+    // Act
     const getUserData = simnet.callReadOnlyFn(
       contractAddress,
       "get-user-data",
@@ -421,7 +701,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Check that we got user data back
+    // Assert
     expect(getUserData).toBeSome();
     
     // Verify user data
@@ -445,8 +725,10 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-user-data-by-address() returns the correct data for existing user", () => {
-    setupResourceAndUser();
+    // Arrange
+    setupTest(true);
     
+    // Act
     const getUserDataByAddress = simnet.callReadOnlyFn(
       contractAddress,
       "get-user-data-by-address",
@@ -454,7 +736,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Check that we got user data back
+    // Assert
     expect(getUserDataByAddress).toBeSome();
     
     // Verify user data
@@ -478,14 +760,18 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-resource-index() returns the correct index for existing resource", () => {
-    setupResourceAndUser();
+    // Arrange
+    setupTest(false);
     
+    // Act
     const getResourceIndex = simnet.callReadOnlyFn(
       contractAddress,
       "get-resource-index",
       [Cl.stringUtf8(resourceName)],
       deployer
     ).result;
+    
+    // Assert
     expect(getResourceIndex).toBeSome(Cl.uint(1));
   });
 
@@ -503,8 +789,10 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-resource() returns the correct data for existing resource", () => {
-    setupResourceAndUser();
+    // Arrange
+    setupTest(false);
     
+    // Act
     const getResource = simnet.callReadOnlyFn(
       contractAddress,
       "get-resource",
@@ -512,7 +800,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Check that we got a resource back
+    // Assert
     expect(getResource).toBeSome();
     
     // Verify resource data
@@ -538,8 +826,10 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-resource-by-name() returns the correct data for existing resource", () => {
-    setupResourceAndUser();
+    // Arrange
+    setupTest(false);
     
+    // Act
     const getResourceByName = simnet.callReadOnlyFn(
       contractAddress,
       "get-resource-by-name",
@@ -547,7 +837,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Check that we got a resource back
+    // Assert
     expect(getResourceByName).toBeSome();
     
     // Verify resource data
@@ -572,8 +862,10 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-invoice() returns the correct data for existing invoice", () => {
-    setupResourceAndUser();
+    // Arrange
+    setupTest(true);
     
+    // Act
     const getInvoice = simnet.callReadOnlyFn(
       contractAddress,
       "get-invoice",
@@ -581,7 +873,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Check that we got invoice data back
+    // Assert
     expect(getInvoice).toBeSome();
     
     // Verify invoice data
@@ -606,14 +898,18 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-recent-payment() returns the correct invoice index for existing user/resource", () => {
-    setupResourceAndUser();
+    // Arrange
+    setupTest(true);
     
+    // Act
     const getRecentPayment = simnet.callReadOnlyFn(
       contractAddress,
       "get-recent-payment",
       [Cl.uint(1), Cl.uint(1)],
       deployer
     ).result;
+    
+    // Assert
     expect(getRecentPayment).toBeSome(Cl.uint(1));
   });
 
@@ -631,8 +927,10 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-recent-payment-data() returns the correct data for existing user/resource", () => {
-    setupResourceAndUser();
+    // Arrange
+    setupTest(true);
     
+    // Act
     const getRecentPaymentData = simnet.callReadOnlyFn(
       contractAddress,
       "get-recent-payment-data",
@@ -640,7 +938,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Check that we got invoice data back
+    // Assert
     expect(getRecentPaymentData).toBeSome();
     
     // Verify invoice data
@@ -665,8 +963,10 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
   });
 
   it("get-recent-payment-data-by-address() returns the correct data for existing user/resource", () => {
-    setupResourceAndUser();
+    // Arrange
+    setupTest(true);
     
+    // Act
     const getRecentPaymentDataByAddress = simnet.callReadOnlyFn(
       contractAddress,
       "get-recent-payment-data-by-address",
@@ -674,7 +974,7 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
       deployer
     ).result;
 
-    // Check that we got invoice data back
+    // Assert
     expect(getRecentPaymentDataByAddress).toBeSome();
     
     // Verify invoice data
