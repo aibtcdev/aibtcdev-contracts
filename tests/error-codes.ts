@@ -94,7 +94,7 @@ export enum OnchainMessagingErrCode {
   ERR_UNAUTHORIZED,
 }
 
-export enum PaymentsInvoicesErrCode {
+export enum PaymentProcessorErrCode {
   ERR_NOT_DAO_OR_EXTENSION = 5000,
   ERR_INVALID_PARAMS,
   ERR_NAME_ALREADY_USED,

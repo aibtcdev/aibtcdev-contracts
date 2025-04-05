@@ -1,6 +1,6 @@
 import { Cl, cvToValue, ClarityValue, UIntCV } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
-import { PaymentsInvoicesErrCode } from "../../error-codes";
+import { PaymentProcessorErrCode } from "../../error-codes";
 import { ContractType, ContractProposalType } from "../../dao-types";
 import {
   constructDao,
@@ -24,7 +24,7 @@ const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BO
 const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
 const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PAYMENTS_DAO_ADD_RESOURCE}`;
 
-const ErrCode = PaymentsInvoicesErrCode;
+const ErrCode = PaymentProcessorErrCode;
 
 // Test resource data
 const resourceName = "example-resource";

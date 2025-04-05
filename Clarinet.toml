@@ -103,11 +103,6 @@ path = 'contracts/dao/extensions/aibtc-onchain-messaging.clar'
 clarity_version = 3
 epoch = 3.1
 
-[contracts.aibtc-payments-invoices]
-path = 'contracts/dao/extensions/aibtc-payments-invoices.clar'
-clarity_version = 3
-epoch = 3.1
-
 [contracts.aibtc-payment-processor-dao]
 path = 'contracts/dao/extensions/aibtc-payment-processor-dao.clar'
 clarity_version = 3
@@ -180,11 +175,6 @@ path = 'contracts/dao/extensions/actions/aibtc-action-pmt-stx-toggle-resource.cl
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-add-resource]
-path = 'contracts/dao/extensions/actions/aibtc-action-add-resource.clar'
-clarity_version = 2
-epoch = 3.1
-
 [contracts.aibtc-action-treasury-allow-asset]
 path = 'contracts/dao/extensions/actions/aibtc-action-treasury-allow-asset.clar'
 clarity_version = 2
@@ -207,11 +197,6 @@ epoch = 3.1
 
 [contracts.aibtc-action-configure-timed-vault-stx]
 path = 'contracts/dao/extensions/actions/aibtc-action-configure-timed-vault-stx.clar'
-clarity_version = 2
-epoch = 3.1
-
-[contracts.aibtc-action-toggle-resource-by-name]
-path = 'contracts/dao/extensions/actions/aibtc-action-toggle-resource-by-name.clar'
 clarity_version = 2
 epoch = 3.1
 
@@ -359,26 +344,6 @@ epoch = 3.1
 
 [contracts.aibtc-pmt-dao-toggle-resource]
 path = 'contracts/dao/proposals/aibtc-pmt-dao-toggle-resource.clar'
-clarity_version = 2
-epoch = 3.1
-
-[contracts.aibtc-payments-invoices-add-resource]
-path = 'contracts/dao/proposals/aibtc-payments-invoices-add-resource.clar'
-clarity_version = 2
-epoch = 3.1
-
-[contracts.aibtc-payments-invoices-set-payment-address]
-path = 'contracts/dao/proposals/aibtc-payments-invoices-set-payment-address.clar'
-clarity_version = 2
-epoch = 3.1
-
-[contracts.aibtc-payments-invoices-toggle-resource-by-name]
-path = 'contracts/dao/proposals/aibtc-payments-invoices-toggle-resource-by-name.clar'
-clarity_version = 2
-epoch = 3.1
-
-[contracts.aibtc-payments-invoices-toggle-resource]
-path = 'contracts/dao/proposals/aibtc-payments-invoices-toggle-resource.clar'
 clarity_version = 2
 epoch = 3.1
 

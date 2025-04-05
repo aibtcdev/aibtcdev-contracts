@@ -1093,10 +1093,8 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       getContract(ContractProposalType.DAO_TIMED_VAULT_STX_SET_ACCOUNT_HOLDER),
       getContract(ContractProposalType.DAO_BASE_ADD_NEW_EXTENSION),
       getContract(ContractProposalType.DAO_BASE_DISABLE_EXTENSION),
-      getContract(ContractProposalType.DAO_PAYMENTS_INVOICES_ADD_RESOURCE),
-      getContract(
-        ContractProposalType.DAO_PAYMENTS_INVOICES_SET_PAYMENT_ADDRESS
-      ),
+      getContract(ContractProposalType.DAO_PAYMENTS_DAO_SET_PAYMENT_ADDRESS),
+      getContract(ContractProposalType.DAO_PAYMENTS_SBTC_SET_PAYMENT_ADDRESS),
       getContract(ContractProposalType.DAO_TOKEN_OWNER_SET_TOKEN_URI),
       getContract(ContractProposalType.DAO_TREASURY_ALLOW_ASSET),
       getContract(ContractProposalType.DAO_TREASURY_DELEGATE_STX),
