@@ -12,16 +12,30 @@ import {
   VOTING_CONFIG,
 } from "../../test-utilities";
 
+// Contract names for reuse
+const accounts = simnet.getAccounts();
+const address1 = accounts.get("wallet_1")!;
+const address2 = accounts.get("wallet_2")!;
+const deployer = accounts.get("deployer")!;
+
+const contractAddress = `${deployer}.${ContractType.DAO_PAYMENT_PROCESSOR_STX}`;
+const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
+const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
+const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
+const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
+const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
+const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
+
+const ErrCode = PaymentsInvoicesErrCode;
+
+// Test resource data
+const resourceName = "test-resource";
+const resourceDescription = "Test resource description";
+const resourcePrice = 10000000; // 10 STX
+const resourceUrl = "https://example.com/resource";
+
 // Helper function to set up a test with a resource and optionally a user
 function setupTest(createUser = false) {
-  // Setup contract names
-  const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-  const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-  const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-  const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
-  const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
-  const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
-  
   // Setup voting config
   const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
 
@@ -65,20 +79,6 @@ function setupTest(createUser = false) {
   }
 }
 
-const accounts = simnet.getAccounts();
-const address1 = accounts.get("wallet_1")!;
-const address2 = accounts.get("wallet_2")!;
-const deployer = accounts.get("deployer")!;
-
-const contractAddress = `${deployer}.${ContractType.DAO_PAYMENT_PROCESSOR_STX}`;
-
-const ErrCode = PaymentsInvoicesErrCode;
-
-// Test resource data
-const resourceName = "test-resource";
-const resourceDescription = "Test resource description";
-const resourcePrice = 10000000; // 10 STX
-const resourceUrl = "https://example.com/resource";
 
 describe(`public functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () => {
   ////////////////////////////////////////
@@ -218,14 +218,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
   it("get-total-users() returns the correct count after a user is created", () => {
     // Arrange
-    // Setup contract names
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
-    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
-    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
-    
     // Setup voting config
     const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
 
@@ -293,14 +285,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
   it("get-total-resources() returns the correct count after a resource is added", () => {
     // Arrange
-    // Setup contract names
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
-    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
-    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
-    
     // Setup voting config
     const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
 
@@ -356,14 +340,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
   it("get-total-invoices() returns the correct count after an invoice is created", () => {
     // Arrange
-    // Setup contract names
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
-    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
-    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
-    
     // Setup voting config
     const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
 
@@ -445,14 +421,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
   it("get-total-revenue() returns the correct total after payment", () => {
     // Arrange
-    // Setup contract names
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
-    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
-    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
-    
     // Setup voting config
     const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
 
@@ -531,14 +499,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
   it("get-contract-data() returns updated contract data after payment", () => {
     // Arrange
-    // Setup contract names
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
-    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
-    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
-    
     // Setup voting config
     const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
 
@@ -616,14 +576,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
   it("get-user-index() returns the correct index for existing user", () => {
     // Arrange
-    // Setup contract names
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
-    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
-    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
-    
     // Setup voting config
     const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
 
@@ -691,14 +643,6 @@ describe(`read-only functions: ${ContractType.DAO_PAYMENT_PROCESSOR_STX}`, () =>
 
   it("get-user-data() returns the correct data for existing user", () => {
     // Arrange
-    // Setup contract names
-    const tokenContractAddress = `${deployer}.${ContractType.DAO_TOKEN}`;
-    const tokenDexContractAddress = `${deployer}.${ContractType.DAO_TOKEN_DEX}`;
-    const baseDaoContractAddress = `${deployer}.${ContractType.DAO_BASE}`;
-    const bootstrapContractAddress = `${deployer}.${ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2}`;
-    const coreProposalsContractAddress = `${deployer}.${ContractType.DAO_CORE_PROPOSALS_V2}`;
-    const proposalContractAddress = `${deployer}.${ContractProposalType.DAO_PMT_STX_ADD_RESOURCE}`;
-    
     // Setup voting config
     const votingConfig = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
 
