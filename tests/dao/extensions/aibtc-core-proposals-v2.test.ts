@@ -1067,7 +1067,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       1000
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // construct DAO
     const constructReceipt = constructDao(
       deployer,
@@ -1075,10 +1075,10 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       bootstrapContractAddress
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
-    
+
     // progress the chain past the first voting period
     simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingPeriod);
-    
+
     // create initial proposal
     const coreProposalReceipt = simnet.callPublicFn(
       coreProposalsV2ContractAddress,
@@ -1091,7 +1091,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
     );
     expect(coreProposalReceipt.result).toBeOk(Cl.bool(true));
     totalProposals++;
-    
+
     // get total proposals
     const receipt = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
@@ -1106,25 +1106,25 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
         executed: Cl.uint(totalExecutedProposals),
       })
     );
-    
+
     // create 10 more proposals
     const coreProposals = [
       getContract(ContractProposalType.DAO_ACTION_PROPOSALS_SET_PROPOSAL_BOND),
-      getContract(ContractProposalType.DAO_TIMED_VAULT_STX_WITHDRAW),
-      getContract(ContractProposalType.DAO_TIMED_VAULT_STX_SET_ACCOUNT_HOLDER),
       getContract(ContractProposalType.DAO_BASE_ADD_NEW_EXTENSION),
       getContract(ContractProposalType.DAO_BASE_DISABLE_EXTENSION),
+      getContract(ContractProposalType.DAO_PMT_DAO_ADD_RESOURCE),
       getContract(ContractProposalType.DAO_PMT_DAO_SET_PAYMENT_ADDRESS),
       getContract(ContractProposalType.DAO_PMT_SBTC_SET_PAYMENT_ADDRESS),
+      getContract(ContractProposalType.DAO_TIMED_VAULT_STX_SET_ACCOUNT_HOLDER),
       getContract(ContractProposalType.DAO_TOKEN_OWNER_SET_TOKEN_URI),
       getContract(ContractProposalType.DAO_TREASURY_ALLOW_ASSET),
       getContract(ContractProposalType.DAO_TREASURY_DELEGATE_STX),
     ];
-    
+
     for (let i = 0; i < coreProposals.length; i++) {
       // Progress chain to avoid block height conflicts
       simnet.mineEmptyBlock();
-      
+
       const coreProposalReceipt = simnet.callPublicFn(
         coreProposalsV2ContractAddress,
         "create-proposal",
@@ -1137,7 +1137,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       expect(coreProposalReceipt.result).toBeOk(Cl.bool(true));
       totalProposals++;
     }
-    
+
     // Verify total proposals count
     const receipt2 = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
@@ -1152,16 +1152,15 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
         executed: Cl.uint(totalExecutedProposals),
       })
     );
-    
+
     // Vote on half the proposals
     simnet.mineEmptyBlocks(coreProposalV2VoteSettings.votingDelay);
     for (let i = 0; i < totalProposals; i++) {
       if (i % 2 === 0) {
         // Vote on proposal with even index
-        const proposalContract = i === 0 
-          ? coreProposalContactAddress 
-          : coreProposals[i - 1];
-        
+        const proposalContract =
+          i === 0 ? coreProposalContactAddress : coreProposals[i - 1];
+
         const voteReceipt = simnet.callPublicFn(
           coreProposalsV2ContractAddress,
           "vote-on-proposal",
@@ -1171,25 +1170,29 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
         expect(voteReceipt.result).toBeOk(Cl.bool(true));
       }
     }
-    
+
     // Conclude all proposals
     simnet.mineEmptyBlocks(
       coreProposalV2VoteSettings.votingPeriod +
-      coreProposalV2VoteSettings.votingDelay
+        coreProposalV2VoteSettings.votingDelay
     );
-    
+
     for (let i = 0; i < totalProposals; i++) {
-      const proposalContract = i === 0 
-        ? coreProposalContactAddress 
-        : coreProposals[i - 1];
-      
+      const proposalContract =
+        i === 0 ? coreProposalContactAddress : coreProposals[i - 1];
+
       const concludeReceipt = simnet.callPublicFn(
         coreProposalsV2ContractAddress,
         "conclude-proposal",
         [Cl.principal(proposalContract)],
         deployer
       );
-      
+
+      dbgLog(JSON.stringify(concludeReceipt, null, 2), {
+        forceLog: true,
+        titleBefore: `conclude-proposal ${i}`,
+      });
+
       if (i % 2 === 0) {
         // Proposals with even indices were voted on, should execute
         expect(concludeReceipt.result).toBeOk(Cl.bool(true));
@@ -1200,7 +1203,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       }
       totalConcludedProposals++;
     }
-    
+
     // Verify final counts
     const finalReceipt = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
