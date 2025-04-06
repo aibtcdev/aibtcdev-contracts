@@ -52,6 +52,8 @@
 ;; data vars
 ;;
 (define-data-var proposalCount uint u0) ;; total number of proposals
+(define-data-var concludedProposalCount uint u0) ;; total number of concluded proposals
+(define-data-var executedProposalCount uint u0) ;; total number of executed proposals
 (define-data-var lastProposalCreated uint u0) ;; block height of last proposal created
 (define-data-var proposalBond uint u100000000000) ;; proposal bond amount, starts at 1000 DAO tokens (8 decimals)
 ;; data maps
@@ -270,9 +272,12 @@
       (try! (as-contract (contract-call? .aibtc-token transfer (get bond proposalRecord) SELF (get creator proposalRecord) none)))
       (try! (as-contract (contract-call? .aibtc-token transfer (get bond proposalRecord) SELF VOTING_TREASURY none)))
     )
+    ;; increment the concluded proposal count
+    (var-set concludedProposalCount (+ (var-get concludedProposalCount) u1))
     ;; execute the proposal only if it passed, return false if err
     (ok (if (and notExecuted notExpired votePassed)
-      (match (contract-call? .aibtc-base-dao execute proposal tx-sender) ok_ true err_ (begin (print {err:err_}) false))
+      (and (var-set executedProposalCount (+ (var-get executedProposalCount) u1))
+        (match (contract-call? .aibtc-base-dao execute proposal tx-sender) ok_ true err_ (begin (print {err:err_}) false)))
       false
     ))
   )
@@ -303,7 +308,11 @@
 )
 
 (define-read-only (get-total-proposals)
-  (var-get proposalCount)
+  {
+    total: (var-get proposalCount),
+    concluded: (var-get concludedProposalCount),
+    executed: (var-get executedProposalCount),
+  }
 )
 
 (define-read-only (get-last-proposal-created)

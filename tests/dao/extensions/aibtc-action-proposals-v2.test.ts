@@ -1226,7 +1226,11 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
 
   it("get-total-proposals() returns 0 if no proposals exist", () => {
-    const expectedResult = Cl.uint(0);
+    const expectedResult = Cl.tuple({
+      total: Cl.uint(0),
+      concluded: Cl.uint(0),
+      executed: Cl.uint(0),
+    });
     const receipt = simnet.callReadOnlyFn(
       actionProposalsV2ContractAddress,
       "get-total-proposals",
@@ -1237,8 +1241,13 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
   });
 
   it("get-total-proposals() returns total number of proposals", () => {
-    const actionProposalData = Cl.bufferFromAscii("test");
+    const actionProposalData = Cl.buffer(
+      Cl.serialize(Cl.stringAscii("this is a test"))
+    );
     let totalProposals = 0;
+    let totalConcludedProposals = 0;
+    let totalExecutedProposals = 0;
+
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -1276,7 +1285,13 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       [],
       deployer
     );
-    expect(receipt.result).toStrictEqual(Cl.uint(totalProposals));
+    expect(receipt.result).toStrictEqual(
+      Cl.tuple({
+        total: Cl.uint(totalProposals),
+        concluded: Cl.uint(totalConcludedProposals),
+        executed: Cl.uint(totalExecutedProposals),
+      })
+    );
     // progress the chain
     simnet.mineEmptyBlock();
     // create 2nd proposal
@@ -1299,7 +1314,13 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       [],
       deployer
     );
-    expect(receipt2.result).toStrictEqual(Cl.uint(totalProposals));
+    expect(receipt2.result).toStrictEqual(
+      Cl.tuple({
+        total: Cl.uint(totalProposals),
+        concluded: Cl.uint(totalConcludedProposals),
+        executed: Cl.uint(totalExecutedProposals),
+      })
+    );
     // create 10 proposals
     for (let i = 0; i < 10; i++) {
       simnet.mineEmptyBlock();
@@ -1323,7 +1344,70 @@ describe(`read-only functions: ${ContractType.DAO_ACTION_PROPOSALS_V2}`, () => {
       [],
       deployer
     );
-    expect(receipt3.result).toStrictEqual(Cl.uint(totalProposals));
+    expect(receipt3.result).toStrictEqual(
+      Cl.tuple({
+        total: Cl.uint(totalProposals),
+        concluded: Cl.uint(totalConcludedProposals),
+        executed: Cl.uint(totalExecutedProposals),
+      })
+    );
+    // vote on half the proposals
+    simnet.mineEmptyBurnBlocks(actionProposalV2VoteSettings.votingDelay);
+    for (let i = 0; i < 12; i++) {
+      if (i % 2 === 0) {
+        // vote on proposal
+        const voteReceipt = simnet.callPublicFn(
+          actionProposalsV2ContractAddress,
+          "vote-on-proposal",
+          [Cl.uint(i + 1), Cl.bool(true)],
+          deployer
+        );
+        dbgLog(JSON.stringify(cvToValue(voteReceipt.result), null, 2), {
+          forceLog: true,
+          titleBefore: `vote on proposal ${i + 1} result`,
+        });
+        expect(voteReceipt.result).toBeOk(Cl.bool(true));
+      }
+    }
+    // conclude all proposals
+    simnet.mineEmptyBurnBlocks(
+      actionProposalV2VoteSettings.votingPeriod + // voting period
+        actionProposalV2VoteSettings.votingDelay // delay before execution
+    );
+    for (let i = 0; i < 12; i++) {
+      // conclude proposal
+      const actionProposalReceipt = simnet.callPublicFn(
+        actionProposalsV2ContractAddress,
+        "conclude-proposal",
+        [Cl.uint(i + 1), Cl.principal(actionProposalContractAddress)],
+        deployer
+      );
+      dbgLog(JSON.stringify(actionProposalReceipt, null, 2), {
+        forceLog: true,
+        titleBefore: `conclude proposal ${i + 1} result`,
+      });
+      if (i % 2 === 0) {
+        expect(actionProposalReceipt.result).toBeOk(Cl.bool(true));
+        totalExecutedProposals++;
+      } else {
+        expect(actionProposalReceipt.result).toBeOk(Cl.bool(false));
+      }
+      totalConcludedProposals++;
+    }
+    // get total proposals
+    const receipt4 = simnet.callReadOnlyFn(
+      actionProposalsV2ContractAddress,
+      "get-total-proposals",
+      [],
+      deployer
+    );
+    expect(receipt4.result).toStrictEqual(
+      Cl.tuple({
+        total: Cl.uint(totalProposals),
+        concluded: Cl.uint(totalConcludedProposals),
+        executed: Cl.uint(totalExecutedProposals),
+      })
+    );
   });
 
   ////////////////////////////////////////

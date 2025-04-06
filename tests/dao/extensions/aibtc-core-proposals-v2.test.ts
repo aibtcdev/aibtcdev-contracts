@@ -1039,17 +1039,26 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
   ////////////////////////////////////////
 
   it("get-total-proposals() returns 0 if no proposals exist", () => {
+    const expectedResult = Cl.tuple({
+      total: Cl.uint(0),
+      concluded: Cl.uint(0),
+      executed: Cl.uint(0),
+    });
     const receipt = simnet.callReadOnlyFn(
       coreProposalsV2ContractAddress,
       "get-total-proposals",
       [],
       deployer
     );
-    expect(receipt.result).toBeUint(0);
+    expect(receipt.result).toStrictEqual(expectedResult);
   });
 
   it("get-total-proposals() returns the total number of proposals", () => {
-    const expectedProposals = 1;
+    const expectedProposals = Cl.tuple({
+      total: Cl.uint(1),
+      concluded: Cl.uint(0),
+      executed: Cl.uint(0),
+    });
     // get dao tokens for deployer, increases liquid tokens
     const daoTokensReceipt = getDaoTokens(
       tokenContractAddress,
@@ -1085,7 +1094,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       [],
       deployer
     );
-    expect(receipt.result).toBeUint(expectedProposals);
+    expect(receipt.result).toStrictEqual(expectedProposals);
     // create 10 proposals
     const coreProposals = [
       getContract(ContractProposalType.DAO_ACTION_PROPOSALS_SET_PROPOSAL_BOND),
@@ -1117,7 +1126,13 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
         [],
         deployer
       );
-      expect(receipt.result).toBeUint(i + 2);
+      expect(receipt.result).toStrictEqual(
+        Cl.tuple({
+          total: Cl.uint(i + 2),
+          concluded: Cl.uint(0),
+          executed: Cl.uint(0),
+        })
+      );
     }
   });
 
