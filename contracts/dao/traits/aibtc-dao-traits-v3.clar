@@ -209,7 +209,7 @@
   ;; allow multiple assets for deposit/withdrawal
   ;; @param allowList a list of asset contracts and enabled status
   ;; @returns (response bool uint)
-  ;; (allow-assets ((list 100 (tuple (token principal) (enabled bool)))) (response bool uint))
+  (allow-assets ((list 100 {token:principal,enabled:bool})) (response bool (list 100 {token:principal,enabled:bool})))
   ;; deposit STX to the treasury
   ;; @param amount amount of microSTX to deposit
   ;; @returns (response bool uint)
