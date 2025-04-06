@@ -30,7 +30,7 @@ describe(`extension: ${contractName}`, () => {
       // Arrange
       const asset = address1;
       const enabled = true;
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -38,7 +38,7 @@ describe(`extension: ${contractName}`, () => {
         [Cl.principal(asset), Cl.bool(enabled)],
         address2 // Unauthorized caller
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
@@ -47,22 +47,26 @@ describe(`extension: ${contractName}`, () => {
       // Arrange
       const allowList = [
         { token: address1, enabled: true },
-        { token: address2, enabled: false }
+        { token: address2, enabled: false },
       ];
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
         "allow-assets",
-        [Cl.list(allowList.map(item => 
-          Cl.tuple({
-            "token": Cl.principal(item.token),
-            "enabled": Cl.bool(item.enabled)
-          })
-        ))],
+        [
+          Cl.list(
+            allowList.map((item) =>
+              Cl.tuple({
+                token: Cl.principal(item.token),
+                enabled: Cl.bool(item.enabled),
+              })
+            )
+          ),
+        ],
         address2 // Unauthorized caller
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
@@ -71,7 +75,7 @@ describe(`extension: ${contractName}`, () => {
       // Arrange
       const amount = 1000;
       const recipient = address1;
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -79,7 +83,7 @@ describe(`extension: ${contractName}`, () => {
         [Cl.uint(amount), Cl.principal(recipient)],
         address2 // Unauthorized caller
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
@@ -88,15 +92,19 @@ describe(`extension: ${contractName}`, () => {
       // Arrange
       const amount = 1000;
       const recipient = address1;
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
         "withdraw-ft",
-        [Cl.contractPrincipal(deployer, "sip010-token"), Cl.uint(amount), Cl.principal(recipient)],
+        [
+          Cl.contractPrincipal(deployer, "sip010-token"),
+          Cl.uint(amount),
+          Cl.principal(recipient),
+        ],
         address2 // Unauthorized caller
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
@@ -105,15 +113,19 @@ describe(`extension: ${contractName}`, () => {
       // Arrange
       const tokenId = 1;
       const recipient = address1;
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
         "withdraw-nft",
-        [Cl.contractPrincipal(deployer, "nft-trait"), Cl.uint(tokenId), Cl.principal(recipient)],
+        [
+          Cl.contractPrincipal(deployer, "nft-trait"),
+          Cl.uint(tokenId),
+          Cl.principal(recipient),
+        ],
         address2 // Unauthorized caller
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
@@ -122,7 +134,7 @@ describe(`extension: ${contractName}`, () => {
       // Arrange
       const maxAmount = 1000;
       const delegateTo = address1;
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -130,14 +142,14 @@ describe(`extension: ${contractName}`, () => {
         [Cl.uint(maxAmount), Cl.principal(delegateTo)],
         address2 // Unauthorized caller
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
 
     it("revoke-delegate-stx() fails if caller is not DAO or extension", () => {
       // Arrange - No specific arrangement needed
-      
+
       // Act
       const receipt = simnet.callPublicFn(
         contractAddress,
@@ -145,7 +157,7 @@ describe(`extension: ${contractName}`, () => {
         [],
         address2 // Unauthorized caller
       );
-      
+
       // Assert
       expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
     });
@@ -155,7 +167,7 @@ describe(`extension: ${contractName}`, () => {
     it("is-allowed-asset() returns false for non-allowed assets", () => {
       // Arrange
       const asset = address1;
-      
+
       // Act
       const result = simnet.callReadOnlyFn(
         contractAddress,
@@ -163,15 +175,15 @@ describe(`extension: ${contractName}`, () => {
         [Cl.principal(asset)],
         deployer
       );
-      
+
       // Assert
-      expect(result.result).toBe(Cl.bool(false));
+      expect(result.result).toStrictEqual(Cl.bool(false));
     });
 
     it("get-allowed-asset() returns none for non-allowed assets", () => {
       // Arrange
       const asset = address1;
-      
+
       // Act
       const result = simnet.callReadOnlyFn(
         contractAddress,
@@ -179,9 +191,9 @@ describe(`extension: ${contractName}`, () => {
         [Cl.principal(asset)],
         deployer
       );
-      
+
       // Assert
-      expect(result.result).toBe(Cl.none());
+      expect(result.result).toStrictEqual(Cl.none());
     });
   });
 });
