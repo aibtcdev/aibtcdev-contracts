@@ -91,6 +91,7 @@ export enum ContractProposalType {
   DAO_TOKEN_OWNER_SET_TOKEN_URI = "aibtc-token-owner-set-token-uri",
   DAO_TOKEN_OWNER_TRANSFER_OWNERSHIP = "aibtc-token-owner-transfer-ownership",
   DAO_TREASURY_ALLOW_ASSET = "aibtc-treasury-allow-asset",
+  DAO_TREASURY_ALLOW_ASSETS = "aibtc-treasury-allow-assets",
   DAO_TREASURY_DELEGATE_STX = "aibtc-treasury-delegate-stx",
   DAO_TREASURY_DISABLE_ASSET = "aibtc-treasury-disable-asset",
   DAO_TREASURY_REVOKE_DELEGATION = "aibtc-treasury-revoke-delegation",

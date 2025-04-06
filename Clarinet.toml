@@ -362,6 +362,11 @@ path = 'contracts/dao/proposals/aibtc-treasury-allow-asset.clar'
 clarity_version = 2
 epoch = 3.1
 
+[contracts.aibtc-treasury-allow-assets]
+path = 'contracts/dao/proposals/aibtc-treasury-allow-assets.clar'
+clarity_version = 2
+epoch = 3.1
+
 [contracts.aibtc-treasury-delegate-stx]
 path = 'contracts/dao/proposals/aibtc-treasury-delegate-stx.clar'
 clarity_version = 2

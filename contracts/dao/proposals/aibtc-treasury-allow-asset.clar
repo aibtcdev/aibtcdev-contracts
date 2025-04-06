@@ -2,10 +2,8 @@
 
 ;; template vars
 ;;
-(define-constant CFG_MESSAGE "Executed Core Proposal: Allowed or enabled asset for use in the treasury extension")
-(define-constant CFG_ASSET 'SP3D6PV2ACBPEKYJTCMH7HEN02KP87QSP8KTEH335.abtc)
-;; was CFG_MESSAGE_CONTRACT .aibtc-onchain-messaging
-;; was CFG_TREASURY_CONTRACT .aibtc-treasury
+(define-constant CFG_MESSAGE "Executed Core Proposal: Allowed asset for use in the treasury extension")
+(define-constant CFG_ASSET 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.fake-token-1)
 
 (define-public (execute (sender principal))
   (begin 
