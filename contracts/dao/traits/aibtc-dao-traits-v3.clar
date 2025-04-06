@@ -1,5 +1,5 @@
-;; title: aibtc-traits
-;; version: 2.0.0
+;; title: aibtc-dao-traits
+;; version: 3.0.0
 ;; summary: A collection of traits for all aibtc daos.
 
 ;; IMPORTS
@@ -46,7 +46,6 @@
 ))
 
 ;; the token contract for the dao, with no pre-mine or initial allocation
-;; tokens are minted 80% to the dao tresaury, 20% to the initial bonding curve
 (define-trait token (
   ;; transfer funds (limited as we're just tagging this)
   (transfer (uint principal principal (optional (buff 34))) (response bool uint))
@@ -210,7 +209,6 @@
   ;; allow multiple assets for deposit/withdrawal
   ;; @param allowList a list of asset contracts and enabled status
   ;; @returns (response bool uint)
-  ;; TODO: removed due to conflict with contract definition (both are the same?)
   ;; (allow-assets ((list 100 (tuple (token principal) (enabled bool)))) (response bool uint))
   ;; deposit STX to the treasury
   ;; @param amount amount of microSTX to deposit
