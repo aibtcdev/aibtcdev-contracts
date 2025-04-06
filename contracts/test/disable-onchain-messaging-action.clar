@@ -1,4 +1,4 @@
-(impl-trait .aibtc-dao-traits-v2.proposal)
+(impl-trait .aibtc-dao-traits-v3.proposal)
 
 (define-constant ERR_EXTENSION_NOT_FOUND (err u3003))
 

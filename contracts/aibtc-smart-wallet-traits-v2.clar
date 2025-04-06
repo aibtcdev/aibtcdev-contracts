@@ -42,7 +42,7 @@
   (revoke-asset (principal) (response bool uint))
 ))
 
-(define-trait aibtc-proposals-v2 (
+(define-trait aibtc-proposals-v3 (
   ;; propose an action to the DAO (user or agent)
   ;; @param action-proposals the action proposals contract
   ;; @param action the action contract

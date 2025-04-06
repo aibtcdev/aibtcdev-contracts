@@ -7,11 +7,11 @@
 (impl-trait .aibtc-smart-wallet-traits.aibtc-proposals-v2)
 (impl-trait .aibtc-smart-wallet-traits.faktory-buy-sell)
 (use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
-(use-trait action-trait .aibtc-dao-traits-v2.action)
-(use-trait proposal-trait .aibtc-dao-traits-v2.proposal)
-(use-trait action-proposals-trait .aibtc-dao-traits-v2.action-proposals)
-(use-trait core-proposals-trait .aibtc-dao-traits-v2.core-proposals)
-(use-trait dao-faktory-dex .aibtc-dao-traits-v2.faktory-dex)
+(use-trait action-trait .aibtc-dao-traits-v3.action)
+(use-trait proposal-trait .aibtc-dao-traits-v3.proposal)
+(use-trait action-proposals-trait .aibtc-dao-traits-v3.action-proposals)
+(use-trait core-proposals-trait .aibtc-dao-traits-v3.core-proposals)
+(use-trait dao-faktory-dex .aibtc-dao-traits-v3.faktory-dex)
 (use-trait faktory-token .faktory-trait-v1.sip-010-trait)
 
 ;; constants

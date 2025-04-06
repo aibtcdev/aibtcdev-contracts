@@ -1,4 +1,4 @@
-(impl-trait .aibtc-dao-traits-v2.proposal)
+(impl-trait .aibtc-dao-traits-v3.proposal)
 
 (define-constant CFG_DAO_MANIFEST_TEXT "<%= it.dao_manifest %>")
 (define-constant CFG_DAO_MANIFEST_INSCRIPTION_ID "<%= it.dao_manifest_inscription_id %>")

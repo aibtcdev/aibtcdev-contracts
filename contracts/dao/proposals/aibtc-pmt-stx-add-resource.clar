@@ -1,4 +1,4 @@
-(impl-trait .aibtc-dao-traits-v2.proposal)
+(impl-trait .aibtc-dao-traits-v3.proposal)
 
 ;; template vars
 ;;
