@@ -46,10 +46,12 @@ export enum ActionErrCode {
 }
 
 export enum TimedVaultErrCode {
-  ERR_INVALID = 2000,
-  ERR_UNAUTHORIZED,
+  ERR_NOT_DAO_OR_EXTENSION = 2000,
+  ERR_INVALID,
+  ERR_NOT_ACCOUNT_HOLDER,
   ERR_TOO_SOON,
   ERR_INVALID_AMOUNT,
+  ERR_FETCHING_BALANCE,
 }
 
 export enum CoreProposalErrCode {
@@ -92,8 +94,8 @@ export enum OnchainMessagingErrCode {
   ERR_UNAUTHORIZED,
 }
 
-export enum PaymentsInvoicesErrCode {
-  ERR_UNAUTHORIZED = 5000,
+export enum PaymentProcessorErrCode {
+  ERR_NOT_DAO_OR_EXTENSION = 5000,
   ERR_INVALID_PARAMS,
   ERR_NAME_ALREADY_USED,
   ERR_SAVING_RESOURCE_DATA,

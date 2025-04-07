@@ -4,8 +4,8 @@
 
 ;; traits
 ;;
-(impl-trait .aibtc-dao-traits-v2.extension)
-(impl-trait .aibtc-dao-traits-v2.token-owner)
+(impl-trait .aibtc-dao-traits-v3.extension)
+(impl-trait .aibtc-dao-traits-v3.token-owner)
 
 ;; constants
 ;;

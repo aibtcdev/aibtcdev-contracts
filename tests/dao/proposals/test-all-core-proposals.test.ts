@@ -5,6 +5,7 @@ import {
   dbgLog,
   getDaoTokens,
   passCoreProposal,
+  SBTC_CONTRACT,
   VOTING_CONFIG,
 } from "../../test-utilities";
 import {
@@ -22,6 +23,9 @@ const getContract = (
 ): string => `${deployer}.${contractType}`;
 
 const baseDaoContractAddress = getContract(ContractType.DAO_BASE);
+const oldBootstrapContractAddress = getContract(
+  ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION
+);
 const bootstrapContractAddress = getContract(
   ContractProposalType.DAO_BASE_BOOTSTRAP_INITIALIZATION_V2
 );
@@ -31,45 +35,29 @@ const coreProposalsV2ContractAddress = getContract(
 const tokenContractAddress = getContract(ContractType.DAO_TOKEN);
 const tokenDexContractAddress = getContract(ContractType.DAO_TOKEN_DEX);
 const treasuryContractAddress = getContract(ContractType.DAO_TREASURY);
+const timedVaultStxContractAddress = getContract(
+  ContractType.DAO_TIMED_VAULT_STX
+);
+const timedVaultSbtcContractAddress = getContract(
+  ContractType.DAO_TIMED_VAULT_SBTC
+);
+const timedVaultDaoContractAddress = getContract(
+  ContractType.DAO_TIMED_VAULT_DAO
+);
 
 const voteSettings = VOTING_CONFIG[ContractType.DAO_CORE_PROPOSALS_V2];
 
-const proposals = [
-  getContract(ContractProposalType.DAO_ACTION_PROPOSALS_SET_PROPOSAL_BOND),
-  getContract(ContractProposalType.DAO_BASE_ADD_NEW_EXTENSION),
-  getContract(ContractProposalType.DAO_BASE_DISABLE_EXTENSION),
-  getContract(ContractProposalType.DAO_BASE_ENABLE_EXTENSION),
-  getContract(ContractProposalType.DAO_BASE_REPLACE_EXTENSION),
-  getContract(ContractProposalType.DAO_BASE_REPLACE_EXTENSION_PROPOSAL_VOTING),
-  getContract(ContractProposalType.DAO_CORE_PROPOSALS_SET_PROPOSAL_BOND),
-  getContract(ContractProposalType.DAO_ONCHAIN_MESSAGING_SEND),
-  getContract(ContractProposalType.DAO_PAYMENTS_INVOICES_ADD_RESOURCE),
-  getContract(ContractProposalType.DAO_PAYMENTS_INVOICES_SET_PAYMENT_ADDRESS),
-  getContract(ContractProposalType.DAO_PAYMENTS_INVOICES_TOGGLE_RESOURCE),
-  getContract(
-    ContractProposalType.DAO_PAYMENTS_INVOICES_TOGGLE_RESOURCE_BY_NAME
-  ),
-  getContract(ContractProposalType.DAO_TIMED_VAULT_INITIALIZE_NEW_ACCOUNT),
-  getContract(
-    ContractProposalType.DAO_TIMED_VAULT_OVERRIDE_LAST_WITHDRAWAL_BLOCK
-  ),
-  getContract(ContractProposalType.DAO_TIMED_VAULT_SET_ACCOUNT_HOLDER),
-  getContract(ContractProposalType.DAO_TIMED_VAULT_SET_WITHDRAWAL_AMOUNT),
-  getContract(ContractProposalType.DAO_TIMED_VAULT_SET_WITHDRAWAL_PERIOD),
-  getContract(ContractProposalType.DAO_TOKEN_OWNER_SET_TOKEN_URI),
-  getContract(ContractProposalType.DAO_TOKEN_OWNER_TRANSFER_OWNERSHIP),
-  getContract(ContractProposalType.DAO_TREASURY_ALLOW_ASSET),
-  getContract(ContractProposalType.DAO_TREASURY_DELEGATE_STX),
-  getContract(ContractProposalType.DAO_TREASURY_DISABLE_ASSET),
-  getContract(ContractProposalType.DAO_TREASURY_REVOKE_DELEGATION),
-  getContract(ContractProposalType.DAO_TREASURY_WITHDRAW_FT),
-  getContract(ContractProposalType.DAO_TREASURY_WITHDRAW_NFT),
-  getContract(ContractProposalType.DAO_TREASURY_WITHDRAW_STX),
-];
+// create an array of all the proposals
+const proposals = Object.values(ContractProposalType).map((proposal) =>
+  getContract(proposal)
+);
 
 describe("Core proposal testing: all contracts", () => {
   it("should pass all core proposals", () => {
     // arrange
+    const amountDao = 10000000000000; // 100,000 dao tokens (8 decimals)
+    const sbtcSpend = 400000; // used to buy dao tokens from dex
+    const amountStx = 1000000000; // 1,000 STX (6 decimals)
     // construct the dao
     const constructReceipt = constructDao(
       deployer,
@@ -77,22 +65,80 @@ describe("Core proposal testing: all contracts", () => {
       bootstrapContractAddress
     );
     expect(constructReceipt.result).toBeOk(Cl.bool(true));
-    // get the dao tokens so we can propose
+    // get sbtc to transfer to the treasury and vault
+    const sbtcReceipt = simnet.callPublicFn(
+      SBTC_CONTRACT,
+      "faucet",
+      [],
+      deployer
+    );
+    expect(sbtcReceipt.result).toBeOk(Cl.bool(true));
+    // get dao tokens to transfer to the treasury, vault, and to vote
     const dexReceipt = getDaoTokens(
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000000
+      sbtcSpend
     );
     expect(dexReceipt.result).toBeOk(Cl.bool(true));
-    // deposit STX to the treasury for proposals
-    const treasuryReceipt = simnet.callPublicFn(
-      treasuryContractAddress,
-      "deposit-stx",
-      [Cl.uint(1000000000)],
+    // transfer dao tokens to the treasury
+    const daoTransferReceipt = simnet.callPublicFn(
+      tokenContractAddress,
+      "transfer",
+      [
+        Cl.uint(amountDao),
+        Cl.principal(deployer),
+        Cl.principal(treasuryContractAddress),
+        Cl.none(),
+      ],
       deployer
     );
-    expect(treasuryReceipt.result).toBeOk(Cl.bool(true));
+    expect(daoTransferReceipt.result).toBeOk(Cl.bool(true));
+    // transfer sbtc to the treasury
+    const sbtcTransferReceipt = simnet.callPublicFn(
+      SBTC_CONTRACT,
+      "transfer",
+      [
+        Cl.uint(sbtcSpend),
+        Cl.principal(deployer),
+        Cl.principal(treasuryContractAddress),
+        Cl.none(),
+      ],
+      deployer
+    );
+    expect(sbtcTransferReceipt.result).toBeOk(Cl.bool(true));
+    // transfer stx to the treasury
+    const stxTransferReceipt = simnet.callPublicFn(
+      treasuryContractAddress,
+      "deposit-stx",
+      [Cl.uint(amountStx)],
+      deployer
+    );
+    expect(stxTransferReceipt.result).toBeOk(Cl.bool(true));
+    // transfer stx to the stx vault
+    const stxVaultTransferReceipt = simnet.callPublicFn(
+      timedVaultStxContractAddress,
+      "deposit",
+      [Cl.uint(amountStx)],
+      deployer
+    );
+    expect(stxVaultTransferReceipt.result).toBeOk(Cl.bool(true));
+    // transfer sbtc to the sbtc vault
+    const sbtcVaultTransferReceipt = simnet.callPublicFn(
+      timedVaultSbtcContractAddress,
+      "deposit",
+      [Cl.uint(sbtcSpend)],
+      deployer
+    );
+    expect(sbtcVaultTransferReceipt.result).toBeOk(Cl.bool(true));
+    // transfer dao tokens to the dao vault
+    const daoVaultTransferReceipt = simnet.callPublicFn(
+      timedVaultDaoContractAddress,
+      "deposit",
+      [Cl.uint(amountDao)],
+      deployer
+    );
+    expect(daoVaultTransferReceipt.result).toBeOk(Cl.bool(true));
     // mint nft to the treasury
     const nftId = 1;
     const mintNftReceipt = simnet.callPublicFn(
@@ -101,11 +147,23 @@ describe("Core proposal testing: all contracts", () => {
       [Cl.principal(treasuryContractAddress)],
       deployer
     );
-    dbgLog(`result: ${JSON.stringify(cvToValue(mintNftReceipt.result))}`);
-    dbgLog(`mintNftReceipt: ${JSON.stringify(mintNftReceipt, null, 2)}`);
     expect(mintNftReceipt.result).toBeOk(Cl.bool(true));
+    // output assets map for debugging
+    const assetsMap = simnet.getAssetsMap();
+    for (const [key, value] of assetsMap) {
+      for (const [innerKey, innerValue] of value) {
+        dbgLog(`assetsMap[${key}]: ${innerKey}: ${innerValue}`);
+      }
+    }
     // act and assert
     proposals.forEach((proposal) => {
+      // skip the bootstrap proposals
+      if (
+        proposal === oldBootstrapContractAddress ||
+        proposal === bootstrapContractAddress
+      ) {
+        return;
+      }
       dbgLog("=====================================");
       dbgLog(`Testing proposal: ${proposal}`);
       dbgLog(

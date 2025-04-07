@@ -1,5 +1,5 @@
-(use-trait proposal-trait .aibtc-dao-traits-v2.proposal)
-(use-trait extension-trait .aibtc-dao-traits-v2.extension)
+(use-trait proposal-trait .aibtc-dao-traits-v3.proposal)
+(use-trait extension-trait .aibtc-dao-traits-v3.extension)
 
 (define-trait aibtc-base-dao (
     ;; Execute a governance proposal

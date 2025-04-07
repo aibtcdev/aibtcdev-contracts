@@ -4,8 +4,8 @@
 
 ;; traits
 ;;
-(impl-trait .aibtc-dao-traits-v2.extension)
-(impl-trait .aibtc-dao-traits-v2.treasury)
+(impl-trait .aibtc-dao-traits-v3.extension)
+(impl-trait .aibtc-dao-traits-v3.treasury)
 
 (use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 (use-trait nft-trait 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait)
@@ -48,7 +48,8 @@
 (define-public (allow-assets (allowList (list 100 {token: principal, enabled: bool})))
   (begin
     (try! (is-dao-or-extension))
-    (ok (map allow-assets-iter allowList))
+    (map allow-assets-iter allowList)
+    (ok true)
   )
 )
 

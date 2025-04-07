@@ -1,5 +1,6 @@
 import { Cl } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
+import { ContractType } from "../../dao-types";
 import { TreasuryErrCode } from "../../error-codes";
 
 const accounts = simnet.getAccounts();
@@ -7,8 +8,9 @@ const address1 = accounts.get("wallet_1")!;
 const address2 = accounts.get("wallet_2")!;
 const deployer = accounts.get("deployer")!;
 
-const contractName = "aibtc-treasury";
+const contractName = ContractType.DAO_TREASURY;
 const contractAddress = `${deployer}.${contractName}`;
+const ftContractAddress = `${deployer}.sip010-token`;
 
 const ErrCode = TreasuryErrCode;
 
@@ -22,70 +24,176 @@ describe(`extension: ${contractName}`, () => {
     );
     expect(callback.result).toBeOk(Cl.bool(true));
   });
-  /*
-  // Allow Asset Tests
-  describe("allow-asset()", () => {
-    it("fails if caller is not DAO or extension");
-    it("succeeds and sets new allowed asset");
-    it("succeeds and toggles status of existing asset");
+
+  describe("public functions", () => {
+    it("allow-asset() fails if caller is not DAO or extension", () => {
+      // Arrange
+      const asset = address1;
+      const enabled = true;
+
+      // Act
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "allow-asset",
+        [Cl.principal(asset), Cl.bool(enabled)],
+        address2 // Unauthorized caller
+      );
+
+      // Assert
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    });
+
+    it("allow-assets() fails if caller is not DAO or extension", () => {
+      // Arrange
+      const allowList = [
+        { token: address1, enabled: true },
+        { token: address2, enabled: false },
+      ];
+
+      // Act
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "allow-assets",
+        [
+          Cl.list(
+            allowList.map((item) =>
+              Cl.tuple({
+                token: Cl.principal(item.token),
+                enabled: Cl.bool(item.enabled),
+              })
+            )
+          ),
+        ],
+        address2 // Unauthorized caller
+      );
+
+      // Assert
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    });
+
+    it("withdraw-stx() fails if caller is not DAO or extension", () => {
+      // Arrange
+      const amount = 1000;
+      const recipient = address1;
+
+      // Act
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "withdraw-stx",
+        [Cl.uint(amount), Cl.principal(recipient)],
+        address2 // Unauthorized caller
+      );
+
+      // Assert
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    });
+
+    it("withdraw-ft() fails if caller is not DAO or extension", () => {
+      // Arrange
+      const amount = 1000;
+      const recipient = address1;
+
+      // Act
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "withdraw-ft",
+        [
+          Cl.contractPrincipal(deployer, "sip010-token"),
+          Cl.uint(amount),
+          Cl.principal(recipient),
+        ],
+        address2 // Unauthorized caller
+      );
+
+      // Assert
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    });
+
+    it("withdraw-nft() fails if caller is not DAO or extension", () => {
+      // Arrange
+      const tokenId = 1;
+      const recipient = address1;
+
+      // Act
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "withdraw-nft",
+        [
+          Cl.contractPrincipal(deployer, "nft-trait"),
+          Cl.uint(tokenId),
+          Cl.principal(recipient),
+        ],
+        address2 // Unauthorized caller
+      );
+
+      // Assert
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    });
+
+    it("delegate-stx() fails if caller is not DAO or extension", () => {
+      // Arrange
+      const maxAmount = 1000;
+      const delegateTo = address1;
+
+      // Act
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "delegate-stx",
+        [Cl.uint(maxAmount), Cl.principal(delegateTo)],
+        address2 // Unauthorized caller
+      );
+
+      // Assert
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    });
+
+    it("revoke-delegate-stx() fails if caller is not DAO or extension", () => {
+      // Arrange - No specific arrangement needed
+
+      // Act
+      const receipt = simnet.callPublicFn(
+        contractAddress,
+        "revoke-delegate-stx",
+        [],
+        address2 // Unauthorized caller
+      );
+
+      // Assert
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    });
   });
 
-  // Allow Assets Tests
-  describe("allow-assets()", () => {
-    it("fails if caller is not DAO or extension");
-    it("succeeds and sets new allowed assets");
-    it("succeeds and toggles status of existing assets");
-  });
+  describe("read-only functions", () => {
+    it("is-allowed-asset() returns false for non-allowed assets", () => {
+      // Arrange
+      const asset = address1;
 
-  // Deposit STX Tests
-  describe("deposit-stx()", () => {
-    it("succeeds and deposits STX to the treasury");
-  });
+      // Act
+      const result = simnet.callReadOnlyFn(
+        contractAddress,
+        "is-allowed-asset",
+        [Cl.principal(asset)],
+        deployer
+      );
 
-  // Deposit FT Tests
-  describe("deposit-ft()", () => {
-    it("fails if asset is not allowed");
-    it("succeeds and transfers FT to treasury");
-  });
+      // Assert
+      expect(result.result).toStrictEqual(Cl.bool(false));
+    });
 
-  // Deposit NFT Tests
-  describe("deposit-nft()", () => {
-    it("fails if asset is not allowed");
-    it("succeeds and transfers NFT to treasury");
-  });
+    it("get-allowed-asset() returns none for non-allowed assets", () => {
+      // Arrange
+      const asset = address1;
 
-  // Withdraw STX Tests
-  describe("withdraw-stx()", () => {
-    it("fails if caller is not DAO or extension");
-    it("succeeds and transfers STX to a standard principal");
-    it("succeeds and transfers STX to a contract principal");
-  });
+      // Act
+      const result = simnet.callReadOnlyFn(
+        contractAddress,
+        "get-allowed-asset",
+        [Cl.principal(asset)],
+        deployer
+      );
 
-  // Withdraw FT Tests
-  describe("withdraw-ft()", () => {
-    it("fails if caller is not DAO or extension");
-    it("succeeds and transfers FT to a standard principal");
-    it("succeeds and transfers FT to a contract principal");
+      // Assert
+      expect(result.result).toStrictEqual(Cl.none());
+    });
   });
-
-  // Withdraw NFT Tests
-  describe("withdraw-nft()", () => {
-    it("fails if caller is not DAO or extension");
-    it("succeeds and transfers NFT to a standard principal");
-    it("succeeds and transfers NFT to a contract principal");
-  });
-
-  // Delegate STX Tests
-  describe("delegate-stx()", () => {
-    it("fails if caller is not DAO or extension");
-    it("succeeds and delegates to Stacks PoX");
-  });
-
-  // Revoke Delegate STX Tests
-  describe("revoke-delegate-stx()", () => {
-    it("fails if caller is not DAO or extension");
-    it("fails if contract is not currently stacking");
-    it("succeeds and revokes stacking delegation");
-  });
-  */
 });

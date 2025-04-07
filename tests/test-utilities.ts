@@ -92,22 +92,31 @@ export function generateContractNames(tokenSymbol: string): ContractNames {
     [ContractType.DAO_TOKEN_DEX]: `${tokenSymbol.toLowerCase()}-faktory-dex`,
     [ContractType.DAO_TOKEN_OWNER]: `${tokenSymbol.toLowerCase()}-token-owner`,
     [ContractType.DAO_BASE]: `${tokenSymbol.toLowerCase()}-base-dao`,
+    [ContractType.DAO_TOKEN_PRE_DEX]: `${tokenSymbol.toLowerCase()}-faktory-pre-dex`,
     [ContractType.DAO_ACTION_PROPOSALS]: `${tokenSymbol.toLowerCase()}-action-proposals`,
     [ContractType.DAO_ACTION_PROPOSALS_V2]: `${tokenSymbol.toLowerCase()}-action-proposals-v2`,
-    [ContractType.DAO_TIMED_VAULT]: `${tokenSymbol.toLowerCase()}-timed-vault`,
+    [ContractType.DAO_TIMED_VAULT_DAO]: `${tokenSymbol.toLowerCase()}-timed-vault-dao`,
+    [ContractType.DAO_TIMED_VAULT_SBTC]: `${tokenSymbol.toLowerCase()}-timed-vault-sbtc`,
+    [ContractType.DAO_TIMED_VAULT_STX]: `${tokenSymbol.toLowerCase()}-timed-vault-stx`,
     [ContractType.DAO_CHARTER]: `${tokenSymbol.toLowerCase()}-dao-charter`,
     [ContractType.DAO_CORE_PROPOSALS]: `${tokenSymbol.toLowerCase()}-core-proposals`,
     [ContractType.DAO_CORE_PROPOSALS_V2]: `${tokenSymbol.toLowerCase()}-core-proposals-v2`,
     [ContractType.DAO_MESSAGING]: `${tokenSymbol.toLowerCase()}-onchain-messaging`,
-    [ContractType.DAO_PAYMENTS]: `${tokenSymbol.toLowerCase()}-payments-invoices`,
+    [ContractType.DAO_PAYMENT_PROCESSOR_DAO]: `${tokenSymbol.toLowerCase()}-payment-processor-dao`,
+    [ContractType.DAO_PAYMENT_PROCESSOR_SBTC]: `${tokenSymbol.toLowerCase()}-payment-processor-sbtc`,
+    [ContractType.DAO_PAYMENT_PROCESSOR_STX]: `${tokenSymbol.toLowerCase()}-payment-processor-stx`,
     [ContractType.DAO_TREASURY]: `${tokenSymbol.toLowerCase()}-treasury`,
-    [ContractActionType.DAO_ACTION_ADD_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-add-resource`,
     [ContractActionType.DAO_ACTION_ALLOW_ASSET]: `${tokenSymbol.toLowerCase()}-action-allow-asset`,
     [ContractActionType.DAO_ACTION_SEND_MESSAGE]: `${tokenSymbol.toLowerCase()}-action-send-message`,
-    [ContractActionType.DAO_ACTION_SET_ACCOUNT_HOLDER]: `${tokenSymbol.toLowerCase()}-action-set-account-holder`,
-    [ContractActionType.DAO_ACTION_SET_WITHDRAWAL_AMOUNT]: `${tokenSymbol.toLowerCase()}-action-set-withdrawal-amount`,
-    [ContractActionType.DAO_ACTION_SET_WITHDRAWAL_PERIOD]: `${tokenSymbol.toLowerCase()}-action-set-withdrawal-period`,
-    [ContractActionType.DAO_ACTION_TOGGLE_RESOURCE_BY_NAME]: `${tokenSymbol.toLowerCase()}-action-toggle-resource`,
+    [ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAULT_DAO]: `${tokenSymbol.toLowerCase()}-action-configure-timed-vault-dao`,
+    [ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAULT_SBTC]: `${tokenSymbol.toLowerCase()}-action-configure-timed-vault-sbtc`,
+    [ContractActionType.DAO_ACTION_CONFIGURE_TIMED_VAULT_STX]: `${tokenSymbol.toLowerCase()}-action-configure-timed-vault-stx`,
+    [ContractActionType.DAO_ACTION_PMT_DAO_ADD_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-payments-dao-add-resource`,
+    [ContractActionType.DAO_ACTION_PMT_DAO_TOGGLE_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-payments-dao-toggle-resource`,
+    [ContractActionType.DAO_ACTION_PMT_SBTC_ADD_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-payments-sbtc-add-resource`,
+    [ContractActionType.DAO_ACTION_PMT_SBTC_TOGGLE_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-payments-sbtc-toggle-resource`,
+    [ContractActionType.DAO_ACTION_PMT_STX_ADD_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-payments-stx-add-resource`,
+    [ContractActionType.DAO_ACTION_PMT_STX_TOGGLE_RESOURCE]: `${tokenSymbol.toLowerCase()}-action-payments-stx-toggle-resource`,
   };
 }
 
@@ -220,6 +229,8 @@ export function constructDao(
   return constructDaoReceipt;
 }
 
+const memoContext = "Can pass up to 1024 characters for additional context.";
+
 export function passCoreProposal(
   coreProposalsContractAddress: string,
   proposalContractAddress: string,
@@ -234,7 +245,10 @@ export function passCoreProposal(
   const createProposalReceipt = simnet.callPublicFn(
     coreProposalsContractAddress,
     "create-proposal",
-    [Cl.principal(proposalContractAddress)],
+    [
+      Cl.principal(proposalContractAddress),
+      Cl.some(Cl.stringAscii(memoContext)),
+    ],
     sender
   );
   expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -279,7 +293,10 @@ export function failCoreProposal(
   const createProposalReceipt = simnet.callPublicFn(
     coreProposalsContractAddress,
     "create-proposal",
-    [Cl.principal(proposalContractAddress)],
+    [
+      Cl.principal(proposalContractAddress),
+      Cl.some(Cl.stringAscii(memoContext)),
+    ],
     sender
   );
   expect(createProposalReceipt.result).toBeOk(Cl.bool(true));
@@ -327,6 +344,7 @@ export function passActionProposal(
     [
       Cl.principal(proposalContractAddress),
       Cl.buffer(Cl.serialize(proposalParams)),
+      Cl.some(Cl.stringAscii(memoContext)),
     ],
     sender
   );

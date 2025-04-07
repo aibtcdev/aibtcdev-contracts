@@ -4,11 +4,11 @@
 
 ;; IMPORTS
 (use-trait sip010-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
-(use-trait dao-action-trait .aibtc-dao-traits-v2.action)
-(use-trait dao-proposal-trait .aibtc-dao-traits-v2.proposal)
-(use-trait dao-action-proposals-trait .aibtc-dao-traits-v2.action-proposals)
-(use-trait dao-core-proposals-trait .aibtc-dao-traits-v2.core-proposals)
-(use-trait dao-faktory-dex .aibtc-dao-traits-v2.faktory-dex)
+(use-trait dao-action-trait .aibtc-dao-traits-v3.action)
+(use-trait dao-proposal-trait .aibtc-dao-traits-v3.proposal)
+(use-trait dao-action-proposals-trait .aibtc-dao-traits-v3.action-proposals)
+(use-trait dao-core-proposals-trait .aibtc-dao-traits-v3.core-proposals)
+(use-trait dao-faktory-dex .aibtc-dao-traits-v3.faktory-dex)
 (use-trait faktory-token .faktory-trait-v1.sip-010-trait)
 
 ;; SMART WALLET TRAITS
@@ -48,12 +48,12 @@
   ;; @param action the action contract
   ;; @param parameters encoded action parameters
   ;; @returns (response bool uint)
-  (proxy-propose-action (<dao-action-proposals-trait> <dao-action-trait> (buff 2048)) (response bool uint))
+  (proxy-propose-action (<dao-action-proposals-trait> <dao-action-trait> (buff 2048) (optional (string-ascii 1024))) (response bool uint))
   ;; create a core proposal to the DAO (user or agent)
   ;; @param core-proposals the core proposals contract
   ;; @param proposal the proposal contract
   ;; @returns (response bool uint)
-  (proxy-create-proposal (<dao-core-proposals-trait> <dao-proposal-trait>) (response bool uint))  
+  (proxy-create-proposal (<dao-core-proposals-trait> <dao-proposal-trait> (optional (string-ascii 1024))) (response bool uint))  
   ;; vote on an action proposal (user or agent)
   ;; @param action-proposals the action proposals contract
   ;; @param proposalId the proposal ID

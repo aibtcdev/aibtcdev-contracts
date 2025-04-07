@@ -44,8 +44,8 @@ echo -e "\nChecking test file coverage..."
 echo "==================================="
 for contract in "${contracts[@]}"; do
     # band-aid to skip trait file in diff location
-    if [[ "$contract" == *"aibtc-smart-wallet-traits.clar"* ]]; then
-        echo "⏩ Skipping excluded file: $contract"
+    if [[ "$contract" == *"traits"* ]]; then
+        echo "⏩ Skipping trait file: $contract"
         continue
     fi
 
