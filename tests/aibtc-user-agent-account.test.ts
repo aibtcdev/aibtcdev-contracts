@@ -1,6 +1,6 @@
 import { Cl, cvToValue } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
-import { UserAgentSmartWalletErrCode } from "./error-codes";
+import { UserAgentAccountErrCode } from "./error-codes";
 import {
   constructDao,
   convertSIP019PrintEvent,
@@ -20,7 +20,7 @@ const address2 = accounts.get("wallet_2")!;
 const address3 = accounts.get("wallet_3")!;
 
 // Contract references
-const contractName = "aibtc-user-agent-smart-wallet";
+const contractName = "aibtc-user-agent-account";
 const contractAddress = `${deployer}.${contractName}`;
 const daoTokenAddress = `${deployer}.aibtc-token`;
 const tokenDexContractAddress = `${deployer}.aibtc-token-dex`;
@@ -36,9 +36,9 @@ const actionProposalVotingConfig = VOTING_CONFIG["aibtc-action-proposals-v2"];
 const coreProposalVotingConfig = VOTING_CONFIG["aibtc-core-proposals-v2"];
 
 // Error codes
-const ErrCode = UserAgentSmartWalletErrCode;
+const ErrCode = UserAgentAccountErrCode;
 
-function setupSmartWallet(sender: string, satsAmount: number = 1000000) {
+function setupAccount(sender: string, satsAmount: number = 1000000) {
   // construct the dao so we can call extensions
   const constructReceipt = constructDao(
     sender,
@@ -90,7 +90,7 @@ describe(`public functions: ${contractName}`, () => {
   ////////////////////////////////////////
   // deposit-stx() tests
   ////////////////////////////////////////
-  it("deposit-stx() succeeds and deposits STX to the smart wallet", () => {
+  it("deposit-stx() succeeds and deposits STX to the account", () => {
     // arrange
     const amount = 1000000; // 1 STX
     const initialBalanceResponse = simnet.callReadOnlyFn(
@@ -169,7 +169,7 @@ describe(`public functions: ${contractName}`, () => {
     // assert
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNKNOWN_ASSET));
   });
-  it("deposit-ft() succeeds and transfers sBTC to the smart wallet", () => {
+  it("deposit-ft() succeeds and transfers sBTC to the account", () => {
     // arrange
     const sbtcAmount = 100000000;
     // get sBTC from the faucet
@@ -190,7 +190,7 @@ describe(`public functions: ${contractName}`, () => {
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
-  it("deposit-ft() succeeds and transfers DAO tokens to the smart wallet", () => {
+  it("deposit-ft() succeeds and transfers DAO tokens to the account", () => {
     // arrange
     const amount = 1000000;
     // get sBTC from the faucet
@@ -584,13 +584,13 @@ describe(`public functions: ${contractName}`, () => {
   ////////////////////////////////////////
   const memoContext = "Can pass up to 1024 characters for additional context.";
 
-  it("proxy-propose-action() fails if caller is not authorized (user or agent)", () => {
+  it("acct-propose-action() fails if caller is not authorized (user or agent)", () => {
     // arrange
     const message = Cl.stringAscii("hello world");
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "proxy-propose-action",
+      "acct-propose-action",
       [
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
@@ -605,8 +605,8 @@ describe(`public functions: ${contractName}`, () => {
   it("proxy-propose-action() succeeds and creates a new action proposal", () => {
     // arrange
     const message = Cl.stringAscii("hello world");
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
@@ -622,11 +622,11 @@ describe(`public functions: ${contractName}`, () => {
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
-  it("proxy-propose-action() emits the correct notification event", () => {
+  it("acct-propose-action() emits the correct notification event", () => {
     // arrange
     const message = Cl.stringAscii("hello world");
     const expectedEvent = {
-      notification: "proxy-propose-action",
+      notification: "acct-propose-action",
       payload: {
         proposalContract: actionProposalsV2ContractAddress,
         action: sendMessageActionContractAddress,
@@ -635,12 +635,12 @@ describe(`public functions: ${contractName}`, () => {
         caller: deployer,
       },
     };
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "proxy-propose-action",
+      "acct-propose-action",
       [
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
@@ -659,11 +659,11 @@ describe(`public functions: ${contractName}`, () => {
   ////////////////////////////////////////
   // proxy-create-proposal() tests
   ////////////////////////////////////////
-  it("proxy-create-proposal() fails if caller is not authorized (user or agent)", () => {
+  it("acct-create-proposal() fails if caller is not authorized (user or agent)", () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "proxy-create-proposal",
+      "acct-create-proposal",
       [
         Cl.principal(coreProposalsV2ContractAddress),
         Cl.principal(baseEnableExtensionContractAddress),
@@ -674,16 +674,16 @@ describe(`public functions: ${contractName}`, () => {
     // assert
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
-  it("proxy-create-proposal() succeeds and creates a new core proposal", () => {
+  it("acct-create-proposal() succeeds and creates a new core proposal", () => {
     // arrange
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     // progress the chain past the first voting period
     simnet.mineEmptyBlocks(coreProposalVotingConfig.votingPeriod);
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "proxy-create-proposal",
+      "acct-create-proposal",
       [
         Cl.principal(coreProposalsV2ContractAddress),
         Cl.principal(baseEnableExtensionContractAddress),
@@ -694,15 +694,15 @@ describe(`public functions: ${contractName}`, () => {
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
-  it("proxy-create-proposal() emits the correct notification event", () => {
+  it("acct-create-proposal() emits the correct notification event", () => {
     // arrange
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     // progress the chain past the first voting period
     simnet.mineEmptyBlocks(coreProposalVotingConfig.votingPeriod);
     // format expected event like print event
     const expectedEvent = {
-      notification: "proxy-create-proposal",
+      notification: "acct-create-proposal",
       payload: {
         proposalContract: coreProposalsV2ContractAddress,
         proposal: baseEnableExtensionContractAddress,
@@ -713,7 +713,7 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "proxy-create-proposal",
+      "acct-create-proposal",
       [
         Cl.principal(coreProposalsV2ContractAddress),
         Cl.principal(baseEnableExtensionContractAddress),
@@ -759,7 +759,7 @@ describe(`public functions: ${contractName}`, () => {
     // create a new action proposal
     const proposeReceipt = simnet.callPublicFn(
       contractAddress,
-      "proxy-propose-action",
+      "acct-propose-action",
       [
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
@@ -866,7 +866,7 @@ describe(`public functions: ${contractName}`, () => {
     // create a new core proposal
     const createReceipt = simnet.callPublicFn(
       contractAddress,
-      "proxy-create-proposal",
+      "acct-create-proposal",
       [
         Cl.principal(coreProposalsV2ContractAddress),
         Cl.principal(baseEnableExtensionContractAddress),
@@ -1002,7 +1002,7 @@ describe(`public functions: ${contractName}`, () => {
         [Cl.uint(proposalId), Cl.bool(true)],
         address1
       ),
-      // cast vote through our user/agent smart wallet
+      // cast vote through our user/agent account
       simnet.callPublicFn(
         contractAddress,
         "vote-on-action-proposal",
@@ -1085,7 +1085,7 @@ describe(`public functions: ${contractName}`, () => {
         [Cl.uint(proposalId), Cl.bool(true)],
         address1
       ),
-      // cast vote through our user/agent smart wallet
+      // cast vote through our user/agent account
       simnet.callPublicFn(
         contractAddress,
         "vote-on-action-proposal",
@@ -1210,28 +1210,28 @@ describe(`public functions: ${contractName}`, () => {
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
   ////////////////////////////////////////
-  // approve-dex() tests
+  // acct-approve-dex() tests
   ////////////////////////////////////////
-  it("approve-dex() fails if caller is not the user", () => {
+  it("acct-approve-dex() fails if caller is not the user", () => {
     // arrange
     const dex = `${deployer}.test-dex-1`;
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "approve-dex",
+      "acct-approve-dex",
       [Cl.principal(dex)],
       address3
     );
     // assert
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
-  it("approve-dex() succeeds and sets new approved dex", () => {
+  it("acct-approve-dex() succeeds and sets new approved dex", () => {
     // arrange
     const dex = `${deployer}.test-dex-1`;
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "approve-dex",
+      "acct-approve-dex",
       [Cl.principal(dex)],
       deployer
     );
@@ -1246,11 +1246,11 @@ describe(`public functions: ${contractName}`, () => {
     );
     expect(isApproved.result).toStrictEqual(Cl.bool(true));
   });
-  it("approve-dex() emits the correct notification event", () => {
+  it("acct-approve-dex() emits the correct notification event", () => {
     // arrange
     const dex = `${deployer}.test-dex-2`;
     const expectedEvent = {
-      notification: "approve-dex",
+      notification: "acct-approve-dex",
       payload: {
         dexContract: dex,
         approved: true,
@@ -1261,7 +1261,7 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "approve-dex",
+      "acct-approve-dex",
       [Cl.principal(dex)],
       deployer
     );
@@ -1273,28 +1273,28 @@ describe(`public functions: ${contractName}`, () => {
     expect(printEvent).toStrictEqual(expectedEvent);
   });
   ////////////////////////////////////////
-  // revoke-dex() tests
+  // acct-revoke-dex() tests
   ////////////////////////////////////////
-  it("revoke-dex() fails if caller is not the user", () => {
+  it("acct-revoke-dex() fails if caller is not the user", () => {
     // arrange
     const dex = `${deployer}.test-dex-1`;
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "revoke-dex",
+      "acct-revoke-dex",
       [Cl.principal(dex)],
       address3
     );
     // assert
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
-  it("revoke-dex() succeeds and removes approved dex", () => {
+  it("acct-revoke-dex() succeeds and removes approved dex", () => {
     // arrange
     const dex = `${deployer}.test-dex-1`;
     // approve the dex first
     const approveReceipt = simnet.callPublicFn(
       contractAddress,
-      "approve-dex",
+      "acct-approve-dex",
       [Cl.principal(dex)],
       deployer
     );
@@ -1302,7 +1302,7 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "revoke-dex",
+      "acct-revoke-dex",
       [Cl.principal(dex)],
       deployer
     );
@@ -1317,11 +1317,11 @@ describe(`public functions: ${contractName}`, () => {
     );
     expect(isApproved.result).toStrictEqual(Cl.bool(false));
   });
-  it("revoke-dex() emits the correct notification event", () => {
+  it("acct-revoke-dex() emits the correct notification event", () => {
     // arrange
     const dex = `${deployer}.test-dex-1`;
     const expectedEvent = {
-      notification: "revoke-dex",
+      notification: "acct-revoke-dex",
       payload: {
         dexContract: dex,
         approved: false,
@@ -1332,7 +1332,7 @@ describe(`public functions: ${contractName}`, () => {
     // approve the dex first
     const approveReceipt = simnet.callPublicFn(
       contractAddress,
-      "approve-dex",
+      "acct-approve-dex",
       [Cl.principal(dex)],
       deployer
     );
@@ -1340,7 +1340,7 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "revoke-dex",
+      "acct-revoke-dex",
       [Cl.principal(dex)],
       deployer
     );
@@ -1406,9 +1406,9 @@ describe(`public functions: ${contractName}`, () => {
     expect(printEvent).toStrictEqual(expectedEvent);
   });
   ////////////////////////////////////////
-  // buy-asset() tests
+  // acct-buy-asset() tests
   ////////////////////////////////////////
-  it("buy-asset() fails if caller is not authorized", () => {
+  it("acct-buy-asset() fails if caller is not authorized", () => {
     // arrange
     const amount = 10000000000;
     const dex = tokenDexContractAddress;
@@ -1416,14 +1416,14 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "buy-asset",
+      "acct-buy-asset",
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       address3
     );
     // assert
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_BUY_SELL_NOT_ALLOWED));
   });
-  it("buy-asset() fails if agent can't buy/sell", () => {
+  it("acct-buy-asset() fails if agent can't buy/sell", () => {
     // arrange
     const amount = 10000000000;
     const dex = tokenDexContractAddress;
@@ -1431,14 +1431,14 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "buy-asset",
+      "acct-buy-asset",
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       address2 // agent address
     );
     // assert
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_BUY_SELL_NOT_ALLOWED));
   });
-  it("buy-asset() fails if dex is not approved", () => {
+  it("acct-buy-asset() fails if dex is not approved", () => {
     // arrange
     const amount = 10000000000;
     const dex = `${deployer}.test-dex-1`;
@@ -1446,49 +1446,49 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "buy-asset",
+      "acct-buy-asset",
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       deployer
     );
     // assert
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNKNOWN_ASSET));
   });
-  it("buy-asset() succeeds when called by user", () => {
+  it("acct-buy-asset() succeeds when called by user", () => {
     // arrange
     const amount = 10000;
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     // get our balances from the assets map
     const balancesMap = simnet.getAssetsMap();
     dbgLog(balancesMap);
     const aibtcKey = ".aibtc-token.SYMBOL";
     const sbtcKey = ".sbtc-token.sbtc-token";
     const stxKey = "STX";
-    const smartWalletBalances = {
+    const accountBalances = {
       sbtc: balancesMap.get(sbtcKey)?.get(contractAddress) ?? 0n,
       aibtc: balancesMap.get(aibtcKey)?.get(contractAddress) ?? 0n,
       stx: balancesMap.get(stxKey)?.get(contractAddress) ?? 0n,
     };
-    dbgLog(`smartWalletBalances: ${JSON.stringify(smartWalletBalances)}`);
+    dbgLog(`accountBalances: ${JSON.stringify(accountBalances)}`);
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "buy-asset",
+      "acct-buy-asset",
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       deployer
     );
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
-  it("buy-asset() succeeds when called by agent with permission", () => {
+  it("acct-buy-asset() succeeds when called by agent with permission", () => {
     // arrange
     const amount = 10000;
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     // enable agent to buy/sell
     const permissionReceipt = simnet.callPublicFn(
       contractAddress,
@@ -1500,20 +1500,20 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "buy-asset",
+      "acct-buy-asset",
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       address2 // agent address
     );
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
-  it("buy-asset() emits the correct notification event", () => {
+  it("acct-buy-asset() emits the correct notification event", () => {
     // arrange
     const amount = 10000;
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
     const expectedEvent = {
-      notification: "buy-asset",
+      notification: "acct-buy-asset",
       payload: {
         dexContract: dex,
         asset: asset,
@@ -1522,12 +1522,12 @@ describe(`public functions: ${contractName}`, () => {
         caller: deployer,
       },
     };
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "buy-asset",
+      "acct-buy-asset",
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       deployer
     );
@@ -1539,9 +1539,9 @@ describe(`public functions: ${contractName}`, () => {
     expect(printEvent).toStrictEqual(expectedEvent);
   });
   ////////////////////////////////////////
-  // sell-asset() tests
+  // acct-sell-asset() tests
   ////////////////////////////////////////
-  it("sell-asset() fails if caller is not authorized", () => {
+  it("acct-sell-asset() fails if caller is not authorized", () => {
     // arrange
     const amount = 10000000000;
     const dex = tokenDexContractAddress;
@@ -1549,14 +1549,14 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "sell-asset",
+      "acct-sell-asset",
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       address3
     );
     // assert
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_BUY_SELL_NOT_ALLOWED));
   });
-  it("sell-asset() fails if agent can't buy/sell", () => {
+  it("acct-sell-asset() fails if agent can't buy/sell", () => {
     // arrange
     const amount = 10000000000;
     const dex = tokenDexContractAddress;
@@ -1572,14 +1572,14 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "sell-asset",
+      "acct-sell-asset",
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       address2 // agent address
     );
     // assert
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_BUY_SELL_NOT_ALLOWED));
   });
-  it("sell-asset() fails if dex is not approved", () => {
+  it("acct-sell-asset() fails if dex is not approved", () => {
     // arrange
     const amount = 10000000000;
     const dex = `${deployer}.test-dex-1`;
@@ -1587,14 +1587,14 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "sell-asset",
+      "acct-sell-asset",
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       deployer
     );
     // assert
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNKNOWN_ASSET));
   });
-  it("sell-asset() succeeds when called by user", () => {
+  it("acct-sell-asset() succeeds when called by user", () => {
     // arrange
     const amount = 1000000000000n; // sell 10000 dao tokens
     const dex = tokenDexContractAddress;
@@ -1604,8 +1604,8 @@ describe(`public functions: ${contractName}`, () => {
       titleBefore: "asset map before setup",
     });
 
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
 
     dbgLog(simnet.getAssetsMap(), {
       titleBefore: "asset map after setup",
@@ -1625,26 +1625,26 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "sell-asset",
+      "acct-sell-asset",
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       deployer
     );
 
     dbgLog(JSON.stringify(receipt, null, 2), {
-      titleBefore: "sell-asset receipt",
+      titleBefore: "acct-sell-asset receipt",
     });
 
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
-  it("sell-asset() succeeds when called by agent with permission", () => {
+  it("acct-sell-asset() succeeds when called by agent with permission", () => {
     // arrange
     const amount = 1000000000000n; // sell 10000 dao tokens
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
 
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
 
     // enable agent to buy/sell
     const permissionReceipt = simnet.callPublicFn(
@@ -1658,7 +1658,7 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "sell-asset",
+      "acct-sell-asset",
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       address2 // agent address
     );
@@ -1666,16 +1666,16 @@ describe(`public functions: ${contractName}`, () => {
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
-  it("sell-asset() emits the correct notification event", () => {
+  it("acct-sell-asset() emits the correct notification event", () => {
     // arrange
     const amount = 1000000000000n; // sell 10000 dao tokens
     const dex = tokenDexContractAddress;
     const asset = daoTokenAddress;
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     // build expected print event
     const expectedEvent = {
-      notification: "sell-asset",
+      notification: "acct-sell-asset",
       payload: {
         dexContract: dex,
         asset: asset,
@@ -1688,7 +1688,7 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "sell-asset",
+      "acct-sell-asset",
       [Cl.principal(dex), Cl.principal(asset), Cl.uint(amount)],
       deployer
     );
@@ -1847,7 +1847,7 @@ describe(`read-only functions: ${contractName}`, () => {
       payload: {
         agent: address2,
         user: deployer,
-        smartWallet: contractAddress,
+        account: contractAddress,
         daoToken: daoTokenAddress,
         daoTokenDex: tokenDexContractAddress,
         sbtcToken: SBTC_CONTRACT,
