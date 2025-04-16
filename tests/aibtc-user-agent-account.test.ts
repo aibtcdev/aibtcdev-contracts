@@ -602,7 +602,7 @@ describe(`public functions: ${contractName}`, () => {
     // assert
     expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
-  it("proxy-propose-action() succeeds and creates a new action proposal", () => {
+  it("acct-propose-action() succeeds and creates a new action proposal", () => {
     // arrange
     const message = Cl.stringAscii("hello world");
     // construct dao / setup account with dao tokens
@@ -610,7 +610,7 @@ describe(`public functions: ${contractName}`, () => {
     // act
     const receipt = simnet.callPublicFn(
       contractAddress,
-      "proxy-propose-action",
+      "acct-propose-action",
       [
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
