@@ -1,4 +1,4 @@
-import { Cl, cvToValue } from "@stacks/transactions";
+import { Cl, ClarityValue, cvToValue, TupleCV } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { UserAgentAccountErrCode } from "./error-codes";
 import {
@@ -1209,7 +1209,7 @@ describe(`public functions: ${contractName}`, () => {
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
-  
+
   it("conclude-core-proposal() emits the correct notification event", () => {
     // arrange
     const vote = true;
@@ -1942,11 +1942,17 @@ describe(`read-only functions: ${contractName}`, () => {
       [],
       deployer
     );
-    
+
     // Convert the Clarity value to a JavaScript object
-    const config = cvToValue(configCV.result);
-    
+    const config = cvToValue(configCV.result) as TupleCV;
+    // Convert the TupleCV to a plain object
+    console.log(`config: ${JSON.stringify(config)}`);
+    const configData = Object.fromEntries(
+      Object.entries(config).map(([key, value]: [string, ClarityValue]) => {
+        return [key, cvToValue(value, true)];
+      })
+    );
     // assert
-    expect(config).toEqual(expectedConfig);
+    expect(configData).toEqual(expectedConfig);
   });
 });
