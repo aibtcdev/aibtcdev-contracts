@@ -1,6 +1,6 @@
-;; title: aibtc-smart-wallet-traits
-;; version: 2.0.0
-;; summary: A collection of traits for user agent smart wallets.
+;; title: aibtc-user-agent-account-traits
+;; version: 1.0.0
+;; summary: A collection of traits for user agent accounts.
 
 ;; IMPORTS
 (use-trait sip010-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
@@ -11,32 +11,32 @@
 (use-trait dao-faktory-dex .aibtc-dao-traits-v3.faktory-dex)
 (use-trait faktory-token .faktory-trait-v1.sip-010-trait)
 
-;; SMART WALLET TRAITS
+;; ACCOUNT TRAITS
 
 (define-trait aibtc-account (
-  ;; deposit STX to the smart wallet
+  ;; deposit STX to the agent account
   ;; @param amount amount of microSTX to deposit
   ;; @returns (response bool uint)
   (deposit-stx (uint) (response bool uint))
-  ;; deposit FT to the smart wallet
+  ;; deposit FT to the agent account
   ;; @param ft the fungible token contract
   ;; @param amount amount of tokens to deposit
   ;; @returns (response bool uint)
   (deposit-ft (<sip010-trait> uint) (response bool uint))
-  ;; withdraw STX from the smart wallet (user only)
+  ;; withdraw STX from the agent account (owner only)
   ;; @param amount amount of microSTX to withdraw
   ;; @returns (response bool uint)
   (withdraw-stx (uint) (response bool uint))
-  ;; withdraw FT from the smart wallet (user only)
+  ;; withdraw FT from the agent account (owner only)
   ;; @param ft the fungible token contract
   ;; @param amount amount of tokens to withdraw
   ;; @returns (response bool uint)
   (withdraw-ft (<sip010-trait> uint) (response bool uint))
-  ;; approve an asset for deposit/withdrawal (user only)
+  ;; approve an asset for deposit/withdrawal (owner only)
   ;; @param asset the asset contract principal
   ;; @returns (response bool uint)
   (approve-asset (principal) (response bool uint))
-  ;; revoke approval for an asset (user only)
+  ;; revoke approval for an asset (owner only)
   ;; @param asset the asset contract principal
   ;; @returns (response bool uint)
   (revoke-asset (principal) (response bool uint))
