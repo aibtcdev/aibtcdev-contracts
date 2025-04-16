@@ -1209,6 +1209,92 @@ describe(`public functions: ${contractName}`, () => {
     // assert
     expect(receipt.result).toBeOk(Cl.bool(true));
   });
+  
+  it("conclude-core-proposal() emits the correct notification event", () => {
+    // arrange
+    const vote = true;
+    const expectedEvent = {
+      notification: "conclude-core-proposal",
+      payload: {
+        proposalContract: coreProposalsV2ContractAddress,
+        proposal: baseEnableExtensionContractAddress,
+        sender: deployer,
+        caller: deployer,
+      },
+    };
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
+    fundVoters(daoTokenAddress, tokenDexContractAddress, [
+      deployer,
+      address1,
+      address2,
+    ]);
+    // progress the chain past the first voting period
+    simnet.mineEmptyBlocks(coreProposalVotingConfig.votingPeriod);
+    // create a new core proposal
+    const createReceipt = simnet.callPublicFn(
+      contractAddress,
+      "acct-create-proposal",
+      [
+        Cl.principal(coreProposalsV2ContractAddress),
+        Cl.principal(baseEnableExtensionContractAddress),
+        Cl.some(Cl.stringAscii(memoContext)),
+      ],
+      deployer
+    );
+    expect(createReceipt.result).toBeOk(Cl.bool(true));
+    // progress the chain past the voting delay
+    simnet.mineEmptyBlocks(coreProposalVotingConfig.votingDelay);
+    // vote on the proposal
+    const voteReceipts = [
+      // cast two regular votes to pass proposal
+      simnet.callPublicFn(
+        coreProposalsV2ContractAddress,
+        "vote-on-proposal",
+        [Cl.principal(baseEnableExtensionContractAddress), Cl.bool(true)],
+        address2
+      ),
+      simnet.callPublicFn(
+        coreProposalsV2ContractAddress,
+        "vote-on-proposal",
+        [Cl.principal(baseEnableExtensionContractAddress), Cl.bool(true)],
+        address1
+      ),
+      // cast vote through our user/agent account
+      simnet.callPublicFn(
+        contractAddress,
+        "vote-on-core-proposal",
+        [
+          Cl.principal(coreProposalsV2ContractAddress),
+          Cl.principal(baseEnableExtensionContractAddress),
+          Cl.bool(true),
+        ],
+        deployer
+      ),
+    ];
+    for (const voteReceipt of voteReceipts) {
+      expect(voteReceipt.result).toBeOk(Cl.bool(true));
+    }
+    // progress the chain past the voting period and execution delay
+    simnet.mineEmptyBlocks(coreProposalVotingConfig.votingPeriod);
+    simnet.mineEmptyBlocks(coreProposalVotingConfig.votingDelay);
+    // act
+    const receipt = simnet.callPublicFn(
+      contractAddress,
+      "conclude-core-proposal",
+      [
+        Cl.principal(coreProposalsV2ContractAddress),
+        Cl.principal(baseEnableExtensionContractAddress),
+      ],
+      deployer
+    );
+    // assert
+    expect(receipt.result).toBeOk(Cl.bool(true));
+    const event = receipt.events[0];
+    expect(event).toBeDefined();
+    const printEvent = convertSIP019PrintEvent(receipt.events[0]);
+    expect(printEvent).toStrictEqual(expectedEvent);
+  });
   ////////////////////////////////////////
   // acct-approve-dex() tests
   ////////////////////////////////////////
