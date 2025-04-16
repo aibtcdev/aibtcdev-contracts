@@ -975,7 +975,7 @@ describe(`public functions: ${contractName}`, () => {
     // create a new action proposal
     const proposeReceipt = simnet.callPublicFn(
       contractAddress,
-      "proxy-propose-action",
+      "acct-propose-action",
       [
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
@@ -1041,11 +1041,11 @@ describe(`public functions: ${contractName}`, () => {
     const expectedEvent = {
       notification: "conclude-action-proposal",
       payload: {
-        action: sendMessageActionContractAddress,
-        caller: deployer,
         proposalContract: actionProposalsV2ContractAddress,
         proposalId: proposalId.toString(),
+        action: sendMessageActionContractAddress,
         sender: deployer,
+        caller: deployer,
       },
     };
     // construct dao / setup account with dao tokens
@@ -1841,17 +1841,13 @@ describe(`read-only functions: ${contractName}`, () => {
   ////////////////////////////////////////
   it("get-configuration() returns the correct configuration", () => {
     // arrange
-    // format expected config like print event
     const expectedConfig = {
-      notification: "get-configuration",
-      payload: {
-        agent: address2,
-        owner: deployer,
-        account: contractAddress,
-        daoToken: daoTokenAddress,
-        daoTokenDex: tokenDexContractAddress,
-        sbtcToken: SBTC_CONTRACT,
-      },
+      account: contractAddress,
+      agent: address2,
+      owner: deployer,
+      daoToken: daoTokenAddress,
+      daoTokenDex: tokenDexContractAddress,
+      sbtcToken: SBTC_CONTRACT,
     };
     // act
     const config = simnet.callReadOnlyFn(
@@ -1861,16 +1857,6 @@ describe(`read-only functions: ${contractName}`, () => {
       deployer
     );
     // assert
-    const event: ClarityEvent = {
-      event: "print_event",
-      data: {
-        value: Cl.tuple({
-          notification: Cl.stringAscii("get-configuration"),
-          payload: config.result,
-        }),
-      },
-    };
-    const printEvent = convertSIP019PrintEvent(event);
-    expect(printEvent).toStrictEqual(expectedConfig);
+    expect(cvToValue(config.result)).toEqual(expectedConfig);
   });
 });
