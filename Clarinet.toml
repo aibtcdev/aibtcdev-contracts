@@ -52,15 +52,15 @@ path = 'contracts/aibtcdev-airdrop-2.clar'
 clarity_version = 2
 epoch = 3.0
 
-# smart wallet and traits
+# agent account and traits
 
-[contracts.aibtc-smart-wallet-traits]
-path = 'contracts/aibtc-smart-wallet-traits.clar'
+[contracts.aibtc-user-agent-account-traits]
+path = 'contracts/aibtc-user-agent-account-traits.clar'
 clarity_version = 3
 epoch = 3.1
 
-[contracts.aibtc-user-agent-smart-wallet]
-path = 'contracts/aibtc-user-agent-smart-wallet.clar'
+[contracts.aibtc-user-agent-account]
+path = 'contracts/aibtc-user-agent-account.clar'
 clarity_version = 3
 epoch = 3.1
 

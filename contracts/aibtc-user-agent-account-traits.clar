@@ -79,7 +79,7 @@
   (conclude-core-proposal (<dao-core-proposals-trait> <dao-proposal-trait>) (response bool uint))
 ))
 
-(define-trait dex-approval (
+(define-trait faktory-dex-approval (
   ;; approve a dex for trading an asset
   ;; @param faktory-dex the faktory dex contract
   ;; @returns (response bool uint)
@@ -103,14 +103,4 @@
   ;; @param amount amount of tokens to sell
   ;; @returns (response bool uint)
   (acct-sell-asset (<dao-faktory-dex> <faktory-token> uint) (response bool uint))
-))
-
-
-(define-trait bitflow-buy-sell (
-  ;; buy an asset from a bitflow dex
-  ;; @param bitflow-dex the bitflow dex contract
-  ;; @param asset the asset contract principal
-  ;; @param amount amount of tokens to buy
-  ;; @returns (response bool uint)
-  
 ))
