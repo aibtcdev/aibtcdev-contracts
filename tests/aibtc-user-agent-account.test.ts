@@ -1936,13 +1936,17 @@ describe(`read-only functions: ${contractName}`, () => {
       sbtcToken: SBTC_CONTRACT,
     };
     // act
-    const config = simnet.callReadOnlyFn(
+    const configCV = simnet.callReadOnlyFn(
       contractAddress,
       "get-configuration",
       [],
       deployer
     );
+    
+    // Convert the Clarity value to a JavaScript object
+    const config = cvToValue(configCV.result);
+    
     // assert
-    expect(cvToValue(config.result)).toEqual(expectedConfig);
+    expect(config).toEqual(expectedConfig);
   });
 });
