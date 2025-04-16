@@ -754,8 +754,8 @@ describe(`public functions: ${contractName}`, () => {
     const message = Cl.stringAscii("hello world");
     const proposalId = 1;
     const vote = true;
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     // create a new action proposal
     const proposeReceipt = simnet.callPublicFn(
       contractAddress,
@@ -790,12 +790,12 @@ describe(`public functions: ${contractName}`, () => {
     const message = Cl.stringAscii("hello world");
     const proposalId = 1;
     const vote = true;
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     // create a new action proposal
     const proposeReceipt = simnet.callPublicFn(
       contractAddress,
-      "proxy-propose-action",
+      "acct-propose-action",
       [
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
@@ -894,14 +894,14 @@ describe(`public functions: ${contractName}`, () => {
   it("vote-on-core-proposal() emits the correct notification event", () => {
     // arrange
     const vote = true;
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     // progress the chain past the first voting period
     simnet.mineEmptyBlocks(coreProposalVotingConfig.votingPeriod);
     // create a new core proposal
     const createReceipt = simnet.callPublicFn(
       contractAddress,
-      "proxy-create-proposal",
+      "acct-create-proposal",
       [
         Cl.principal(coreProposalsV2ContractAddress),
         Cl.principal(baseEnableExtensionContractAddress),
@@ -965,8 +965,8 @@ describe(`public functions: ${contractName}`, () => {
     // arrange
     const message = Cl.stringAscii("hello world");
     const proposalId = 1;
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     fundVoters(daoTokenAddress, tokenDexContractAddress, [
       deployer,
       address1,
@@ -1048,8 +1048,8 @@ describe(`public functions: ${contractName}`, () => {
         sender: deployer,
       },
     };
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     fundVoters(daoTokenAddress, tokenDexContractAddress, [
       deployer,
       address1,
@@ -1058,7 +1058,7 @@ describe(`public functions: ${contractName}`, () => {
     // create a new action proposal
     const proposeReceipt = simnet.callPublicFn(
       contractAddress,
-      "proxy-propose-action",
+      "acct-propose-action",
       [
         Cl.principal(actionProposalsV2ContractAddress),
         Cl.principal(sendMessageActionContractAddress),
@@ -1140,8 +1140,8 @@ describe(`public functions: ${contractName}`, () => {
   });
   it("conclude-core-proposal() succeeds and concludes a core proposal", () => {
     // arrange
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     fundVoters(daoTokenAddress, tokenDexContractAddress, [
       deployer,
       address1,
@@ -1152,7 +1152,7 @@ describe(`public functions: ${contractName}`, () => {
     // create a new core proposal
     const createReceipt = simnet.callPublicFn(
       contractAddress,
-      "proxy-create-proposal",
+      "acct-create-proposal",
       [
         Cl.principal(coreProposalsV2ContractAddress),
         Cl.principal(baseEnableExtensionContractAddress),
@@ -1178,7 +1178,7 @@ describe(`public functions: ${contractName}`, () => {
         [Cl.principal(baseEnableExtensionContractAddress), Cl.bool(true)],
         address1
       ),
-      // cast vote through our user/agent smart wallet
+      // cast vote through our user/agent account
       simnet.callPublicFn(
         contractAddress,
         "vote-on-core-proposal",
@@ -1846,7 +1846,7 @@ describe(`read-only functions: ${contractName}`, () => {
       notification: "get-configuration",
       payload: {
         agent: address2,
-        user: deployer,
+        owner: deployer,
         account: contractAddress,
         daoToken: daoTokenAddress,
         daoTokenDex: tokenDexContractAddress,
