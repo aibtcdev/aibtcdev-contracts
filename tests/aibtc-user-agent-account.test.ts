@@ -859,8 +859,8 @@ describe(`public functions: ${contractName}`, () => {
   it("vote-on-core-proposal() succeeds and votes on a core proposal", () => {
     // arrange
     const vote = true;
-    // construct dao / setup smart wallet with dao tokens
-    setupSmartWallet(deployer);
+    // construct dao / setup account with dao tokens
+    setupAccount(deployer);
     // progress the chain past the first voting period
     simnet.mineEmptyBlocks(coreProposalVotingConfig.votingPeriod);
     // create a new core proposal
@@ -1721,7 +1721,7 @@ describe(`read-only functions: ${contractName}`, () => {
     // approve the dex
     const approveReceipt = simnet.callPublicFn(
       contractAddress,
-      "approve-dex",
+      "acct-approve-dex",
       [Cl.principal(dex)],
       deployer
     );
@@ -1738,7 +1738,7 @@ describe(`read-only functions: ${contractName}`, () => {
     // revoke the dex
     const revokeReceipt = simnet.callPublicFn(
       contractAddress,
-      "revoke-dex",
+      "acct-revoke-dex",
       [Cl.principal(dex)],
       deployer
     );
