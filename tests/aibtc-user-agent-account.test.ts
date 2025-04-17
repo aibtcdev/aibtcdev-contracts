@@ -1,4 +1,11 @@
-import { Cl, ClarityValue, cvToValue, TupleCV } from "@stacks/transactions";
+import {
+  Cl,
+  ClarityType,
+  ClarityValue,
+  cvToValue,
+  isClarityType,
+  TupleCV,
+} from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 import { UserAgentAccountErrCode } from "./error-codes";
 import {
@@ -1944,13 +1951,17 @@ describe(`read-only functions: ${contractName}`, () => {
     );
 
     // Convert the Clarity value to a JavaScript object
-    const config = cvToValue(configCV.result) as TupleCV;
+    const config = configCV.result;
+    if (config.type !== ClarityType.Tuple) {
+      throw new Error("returned object is not a tuple");
+    }
     // Convert the TupleCV to a plain object
-    console.log(`config: ${JSON.stringify(config)}`);
+    //console.log(`config: ${JSON.stringify(config)}`);
+    const configTuple = config.data;
     const configData = Object.fromEntries(
-      Object.entries(config).map(([key, value]: [string, ClarityValue]) => {
-        return [key, cvToValue(value, true)];
-      })
+      Object.entries(configTuple).map(
+        ([key, value]: [string, ClarityValue]) => [key, cvToValue(value, true)]
+      )
     );
     // assert
     expect(configData).toEqual(expectedConfig);
