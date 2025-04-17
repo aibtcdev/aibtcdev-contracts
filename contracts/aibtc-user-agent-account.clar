@@ -1,11 +1,12 @@
-;; title: aibtc-user-agent-smart-wallet
+;; title: aibtc-user-agent-account
 ;; version: 1.0.0
-;; summary: A smart wallet contract between a user and an agent for managing assets and DAO interactions
+;; summary: A special account contract between a user and an agent for managing assets and DAO interactions. Only the user can withdraw funds.
 
 ;; traits
-(impl-trait .aibtc-smart-wallet-traits.aibtc-smart-wallet)
-(impl-trait .aibtc-smart-wallet-traits.aibtc-proposals-v2)
-(impl-trait .aibtc-smart-wallet-traits.faktory-buy-sell)
+(impl-trait .aibtc-user-agent-account-traits.aibtc-account)
+(impl-trait .aibtc-user-agent-account-traits.aibtc-proposals-v3)
+(impl-trait .aibtc-user-agent-account-traits.faktory-dex-approval)
+(impl-trait .aibtc-user-agent-account-traits.faktory-buy-sell)
 (use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 (use-trait action-trait .aibtc-dao-traits-v3.action)
 (use-trait proposal-trait .aibtc-dao-traits-v3.proposal)
@@ -18,15 +19,22 @@
 (define-constant DEPLOYED_BURN_BLOCK burn-block-height)
 (define-constant DEPLOYED_STACKS_BLOCK stacks-block-height)
 (define-constant SELF (as-contract tx-sender))
-(define-constant USER 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM) ;; user (smart wallet owner)
-(define-constant AGENT 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG) ;; agent (proposal voter)
 
-;; Pre-approved contracts
+;; owner and agent addresses
+;; /g/ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM/account_owner
+(define-constant ACCOUNT_OWNER 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM) ;; owner (user/creator of account, full access)
+;; /g/ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG/account_agent
+(define-constant ACCOUNT_AGENT 'ST2CY5V39NHDPWSXMW9QDT3HC3GD6Q6XX4CFRK9AG) ;; agent (can only take approved actions)
+
+;; pre-approved contracts
+;; /g/STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token/sbtc_contract
 (define-constant SBTC_TOKEN 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token) ;; sBTC token
+;; /g/.aibtc-token/dao_token_contract
 (define-constant DAO_TOKEN .aibtc-token) ;; DAO token
+;; /g/.aibtc-token-dex/dao_token_dex_contract
 (define-constant DAO_TOKEN_DEX .aibtc-token-dex) ;; DAO token DEX
 
-;; Error codes
+;; error codes
 (define-constant ERR_UNAUTHORIZED (err u9000))
 (define-constant ERR_UNKNOWN_ASSET (err u9001))
 (define-constant ERR_OPERATION_FAILED (err u9002))
@@ -37,7 +45,6 @@
 (define-map ApprovedDexes principal bool)
 
 ;; data vars
-
 (define-data-var agentCanBuySell bool false)
 
 ;; public functions
@@ -78,23 +85,23 @@
 
 (define-public (withdraw-stx (amount uint))
   (begin
-    (asserts! (is-user) ERR_UNAUTHORIZED)
+    (asserts! (is-owner) ERR_UNAUTHORIZED)
     (print {
       notification: "withdraw-stx",
       payload: {
         amount: amount,
         sender: SELF,
         caller: contract-caller,
-        recipient: USER
+        recipient: ACCOUNT_OWNER
       }
     })
-    (as-contract (stx-transfer? amount SELF USER))
+    (as-contract (stx-transfer? amount SELF ACCOUNT_OWNER))
   )
 )
 
 (define-public (withdraw-ft (ft <ft-trait>) (amount uint))
   (begin
-    (asserts! (is-user) ERR_UNAUTHORIZED)
+    (asserts! (is-owner) ERR_UNAUTHORIZED)
     (asserts! (is-approved-asset (contract-of ft)) ERR_UNKNOWN_ASSET)
     (print {
       notification: "withdraw-ft",
@@ -103,16 +110,16 @@
         assetContract: (contract-of ft),
         sender: SELF,
         caller: contract-caller,
-        recipient: USER
+        recipient: ACCOUNT_OWNER
       }
     })
-    (as-contract (contract-call? ft transfer amount SELF USER none))
+    (as-contract (contract-call? ft transfer amount SELF ACCOUNT_OWNER none))
   )
 )
 
 (define-public (approve-asset (asset principal))
   (begin
-    (asserts! (is-user) ERR_UNAUTHORIZED)
+    (asserts! (is-owner) ERR_UNAUTHORIZED)
     (print {
       notification: "approve-asset",
       payload: {
@@ -128,7 +135,7 @@
 
 (define-public (revoke-asset (asset principal))
   (begin
-    (asserts! (is-user) ERR_UNAUTHORIZED)
+    (asserts! (is-owner) ERR_UNAUTHORIZED)
     (print {
       notification: "revoke-asset",
       payload: {
@@ -144,11 +151,11 @@
 
 ;; DAO Interaction Functions
 
-(define-public (proxy-propose-action (action-proposals <action-proposals-trait>) (action <action-trait>) (parameters (buff 2048)) (memo (optional (string-ascii 1024))))
+(define-public (acct-propose-action (action-proposals <action-proposals-trait>) (action <action-trait>) (parameters (buff 2048)) (memo (optional (string-ascii 1024))))
   (begin
     (asserts! (is-authorized) ERR_UNAUTHORIZED)
     (print {
-      notification: "proxy-propose-action",
+      notification: "acct-propose-action",
       payload: {
         proposalContract: (contract-of action-proposals),
         action: (contract-of action),
@@ -161,11 +168,11 @@
   )
 )
 
-(define-public (proxy-create-proposal (core-proposals <core-proposals-trait>) (proposal <proposal-trait>) (memo (optional (string-ascii 1024))))
+(define-public (acct-create-proposal (core-proposals <core-proposals-trait>) (proposal <proposal-trait>) (memo (optional (string-ascii 1024))))
   (begin
     (asserts! (is-authorized) ERR_UNAUTHORIZED)
     (print {
-      notification: "proxy-create-proposal",
+      notification: "acct-create-proposal",
       payload: {
         proposalContract: (contract-of core-proposals),
         proposal: (contract-of proposal),
@@ -246,12 +253,12 @@
 
 ;; Faktory DEX Trading Functions
 
-(define-public (buy-asset (faktory-dex <dao-faktory-dex>) (asset <faktory-token>) (amount uint))
+(define-public (acct-buy-asset (faktory-dex <dao-faktory-dex>) (asset <faktory-token>) (amount uint))
   (begin
     (asserts! (buy-sell-allowed) ERR_BUY_SELL_NOT_ALLOWED)
     (asserts! (is-approved-dex (contract-of faktory-dex)) ERR_UNKNOWN_ASSET)
     (print {
-      notification: "buy-asset",
+      notification: "acct-buy-asset",
       payload: {
         dexContract: (contract-of faktory-dex),
         asset: (contract-of asset),
@@ -264,12 +271,12 @@
   )
 )
 
-(define-public (sell-asset (faktory-dex <dao-faktory-dex>) (asset <faktory-token>) (amount uint))
+(define-public (acct-sell-asset (faktory-dex <dao-faktory-dex>) (asset <faktory-token>) (amount uint))
   (begin
     (asserts! (buy-sell-allowed) ERR_BUY_SELL_NOT_ALLOWED)
     (asserts! (is-approved-dex (contract-of faktory-dex)) ERR_UNKNOWN_ASSET)
     (print {
-      notification: "sell-asset",
+      notification: "acct-sell-asset",
       payload: {
         dexContract: (contract-of faktory-dex),
         asset: (contract-of asset),
@@ -282,11 +289,11 @@
   )
 )
 
-(define-public (approve-dex (faktory-dex <dao-faktory-dex>))
+(define-public (acct-approve-dex (faktory-dex <dao-faktory-dex>))
   (begin
-    (asserts! (is-user) ERR_UNAUTHORIZED)
+    (asserts! (is-owner) ERR_UNAUTHORIZED)
     (print {
-      notification: "approve-dex",
+      notification: "acct-approve-dex",
       payload: {
         dexContract: (contract-of faktory-dex),
         approved: true,
@@ -298,11 +305,11 @@
   )
 )
 
-(define-public (revoke-dex (faktory-dex <dao-faktory-dex>))
+(define-public (acct-revoke-dex (faktory-dex <dao-faktory-dex>))
   (begin
-    (asserts! (is-user) ERR_UNAUTHORIZED)
+    (asserts! (is-owner) ERR_UNAUTHORIZED)
     (print {
-      notification: "revoke-dex",
+      notification: "acct-revoke-dex",
       payload: {
         dexContract: (contract-of faktory-dex),
         approved: false,
@@ -316,7 +323,7 @@
 
 (define-public (set-agent-can-buy-sell (canBuySell bool))
   (begin
-    (asserts! (is-user) ERR_UNAUTHORIZED)
+    (asserts! (is-owner) ERR_UNAUTHORIZED)
     (print {
       notification: "set-agent-can-buy-sell",
       payload: {
@@ -345,9 +352,9 @@
 
 (define-read-only (get-configuration)
   {
-    agent: AGENT,
-    user: USER,
-    smartWallet: SELF,
+    account: SELF,
+    agent: ACCOUNT_AGENT,
+    owner: ACCOUNT_OWNER,
     daoToken: DAO_TOKEN,
     daoTokenDex: DAO_TOKEN_DEX,
     sbtcToken: SBTC_TOKEN,
@@ -357,19 +364,19 @@
 ;; private functions
 
 (define-private (is-authorized)
-  (or (is-eq contract-caller USER) (is-eq contract-caller AGENT))
+  (or (is-eq contract-caller ACCOUNT_OWNER) (is-eq contract-caller ACCOUNT_AGENT))
 )
 
-(define-private (is-user)
-  (is-eq contract-caller USER)
+(define-private (is-owner)
+  (is-eq contract-caller ACCOUNT_OWNER)
 )
 
 (define-private (is-agent)
-  (is-eq contract-caller AGENT)
+  (is-eq contract-caller ACCOUNT_AGENT)
 )
 
 (define-private (buy-sell-allowed)
-  (or (is-user) (and (is-agent) (var-get agentCanBuySell)))
+  (or (is-owner) (and (is-agent) (var-get agentCanBuySell)))
 )
 
 ;; initialize approved contracts
@@ -379,6 +386,6 @@
 
 ;; print creation event
 (print {
-  notification: "smart-wallet-created",
+  notification: "user-agent-account-created",
   payload: (get-configuration)
 })
