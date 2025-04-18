@@ -62,23 +62,23 @@ describe(`token: ${contractName}`, () => {
       deployer
     ).result;
     // The token URI is set in the contract initialization
-    expect(result).toBeOk(Cl.some(Cl.stringUtf8("")));
+    expect(result).toBeOk(Cl.some(Cl.stringUtf8("<%= it.token_uri %>"))); // template placeholder
   });
 
   it("get-balance() should return the balance for an account", () => {
     // Check treasury balance (should have 80% of total supply)
     const totalSupply = 100000000000000000n;
     const expectedTreasuryBalance = (totalSupply * 80n) / 100n;
-    
+
     const treasuryBalanceResult = simnet.callReadOnlyFn(
       contractAddress,
       "get-balance",
       [Cl.principal(treasuryAddress)],
       deployer
     ).result;
-    
+
     expect(treasuryBalanceResult).toBeOk(Cl.uint(expectedTreasuryBalance));
-    
+
     // Check a user with no balance
     const userBalanceResult = simnet.callReadOnlyFn(
       contractAddress,
@@ -86,7 +86,7 @@ describe(`token: ${contractName}`, () => {
       [Cl.principal(address1)],
       deployer
     ).result;
-    
+
     expect(userBalanceResult).toBeOk(Cl.uint(0));
   });
 });
