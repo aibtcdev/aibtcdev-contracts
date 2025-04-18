@@ -93,14 +93,11 @@
         proposalId: newId,
         action: action,
         parameters: parameters,
-        contractCaller: contract-caller,
         creator: tx-sender,
         liquidTokens: liquidTokens,
         startBlockStx: block-height,
         startBlock: burn-block-height,
-        endBlock: (+ burn-block-height VOTING_PERIOD),
-        votingPeriod: VOTING_PERIOD,
-        votingQuorum: VOTING_QUORUM
+        endBlock: (+ burn-block-height VOTING_PERIOD)
       }
     })
     ;; create the proposal
@@ -146,10 +143,8 @@
       notification: "vote-on-proposal",
       payload: {
         proposalId: proposalId,
-        contractCaller: contract-caller,
         voter: tx-sender,
-        amount: senderBalance,
-        vote: vote
+        amount: senderBalance
       }
     })
     ;; update the proposal record
@@ -184,9 +179,7 @@
       notification: "conclude-proposal",
       payload: {
         proposalId: proposalId,
-        passed: votePassed,
-        contractCaller: contract-caller,
-        txSender: tx-sender
+        passed: votePassed
       }
     })
     ;; update the proposal record
