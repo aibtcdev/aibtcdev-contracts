@@ -7,7 +7,7 @@
 (define-constant ERR-NOT-AUTHORIZED u401)
 (define-constant ERR-NOT-OWNER u402)
 
-(define-fungible-token SYMBOL MAX) ;; <%= it.token_symbol %>
+(define-fungible-token SYMBOL-AIBTC-DAO MAX) ;; <%= it.token_symbol %>
 (define-constant MAX u100000000000000000) ;; <%= it.token_max_supply %>
 (define-data-var contract-owner principal .aibtc-token-owner) ;; <%= it.token_owner %>
 (define-data-var token-uri (optional (string-utf8 256)) (some u"<%= it.token_uri %>")) 
@@ -17,7 +17,7 @@
     (begin
        (asserts! (is-eq tx-sender sender) (err ERR-NOT-AUTHORIZED))
        (and (is-some memo) (is-some (print memo)))
-       (ft-transfer? SYMBOL amount sender recipient) ;; <%= it.token_symbol %>
+       (ft-transfer? SYMBOL-AIBTC-DAO amount sender recipient) ;; <%= it.token_symbol %>
     )
 )
 
@@ -37,15 +37,15 @@
 )
 
 (define-read-only (get-balance (account principal))
-  (ok (ft-get-balance SYMBOL account)) ;; <%= it.token_symbol %>
+  (ok (ft-get-balance SYMBOL-AIBTC-DAO account)) ;; <%= it.token_symbol %>
 )
 
 (define-read-only (get-name)
-  (ok "NAME") ;; <%= it.token_name %>
+  (ok "SYMBOL-AIBTC-DAO") ;; <%= it.token_name %>
 )
 
 (define-read-only (get-symbol)
-  (ok "SYMBOL") ;; <%= it.token_symbol %>
+  (ok "SYMBOL-AIBTC-DAO") ;; <%= it.token_symbol %>
 )
 
 (define-read-only (get-decimals)
@@ -53,7 +53,7 @@
 )
 
 (define-read-only (get-total-supply)
-  (ok (ft-get-supply SYMBOL)) ;; <%= it.token_symbol %>
+  (ok (ft-get-supply SYMBOL-AIBTC-DAO)) ;; <%= it.token_symbol %>
 )
 
 (define-read-only (get-token-uri)
@@ -92,14 +92,14 @@
 
 (begin 
     ;; ft distribution
-    (try! (ft-mint? SYMBOL (/ (* MAX u80) u100) .aibtc-treasury)) ;; 80% treasury SPVMS254T8Q0RXQP95Y01T7KBHZV91X88CDK48QH
-    (try! (ft-mint? SYMBOL (/ (* MAX u16) u100) .aibtc-token-dex)) ;; 16% dex SPVMS254T8Q0RXQP95Y01T7KBHZV91X88CDK48QH
-    (try! (ft-mint? SYMBOL (/ (* MAX u4) u100) .aibtc-pre-dex)) ;; 4% pre-launch SPVMS254T8Q0RXQP95Y01T7KBHZV91X88CDK48QH
+    (try! (ft-mint? SYMBOL-AIBTC-DAO (/ (* MAX u80) u100) .aibtc-treasury)) ;; 80% treasury SPVMS254T8Q0RXQP95Y01T7KBHZV91X88CDK48QH
+    (try! (ft-mint? SYMBOL-AIBTC-DAO (/ (* MAX u16) u100) .aibtc-token-dex)) ;; 16% dex SPVMS254T8Q0RXQP95Y01T7KBHZV91X88CDK48QH
+    (try! (ft-mint? SYMBOL-AIBTC-DAO (/ (* MAX u4) u100) .aibtc-pre-dex)) ;; 4% pre-launch SPVMS254T8Q0RXQP95Y01T7KBHZV91X88CDK48QH
 
     (print { 
         type: "faktory-trait-v1", 
         name: "NAME", ;; <%= it.token_name %>
-        symbol: "SYMBOL", ;; <%= it.token_symbol %>
+        symbol: "SYMBOL-AIBTC-DAO", ;; <%= it.token_symbol %>
         token-uri: u"<%= it.token_uri %>", 
         tokenContract: (as-contract tx-sender),
         supply: MAX, 

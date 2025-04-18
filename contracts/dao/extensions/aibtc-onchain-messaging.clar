@@ -9,8 +9,8 @@
 
 ;; constants
 ;;
-(define-constant INPUT_ERROR (err u4000))
-(define-constant ERR_UNAUTHORIZED (err u4001))
+(define-constant ERR_INVALID_INPUT (err u4000))
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u4001))
 
 ;; public functions
 
@@ -21,17 +21,18 @@
 (define-public (send (msg (string-ascii 1048576)) (isFromDao bool))
   (begin
     (and isFromDao (try! (is-dao-or-extension)))
-    (asserts! (> (len msg) u0) INPUT_ERROR)
+    (asserts! (> (len msg) u0) ERR_INVALID_INPUT)
     ;; print the message as the first event
     (print msg)
     ;; print the envelope info for the message
     (print {
       notification: "send",
       payload: {
-        caller: contract-caller,
+        contractCaller: contract-caller,
         height: stacks-block-height,
         isFromDao: isFromDao,
-        sender: tx-sender,
+        txSender: tx-sender,
+        messageLength: (len msg)
       }
     })
     (ok true)
@@ -43,6 +44,6 @@
 
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
-    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )

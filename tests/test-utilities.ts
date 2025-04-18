@@ -60,28 +60,28 @@ export const VOTING_CONFIG: VotingConfig = {
     votingPeriod: 144, // 144 Bitcoin blocks (~1 days)
     votingQuorum: 95, // 95% of liquid supply must participate
     votingThreshold: 95, // 95% of votes must be in favor
-    votingBond: 0, // no bond
+    votingBond: 0n, // no bond
   },
   [ContractType.DAO_CORE_PROPOSALS_V2]: {
     votingDelay: 432, // 3 x 144 Bitcoin blocks (~3 days)
     votingPeriod: 432, // 3 x 144 Bitcoin blocks (~3 days)
     votingQuorum: 25, // 25% of liquid supply must participate
     votingThreshold: 90, // 90% of votes must be in favor
-    votingBond: 100000000000, // 1000 DAO token, 8 decimals
+    votingBond: 25000000000000n, // 250,000 DAO token, 8 decimals
   },
   [ContractType.DAO_ACTION_PROPOSALS]: {
     votingDelay: 0, // no delay
     votingPeriod: 144, // 144 Bitcoin blocks (~1 days)
     votingQuorum: 66, // 66% of liquid supply must participate
     votingThreshold: 66, // 66% of votes must be in favor
-    votingBond: 0, // no bond
+    votingBond: 0n, // no bond
   },
   [ContractType.DAO_ACTION_PROPOSALS_V2]: {
     votingDelay: 144, // 1 x 144 Bitcoin blocks (~3 days)
     votingPeriod: 288, // 2 x 144 Bitcoin blocks (~2 days)
     votingQuorum: 15, // 15% of liquid supply must participate
     votingThreshold: 66, // 66% of votes must be in favor
-    votingBond: 100000000000, // 1000 DAO token, 8 decimals
+    votingBond: 250000000000n, // 2,500 DAO token, 8 decimals
   },
 };
 
@@ -202,7 +202,8 @@ export function fundVoters(
     const getDaoTokensEvent = getDaoTokensReceipt.events.find(
       (eventRecord) =>
         eventRecord.event === "ft_transfer_event" &&
-        eventRecord.data?.asset_identifier === `${tokenContractAddress}::SYMBOL`
+        eventRecord.data?.asset_identifier ===
+          `${tokenContractAddress}::SYMBOL-AIBTC-DAO`
     );
     expect(getDaoTokensEvent).toBeDefined();
     const daoTokensAmount = parseInt(getDaoTokensEvent!.data.amount);

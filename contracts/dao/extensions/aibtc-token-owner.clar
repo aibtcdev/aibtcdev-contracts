@@ -10,7 +10,7 @@
 ;; constants
 ;;
 
-(define-constant ERR_UNAUTHORIZED (err u7000))
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u7000))
 
 ;; public functions
 ;;
@@ -25,6 +25,15 @@
     (try! (is-dao-or-extension))
     ;; update token uri
     (try! (as-contract (contract-call? .aibtc-token set-token-uri value)))
+    ;; print event
+    (print {
+      notification: "set-token-uri",
+      payload: {
+        contractCaller: contract-caller,
+        txSender: tx-sender,
+        value: value
+      }
+    })
     (ok true)
   )
 )
@@ -36,6 +45,15 @@
     (try! (is-dao-or-extension))
     ;; transfer ownership
     (try! (as-contract (contract-call? .aibtc-token set-contract-owner new-owner)))
+    ;; print event
+    (print {
+      notification: "transfer-ownership",
+      payload: {
+        contractCaller: contract-caller,
+        txSender: tx-sender,
+        newOwner: new-owner
+      }
+    })
     (ok true)
   )
 )
@@ -45,6 +63,6 @@
 
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
-    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )

@@ -7,7 +7,7 @@ const deployer = accounts.get("deployer")!;
 const contractName = "aibtc-dao-charter-set-dao-charter";
 const contractAddress = `${deployer}.${contractName}`;
 
-const expectedErr = Cl.uint(OnchainMessagingErrCode.ERR_UNAUTHORIZED);
+const expectedErr = Cl.uint(OnchainMessagingErrCode.ERR_NOT_DAO_OR_EXTENSION);
 
 describe(`core proposal: ${contractName}`, () => {
   it("execute() fails if called directly", () => {

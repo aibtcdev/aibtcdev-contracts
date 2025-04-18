@@ -55,7 +55,7 @@
 (define-data-var concludedProposalCount uint u0) ;; total number of concluded proposals
 (define-data-var executedProposalCount uint u0) ;; total number of executed proposals
 (define-data-var lastProposalCreated uint u0) ;; block height of last proposal created
-(define-data-var proposalBond uint u100000000000) ;; proposal bond amount, starts at 1000 DAO tokens (8 decimals)
+(define-data-var proposalBond uint u25000000000000) ;; core proposal bond, default 250,000 DAO tokens w/ 8 decimals
 ;; data maps
 ;;
 (define-map Proposals
@@ -104,8 +104,8 @@
       notification: "set-proposal-bond",
       payload: {
         amount: amount,
-        caller: contract-caller,
-        sender: tx-sender
+        contractCaller: contract-caller,
+        txSender: tx-sender
       }
     })
     ;; set the proposal bond amount
@@ -139,13 +139,17 @@
       notification: "create-proposal",
       payload: {
         proposal: proposalContract,
-        caller: contract-caller,
+        contractCaller: contract-caller,
         creator: tx-sender,
         bond: bondAmount,
         createdAt: createdAt,
         startBlock: startBlock,
         endBlock: endBlock,
         liquidTokens: liquidTokens,
+        votingPeriod: VOTING_PERIOD,
+        votingQuorum: VOTING_QUORUM,
+        votingThreshold: VOTING_THRESHOLD,
+        votingDelay: VOTING_DELAY
       }
     })
     ;; create the proposal
@@ -195,9 +199,10 @@
       notification: "vote-on-proposal",
       payload: {
         proposal: proposalContract,
-        caller: contract-caller,
+        contractCaller: contract-caller,
         voter: tx-sender,
-        amount: senderBalance
+        amount: senderBalance,
+        vote: vote
       }
     })
     ;; update the proposal record
@@ -244,7 +249,7 @@
     (print {
       notification: "conclude-proposal",
       payload: {
-        caller: contract-caller,
+        contractCaller: contract-caller,
         concludedBy: tx-sender,
         bond: (get bond proposalRecord),
         proposal: proposalContract,

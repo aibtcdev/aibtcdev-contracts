@@ -50,6 +50,9 @@ const ErrCode = CoreProposalV2ErrCode;
 // generic context for creating proposals
 const memoContext = "Can pass up to 1024 characters for additional context.";
 
+// default price for getting dao tokens from dex
+const defaultPriceInSbtc = 100000; // 0.001 sbtc
+
 // helper for getting start block for proposals
 const getProposalStartBlock = (burnBlockHeight: number): number => {
   return burnBlockHeight + coreProposalV2VoteSettings.votingDelay;
@@ -206,7 +209,7 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000
+      defaultPriceInSbtc
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
     // construct DAO
@@ -237,7 +240,7 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000
+      defaultPriceInSbtc
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
     // construct DAO
@@ -325,7 +328,7 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000
+      defaultPriceInSbtc
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
     // construct DAO
@@ -401,7 +404,7 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000
+      defaultPriceInSbtc
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
     // construct DAO
@@ -440,7 +443,7 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000
+      defaultPriceInSbtc
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
     // construct DAO
@@ -484,7 +487,7 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000
+      defaultPriceInSbtc
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
     // construct DAO
@@ -587,7 +590,7 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000
+      defaultPriceInSbtc
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
     // construct DAO
@@ -628,7 +631,7 @@ describe(`public functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000
+      defaultPriceInSbtc
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
     // construct DAO
@@ -859,7 +862,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000
+      defaultPriceInSbtc
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
     // construct DAO
@@ -953,7 +956,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000
+      defaultPriceInSbtc
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
     // get dao tokens for address1, increases liquid tokens
@@ -1064,7 +1067,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000
+      defaultPriceInSbtc
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
 
@@ -1245,7 +1248,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      1000
+      defaultPriceInSbtc
     );
     expect(daoTokensReceipt.result).toBeOk(Cl.bool(true));
     dbgLog(simnet.blockHeight, { titleBefore: "after dao tokens receipt" });
@@ -1393,7 +1396,7 @@ describe(`read-only functions: ${ContractType.DAO_CORE_PROPOSALS_V2}`, () => {
       tokenContractAddress,
       tokenDexContractAddress,
       deployer,
-      10000
+      defaultPriceInSbtc
     ).result;
     expect(daoTokensResult).toBeOk(Cl.bool(true));
     // arrange part 2

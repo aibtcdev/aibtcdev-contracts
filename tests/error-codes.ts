@@ -90,8 +90,8 @@ export enum CoreProposalV2ErrCode {
 }
 
 export enum OnchainMessagingErrCode {
-  INPUT_ERROR = 4000,
-  ERR_UNAUTHORIZED,
+  ERR_INVALID_INPUT = 4000,
+  ERR_NOT_DAO_OR_EXTENSION,
 }
 
 export enum PaymentProcessorErrCode {
@@ -112,12 +112,12 @@ export enum PaymentProcessorErrCode {
 }
 
 export enum TreasuryErrCode {
-  ERR_UNAUTHORIZED = 6000,
+  ERR_NOT_DAO_OR_EXTENSION = 6000,
   ERR_UNKNOWN_ASSSET,
 }
 
 export enum TokenOwnerErrCode {
-  ERR_UNAUTHORIZED = 7000,
+  ERR_NOT_DAO_OR_EXTENSION = 7000,
 }
 
 export enum DaoCharterErrCode {

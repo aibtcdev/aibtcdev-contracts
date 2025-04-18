@@ -64,7 +64,7 @@ function setupAccount(sender: string, satsAmount: number = 1000000) {
   // get our balances from the assets map
   const balancesMap = simnet.getAssetsMap();
   dbgLog(balancesMap);
-  const aibtcKey = ".aibtc-token.SYMBOL";
+  const aibtcKey = ".aibtc-token.SYMBOL-AIBTC-DAO";
   const sbtcKey = ".sbtc-token.sbtc-token";
   const stxKey = "STX";
   const deployerBalances = {
@@ -1556,7 +1556,7 @@ describe(`public functions: ${contractName}`, () => {
     // get our balances from the assets map
     const balancesMap = simnet.getAssetsMap();
     dbgLog(balancesMap);
-    const aibtcKey = ".aibtc-token.SYMBOL";
+    const aibtcKey = ".aibtc-token.SYMBOL-AIBTC-DAO";
     const sbtcKey = ".sbtc-token.sbtc-token";
     const stxKey = "STX";
     const accountBalances = {
