@@ -75,8 +75,9 @@
       notification: "deposit",
       payload: {
         amount: amount,
-        caller: contract-caller,
-        recipient: SELF
+        contractCaller: contract-caller,
+        recipient: SELF,
+        txSender: tx-sender
       }
     })
     (stx-transfer? amount contract-caller SELF)
@@ -96,8 +97,9 @@
       notification: "withdraw",
       payload: {
         amount: (var-get withdrawalAmount),
-        caller: contract-caller,
-        recipient: (var-get accountHolder)
+        contractCaller: contract-caller,
+        recipient: (var-get accountHolder),
+        txSender: tx-sender
       }
     })
     (as-contract (stx-transfer? (var-get withdrawalAmount) SELF (var-get accountHolder)))

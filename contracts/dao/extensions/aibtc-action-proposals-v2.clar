@@ -107,8 +107,8 @@
       notification: "set-proposal-bond",
       payload: {
         amount: amount,
-        caller: contract-caller,
-        sender: tx-sender
+        contractCaller: contract-caller,
+        txSender: tx-sender
       }
     })
     ;; set the proposal bond amount
@@ -146,7 +146,7 @@
         proposalId: newId,
         action: actionContract,
         parameters: parameters,
-        caller: contract-caller,
+        contractCaller: contract-caller,
         creator: tx-sender,
         bond: bondAmount,
         createdAt: createdAt,
@@ -204,7 +204,7 @@
       notification: "vote-on-proposal",
       payload: {
         proposalId: proposalId,
-        caller: contract-caller,
+        contractCaller: contract-caller,
         voter: tx-sender,
         amount: senderBalance
       }
@@ -256,7 +256,7 @@
     (print {
       notification: "conclude-proposal",
       payload: {
-        caller: contract-caller,
+        contractCaller: contract-caller,
         concludedBy: tx-sender,
         bond: (get bond proposalRecord),
         proposalId: proposalId,
