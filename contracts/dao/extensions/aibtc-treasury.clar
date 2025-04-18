@@ -13,7 +13,7 @@
 ;; constants
 ;;
 
-(define-constant ERR_UNAUTHORIZED (err u6000))
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u6000))
 (define-constant ERR_UNKNOWN_ASSSET (err u6001))
 (define-constant TREASURY (as-contract tx-sender))
 
@@ -213,7 +213,7 @@
 
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
-    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )
 

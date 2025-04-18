@@ -10,7 +10,7 @@
 ;; constants
 ;;
 
-(define-constant ERR_UNAUTHORIZED (err u7000))
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u7000))
 
 ;; public functions
 ;;
@@ -45,6 +45,6 @@
 
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
-    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )
