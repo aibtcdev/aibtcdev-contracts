@@ -98,7 +98,9 @@
         liquidTokens: liquidTokens,
         startBlockStx: block-height,
         startBlock: burn-block-height,
-        endBlock: (+ burn-block-height VOTING_PERIOD)
+        endBlock: (+ burn-block-height VOTING_PERIOD),
+        votingPeriod: VOTING_PERIOD,
+        votingQuorum: VOTING_QUORUM
       }
     })
     ;; create the proposal
@@ -146,7 +148,8 @@
         proposalId: proposalId,
         contractCaller: contract-caller,
         voter: tx-sender,
-        amount: senderBalance
+        amount: senderBalance,
+        vote: vote
       }
     })
     ;; update the proposal record

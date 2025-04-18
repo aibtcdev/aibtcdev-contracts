@@ -73,6 +73,7 @@
         txSender: tx-sender,
         dao: SELF,
         charter: charter,
+        previousCharter: (var-get daoCharter),
         inscriptionId: inscriptionId,
         version: newVersion
       }

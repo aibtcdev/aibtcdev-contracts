@@ -32,6 +32,7 @@
         height: stacks-block-height,
         isFromDao: isFromDao,
         txSender: tx-sender,
+        messageLength: (len msg)
       }
     })
     (ok true)

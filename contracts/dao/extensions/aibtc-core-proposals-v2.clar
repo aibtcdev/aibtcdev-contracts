@@ -146,6 +146,10 @@
         startBlock: startBlock,
         endBlock: endBlock,
         liquidTokens: liquidTokens,
+        votingPeriod: VOTING_PERIOD,
+        votingQuorum: VOTING_QUORUM,
+        votingThreshold: VOTING_THRESHOLD,
+        votingDelay: VOTING_DELAY
       }
     })
     ;; create the proposal
@@ -197,7 +201,8 @@
         proposal: proposalContract,
         contractCaller: contract-caller,
         voter: tx-sender,
-        amount: senderBalance
+        amount: senderBalance,
+        vote: vote
       }
     })
     ;; update the proposal record

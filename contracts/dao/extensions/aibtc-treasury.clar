@@ -64,7 +64,8 @@
         amount: amount,
         contractCaller: contract-caller,
         recipient: TREASURY,
-        txSender: tx-sender
+        txSender: tx-sender,
+        balance: (stx-get-balance TREASURY)
       }
     })
     (stx-transfer? amount tx-sender TREASURY)
@@ -117,7 +118,8 @@
         amount: amount,
         contractCaller: contract-caller,
         recipient: recipient,
-        txSender: tx-sender
+        txSender: tx-sender,
+        balance: (stx-get-balance TREASURY)
       }
     })
     (as-contract (stx-transfer? amount TREASURY recipient))
@@ -135,7 +137,8 @@
         assetContract: (contract-of ft),
         contractCaller: contract-caller,
         recipient: recipient,
-        txSender: tx-sender
+        txSender: tx-sender,
+        amount: amount
       }
     })
     (as-contract (contract-call? ft transfer amount TREASURY recipient none))
@@ -154,7 +157,8 @@
         contractCaller: contract-caller,
         recipient: recipient,
         txSender: tx-sender,
-        tokenId: id
+        tokenId: id,
+        amount: u1
       }
     })
     (as-contract (contract-call? nft transfer id TREASURY recipient))

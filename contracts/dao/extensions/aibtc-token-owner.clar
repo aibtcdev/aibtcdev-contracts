@@ -25,6 +25,15 @@
     (try! (is-dao-or-extension))
     ;; update token uri
     (try! (as-contract (contract-call? .aibtc-token set-token-uri value)))
+    ;; print event
+    (print {
+      notification: "set-token-uri",
+      payload: {
+        contractCaller: contract-caller,
+        txSender: tx-sender,
+        value: value
+      }
+    })
     (ok true)
   )
 )
@@ -36,6 +45,15 @@
     (try! (is-dao-or-extension))
     ;; transfer ownership
     (try! (as-contract (contract-call? .aibtc-token set-contract-owner new-owner)))
+    ;; print event
+    (print {
+      notification: "transfer-ownership",
+      payload: {
+        contractCaller: contract-caller,
+        txSender: tx-sender,
+        newOwner: new-owner
+      }
+    })
     (ok true)
   )
 )

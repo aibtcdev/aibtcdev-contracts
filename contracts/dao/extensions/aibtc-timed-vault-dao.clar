@@ -103,7 +103,10 @@
         amount: (var-get withdrawalAmount),
         contractCaller: contract-caller,
         recipient: (var-get accountHolder),
-        txSender: tx-sender
+        txSender: tx-sender,
+        withdrawalPeriod: (var-get withdrawalPeriod),
+        lastWithdrawalBlock: (var-get lastWithdrawalBlock),
+        newLastWithdrawalBlock: burn-block-height
       }
     })
     (as-contract (contract-call? .aibtc-token transfer (var-get withdrawalAmount) SELF (var-get accountHolder) none))
