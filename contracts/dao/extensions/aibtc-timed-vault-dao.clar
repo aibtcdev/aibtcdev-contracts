@@ -79,8 +79,9 @@
       notification: "deposit",
       payload: {
         amount: amount,
-        caller: contract-caller,
-        recipient: SELF
+        contractCaller: contract-caller,
+        recipient: SELF,
+        txSender: tx-sender
       }
     })
     (contract-call? .aibtc-token transfer amount tx-sender SELF none)
@@ -100,8 +101,9 @@
       notification: "withdraw",
       payload: {
         amount: (var-get withdrawalAmount),
-        caller: contract-caller,
-        recipient: (var-get accountHolder)
+        contractCaller: contract-caller,
+        recipient: (var-get accountHolder),
+        txSender: tx-sender
       }
     })
     (as-contract (contract-call? .aibtc-token transfer (var-get withdrawalAmount) SELF (var-get accountHolder) none))

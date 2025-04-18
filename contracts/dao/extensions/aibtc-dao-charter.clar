@@ -69,8 +69,8 @@
       payload: {
         burnHeight: burn-block-height,
         createdAt: stacks-block-height,
-        caller: contract-caller,
-        sender: tx-sender,
+        contractCaller: contract-caller,
+        txSender: tx-sender,
         dao: SELF,
         charter: charter,
         inscriptionId: inscriptionId,

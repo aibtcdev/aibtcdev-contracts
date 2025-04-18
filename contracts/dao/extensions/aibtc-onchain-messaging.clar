@@ -28,10 +28,10 @@
     (print {
       notification: "send",
       payload: {
-        caller: contract-caller,
+        contractCaller: contract-caller,
         height: stacks-block-height,
         isFromDao: isFromDao,
-        sender: tx-sender,
+        txSender: tx-sender,
       }
     })
     (ok true)

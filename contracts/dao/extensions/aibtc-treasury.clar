@@ -37,7 +37,9 @@
       notification: "allow-asset",
       payload: {
         enabled: enabled,
-        token: token
+        token: token,
+        contractCaller: contract-caller,
+        txSender: tx-sender
       }
     })
     (ok (map-set AllowedAssets token enabled))
@@ -60,9 +62,9 @@
       notification: "deposit-stx",
       payload: {
         amount: amount,
-        caller: contract-caller,
+        contractCaller: contract-caller,
         recipient: TREASURY,
-        sender: tx-sender
+        txSender: tx-sender
       }
     })
     (stx-transfer? amount tx-sender TREASURY)
@@ -78,9 +80,9 @@
       payload: {
         amount: amount,
         assetContract: (contract-of ft),
-        caller: contract-caller,
+        contractCaller: contract-caller,
         recipient: TREASURY,
-        sender: tx-sender
+        txSender: tx-sender
       }
     })
     (contract-call? ft transfer amount tx-sender TREASURY none)
@@ -95,9 +97,9 @@
       notification: "deposit-nft",
       payload: {
         assetContract: (contract-of nft),
-        caller: contract-caller,
+        contractCaller: contract-caller,
         recipient: TREASURY,
-        sender: tx-sender,
+        txSender: tx-sender,
         tokenId: id
       }
     })
@@ -113,9 +115,9 @@
       notification: "withdraw-stx",
       payload: {
         amount: amount,
-        caller: contract-caller,
+        contractCaller: contract-caller,
         recipient: recipient,
-        sender: tx-sender
+        txSender: tx-sender
       }
     })
     (as-contract (stx-transfer? amount TREASURY recipient))
@@ -131,9 +133,9 @@
       notification: "withdraw-ft",
       payload: {
         assetContract: (contract-of ft),
-        caller: contract-caller,
+        contractCaller: contract-caller,
         recipient: recipient,
-        sender: tx-sender
+        txSender: tx-sender
       }
     })
     (as-contract (contract-call? ft transfer amount TREASURY recipient none))
@@ -149,9 +151,9 @@
       notification: "withdraw-nft",
       payload: {
         assetContract: (contract-of nft),
-        caller: contract-caller,
+        contractCaller: contract-caller,
         recipient: recipient,
-        sender: tx-sender,
+        txSender: tx-sender,
         tokenId: id
       }
     })
@@ -167,9 +169,9 @@
       notification: "delegate-stx",
       payload: {
         amount: maxAmount,
-        caller: contract-caller,
+        contractCaller: contract-caller,
         delegate: to,
-        sender: tx-sender
+        txSender: tx-sender
       }
     })
     (match (as-contract (contract-call? 'SP000000000000000000002Q6VF78.pox-4 delegate-stx maxAmount to none none))
@@ -186,8 +188,8 @@
     (print {
       notification: "revoke-delegate-stx",
       payload: {
-        caller: contract-caller,
-        sender: tx-sender
+        contractCaller: contract-caller,
+        txSender: tx-sender
       }
     })
     (match (as-contract (contract-call? 'SP000000000000000000002Q6VF78.pox-4 revoke-delegate-stx))
@@ -223,7 +225,9 @@
       notification: "allow-asset",
       payload: {
         enabled: (get enabled item),
-        token: (get token item)
+        token: (get token item),
+        contractCaller: contract-caller,
+        txSender: tx-sender
       }
     })
     (map-set AllowedAssets (get token item) (get enabled item))

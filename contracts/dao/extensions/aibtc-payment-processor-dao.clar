@@ -129,7 +129,7 @@
         contractCaller: contract-caller,
         oldAddress: (var-get paymentAddress),
         newAddress: newAddress,
-        txSender: tx-sender,
+        txSender: tx-sender
       }
     })
     ;; set new payment address

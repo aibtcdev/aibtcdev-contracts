@@ -91,6 +91,7 @@
       notification: "create-proposal",
       payload: {
         proposal: proposalContract,
+        contractCaller: contract-caller,
         creator: tx-sender,
         liquidTokens: liquidTokens,
         startBlockStx: block-height,
@@ -139,6 +140,7 @@
       notification: "vote-on-proposal",
       payload: {
         proposal: proposalContract,
+        contractCaller: contract-caller,
         voter: tx-sender,
         amount: senderBalance
       }
@@ -174,7 +176,9 @@
       notification: "conclude-proposal",
       payload: {
         proposal: proposalContract,
-        passed: votePassed
+        passed: votePassed,
+        contractCaller: contract-caller,
+        txSender: tx-sender
       }
     })
     ;; update the proposal record

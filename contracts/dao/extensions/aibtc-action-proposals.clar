@@ -93,6 +93,7 @@
         proposalId: newId,
         action: action,
         parameters: parameters,
+        contractCaller: contract-caller,
         creator: tx-sender,
         liquidTokens: liquidTokens,
         startBlockStx: block-height,
@@ -143,6 +144,7 @@
       notification: "vote-on-proposal",
       payload: {
         proposalId: proposalId,
+        contractCaller: contract-caller,
         voter: tx-sender,
         amount: senderBalance
       }
@@ -179,7 +181,9 @@
       notification: "conclude-proposal",
       payload: {
         proposalId: proposalId,
-        passed: votePassed
+        passed: votePassed,
+        contractCaller: contract-caller,
+        txSender: tx-sender
       }
     })
     ;; update the proposal record
