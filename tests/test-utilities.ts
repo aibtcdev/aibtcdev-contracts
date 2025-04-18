@@ -202,7 +202,8 @@ export function fundVoters(
     const getDaoTokensEvent = getDaoTokensReceipt.events.find(
       (eventRecord) =>
         eventRecord.event === "ft_transfer_event" &&
-        eventRecord.data?.asset_identifier === `${tokenContractAddress}::SYMBOL`
+        eventRecord.data?.asset_identifier ===
+          `${tokenContractAddress}::SYMBOL-AIBTC-DAO`
     );
     expect(getDaoTokensEvent).toBeDefined();
     const daoTokensAmount = parseInt(getDaoTokensEvent!.data.amount);

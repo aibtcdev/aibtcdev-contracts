@@ -17,6 +17,6 @@ describe(`token: ${contractName}`, () => {
       [],
       deployer
     ).result;
-    expect(result).toBeOk(Cl.stringAscii("SYMBOL"));
+    expect(result).toBeOk(Cl.stringAscii("SYMBOL-AIBTC-DAO"));
   });
 });
