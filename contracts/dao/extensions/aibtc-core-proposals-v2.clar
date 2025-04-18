@@ -55,7 +55,7 @@
 (define-data-var concludedProposalCount uint u0) ;; total number of concluded proposals
 (define-data-var executedProposalCount uint u0) ;; total number of executed proposals
 (define-data-var lastProposalCreated uint u0) ;; block height of last proposal created
-(define-data-var proposalBond uint u100000000000) ;; proposal bond amount, starts at 1000 DAO tokens (8 decimals)
+(define-data-var proposalBond uint u25000000000000) ;; core proposal bond, default 250,000 DAO tokens w/ 8 decimals
 ;; data maps
 ;;
 (define-map Proposals
