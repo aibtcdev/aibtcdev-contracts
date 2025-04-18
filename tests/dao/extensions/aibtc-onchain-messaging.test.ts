@@ -47,7 +47,7 @@ describe(`extension: ${ContractType.DAO_MESSAGING}`, () => {
       [Cl.stringAscii(message), Cl.bool(true)],
       address1
     );
-    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+    expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
   });
 
   it("send() succeeds if called by a DAO proposal with isFromDao true", () => {

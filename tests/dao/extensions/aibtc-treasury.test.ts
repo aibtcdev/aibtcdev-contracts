@@ -40,7 +40,7 @@ describe(`extension: ${contractName}`, () => {
       );
 
       // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
     });
 
     it("allow-assets() fails if caller is not DAO or extension", () => {
@@ -68,7 +68,7 @@ describe(`extension: ${contractName}`, () => {
       );
 
       // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
     });
 
     it("withdraw-stx() fails if caller is not DAO or extension", () => {
@@ -85,7 +85,7 @@ describe(`extension: ${contractName}`, () => {
       );
 
       // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
     });
 
     it("withdraw-ft() fails if caller is not DAO or extension", () => {
@@ -106,7 +106,7 @@ describe(`extension: ${contractName}`, () => {
       );
 
       // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
     });
 
     it("withdraw-nft() fails if caller is not DAO or extension", () => {
@@ -127,7 +127,7 @@ describe(`extension: ${contractName}`, () => {
       );
 
       // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
     });
 
     it("delegate-stx() fails if caller is not DAO or extension", () => {
@@ -144,7 +144,7 @@ describe(`extension: ${contractName}`, () => {
       );
 
       // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
     });
 
     it("revoke-delegate-stx() fails if caller is not DAO or extension", () => {
@@ -159,7 +159,7 @@ describe(`extension: ${contractName}`, () => {
       );
 
       // Assert
-      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+      expect(receipt.result).toBeErr(Cl.uint(ErrCode.ERR_NOT_DAO_OR_EXTENSION));
     });
   });
 

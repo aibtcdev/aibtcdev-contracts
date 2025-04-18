@@ -7,7 +7,7 @@ const accounts = simnet.getAccounts();
 const deployer = accounts.get("deployer")!;
 const contractAddress = `${deployer}.${ContractProposalType.DAO_TIMED_VAULT_STX_WITHDRAW}`;
 
-const expectedErr = Cl.uint(OnchainMessagingErrCode.ERR_UNAUTHORIZED);
+const expectedErr = Cl.uint(OnchainMessagingErrCode.ERR_NOT_DAO_OR_EXTENSION);
 
 describe(`core proposal: ${ContractProposalType.DAO_TIMED_VAULT_STX_WITHDRAW}`, () => {
   it("execute() fails if called directly", () => {
