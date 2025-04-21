@@ -18,9 +18,13 @@
 (define-constant DEPLOYED_STACKS_BLOCK stacks-block-height)
 (define-constant SELF (as-contract tx-sender))
 
+;; track periods by BTC block height
+(define-constant PERIOD_LENGTH u4320) ;; 30 days
+
 ;; error messages
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u6000))
 (define-constant ERR_UNKNOWN_ASSSET (err u6001))
+(define-constant ERR_PERIOD_ALREADY_CLAIMED (err u6002))
 
 ;; template variables
 ;;
@@ -33,6 +37,7 @@
 
 ;; track allowed assets
 (define-map AllowedAssets principal bool)
+
 ;; track claims per period
 (define-map StxClaims uint bool)
 (define-map FtClaims uint bool)
@@ -127,6 +132,7 @@
 (define-public (withdraw-stx (amount uint))
   (begin
     (try! (is-dao-or-extension))
+    (try! (update-stx-claim amount true))
     (print {
       notification: "withdraw-stx",
       payload: {
@@ -145,6 +151,7 @@
 (define-public (withdraw-ft (ft <ft-trait>) (amount uint))
   (begin
     (try! (is-dao-or-extension))
+    (try! (update-ft-claim amount true))
     (asserts! (is-allowed-asset (contract-of ft)) ERR_UNKNOWN_ASSSET)
     (print {
       notification: "withdraw-ft",
@@ -229,6 +236,18 @@
   (map-get? AllowedAssets assetContract)
 )
 
+(define-read-only (get-current-period)
+  (/ (- burn-block-height DEPLOYED_BURN_BLOCK) PERIOD_LENGTH)
+)
+
+(define-read-only (get-stx-claim (period uint))
+  (map-get? StxClaims period)
+)
+
+(define-read-only (get-ft-claim (period uint))
+  (map-get? FtClaims period)
+)
+
 ;; private functions
 ;;
 
@@ -253,3 +272,32 @@
   )
 )
 
+(define-private (update-stx-claim (period uint) (claimed bool))
+  (begin
+    (print {
+      notification: "update-stx-claim",
+      payload: {
+        period: period,
+        claimed: claimed,
+        contractCaller: contract-caller,
+        txSender: tx-sender
+      }
+    })
+    (ok (asserts! (map-insert StxClaims period claimed) ERR_PERIOD_ALREADY_CLAIMED))
+  )
+)
+
+(define-private (update-ft-claim (period uint) (claimed bool))
+  (begin
+    (print {
+      notification: "update-ft-claim",
+      payload: {
+        period: period,
+        claimed: claimed,
+        contractCaller: contract-caller,
+        txSender: tx-sender
+      }
+    })
+    (ok (asserts! (map-insert FtClaims period claimed) ERR_PERIOD_ALREADY_CLAIMED))
+  )
+)
