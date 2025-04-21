@@ -13,14 +13,25 @@
 ;; constants
 ;;
 
+(define-constant TREASURY (as-contract tx-sender))
+;; /g/.aibtc-operating-fund/operating_fund_contract
+(define-constant OPERATING_FUND .aibtc-operating-fund)
+(define-constant DEPLOYED_BURN_BLOCK burn-block-height)
+(define-constant DEPLOYED_STACKS_BLOCK stacks-block-height)
+(define-constant SELF (as-contract tx-sender))
+
+;; error messages
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u6000))
 (define-constant ERR_UNKNOWN_ASSSET (err u6001))
-(define-constant TREASURY (as-contract tx-sender))
 
 ;; data maps
 ;;
 
+;; track allowed assets
 (define-map AllowedAssets principal bool)
+;; track claims per period
+(define-map StxClaims uint bool)
+(define-map FtClaims uint bool)
 
 ;; public functions
 ;;
@@ -63,12 +74,12 @@
       payload: {
         amount: amount,
         contractCaller: contract-caller,
-        recipient: TREASURY,
+        recipient: SELF,
         txSender: tx-sender,
-        balance: (stx-get-balance TREASURY)
+        balance: (stx-get-balance SELF)
       }
     })
-    (stx-transfer? amount tx-sender TREASURY)
+    (stx-transfer? amount tx-sender SELF)
   )
 )
 
@@ -82,11 +93,11 @@
         amount: amount,
         assetContract: (contract-of ft),
         contractCaller: contract-caller,
-        recipient: TREASURY,
+        recipient: SELF,
         txSender: tx-sender
       }
     })
-    (contract-call? ft transfer amount tx-sender TREASURY none)
+    (contract-call? ft transfer amount tx-sender SELF none)
   )
 )
 
@@ -99,17 +110,17 @@
       payload: {
         assetContract: (contract-of nft),
         contractCaller: contract-caller,
-        recipient: TREASURY,
+        recipient: SELF,
         txSender: tx-sender,
         tokenId: id
       }
     })
-    (contract-call? nft transfer id tx-sender TREASURY)
+    (contract-call? nft transfer id tx-sender SELF)
   )
 )
 
 ;; withdraw STX from the treasury
-(define-public (withdraw-stx (amount uint) (recipient principal))
+(define-public (withdraw-stx (amount uint))
   (begin
     (try! (is-dao-or-extension))
     (print {
@@ -117,17 +128,17 @@
       payload: {
         amount: amount,
         contractCaller: contract-caller,
-        recipient: recipient,
+        recipient: OPERATING_FUND,
         txSender: tx-sender,
-        balance: (stx-get-balance TREASURY)
+        balance: (stx-get-balance SELF)
       }
     })
-    (as-contract (stx-transfer? amount TREASURY recipient))
+    (as-contract (stx-transfer? amount SELF OPERATING_FUND))
   )
 )
 
 ;; withdraw FT from the treasury
-(define-public (withdraw-ft (ft <ft-trait>) (amount uint) (recipient principal))
+(define-public (withdraw-ft (ft <ft-trait>) (amount uint))
   (begin
     (try! (is-dao-or-extension))
     (asserts! (is-allowed-asset (contract-of ft)) ERR_UNKNOWN_ASSSET)
@@ -136,12 +147,12 @@
       payload: {
         assetContract: (contract-of ft),
         contractCaller: contract-caller,
-        recipient: recipient,
+        recipient: OPERATING_FUND,
         txSender: tx-sender,
         amount: amount
       }
     })
-    (as-contract (contract-call? ft transfer amount TREASURY recipient none))
+    (as-contract (contract-call? ft transfer amount SELF OPERATING_FUND none))
   )
 )
 
@@ -161,7 +172,7 @@
         amount: u1
       }
     })
-    (as-contract (contract-call? nft transfer id TREASURY recipient))
+    (as-contract (contract-call? nft transfer id SELF recipient))
   )
 )
 

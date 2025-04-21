@@ -1,5 +1,5 @@
 ;; title: aibtc-dao-traits
-;; version: 3.0.0
+;; version: 3.1.0
 ;; summary: A collection of traits for all aibtc daos.
 
 ;; IMPORTS
@@ -228,13 +228,13 @@
   ;; @param amount amount of microSTX to withdraw
   ;; @param recipient the recipient of the STX
   ;; @returns (response bool uint)
-  (withdraw-stx (uint principal) (response bool uint))
+  (withdraw-stx (uint) (response bool uint))
   ;; withdraw FT from the treasury
   ;; @param ft the fungible token contract principal
   ;; @param amount amount of tokens to withdraw
   ;; @param recipient the recipient of the tokens
   ;; @returns (response bool uint)
-  (withdraw-ft (<ft-trait> uint principal) (response bool uint))
+  (withdraw-ft (<ft-trait> uint) (response bool uint))
   ;; withdraw NFT from the treasury
   ;; @param nft the non-fungible token contract principal
   ;; @param id the ID of the token to withdraw
