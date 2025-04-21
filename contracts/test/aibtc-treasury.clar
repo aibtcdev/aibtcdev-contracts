@@ -29,11 +29,11 @@
   (ok true)
 )
 
-(define-public (withdraw-stx (amount uint) (recipient principal))
+(define-public (withdraw-stx (amount uint))
   (ok true)
 )
 
-(define-public (withdraw-ft (ft <ft-trait>) (amount uint) (recipient principal))
+(define-public (withdraw-ft (ft <ft-trait>) (amount uint))
   (ok true)
 )
 

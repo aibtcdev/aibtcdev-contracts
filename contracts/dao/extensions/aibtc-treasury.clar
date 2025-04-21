@@ -151,8 +151,8 @@
 (define-public (withdraw-ft (ft <ft-trait>) (amount uint))
   (begin
     (try! (is-dao-or-extension))
-    (try! (update-ft-claim amount true))
     (asserts! (is-allowed-asset (contract-of ft)) ERR_UNKNOWN_ASSSET)
+    (try! (update-ft-claim amount true))
     (print {
       notification: "withdraw-ft",
       payload: {
@@ -246,6 +246,18 @@
 
 (define-read-only (get-ft-claim (period uint))
   (map-get? FtClaims period)
+)
+
+(define-read-only (get-contract-info)
+  {
+    self: SELF,
+    deployedBurnBlock: DEPLOYED_BURN_BLOCK,
+    deployedStacksBlock: DEPLOYED_STACKS_BLOCK,
+    currentPeriod: (get-current-period),
+    currentStxClaim: (get-stx-claim (get-current-period)),
+    currentFtClaim: (get-ft-claim (get-current-period)),
+    periodLength: PERIOD_LENGTH,
+  }
 )
 
 ;; private functions
