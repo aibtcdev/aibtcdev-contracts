@@ -13,9 +13,7 @@
 ;; constants
 ;;
 
-(define-constant TREASURY (as-contract tx-sender))
-;; /g/.aibtc-operating-fund/operating_fund_contract
-(define-constant OPERATING_FUND .aibtc-operating-fund)
+;; contract names
 (define-constant DEPLOYED_BURN_BLOCK burn-block-height)
 (define-constant DEPLOYED_STACKS_BLOCK stacks-block-height)
 (define-constant SELF (as-contract tx-sender))
@@ -23,6 +21,12 @@
 ;; error messages
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u6000))
 (define-constant ERR_UNKNOWN_ASSSET (err u6001))
+
+;; template variables
+;;
+
+;; /g/.aibtc-operating-fund/operating_fund_contract
+(define-constant CFG_OPERATING_FUND .aibtc-operating-fund)
 
 ;; data maps
 ;;
@@ -128,12 +132,12 @@
       payload: {
         amount: amount,
         contractCaller: contract-caller,
-        recipient: OPERATING_FUND,
+        recipient: CFG_OPERATING_FUND,
         txSender: tx-sender,
         balance: (stx-get-balance SELF)
       }
     })
-    (as-contract (stx-transfer? amount SELF OPERATING_FUND))
+    (as-contract (stx-transfer? amount SELF CFG_OPERATING_FUND))
   )
 )
 
@@ -147,12 +151,12 @@
       payload: {
         assetContract: (contract-of ft),
         contractCaller: contract-caller,
-        recipient: OPERATING_FUND,
+        recipient: CFG_OPERATING_FUND,
         txSender: tx-sender,
         amount: amount
       }
     })
-    (as-contract (contract-call? ft transfer amount SELF OPERATING_FUND none))
+    (as-contract (contract-call? ft transfer amount SELF CFG_OPERATING_FUND none))
   )
 )
 
