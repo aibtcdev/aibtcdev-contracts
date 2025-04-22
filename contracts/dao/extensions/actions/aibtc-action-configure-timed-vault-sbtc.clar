@@ -1,8 +1,12 @@
+;; title: aibtc-action-configure-timed-vault-sbtc
+;; version: 1.0.0
+;; summary: A predefined action to configure the BTC timed vaults.
+
 (impl-trait .aibtc-dao-traits-v3.extension)
 (impl-trait .aibtc-dao-traits-v3.action)
 
-(define-constant ERR_UNAUTHORIZED (err u10001))
-(define-constant ERR_INVALID_PARAMS (err u10002))
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u1100))
+(define-constant ERR_INVALID_PARAMS (err u1101))
 
 (define-constant CFG_MESSAGE "Executed Action Proposal: Updated configuration in BTC timed vault extension")
 
@@ -51,6 +55,6 @@
 
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
-    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )

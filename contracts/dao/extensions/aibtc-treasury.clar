@@ -4,16 +4,16 @@
 
 ;; traits
 ;;
+
 (impl-trait .aibtc-dao-traits-v3.extension)
 (impl-trait .aibtc-dao-traits-v3.treasury)
 
 (use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
-(use-trait nft-trait 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait)
 
 ;; constants
 ;;
 
-;; contract names
+;; contract details
 (define-constant DEPLOYED_BURN_BLOCK burn-block-height)
 (define-constant DEPLOYED_STACKS_BLOCK stacks-block-height)
 (define-constant SELF (as-contract tx-sender))
@@ -59,9 +59,7 @@
 ;; public functions
 ;;
 
-(define-public (callback (sender principal) (memo (buff 34)))
-  (ok true)
-)
+(define-public (callback (sender principal) (memo (buff 34))) (ok true))
 
 ;; add or update an asset to the allowed list
 (define-public (allow-asset (token principal) (enabled bool))

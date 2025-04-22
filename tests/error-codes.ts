@@ -41,7 +41,7 @@ export enum ActionProposalsV2ErrCode {
 }
 
 export enum ActionErrCode {
-  ERR_UNAUTHORIZED = 10001,
+  ERR_UNAUTHORIZED = 1100,
   ERR_INVALID_PARAMS,
 }
 
@@ -113,7 +113,9 @@ export enum PaymentProcessorErrCode {
 
 export enum TreasuryErrCode {
   ERR_NOT_DAO_OR_EXTENSION = 6000,
-  ERR_UNKNOWN_ASSSET,
+  ERR_UNKNOWN_ASSET,
+  ERR_FETCHING_ASSET,
+  ERR_PERIOD_ALREADY_CLAIMED,
 }
 
 export enum TokenOwnerErrCode {
@@ -125,6 +127,19 @@ export enum DaoCharterErrCode {
   ERR_SAVING_CHARTER,
   ERR_CHARTER_TOO_SHORT,
   ERR_CHARTER_TOO_LONG,
+}
+
+export enum UserAgentAccountErrCode {
+  ERR_UNAUTHORIZED = 9000,
+  ERR_UNKNOWN_ASSET,
+  ERR_OPERATION_FAILED,
+  ERR_BUY_SELL_NOT_ALLOWED,
+}
+
+export enum OperatingFundErrCode {
+  ERR_NOT_DAO_OR_EXTENSION = 10000,
+  ERR_UNKNOWN_ASSET,
+  ERR_FETCHING_ASSET,
 }
 
 export enum TokenFaktoryErrCode {
@@ -140,11 +155,4 @@ export enum TokenFaktoryDexErrCode {
   ERR_FETCHING_BUY_INFO,
   ERR_FETCHING_SELL_INFO,
   ERR_TOKEN_NOT_AUTH = 401,
-}
-
-export enum UserAgentAccountErrCode {
-  ERR_UNAUTHORIZED = 9000,
-  ERR_UNKNOWN_ASSET,
-  ERR_OPERATION_FAILED,
-  ERR_BUY_SELL_NOT_ALLOWED,
 }
