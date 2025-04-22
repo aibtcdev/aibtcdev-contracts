@@ -1,6 +1,6 @@
 ;; title: aibtc-treasury
-;; version: 1.0.0
-;; summary: An extension that manages STX, SIP-009 NFTs, and SIP-010 FTs.
+;; version: 2.0.0
+;; summary: TBD
 
 ;; traits
 ;;
@@ -19,6 +19,7 @@
 (define-constant SELF (as-contract tx-sender))
 
 ;; track periods by BTC block height
+(define-constant PERIOD_BPS u200) ;; 2% of own supply
 (define-constant PERIOD_LENGTH u4320) ;; 30 days
 
 ;; error messages
@@ -63,15 +64,6 @@
       }
     })
     (ok (map-set AllowedAssets token enabled))
-  )
-)
-
-;; add or update a list of assets to the allowed list
-(define-public (allow-assets (allowList (list 100 {token: principal, enabled: bool})))
-  (begin
-    (try! (is-dao-or-extension))
-    (map allow-assets-iter allowList)
-    (ok true)
   )
 )
 
@@ -267,21 +259,6 @@
   (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
     (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
-)
-
-(define-private (allow-assets-iter (item {token: principal, enabled: bool}))
-  (begin
-    (print {
-      notification: "allow-asset",
-      payload: {
-        enabled: (get enabled item),
-        token: (get token item),
-        contractCaller: contract-caller,
-        txSender: tx-sender
-      }
-    })
-    (map-set AllowedAssets (get token item) (get enabled item))
-  )
 )
 
 (define-private (update-stx-claim (period uint) (claimed bool))
