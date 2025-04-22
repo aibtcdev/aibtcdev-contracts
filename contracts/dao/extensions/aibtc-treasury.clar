@@ -20,12 +20,15 @@
 
 ;; track periods by BTC block height
 (define-constant PERIOD_BPS u200) ;; 2% of own supply
-(define-constant PERIOD_LENGTH u4320) ;; 30 days
+(define-constant PERIOD_LENGTH u4320) ;; 30 days in BTC blocks
+(define-constant PERIOD_MIN_BTC u100) ;; 0.00000100 BTC or 100 sats (8 decimals)
+(define-constant PERIOD_MIN_STX u1000000) ;; 1 STX (6 decimals)
 
 ;; error messages
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u6000))
-(define-constant ERR_UNKNOWN_ASSSET (err u6001))
-(define-constant ERR_PERIOD_ALREADY_CLAIMED (err u6002))
+(define-constant ERR_UNKNOWN_ASSET (err u6001))
+(define-constant ERR_FETCHING_ASSET (err u6002))
+(define-constant ERR_PERIOD_ALREADY_CLAIMED (err u6003))
 
 ;; template variables
 ;;
@@ -98,7 +101,7 @@
 (define-public (deposit-ft (ft <ft-trait>) (amount uint))
   (begin
     ;; no auth - anyone can deposit if token allowed
-    (asserts! (is-allowed-asset (contract-of ft)) ERR_UNKNOWN_ASSSET)
+    (asserts! (is-allowed-asset (contract-of ft)) ERR_UNKNOWN_ASSET)
     (print {
       notification: "treasury-deposit-ft",
       payload: {
@@ -114,17 +117,17 @@
 )
 
 ;; transfer STX from treasury to operating fund
-;; TODO - determine amount as 2% of balance
 (define-public (transfer-stx-to-operating-fund)
   (let
     (
-      (amount u0)
+      (amount (unwrap-panic (get-stx-claim-amount)))
     )
     (try! (is-dao-or-extension))
     (try! (update-claim-stx))
     (print {
       notification: "treasury-transfer-stx-to-operating-fund",
       payload: {
+        amount: amount,
         recipient: CFG_OPERATING_FUND,
         contractCaller: contract-caller,
         txSender: tx-sender,
@@ -139,17 +142,17 @@
   (let
     (
       (assetContract (contract-of ft))
-      (amount u0)
+      (amount (try! (get-ft-claim-amount ft)))
     )
     (try! (is-dao-or-extension))
-    (asserts! (is-allowed-asset assetContract) ERR_UNKNOWN_ASSSET)
+    (asserts! (is-allowed-asset assetContract) ERR_UNKNOWN_ASSET)
     (try! (update-claim-ft assetContract))
     (print {
       notification: "treasury-transfer-ft-to-operating-fund",
       payload: {
         amount: amount,
-        assetContract: assetContract,
         recipient: CFG_OPERATING_FUND,
+        assetContract: assetContract,
         contractCaller: contract-caller,
         txSender: tx-sender,
       }
@@ -159,19 +162,19 @@
 )
 
 ;; delegate STX for stacking
-(define-public (delegate-stx (maxAmount uint) (to principal))
+(define-public (delegate-stx (maxAmount uint) (delegateTo principal))
   (begin
     (try! (is-dao-or-extension))
     (print {
-      notification: "delegate-stx",
+      notification: "treasury-delegate-stx",
       payload: {
-        amount: maxAmount,
+        maxAmount: maxAmount,
+        delegateTo: delegateTo,
         contractCaller: contract-caller,
-        delegate: to,
         txSender: tx-sender
       }
     })
-    (match (as-contract (contract-call? 'SP000000000000000000002Q6VF78.pox-4 delegate-stx maxAmount to none none))
+    (match (as-contract (contract-call? 'SP000000000000000000002Q6VF78.pox-4 delegate-stx maxAmount delegateTo none none))
       success (ok success)
       err (err (to-uint err))
     )
@@ -183,7 +186,7 @@
   (begin
     (try! (is-dao-or-extension))
     (print {
-      notification: "revoke-delegate-stx",
+      notification: "treasury-revoke-delegate-stx",
       payload: {
         contractCaller: contract-caller,
         txSender: tx-sender
@@ -215,7 +218,7 @@
   (map-get? StxClaims period)
 )
 
-(define-read-only (get-claim-ft (assetContract principal) (period uint))
+(define-read-only (get-claim-ft (period uint) (assetContract principal) )
   (map-get? FtClaims { contract: assetContract, period: period })
 )
 
@@ -234,14 +237,14 @@
       periodLength: PERIOD_LENGTH,
       lastPeriod: {
         period: lastPeriod,
-        btcClaimed: (get-claim-ft CFG_SBTC_TOKEN lastPeriod),
-        daoClaimed: (get-claim-ft CFG_DAO_TOKEN lastPeriod),
+        btcClaimed: (get-claim-ft lastPeriod CFG_SBTC_TOKEN),
+        daoClaimed: (get-claim-ft lastPeriod CFG_DAO_TOKEN),
         stxClaimed: (get-claim-stx lastPeriod),
       },
       currentPeriod: {
         period: currentPeriod,
-        btcClaimed: (get-claim-ft CFG_SBTC_TOKEN currentPeriod),
-        daoClaimed: (get-claim-ft CFG_DAO_TOKEN currentPeriod),
+        btcClaimed: (get-claim-ft currentPeriod CFG_SBTC_TOKEN),
+        daoClaimed: (get-claim-ft currentPeriod CFG_DAO_TOKEN),
         stxClaimed: (get-claim-stx currentPeriod),
       },
     }
@@ -277,6 +280,20 @@
   )
 )
 
+;; helper that will return 2% of the current balance for STX
+(define-private (get-stx-claim-amount)
+  (let
+    (
+      (balance (stx-get-balance SELF))
+      (claimAmount (/ (* balance PERIOD_BPS) u10000))
+    )
+    (if (< claimAmount PERIOD_MIN_STX)
+      (ok PERIOD_MIN_STX) ;; 1 STX minimum
+      (ok claimAmount) ;; 2% of balance
+    )
+  )
+)
+
 ;; helper that will update the claim status for FT
 ;; and error if the period was already claimed
 (define-private (update-claim-ft (assetContract principal))
@@ -294,5 +311,24 @@
       (map-insert FtClaims { contract: contract-caller, period: (get-current-period) } true)
       ERR_PERIOD_ALREADY_CLAIMED
     ))
+  )
+)
+
+;; helper that will return 2% of the current balance for FT
+(define-private (get-ft-claim-amount (ft <ft-trait>))
+  (let
+    (
+      (balance (unwrap! (contract-call? ft get-balance SELF) ERR_FETCHING_ASSET))
+      (decimals (unwrap! (contract-call? ft get-decimals) ERR_FETCHING_ASSET))
+      (minAmount (if (is-eq (contract-of ft) CFG_SBTC_TOKEN)
+        PERIOD_MIN_BTC ;; 100 sats, specific to BTC
+        (pow u10 decimals) ;; 1 whole FT minimum otherwise
+      ))
+      (claimAmount (/ (* balance PERIOD_BPS) u10000))
+    )
+    (if (< claimAmount minAmount)
+      (ok minAmount) ;; 1 FT minimum
+      (ok claimAmount) ;; 2% of balance
+    )
   )
 )
