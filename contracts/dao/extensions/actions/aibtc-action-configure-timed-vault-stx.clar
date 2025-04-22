@@ -2,13 +2,25 @@
 ;; version: 1.0.0
 ;; summary: A predefined action to configure the STX timed vaults.
 
+;; traits
+;;
+
 (impl-trait .aibtc-dao-traits-v3.extension)
 (impl-trait .aibtc-dao-traits-v3.action)
+
+;; constants
+;;
 
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u1100))
 (define-constant ERR_INVALID_PARAMS (err u1101))
 
+;; template variables
+;;
+
 (define-constant CFG_MESSAGE "Executed Action Proposal: Updated configuration in STX timed vault extension")
+
+;; public functions
+;;
 
 (define-public (callback (sender principal) (memo (buff 34))) (ok true))
 
@@ -52,6 +64,9 @@
     (ok true)
   )
 )
+
+;; private functions
+;;
 
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
