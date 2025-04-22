@@ -1,6 +1,6 @@
 ;; title: aibtc-treasury
 ;; version: 2.0.0
-;; summary: TBD
+;; summary: A secure treasury contract that controls the funds of the DAO.
 
 ;; traits
 ;;
