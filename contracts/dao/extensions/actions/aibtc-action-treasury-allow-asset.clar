@@ -17,7 +17,7 @@
 ;; template variables
 ;;
 
-(define-constant CFG_MESSAGE "Executed Action Proposal: Allowed or enabled asset for use in the treasury") 
+(define-constant CFG_MESSAGE "Executed Action Proposal: Allowed or updated asset for use in the treasury") 
 
 ;; public functions
 ;;

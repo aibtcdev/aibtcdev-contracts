@@ -47,6 +47,7 @@
 (define-map AllowedAssets principal bool)
 
 ;; track transfers per period
+;; TODO - track amount instead of bool?
 (define-map StxClaims
   uint ;; period
   bool ;; claimed

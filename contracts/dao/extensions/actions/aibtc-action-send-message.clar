@@ -14,9 +14,6 @@
 (define-constant ERR_NOT_DAO_OR_EXTENSION (err u1100))
 (define-constant ERR_INVALID_PARAMS (err u1101))
 
-;; template variables
-;;
-
 ;; public functions
 ;;
 
