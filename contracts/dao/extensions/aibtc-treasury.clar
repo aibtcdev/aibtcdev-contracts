@@ -30,18 +30,28 @@
 ;; template variables
 ;;
 
+;; /g/STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token/sbtc_token_contract
+(define-constant CFG_SBTC_TOKEN 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token)
+;; /g/.aibtc-token/dao_token_contract
+(define-constant CFG_DAO_TOKEN .aibtc-token)
 ;; /g/.aibtc-operating-fund/operating_fund_contract
 (define-constant CFG_OPERATING_FUND .aibtc-operating-fund)
 
 ;; data maps
 ;;
 
-;; track allowed assets
+;; track allowed assets for deposit/transfer
 (define-map AllowedAssets principal bool)
 
-;; track claims per period
-(define-map StxClaims uint bool)
-(define-map FtClaims uint bool)
+;; track transfers per period
+(define-map StxClaims
+  uint ;; period
+  bool ;; claimed
+)
+(define-map FtClaims
+  { contract: principal, period: uint }
+  bool ;; claimed
+)
 
 ;; public functions
 ;;
@@ -55,10 +65,10 @@
   (begin
     (try! (is-dao-or-extension))
     (print {
-      notification: "allow-asset",
+      notification: "treasury-allow-asset",
       payload: {
-        enabled: enabled,
         token: token,
+        enabled: enabled,
         contractCaller: contract-caller,
         txSender: tx-sender
       }
@@ -68,16 +78,16 @@
 )
 
 ;; deposit STX to the treasury
-(define-public (deposit-stx (amount uint))
+(define-public (deposit-stx (amount uint))  
   (begin
+    ;; no auth - anyone can deposit
     (print {
-      notification: "deposit-stx",
+      notification: "treasury-deposit-stx",
       payload: {
         amount: amount,
-        contractCaller: contract-caller,
         recipient: SELF,
+        contractCaller: contract-caller,
         txSender: tx-sender,
-        balance: (stx-get-balance SELF)
       }
     })
     (stx-transfer? amount tx-sender SELF)
@@ -87,14 +97,15 @@
 ;; deposit FT to the treasury
 (define-public (deposit-ft (ft <ft-trait>) (amount uint))
   (begin
+    ;; no auth - anyone can deposit if token allowed
     (asserts! (is-allowed-asset (contract-of ft)) ERR_UNKNOWN_ASSSET)
     (print {
-      notification: "deposit-ft",
+      notification: "treasury-deposit-ft",
       payload: {
         amount: amount,
+        recipient: SELF,
         assetContract: (contract-of ft),
         contractCaller: contract-caller,
-        recipient: SELF,
         txSender: tx-sender
       }
     })
@@ -102,80 +113,48 @@
   )
 )
 
-;; deposit NFT to the treasury
-(define-public (deposit-nft (nft <nft-trait>) (id uint))
-  (begin
-    (asserts! (is-allowed-asset (contract-of nft)) ERR_UNKNOWN_ASSSET)
-    (print {
-      notification: "deposit-nft",
-      payload: {
-        assetContract: (contract-of nft),
-        contractCaller: contract-caller,
-        recipient: SELF,
-        txSender: tx-sender,
-        tokenId: id
-      }
-    })
-    (contract-call? nft transfer id tx-sender SELF)
-  )
-)
-
-;; withdraw STX from the treasury
-(define-public (withdraw-stx (amount uint))
-  (begin
+;; transfer STX from treasury to operating fund
+;; TODO - determine amount as 2% of balance
+(define-public (transfer-stx-to-operating-fund)
+  (let
+    (
+      (amount u0)
+    )
     (try! (is-dao-or-extension))
-    (try! (update-stx-claim amount true))
+    (try! (update-claim-stx))
     (print {
-      notification: "withdraw-stx",
+      notification: "treasury-transfer-stx-to-operating-fund",
       payload: {
-        amount: amount,
-        contractCaller: contract-caller,
         recipient: CFG_OPERATING_FUND,
+        contractCaller: contract-caller,
         txSender: tx-sender,
-        balance: (stx-get-balance SELF)
       }
     })
     (as-contract (stx-transfer? amount SELF CFG_OPERATING_FUND))
   )
 )
 
-;; withdraw FT from the treasury
-(define-public (withdraw-ft (ft <ft-trait>) (amount uint))
-  (begin
+;; transfer FT from treasury to operating fund
+(define-public (transfer-ft-to-operating-fund (ft <ft-trait>))
+  (let
+    (
+      (assetContract (contract-of ft))
+      (amount u0)
+    )
     (try! (is-dao-or-extension))
-    (asserts! (is-allowed-asset (contract-of ft)) ERR_UNKNOWN_ASSSET)
-    (try! (update-ft-claim amount true))
+    (asserts! (is-allowed-asset assetContract) ERR_UNKNOWN_ASSSET)
+    (try! (update-claim-ft assetContract))
     (print {
-      notification: "withdraw-ft",
+      notification: "treasury-transfer-ft-to-operating-fund",
       payload: {
-        assetContract: (contract-of ft),
-        contractCaller: contract-caller,
+        amount: amount,
+        assetContract: assetContract,
         recipient: CFG_OPERATING_FUND,
+        contractCaller: contract-caller,
         txSender: tx-sender,
-        amount: amount
       }
     })
     (as-contract (contract-call? ft transfer amount SELF CFG_OPERATING_FUND none))
-  )
-)
-
-;; withdraw NFT from the treasury
-(define-public (withdraw-nft (nft <nft-trait>) (id uint) (recipient principal))
-  (begin
-    (try! (is-dao-or-extension))
-    (asserts! (is-allowed-asset (contract-of nft)) ERR_UNKNOWN_ASSSET)
-    (print {
-      notification: "withdraw-nft",
-      payload: {
-        assetContract: (contract-of nft),
-        contractCaller: contract-caller,
-        recipient: recipient,
-        txSender: tx-sender,
-        tokenId: id,
-        amount: u1
-      }
-    })
-    (as-contract (contract-call? nft transfer id SELF recipient))
   )
 )
 
@@ -232,24 +211,41 @@
   (/ (- burn-block-height DEPLOYED_BURN_BLOCK) PERIOD_LENGTH)
 )
 
-(define-read-only (get-stx-claim (period uint))
+(define-read-only (get-claim-stx (period uint))
   (map-get? StxClaims period)
 )
 
-(define-read-only (get-ft-claim (period uint))
-  (map-get? FtClaims period)
+(define-read-only (get-claim-ft (assetContract principal) (period uint))
+  (map-get? FtClaims { contract: assetContract, period: period })
 )
 
 (define-read-only (get-contract-info)
-  {
-    self: SELF,
-    deployedBurnBlock: DEPLOYED_BURN_BLOCK,
-    deployedStacksBlock: DEPLOYED_STACKS_BLOCK,
-    currentPeriod: (get-current-period),
-    currentStxClaim: (get-stx-claim (get-current-period)),
-    currentFtClaim: (get-ft-claim (get-current-period)),
-    periodLength: PERIOD_LENGTH,
-  }
+  (let
+    (
+      (currentPeriod (get-current-period))
+      (lastPeriod (if (> currentPeriod u0) (- currentPeriod u1) u0))
+    )
+    ;; return contract info object
+    {
+      self: SELF,
+      deployedBurnBlock: DEPLOYED_BURN_BLOCK,
+      deployedStacksBlock: DEPLOYED_STACKS_BLOCK,
+      periodBps: PERIOD_BPS,
+      periodLength: PERIOD_LENGTH,
+      lastPeriod: {
+        period: lastPeriod,
+        btcClaimed: (get-claim-ft CFG_SBTC_TOKEN lastPeriod),
+        daoClaimed: (get-claim-ft CFG_DAO_TOKEN lastPeriod),
+        stxClaimed: (get-claim-stx lastPeriod),
+      },
+      currentPeriod: {
+        period: currentPeriod,
+        btcClaimed: (get-claim-ft CFG_SBTC_TOKEN currentPeriod),
+        daoClaimed: (get-claim-ft CFG_DAO_TOKEN currentPeriod),
+        stxClaimed: (get-claim-stx currentPeriod),
+      },
+    }
+  )
 )
 
 ;; private functions
@@ -261,32 +257,42 @@
   ))
 )
 
-(define-private (update-stx-claim (period uint) (claimed bool))
+;; helper that will update the claim status for STX
+;; and error if the period was already claimed
+(define-private (update-claim-stx)
   (begin
     (print {
-      notification: "update-stx-claim",
+      notification: "treasury-update-claim-stx",
       payload: {
-        period: period,
-        claimed: claimed,
+        period: (get-current-period),
+        claimed: true,
         contractCaller: contract-caller,
         txSender: tx-sender
       }
     })
-    (ok (asserts! (map-insert StxClaims period claimed) ERR_PERIOD_ALREADY_CLAIMED))
+    (ok (asserts!
+      (map-insert StxClaims (get-current-period) true)
+      ERR_PERIOD_ALREADY_CLAIMED
+    ))
   )
 )
 
-(define-private (update-ft-claim (period uint) (claimed bool))
+;; helper that will update the claim status for FT
+;; and error if the period was already claimed
+(define-private (update-claim-ft (assetContract principal))
   (begin
     (print {
-      notification: "update-ft-claim",
+      notification: "treasury-update-claim-ft",
       payload: {
-        period: period,
-        claimed: claimed,
+        period: (get-current-period),
+        claimed: true,
         contractCaller: contract-caller,
         txSender: tx-sender
       }
     })
-    (ok (asserts! (map-insert FtClaims period claimed) ERR_PERIOD_ALREADY_CLAIMED))
+    (ok (asserts!
+      (map-insert FtClaims { contract: contract-caller, period: (get-current-period) } true)
+      ERR_PERIOD_ALREADY_CLAIMED
+    ))
   )
 )
