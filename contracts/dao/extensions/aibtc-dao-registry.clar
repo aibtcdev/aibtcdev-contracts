@@ -84,3 +84,8 @@
 (define-read-only (get-current-dao-epoch)
   (/ (- burn-block-height DEPLOYED_BURN_BLOCK) EPOCH_LENGTH)
 )
+
+;; returns the epoch length
+(define-read-only (get-dao-epoch-length)
+  EPOCH_LENGTH
+)

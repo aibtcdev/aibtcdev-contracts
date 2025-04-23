@@ -13,6 +13,12 @@
 ;; constants
 ;;
 
+;; error messages
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u6000))
+(define-constant ERR_UNKNOWN_ASSET (err u6001))
+(define-constant ERR_FETCHING_ASSET (err u6002))
+(define-constant ERR_PERIOD_ALREADY_CLAIMED (err u6003))
+
 ;; contract details
 (define-constant DEPLOYED_BURN_BLOCK burn-block-height)
 (define-constant DEPLOYED_STACKS_BLOCK stacks-block-height)
@@ -20,15 +26,10 @@
 
 ;; track periods by BTC block height
 (define-constant PERIOD_BPS u200) ;; 2% of own supply
+(define-constant PERIOD_BPS_DIVISOR u10000) ;; 10000 BP = 100%
 (define-constant PERIOD_LENGTH u4320) ;; 30 days in BTC blocks
 (define-constant PERIOD_MIN_BTC u100) ;; 0.00000100 BTC or 100 sats (8 decimals)
 (define-constant PERIOD_MIN_STX u1000000) ;; 1 STX (6 decimals)
-
-;; error messages
-(define-constant ERR_NOT_DAO_OR_EXTENSION (err u6000))
-(define-constant ERR_UNKNOWN_ASSET (err u6001))
-(define-constant ERR_FETCHING_ASSET (err u6002))
-(define-constant ERR_PERIOD_ALREADY_CLAIMED (err u6003))
 
 ;; template variables
 ;;

@@ -18,15 +18,19 @@
 ;; constants
 ;;
 
+;; error messages
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u10000))
+(define-constant ERR_UNKNOWN_ASSET (err u10001))
+(define-constant ERR_FETCHING_ASSET (err u10002))
+
 ;; contract details
 (define-constant DEPLOYED_BURN_BLOCK burn-block-height)
 (define-constant DEPLOYED_STACKS_BLOCK stacks-block-height)
 (define-constant SELF (as-contract tx-sender))
 
-;; error messages
-(define-constant ERR_NOT_DAO_OR_EXTENSION (err u10000))
-(define-constant ERR_UNKNOWN_ASSET (err u10001))
-(define-constant ERR_FETCHING_ASSET (err u10002))
+;; track epochs by BTC block height
+(define-constant EPOCH_BPS u5000) ;; 50% of own supply
+(define-constant EPOCH_BPS_DIVISOR u10000) ;; 10000 BP = 100%
 
 ;; template variables
 ;;
@@ -34,9 +38,6 @@
 
 ;; data maps
 ;;
-
-;; track allowed assets for deposit/transfer
-(define-map AllowedAssets principal bool)
 
 ;; track transfers per period
 ;; TODO - track amount instead of bool?
