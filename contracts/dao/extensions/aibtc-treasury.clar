@@ -47,14 +47,13 @@
 (define-map AllowedAssets principal bool)
 
 ;; track transfers per period
-;; TODO - track amount instead of bool?
 (define-map StxClaims
   uint ;; period
-  bool ;; claimed
+  uint ;; claimed amount
 )
 (define-map FtClaims
   { contract: principal, period: uint }
-  bool ;; claimed
+  uint ;; claimed amount
 )
 
 ;; public functions
@@ -122,7 +121,7 @@
       (amount (unwrap-panic (get-stx-claim-amount)))
     )
     (try! (is-dao-or-extension))
-    (try! (update-claim-stx))
+    (try! (update-claim-stx amount))
     (print {
       notification: "treasury-transfer-stx-to-operating-fund",
       payload: {
@@ -145,7 +144,7 @@
     )
     (try! (is-dao-or-extension))
     (asserts! (is-allowed-asset assetContract) ERR_UNKNOWN_ASSET)
-    (try! (update-claim-ft assetContract))
+    (try! (update-claim-ft amount assetContract))
     (print {
       notification: "treasury-transfer-ft-to-operating-fund",
       payload: {
@@ -221,6 +220,7 @@
   (map-get? FtClaims { contract: assetContract, period: period })
 )
 
+;; TODO: consider splitting dynamic/static info, easier to cache on client side
 (define-read-only (get-contract-info)
   (let
     (
@@ -261,7 +261,7 @@
 
 ;; helper that will update the claim status for STX
 ;; and error if the period was already claimed
-(define-private (update-claim-stx)
+(define-private (update-claim-stx (amount uint))
   (begin
     (print {
       notification: "treasury-update-claim-stx",
@@ -273,7 +273,7 @@
       }
     })
     (ok (asserts!
-      (map-insert StxClaims (get-current-period) true)
+      (map-insert StxClaims (get-current-period) amount)
       ERR_PERIOD_ALREADY_CLAIMED
     ))
   )
@@ -295,7 +295,7 @@
 
 ;; helper that will update the claim status for FT
 ;; and error if the period was already claimed
-(define-private (update-claim-ft (assetContract principal))
+(define-private (update-claim-ft (amount uint) (assetContract principal))
   (begin
     (print {
       notification: "treasury-update-claim-ft",
@@ -307,7 +307,7 @@
       }
     })
     (ok (asserts!
-      (map-insert FtClaims { contract: contract-caller, period: (get-current-period) } true)
+      (map-insert FtClaims { contract: contract-caller, period: (get-current-period) } amount)
       ERR_PERIOD_ALREADY_CLAIMED
     ))
   )

@@ -142,6 +142,10 @@ export enum OperatingFundErrCode {
   ERR_FETCHING_ASSET,
 }
 
+export enum DaoRegistryErrCode {
+  ERR_NOT_DAO_OR_EXTENSION = 11000,
+}
+
 export enum TokenFaktoryErrCode {
   ERR_NOT_AUTHORIZED = 401,
   ERR_NOT_OWNER,

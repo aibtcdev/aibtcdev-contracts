@@ -24,9 +24,9 @@
 (define-constant SELF (as-contract tx-sender))
 
 ;; error messages
-(define-constant ERR_NOT_DAO_OR_EXTENSION (err u9000)) ;; TBD/check
-(define-constant ERR_UNKNOWN_ASSET (err u9001))
-(define-constant ERR_FETCHING_ASSET (err u9002))
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u10000))
+(define-constant ERR_UNKNOWN_ASSET (err u10001))
+(define-constant ERR_FETCHING_ASSET (err u10002))
 
 ;; template variables
 ;;
@@ -34,6 +34,20 @@
 
 ;; data maps
 ;;
+
+;; track allowed assets for deposit/transfer
+(define-map AllowedAssets principal bool)
+
+;; track transfers per period
+;; TODO - track amount instead of bool?
+(define-map StxClaims
+  uint ;; period
+  uint ;; claimed amount
+)
+(define-map FtClaims
+  { contract: principal, period: uint }
+  uint ;; claimed amount
+)
 
 ;; public functions
 ;;
