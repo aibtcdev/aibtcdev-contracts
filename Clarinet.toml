@@ -98,8 +98,18 @@ path = 'contracts/dao/extensions/aibtc-dao-charter.clar'
 clarity_version = 3
 epoch = 3.1
 
-[contracts.aibtc-dao-registry]
-path = 'contracts/dao/extensions/aibtc-dao-registry.clar'
+[contracts.aibtc-dao-epoch]
+path = 'contracts/dao/extensions/aibtc-dao-epoch.clar'
+clarity_version = 3
+epoch = 3.1
+
+[contracts.aibtc-dao-assets]
+path = 'contracts/dao/extensions/aibtc-dao-assets.clar'
+clarity_version = 3
+epoch = 3.1
+
+[contracts.aibtc-dao-users]
+path = 'contracts/dao/extensions/aibtc-dao-users.clar'
 clarity_version = 3
 epoch = 3.1
 
