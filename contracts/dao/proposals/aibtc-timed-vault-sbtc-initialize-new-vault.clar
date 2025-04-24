@@ -16,7 +16,7 @@
     (try! (contract-call? .aibtc-base-dao set-extension .aibtc-timed-vault-sbtc true))
     ;; fund the extension from the treasury
     (and (> CFG_AMOUNT_TO_FUND_SBTC u0)
-      (try! (contract-call? .aibtc-treasury withdraw-ft 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token CFG_AMOUNT_TO_FUND_SBTC .aibtc-timed-vault-sbtc)))
+      (try! (contract-call? .aibtc-treasury withdraw-ft 'STV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RJ5XDY2.sbtc-token CFG_AMOUNT_TO_FUND_SBTC)))
     (ok true)
   )
 )

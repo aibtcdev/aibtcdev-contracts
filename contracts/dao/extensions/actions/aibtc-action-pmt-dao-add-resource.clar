@@ -1,10 +1,26 @@
+;; title: aibtc-action-pmt-dao-add-resource
+;; version: 1.0.0
+;; summary: A predefined action to add a resource in the DAO payment processor extension.
+
+;; traits
+;;
+
 (impl-trait .aibtc-dao-traits-v3.extension)
 (impl-trait .aibtc-dao-traits-v3.action)
 
-(define-constant ERR_UNAUTHORIZED (err u10001))
-(define-constant ERR_INVALID_PARAMS (err u10002))
+;; constants
+;;
+
+(define-constant ERR_NOT_DAO_OR_EXTENSION (err u1100))
+(define-constant ERR_INVALID_PARAMS (err u1101))
+
+;; template variables
+;;
 
 (define-constant CFG_MESSAGE "Executed Action Proposal: Added a resource in the DAO payment processor extension")
+
+;; public functions
+;;
 
 (define-public (callback (sender principal) (memo (buff 34))) (ok true))
 
@@ -22,8 +38,11 @@
   )
 )
 
+;; private functions
+;;
+
 (define-private (is-dao-or-extension)
   (ok (asserts! (or (is-eq tx-sender .aibtc-base-dao)
-    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+    (contract-call? .aibtc-base-dao is-extension contract-caller)) ERR_NOT_DAO_OR_EXTENSION
   ))
 )

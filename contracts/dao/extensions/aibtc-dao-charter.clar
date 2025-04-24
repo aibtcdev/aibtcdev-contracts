@@ -1,16 +1,19 @@
 ;; title: aibtc-dao-charter
 ;; version: 1.0.0
 ;; summary: An extension that manages the DAO charter and records the DAO's mission and values on-chain.
-;; description: This contract allows the DAO to define its mission and values on-chain, which can be used to guide decision-making and proposals.
-;; The charter is editable by the DAO through proposal with revisions stored on-chain.
 
 ;; traits
 ;;
+
 (impl-trait .aibtc-dao-traits-v3.extension)
 (impl-trait .aibtc-dao-traits-v3.charter)
 
 ;; constants
 ;;
+
+;; contract details
+(define-constant DEPLOYED_BURN_BLOCK burn-block-height)
+(define-constant DEPLOYED_STACKS_BLOCK stacks-block-height)
 (define-constant SELF (as-contract tx-sender))
 
 ;; error codes
@@ -21,11 +24,13 @@
 
 ;; data vars
 ;;
+
 (define-data-var daoCharter (string-ascii 4096) "")
 (define-data-var currentVersion uint u0)
 
 ;; data maps
 ;;
+
 (define-map CharterVersions
   uint ;; version number
   {
@@ -40,9 +45,8 @@
 
 ;; public functions
 ;;
-(define-public (callback (sender principal) (memo (buff 34)))
-  (ok true)
-)
+
+(define-public (callback (sender principal) (memo (buff 34))) (ok true))
 
 (define-public (set-dao-charter (charter (string-ascii 4096)) (inscriptionId (optional (buff 33))))
   (let
@@ -65,7 +69,7 @@
     }) ERR_SAVING_CHARTER)
     ;; print charter info
     (print {
-      notification: "set-dao-charter",
+      notification: "dao-charter-set-dao-charter",
       payload: {
         burnHeight: burn-block-height,
         createdAt: stacks-block-height,

@@ -1,5 +1,5 @@
 ;; title: aibtc-dao-traits
-;; version: 3.0.0
+;; version: 3.1.0
 ;; summary: A collection of traits for all aibtc daos.
 
 ;; IMPORTS
@@ -206,10 +206,6 @@
   ;; @param enabled whether the asset is allowed
   ;; @returns (response bool uint)
   (allow-asset (principal bool) (response bool uint))
-  ;; allow multiple assets for deposit/withdrawal
-  ;; @param allowList a list of asset contracts and enabled status
-  ;; @returns (response bool uint)
-  (allow-assets ((list 100 {token:principal,enabled:bool})) (response bool uint))
   ;; deposit STX to the treasury
   ;; @param amount amount of microSTX to deposit
   ;; @returns (response bool uint)
@@ -219,28 +215,13 @@
   ;; @param amount amount of tokens to deposit
   ;; @returns (response bool uint)
   (deposit-ft (<ft-trait> uint) (response bool uint))
-  ;; deposit NFT to the treasury
-  ;; @param nft the non-fungible token contract principal
-  ;; @param id the ID of the token to deposit
+  ;; transfer STX from treasury to operating fund
   ;; @returns (response bool uint)
-  (deposit-nft (<nft-trait> uint) (response bool uint))
-  ;; withdraw STX from the treasury
-  ;; @param amount amount of microSTX to withdraw
-  ;; @param recipient the recipient of the STX
-  ;; @returns (response bool uint)
-  (withdraw-stx (uint principal) (response bool uint))
-  ;; withdraw FT from the treasury
+  (transfer-stx-to-operating-fund () (response bool uint))
+  ;; transfer FT from treasury to operating fund
   ;; @param ft the fungible token contract principal
-  ;; @param amount amount of tokens to withdraw
-  ;; @param recipient the recipient of the tokens
   ;; @returns (response bool uint)
-  (withdraw-ft (<ft-trait> uint principal) (response bool uint))
-  ;; withdraw NFT from the treasury
-  ;; @param nft the non-fungible token contract principal
-  ;; @param id the ID of the token to withdraw
-  ;; @param recipient the recipient of the token
-  ;; @returns (response bool uint)
-  (withdraw-nft (<nft-trait> uint principal) (response bool uint))
+  (transfer-ft-to-operating-fund (<ft-trait>) (response bool uint))
   ;; delegate STX for stacking in PoX
   ;; @param amount max amount of microSTX that can be delegated
   ;; @param to the address to delegate to

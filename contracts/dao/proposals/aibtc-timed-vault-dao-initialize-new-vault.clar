@@ -16,7 +16,7 @@
     (try! (contract-call? .aibtc-base-dao set-extension .aibtc-timed-vault-dao true))
     ;; fund the extension from the treasury
     (and (> CFG_AMOUNT_TO_FUND_DAO u0)
-      (try! (contract-call? .aibtc-treasury withdraw-ft .aibtc-token CFG_AMOUNT_TO_FUND_DAO .aibtc-timed-vault-dao)))
+      (try! (contract-call? .aibtc-treasury withdraw-ft .aibtc-token CFG_AMOUNT_TO_FUND_DAO)))
     (ok true)
   )
 )

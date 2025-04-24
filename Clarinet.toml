@@ -83,11 +83,6 @@ path = 'contracts/dao/extensions/aibtc-action-proposals-v2.clar'
 clarity_version = 3
 epoch = 3.1
 
-[contracts.aibtc-dao-charter]
-path = 'contracts/dao/extensions/aibtc-dao-charter.clar'
-clarity_version = 3
-epoch = 3.1
-
 [contracts.aibtc-core-proposals]
 path = 'contracts/dao/extensions/aibtc-core-proposals.clar'
 clarity_version = 2
@@ -95,6 +90,26 @@ epoch = 3.1
 
 [contracts.aibtc-core-proposals-v2]
 path = 'contracts/dao/extensions/aibtc-core-proposals-v2.clar'
+clarity_version = 3
+epoch = 3.1
+
+[contracts.aibtc-dao-charter]
+path = 'contracts/dao/extensions/aibtc-dao-charter.clar'
+clarity_version = 3
+epoch = 3.1
+
+[contracts.aibtc-dao-epoch]
+path = 'contracts/dao/extensions/aibtc-dao-epoch.clar'
+clarity_version = 3
+epoch = 3.1
+
+[contracts.aibtc-dao-assets]
+path = 'contracts/dao/extensions/aibtc-dao-assets.clar'
+clarity_version = 3
+epoch = 3.1
+
+[contracts.aibtc-dao-users]
+path = 'contracts/dao/extensions/aibtc-dao-users.clar'
 clarity_version = 3
 epoch = 3.1
 
