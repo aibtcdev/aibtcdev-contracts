@@ -33,17 +33,17 @@ export enum ContractType {
 
 export enum ContractActionType {
   // dao extension actions
-  DAO_ACTION_ALLOW_ASSET = "aibtc-action-treasury-allow-asset",
-  DAO_ACTION_CONFIGURE_TIMED_VAULT_DAO = "aibtc-action-configure-timed-vault-dao",
-  DAO_ACTION_CONFIGURE_TIMED_VAULT_SBTC = "aibtc-action-configure-timed-vault-sbtc",
-  DAO_ACTION_CONFIGURE_TIMED_VAULT_STX = "aibtc-action-configure-timed-vault-stx",
-  DAO_ACTION_PMT_DAO_ADD_RESOURCE = "aibtc-action-pmt-dao-add-resource",
-  DAO_ACTION_PMT_DAO_TOGGLE_RESOURCE = "aibtc-action-pmt-dao-toggle-resource",
-  DAO_ACTION_PMT_SBTC_ADD_RESOURCE = "aibtc-action-pmt-sbtc-add-resource",
-  DAO_ACTION_PMT_SBTC_TOGGLE_RESOURCE = "aibtc-action-pmt-sbtc-toggle-resource",
-  DAO_ACTION_PMT_STX_ADD_RESOURCE = "aibtc-action-pmt-stx-add-resource",
-  DAO_ACTION_PMT_STX_TOGGLE_RESOURCE = "aibtc-action-pmt-stx-toggle-resource",
-  DAO_ACTION_SEND_MESSAGE = "aibtc-action-send-message",
+  DAO_ACTION_ALLOW_ASSET = "aibtc-act-treasury-allow-asset",
+  DAO_ACTION_CONFIGURE_TIMED_VAULT_DAO = "aibtc-act-cfg-tv-dao",
+  DAO_ACTION_CONFIGURE_TIMED_VAULT_SBTC = "aibtc-act-cfg-tv-sbtc",
+  DAO_ACTION_CONFIGURE_TIMED_VAULT_STX = "aibtc-act-cfg-tv-stx",
+  DAO_ACTION_PMT_DAO_ADD_RESOURCE = "aibtc-act-pmt-dao-add-resource",
+  DAO_ACTION_PMT_DAO_TOGGLE_RESOURCE = "aibtc-act-pmt-dao-toggle-resource",
+  DAO_ACTION_PMT_SBTC_ADD_RESOURCE = "aibtc-act-pmt-sbtc-add-resource",
+  DAO_ACTION_PMT_SBTC_TOGGLE_RESOURCE = "aibtc-act-pmt-sbtc-toggle-resource",
+  DAO_ACTION_PMT_STX_ADD_RESOURCE = "aibtc-act-pmt-stx-add-resource",
+  DAO_ACTION_PMT_STX_TOGGLE_RESOURCE = "aibtc-act-pmt-stx-toggle-resource",
+  DAO_ACTION_SEND_MESSAGE = "aibtc-act-send-message",
 }
 
 export enum ContractProposalType {

@@ -21,7 +21,7 @@
       (list
         {extension: .aibtc-action-add-resource, enabled: true}
         {extension: .aibtc-action-allow-treasury-asset, enabled: true}
-        {extension: .aibtc-action-send-message, enabled: true}
+        {extension: .aibtc-act-send-message, enabled: true}
         {extension: .aibtc-action-toggle-resource-by-name, enabled: true}
       )
     ))

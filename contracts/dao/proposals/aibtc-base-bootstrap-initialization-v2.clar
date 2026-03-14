@@ -25,17 +25,17 @@
     ;; set initial action proposals list
     (try! (contract-call? .aibtc-base-dao set-extensions
       (list
-        {extension: .aibtc-action-configure-timed-vault-dao, enabled: true}
-        {extension: .aibtc-action-configure-timed-vault-sbtc, enabled: true}
-        {extension: .aibtc-action-configure-timed-vault-stx, enabled: true}
-        {extension: .aibtc-action-pmt-dao-add-resource, enabled: true}
-        {extension: .aibtc-action-pmt-dao-toggle-resource, enabled: true}
-        {extension: .aibtc-action-pmt-sbtc-add-resource, enabled: true}
-        {extension: .aibtc-action-pmt-sbtc-toggle-resource, enabled: true}
-        {extension: .aibtc-action-pmt-stx-add-resource, enabled: true}
-        {extension: .aibtc-action-pmt-stx-toggle-resource, enabled: true}
-        {extension: .aibtc-action-send-message, enabled: true}
-        {extension: .aibtc-action-treasury-allow-asset, enabled: true}
+        {extension: .aibtc-act-cfg-tv-dao, enabled: true}
+        {extension: .aibtc-act-cfg-tv-sbtc, enabled: true}
+        {extension: .aibtc-act-cfg-tv-stx, enabled: true}
+        {extension: .aibtc-act-pmt-dao-add-resource, enabled: true}
+        {extension: .aibtc-act-pmt-dao-toggle-resource, enabled: true}
+        {extension: .aibtc-act-pmt-sbtc-add-resource, enabled: true}
+        {extension: .aibtc-act-pmt-sbtc-toggle-resource, enabled: true}
+        {extension: .aibtc-act-pmt-stx-add-resource, enabled: true}
+        {extension: .aibtc-act-pmt-stx-toggle-resource, enabled: true}
+        {extension: .aibtc-act-send-message, enabled: true}
+        {extension: .aibtc-act-treasury-allow-asset, enabled: true}
       )
     ))
     ;; set DAO manifest in dao-charter extension

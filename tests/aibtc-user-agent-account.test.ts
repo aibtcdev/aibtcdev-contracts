@@ -34,7 +34,7 @@ const tokenDexContractAddress = `${deployer}.aibtc-token-dex`;
 const baseDaoContractAddress = `${deployer}.aibtc-base-dao`;
 const bootstrapContractAddress = `${deployer}.aibtc-base-bootstrap-initialization-v2`;
 const actionProposalsV2ContractAddress = `${deployer}.aibtc-action-proposals-v2`;
-const sendMessageActionContractAddress = `${deployer}.aibtc-action-send-message`;
+const sendMessageActionContractAddress = `${deployer}.aibtc-act-send-message`;
 const coreProposalsV2ContractAddress = `${deployer}.aibtc-core-proposals-v2`;
 const baseEnableExtensionContractAddress = `${deployer}.aibtc-base-enable-extension`;
 

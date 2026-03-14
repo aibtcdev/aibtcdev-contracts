@@ -145,58 +145,58 @@ epoch = 3.1
 
 # dao actions (as extensions)
 
-[contracts.aibtc-action-pmt-dao-add-resource]
-path = 'contracts/dao/extensions/actions/aibtc-action-pmt-dao-add-resource.clar'
+[contracts.aibtc-act-pmt-dao-add-resource]
+path = 'contracts/dao/extensions/actions/aibtc-act-pmt-dao-add-resource.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-pmt-dao-toggle-resource]
-path = 'contracts/dao/extensions/actions/aibtc-action-pmt-dao-toggle-resource.clar'
+[contracts.aibtc-act-pmt-dao-toggle-resource]
+path = 'contracts/dao/extensions/actions/aibtc-act-pmt-dao-toggle-resource.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-pmt-sbtc-add-resource]
-path = 'contracts/dao/extensions/actions/aibtc-action-pmt-sbtc-add-resource.clar'
+[contracts.aibtc-act-pmt-sbtc-add-resource]
+path = 'contracts/dao/extensions/actions/aibtc-act-pmt-sbtc-add-resource.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-pmt-sbtc-toggle-resource]
-path = 'contracts/dao/extensions/actions/aibtc-action-pmt-sbtc-toggle-resource.clar'
+[contracts.aibtc-act-pmt-sbtc-toggle-resource]
+path = 'contracts/dao/extensions/actions/aibtc-act-pmt-sbtc-toggle-resource.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-pmt-stx-add-resource]
-path = 'contracts/dao/extensions/actions/aibtc-action-pmt-stx-add-resource.clar'
+[contracts.aibtc-act-pmt-stx-add-resource]
+path = 'contracts/dao/extensions/actions/aibtc-act-pmt-stx-add-resource.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-pmt-stx-toggle-resource]
-path = 'contracts/dao/extensions/actions/aibtc-action-pmt-stx-toggle-resource.clar'
+[contracts.aibtc-act-pmt-stx-toggle-resource]
+path = 'contracts/dao/extensions/actions/aibtc-act-pmt-stx-toggle-resource.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-treasury-allow-asset]
-path = 'contracts/dao/extensions/actions/aibtc-action-treasury-allow-asset.clar'
+[contracts.aibtc-act-treasury-allow-asset]
+path = 'contracts/dao/extensions/actions/aibtc-act-treasury-allow-asset.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-send-message]
-path = 'contracts/dao/extensions/actions/aibtc-action-send-message.clar'
+[contracts.aibtc-act-send-message]
+path = 'contracts/dao/extensions/actions/aibtc-act-send-message.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-configure-timed-vault-dao]
-path = 'contracts/dao/extensions/actions/aibtc-action-configure-timed-vault-dao.clar'
+[contracts.aibtc-act-cfg-tv-dao]
+path = 'contracts/dao/extensions/actions/aibtc-act-cfg-tv-dao.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-configure-timed-vault-sbtc]
-path = 'contracts/dao/extensions/actions/aibtc-action-configure-timed-vault-sbtc.clar'
+[contracts.aibtc-act-cfg-tv-sbtc]
+path = 'contracts/dao/extensions/actions/aibtc-act-cfg-tv-sbtc.clar'
 clarity_version = 2
 epoch = 3.1
 
-[contracts.aibtc-action-configure-timed-vault-stx]
-path = 'contracts/dao/extensions/actions/aibtc-action-configure-timed-vault-stx.clar'
+[contracts.aibtc-act-cfg-tv-stx]
+path = 'contracts/dao/extensions/actions/aibtc-act-cfg-tv-stx.clar'
 clarity_version = 2
 epoch = 3.1
 
